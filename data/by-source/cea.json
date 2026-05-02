@@ -1,0 +1,25 @@
+{
+  "source": "cea",
+  "fetchedAt": "2026-05-02T12:16:52.468Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "capacity": {
+      "installed_mw": 48200
+    },
+    "monthlyGeneration": [
+      {
+        "month": "Jan-2025",
+        "wind_mu": 8420
+      },
+      {
+        "month": "Dec-2024",
+        "wind_mu": 7890
+      },
+      {
+        "month": "Nov-2024",
+        "wind_mu": 6210
+      }
+    ]
+  }
+}

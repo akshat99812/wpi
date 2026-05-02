@@ -1,0 +1,31 @@
+{
+  "source": "seci",
+  "fetchedAt": "2026-05-02T12:17:49.489Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "auctions": [
+      {
+        "issuer": "SECI",
+        "tranche": "Tranche XIV - Wind",
+        "capacityMw": 1200,
+        "tariffL1Inr": 3.15,
+        "resultDate": "2024-09-15T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "Tranche XI - Wind",
+        "capacityMw": 1500,
+        "tariffL1Inr": 3.35,
+        "resultDate": "2024-03-20T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "FDRE-II Wind+Solar+BESS",
+        "capacityMw": 2500,
+        "tariffL1Inr": 4.45,
+        "resultDate": "2024-06-10T00:00:00Z"
+      }
+    ]
+  }
+}

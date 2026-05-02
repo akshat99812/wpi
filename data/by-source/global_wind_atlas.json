@@ -1,0 +1,17 @@
+{
+  "source": "global_wind_atlas",
+  "fetchedAt": "2026-05-02T12:17:55.923Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "windAtlas": {
+      "country": "IND",
+      "mean_wind_speed_100m": 5.8,
+      "mean_wind_speed_150m": 6.4,
+      "exploitable_potential_150m_gw": 1164,
+      "exploitable_potential_100m_gw": 695,
+      "source": "Global Wind Atlas v3.3",
+      "fetchedAt": "2026-05-02T12:17:55.923Z"
+    }
+  }
+}

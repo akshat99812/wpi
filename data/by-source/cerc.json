@@ -1,0 +1,31 @@
+{
+  "source": "cerc",
+  "fetchedAt": "2026-05-02T12:17:49.490Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "tariffOrders": [
+      {
+        "regulator": "CERC",
+        "title": "Wind Tariff Regulations 2023 (Amendment)",
+        "date": "2023-11-01",
+        "category": "Tariff Regulation",
+        "type": "Wind"
+      },
+      {
+        "regulator": "CERC",
+        "title": "DSM Regulations Amendment 2024",
+        "date": "2024-03-15",
+        "category": "DSM",
+        "type": "General"
+      },
+      {
+        "regulator": "CERC",
+        "title": "FDRE Tariff Framework",
+        "date": "2024-01-20",
+        "category": "FDRE",
+        "type": "Hybrid"
+      }
+    ]
+  }
+}

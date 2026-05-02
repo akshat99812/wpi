@@ -1,0 +1,50 @@
+{
+  "source": "state_nodal",
+  "fetchedAt": "2026-05-02T12:17:50.672Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "stateCapacity": [
+      {
+        "state": "Gujarat",
+        "installed_mw": 11000,
+        "year": 2025
+      },
+      {
+        "state": "Rajasthan",
+        "installed_mw": 7100,
+        "year": 2025
+      },
+      {
+        "state": "Karnataka",
+        "installed_mw": 6100,
+        "year": 2025
+      },
+      {
+        "state": "Tamil Nadu",
+        "installed_mw": 9500,
+        "year": 2025
+      },
+      {
+        "state": "Andhra Pradesh",
+        "installed_mw": 4200,
+        "year": 2025
+      },
+      {
+        "state": "Maharashtra",
+        "installed_mw": 3800,
+        "year": 2025
+      },
+      {
+        "state": "Madhya Pradesh",
+        "installed_mw": 3400,
+        "year": 2025
+      },
+      {
+        "state": "Telangana",
+        "installed_mw": 1200,
+        "year": 2025
+      }
+    ]
+  }
+}

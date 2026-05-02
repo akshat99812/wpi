@@ -1,0 +1,36 @@
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    environment:
+      PORT: "3005"
+      WPI_ADMIN_TOKEN: ${WPI_ADMIN_TOKEN:-dev-token}
+      WPI_CRON_SCHEDULE: "0 1 * * *"
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:3005
+      PORT: "3006"
+    ports:
+      - "3006:3006"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  data:

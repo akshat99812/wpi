@@ -1,0 +1,58 @@
+{
+  "source": "oem_reports",
+  "fetchedAt": "2026-05-02T12:17:55.923Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "oemModels": [
+      {
+        "oem": "Suzlon",
+        "model": "S144-3.0 MW",
+        "rated_kw": 3000,
+        "rotor_m": 144,
+        "hub_height_m": 140,
+        "almm": true
+      },
+      {
+        "oem": "Suzlon",
+        "model": "S120-2.8 MW",
+        "rated_kw": 2800,
+        "rotor_m": 120,
+        "hub_height_m": 120,
+        "almm": true
+      },
+      {
+        "oem": "Inox Wind",
+        "model": "DF116-2.0 MW",
+        "rated_kw": 2000,
+        "rotor_m": 116,
+        "hub_height_m": 100,
+        "almm": true
+      },
+      {
+        "oem": "GE",
+        "model": "Cypress 5.3-158",
+        "rated_kw": 5300,
+        "rotor_m": 158,
+        "hub_height_m": 155,
+        "almm": false
+      },
+      {
+        "oem": "Vestas",
+        "model": "V150-4.5 MW",
+        "rated_kw": 4500,
+        "rotor_m": 150,
+        "hub_height_m": 155,
+        "almm": false
+      },
+      {
+        "oem": "Windworld",
+        "model": "W-3000",
+        "rated_kw": 3000,
+        "rotor_m": 132,
+        "hub_height_m": 140,
+        "almm": true
+      }
+    ]
+  }
+}

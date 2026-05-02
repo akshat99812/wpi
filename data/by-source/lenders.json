@@ -1,0 +1,38 @@
+{
+  "source": "lenders",
+  "fetchedAt": "2026-05-02T12:17:49.490Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "lendingRates": [
+      {
+        "institution": "IREDA",
+        "product": "Wind Project Loan",
+        "rate_pct": 9.4,
+        "tenor_yrs": 18,
+        "moratorium_months": 18
+      },
+      {
+        "institution": "REC",
+        "product": "Wind IPP Financing",
+        "rate_pct": 9.85,
+        "tenor_yrs": 15,
+        "moratorium_months": 12
+      },
+      {
+        "institution": "PFC",
+        "product": "Renewable Energy Loan",
+        "rate_pct": 9.65,
+        "tenor_yrs": 20,
+        "moratorium_months": 18
+      },
+      {
+        "institution": "SBI",
+        "product": "Green Climate Fund",
+        "rate_pct": 10.2,
+        "tenor_yrs": 15,
+        "moratorium_months": 12
+      }
+    ]
+  }
+}

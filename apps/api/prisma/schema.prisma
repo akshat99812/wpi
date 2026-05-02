@@ -1,0 +1,130 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model CapacitySnapshot {
+  id             String   @id @default(cuid())
+  asOf           DateTime
+  installedMw    Float
+  addedFyMw      Float?
+  addedCyMw      Float?
+  targetFyMw     Float?
+  target2030Gw   Float?
+  sourceUrl      String
+  note           String?
+  createdAt      DateTime @default(now())
+}
+
+model StateCapacity {
+  id                String  @id @default(cuid())
+  state             String  @unique
+  installedMw       Float
+  potentialMw120m   Float?
+  potentialMw150m   Float?
+  pipelineMw        Float?
+  cufPct            Float?
+  updatedAt         DateTime @updatedAt
+}
+
+model AuctionResult {
+  id                  String   @id @default(cuid())
+  issuer              String   // SECI, NTPC, GUVNL, MSEDCL
+  tranche             String
+  capacityMw          Float?
+  tariffL1Inr         Float?
+  tariffL2Inr         Float?
+  tariffWeightedInr   Float?
+  bidOpenDate         DateTime?
+  resultDate          DateTime?
+  winners             Json     @default("[]")
+  structure           String?  // Wind | Wind-Solar Hybrid | FDRE | RTC | Peak
+  sourceUrl           String
+  createdAt           DateTime @default(now())
+}
+
+model TariffOrder {
+  id              String   @id @default(cuid())
+  serc            String   // GERC, KERC, RERC, MERC, TNERC...
+  orderDate       DateTime
+  title           String
+  tariffInrPerKwh Float?
+  projectSizeMw   Float?
+  tariffType      String?  // APPC | Levelised | Generic | Auction-Discovered
+  pdfUrl          String
+  summary         String?
+  createdAt       DateTime @default(now())
+}
+
+model LendingRate {
+  id              String   @id @default(cuid())
+  lender          String   // IREDA, REC, PFC, NaBFiD, SBI
+  product         String
+  rateFloorPct    Float
+  rateCeilingPct  Float?
+  tenorYears      Float?
+  moratoriumMonths Int?
+  asOf            DateTime
+  sourceUrl       String
+  createdAt       DateTime @default(now())
+}
+
+model NewsItem {
+  id        String   @id @default(cuid())
+  headline  String
+  url       String
+  source    String
+  published DateTime
+  summary   String?
+  tags      String[] @default([])
+  state     String?
+  createdAt DateTime @default(now())
+}
+
+model PolicyDoc {
+  id       String   @id @default(cuid())
+  title    String
+  issuer   String
+  issued   DateTime
+  pdfUrl   String
+  category String   // Repowering | Offshore | Hybrid | ALMM | RPO | etc.
+  summary  String?
+  createdAt DateTime @default(now())
+}
+
+model GridSnapshot {
+  id                String   @id @default(cuid())
+  asOf              DateTime
+  windGenerationMu  Float
+  peakWindMw        Float?
+  windSharePct      Float?
+  curtailmentMu     Float?
+  sourceUrl         String
+  createdAt         DateTime @default(now())
+}
+
+model OemModel {
+  id            String   @id @default(cuid())
+  oem           String
+  model         String
+  ratedKw       Float
+  rotorM        Float
+  hubOptionsM   Float[]  @default([])
+  almmListed    Boolean?
+  deploymentMw  Float?
+  sourceUrl     String
+  createdAt     DateTime @default(now())
+}
+
+model SourceStatus {
+  id         String   @id @default(cuid())
+  source     String   @unique
+  ok         Boolean
+  error      String?
+  fetchedAt  DateTime
+  updatedAt  DateTime @updatedAt
+}

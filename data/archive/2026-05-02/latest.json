@@ -1,0 +1,426 @@
+{
+  "generatedAt": "2026-05-02T12:18:11.838Z",
+  "stateCapacity": [
+    {
+      "state": "Gujarat",
+      "installed_mw": 11000,
+      "year": 2025,
+      "potential_150m_gw": 142.5,
+      "potential_120m_gw": 108.5
+    },
+    {
+      "state": "Rajasthan",
+      "installed_mw": 7100,
+      "year": 2025,
+      "potential_150m_gw": 127,
+      "potential_120m_gw": 91.4
+    },
+    {
+      "state": "Karnataka",
+      "installed_mw": 6100,
+      "year": 2025,
+      "potential_150m_gw": 55.9,
+      "potential_120m_gw": 42
+    },
+    {
+      "state": "Tamil Nadu",
+      "installed_mw": 9500,
+      "year": 2025,
+      "potential_150m_gw": 84.7,
+      "potential_120m_gw": 68.2
+    },
+    {
+      "state": "Andhra Pradesh",
+      "installed_mw": 4200,
+      "year": 2025,
+      "potential_150m_gw": 75.3,
+      "potential_120m_gw": 62.4
+    },
+    {
+      "state": "Maharashtra",
+      "installed_mw": 3800,
+      "year": 2025,
+      "potential_150m_gw": 98.5,
+      "potential_120m_gw": 71.8
+    },
+    {
+      "state": "Madhya Pradesh",
+      "installed_mw": 3400,
+      "year": 2025,
+      "potential_150m_gw": 82.4,
+      "potential_120m_gw": 58.6
+    },
+    {
+      "state": "Telangana",
+      "installed_mw": 1200,
+      "year": 2025
+    }
+  ],
+  "tariffOrders": [
+    {
+      "regulator": "CERC",
+      "title": "Wind Tariff Regulations 2023 (Amendment)",
+      "date": "2023-11-01",
+      "category": "Tariff Regulation",
+      "type": "Wind"
+    },
+    {
+      "regulator": "CERC",
+      "title": "DSM Regulations Amendment 2024",
+      "date": "2024-03-15",
+      "category": "DSM",
+      "type": "General"
+    },
+    {
+      "regulator": "CERC",
+      "title": "FDRE Tariff Framework",
+      "date": "2024-01-20",
+      "category": "FDRE",
+      "type": "Hybrid"
+    },
+    {
+      "state": "Gujarat",
+      "regulator": "GERC",
+      "tariff_inr": 3.78,
+      "effectiveDate": "2024-04-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Karnataka",
+      "regulator": "KERC",
+      "tariff_inr": 4.05,
+      "effectiveDate": "2024-07-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Rajasthan",
+      "regulator": "RERC",
+      "tariff_inr": 3.62,
+      "effectiveDate": "2024-01-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Maharashtra",
+      "regulator": "MERC",
+      "tariff_inr": 4.12,
+      "effectiveDate": "2023-10-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Tamil Nadu",
+      "regulator": "TNERC",
+      "tariff_inr": 3.95,
+      "effectiveDate": "2024-04-01",
+      "capacity_mw": null
+    }
+  ],
+  "auctions": [
+    {
+      "issuer": "SECI",
+      "tranche": "Tranche XIV - Wind",
+      "capacityMw": 1200,
+      "tariffL1Inr": 3.15,
+      "resultDate": "2024-09-15T00:00:00Z"
+    },
+    {
+      "issuer": "SECI",
+      "tranche": "Tranche XI - Wind",
+      "capacityMw": 1500,
+      "tariffL1Inr": 3.35,
+      "resultDate": "2024-03-20T00:00:00Z"
+    },
+    {
+      "issuer": "SECI",
+      "tranche": "FDRE-II Wind+Solar+BESS",
+      "capacityMw": 2500,
+      "tariffL1Inr": 4.45,
+      "resultDate": "2024-06-10T00:00:00Z"
+    }
+  ],
+  "lendingRates": [
+    {
+      "institution": "IREDA",
+      "product": "Wind Project Loan",
+      "rate_pct": 9.4,
+      "tenor_yrs": 18,
+      "moratorium_months": 18
+    },
+    {
+      "institution": "REC",
+      "product": "Wind IPP Financing",
+      "rate_pct": 9.85,
+      "tenor_yrs": 15,
+      "moratorium_months": 12
+    },
+    {
+      "institution": "PFC",
+      "product": "Renewable Energy Loan",
+      "rate_pct": 9.65,
+      "tenor_yrs": 20,
+      "moratorium_months": 18
+    },
+    {
+      "institution": "SBI",
+      "product": "Green Climate Fund",
+      "rate_pct": 10.2,
+      "tenor_yrs": 15,
+      "moratorium_months": 12
+    }
+  ],
+  "news": [
+    {
+      "headline": "Purvah Green inks PPA with SECI for 250 MW wind project",
+      "url": "https://renewablewatch.in/2026/05/01/purvah-green-inks-ppa-with-seci-for-250-mw-wind-project/",
+      "publishedAt": "2026-05-01T07:18:20.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Purvah Green, a subsidiary of Calcutta Electric Supply Corporation (CESC), has inked a power purchase agreement (PPA) with the Solar Energy Corporation of India Limited (SECI) for a 250 MW wind project. The capacity was <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/01/purvah-"
+    },
+    {
+      "headline": "PSEI sells minority stake in 240 MW Big Sky Wind project",
+      "url": "https://renewablewatch.in/2026/05/01/psei-sells-minority-stake-in-240-mw-big-sky-wind-project/",
+      "publishedAt": "2026-05-01T05:41:01.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Power Sustainable Energy Infrastructure (PSEI) has sold a 49.9 per cent stake in the Big Sky Wind project to funds managed by Hamilton Lane and GCM Grosvenor. The project, with a capacity of 240 MW, <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/01/psei-sells-minority-stake-in"
+    },
+    {
+      "headline": "CERC Rules Transmission Charges Apply Despite Partial Project Commissioning",
+      "url": "https://www.mercomindia.com/cerc-rulestransmission-charges-apply-partial-project-commissioning",
+      "publishedAt": "2026-04-30T18:56:54.000Z",
+      "source": "Mercom India",
+      "summary": "<p>The Central Electricity Regulatory Commission (CERC) has held that renewable energy generators are liable to pay bilateral transmission charges for the associated transmission system until their projects achieve commercial operation. It rejected their request to quash the invoices issued by the C"
+    },
+    {
+      "headline": "Haryana Grants One-Time Approval to 127 MW Solar PPAs Under KUSUM",
+      "url": "https://www.mercomindia.com/haryana-grants-one-time-approval-to-127-mw-solar-ppas-under-kusum",
+      "publishedAt": "2026-04-30T18:24:26.000Z",
+      "source": "Mercom India",
+      "summary": "<p>The Haryana Electricity Regulatory Commission (HERC) has approved the procurement of solar power by the Haryana Power Purchase Center (HPPC) for a cumulative capacity of 126.8 MW under Component A of the Pradhan Mantri Kisan Urja Suraksha evam Utthaan Mahabhiyan (PM-KUSUM) program at a levelized "
+    },
+    {
+      "headline": "ROSI Raises $23 Million to Expand Solar Module Recycling in Europe",
+      "url": "https://www.mercomindia.com/rosi-raises-23-million-expand-solar-module-recycling-europe",
+      "publishedAt": "2026-04-30T18:09:44.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article ROSI, a France-based solar module recycling company, has secured over €20 million (~$23 million) in funding to support its expansion across</p>"
+    },
+    {
+      "headline": "Blackstone to Invest Up to $2 Billion in Eurowind Energy",
+      "url": "https://www.mercomindia.com/blackstone-invest-up-to-2-billion-eurowind-energy",
+      "publishedAt": "2026-04-30T18:05:03.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article Eurowind Energy, a Denmark-based renewable energy project developer, has entered into a definitive agreement with Blackstone Infrastructure for an investment of</p>"
+    },
+    {
+      "headline": "Heavy Industries Ministry Mandates Localization of More Electric Truck Components",
+      "url": "https://www.mercomindia.com/heavy-industries-ministry-mandates-localization-of-more-electric-truck-components",
+      "publishedAt": "2026-04-30T17:06:06.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article The Ministry of Heavy Industries (MHI) has amended certain provisions of the PM Electric Drive Revolution in Innovative Vehicle Enhancement (PM</p>"
+    },
+    {
+      "headline": "Bajel Projects Secures Two Orders for 500 kV Transmission Lines in MENA",
+      "url": "https://www.mercomindia.com/bajel-projects-secures-two-orders-for-500-kv-transmission-lines-in-mena",
+      "publishedAt": "2026-04-30T15:41:20.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article Mumbai-based Bajel Projects, an engineering, procurement, and construction (EPC) company specializing in power transmission and distribution infrastructure, has secured two international orders for</p>"
+    },
+    {
+      "headline": "CERC Staff Paper Proposes Capacity Market Design for Power Sector",
+      "url": "https://www.mercomindia.com/cerc-staff-paper-proposes-capacity-market-design-for-power-sector",
+      "publishedAt": "2026-04-30T14:49:47.000Z",
+      "source": "Mercom India",
+      "summary": "<p>The Central Electricity Regulatory Commission (CERC) has released a staff paper outlining a framework for introducing capacity markets in India to address gaps in electricity resource adequacy, reserve availability, and short-term market efficiency.</p>"
+    },
+    {
+      "headline": "Maharashtra Approves ₹123 Billion Clean Energy and Storage Program",
+      "url": "https://www.mercomindia.com/maharashtra-approves-₹123-billion-clean-energy-and-storage-program",
+      "publishedAt": "2026-04-30T14:46:08.000Z",
+      "source": "Mercom India",
+      "summary": "<p>The Maharashtra state cabinet has approved a five-year ₹123.03 billion (~$1.48 billion) program to accelerate the deployment of renewable energy and storage. The initiative, Maharashtra: Accelerating Green Energy and Storage Technologies in Connected Grid (MAGESTIC), focuses on addressing rising "
+    },
+    {
+      "headline": "Dalmia Subsidiary to Source Power from Oyster’s 35.6 MW Hybrid Project",
+      "url": "https://www.mercomindia.com/dalmia-subsidiary-to-source-power-from-oysters-35-6-mw-hybrid-project",
+      "publishedAt": "2026-04-30T13:55:04.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article Dalmia Cement (Bharat) (DCBL), a wholly owned subsidiary of Dalmia Bharat, has entered into agreements to acquire a 41% stake in</p>"
+    },
+    {
+      "headline": "Strong Solar Module Sales Drive Waaree Energies’ Revenue for Q4 FY 2026 Up 112%",
+      "url": "https://www.mercomindia.com/strong-solar-module-sales-drive-waaree-energies-revenue-for-q4-fy-2026-up-112",
+      "publishedAt": "2026-04-30T13:02:01.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Solar module manufacturer Waaree Energies’ revenue from operations for the fourth quarter (Q4) of the financial year (FY) 2026 rose 111.8% year-over-year (YoY) to ₹84.80 billion (~$894.34 million) from ₹40.04 billion (~$422.28 million). The company attributed the revenue increase to strong module"
+    }
+  ],
+  "policies": [],
+  "oemModels": [
+    {
+      "oem": "Suzlon",
+      "model": "S144-3.0 MW",
+      "rated_kw": 3000,
+      "rotor_m": 144,
+      "hub_height_m": 140,
+      "almm": true
+    },
+    {
+      "oem": "Suzlon",
+      "model": "S120-2.8 MW",
+      "rated_kw": 2800,
+      "rotor_m": 120,
+      "hub_height_m": 120,
+      "almm": true
+    },
+    {
+      "oem": "Inox Wind",
+      "model": "DF116-2.0 MW",
+      "rated_kw": 2000,
+      "rotor_m": 116,
+      "hub_height_m": 100,
+      "almm": true
+    },
+    {
+      "oem": "GE",
+      "model": "Cypress 5.3-158",
+      "rated_kw": 5300,
+      "rotor_m": 158,
+      "hub_height_m": 155,
+      "almm": false
+    },
+    {
+      "oem": "Vestas",
+      "model": "V150-4.5 MW",
+      "rated_kw": 4500,
+      "rotor_m": 150,
+      "hub_height_m": 155,
+      "almm": false
+    },
+    {
+      "oem": "Windworld",
+      "model": "W-3000",
+      "rated_kw": 3000,
+      "rotor_m": 132,
+      "hub_height_m": 140,
+      "almm": true
+    }
+  ],
+  "analystReports": [
+    {
+      "analyst": "JMK Research",
+      "title": "India Wind Energy Market Outlook H2 FY2025",
+      "date": "2025-02-01",
+      "url": "https://jmkresearch.com"
+    },
+    {
+      "analyst": "IEEFA",
+      "title": "India Repowering: Unlocking 25 GW by 2030",
+      "date": "2024-12-10",
+      "url": "https://ieefa.org"
+    },
+    {
+      "analyst": "CRISIL",
+      "title": "Bankability of Indian Wind Projects – FY25 Update",
+      "date": "2024-11-15",
+      "url": "https://crisil.com"
+    },
+    {
+      "analyst": "BNEF",
+      "title": "India Auction Tracker Q4 2024",
+      "date": "2024-12-20",
+      "url": "https://about.bnef.com"
+    }
+  ],
+  "sourceStatus": {
+    "mnre": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:16:52.466Z"
+    },
+    "cea": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:16:52.468Z",
+      "fixturesUsed": true
+    },
+    "niwe": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:16:52.468Z",
+      "fixturesUsed": true
+    },
+    "seci": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:49.489Z",
+      "fixturesUsed": true
+    },
+    "lenders": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:49.490Z",
+      "fixturesUsed": true
+    },
+    "cerc": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:49.490Z",
+      "fixturesUsed": true
+    },
+    "state_serc": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:50.671Z",
+      "fixturesUsed": true
+    },
+    "state_nodal": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:50.672Z",
+      "fixturesUsed": true
+    },
+    "mercom": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:50.672Z"
+    },
+    "renewable_watch": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:53.828Z"
+    },
+    "pib": {
+      "ok": false,
+      "error": "HTTP 403",
+      "fetchedAt": "2026-05-02T12:17:53.828Z"
+    },
+    "grid": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:53.829Z",
+      "fixturesUsed": true
+    },
+    "global_wind_atlas": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:55.923Z",
+      "fixturesUsed": true
+    },
+    "oem_reports": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:55.923Z",
+      "fixturesUsed": true
+    },
+    "analyst_notes": {
+      "ok": true,
+      "fetchedAt": "2026-05-02T12:17:55.924Z",
+      "fixturesUsed": true
+    }
+  },
+  "capacity": {
+    "installed_mw": 48200,
+    "target_fy_mw": 100000
+  },
+  "grid": {
+    "daily_wind_gen_mu": 142.5,
+    "wind_grid_share_pct": 4.8,
+    "curtailment_pct": 2.1,
+    "date": "2026-05-02"
+  },
+  "windAtlas": {
+    "country": "IND",
+    "mean_wind_speed_100m": 5.8,
+    "mean_wind_speed_150m": 6.4,
+    "exploitable_potential_150m_gw": 1164,
+    "exploitable_potential_100m_gw": 695,
+    "source": "Global Wind Atlas v3.3",
+    "fetchedAt": "2026-05-02T12:17:55.923Z"
+  }
+}

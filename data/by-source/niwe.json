@@ -1,0 +1,45 @@
+{
+  "source": "niwe",
+  "fetchedAt": "2026-05-02T12:16:52.468Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "statePotential": [
+      {
+        "state": "Rajasthan",
+        "potential_150m_gw": 127,
+        "potential_120m_gw": 91.4
+      },
+      {
+        "state": "Gujarat",
+        "potential_150m_gw": 142.5,
+        "potential_120m_gw": 108.5
+      },
+      {
+        "state": "Karnataka",
+        "potential_150m_gw": 55.9,
+        "potential_120m_gw": 42
+      },
+      {
+        "state": "Tamil Nadu",
+        "potential_150m_gw": 84.7,
+        "potential_120m_gw": 68.2
+      },
+      {
+        "state": "Andhra Pradesh",
+        "potential_150m_gw": 75.3,
+        "potential_120m_gw": 62.4
+      },
+      {
+        "state": "Maharashtra",
+        "potential_150m_gw": 98.5,
+        "potential_120m_gw": 71.8
+      },
+      {
+        "state": "Madhya Pradesh",
+        "potential_150m_gw": 82.4,
+        "potential_120m_gw": 58.6
+      }
+    ]
+  }
+}

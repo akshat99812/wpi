@@ -1,0 +1,12 @@
+{
+  "source": "mnre",
+  "fetchedAt": "2026-05-02T12:16:52.466Z",
+  "ok": true,
+  "payload": {
+    "capacity": {
+      "installed_mw": 48200,
+      "target_fy_mw": 100000
+    },
+    "pressReleases": []
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "source": "state_serc",
+  "fetchedAt": "2026-05-02T12:17:50.671Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "tariffOrders": [
+      {
+        "state": "Gujarat",
+        "regulator": "GERC",
+        "tariff_inr": 3.78,
+        "effectiveDate": "2024-04-01",
+        "capacity_mw": null
+      },
+      {
+        "state": "Karnataka",
+        "regulator": "KERC",
+        "tariff_inr": 4.05,
+        "effectiveDate": "2024-07-01",
+        "capacity_mw": null
+      },
+      {
+        "state": "Rajasthan",
+        "regulator": "RERC",
+        "tariff_inr": 3.62,
+        "effectiveDate": "2024-01-01",
+        "capacity_mw": null
+      },
+      {
+        "state": "Maharashtra",
+        "regulator": "MERC",
+        "tariff_inr": 4.12,
+        "effectiveDate": "2023-10-01",
+        "capacity_mw": null
+      },
+      {
+        "state": "Tamil Nadu",
+        "regulator": "TNERC",
+        "tariff_inr": 3.95,
+        "effectiveDate": "2024-04-01",
+        "capacity_mw": null
+      }
+    ]
+  }
+}
