@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T12:18:11.838Z",
+  "generatedAt": "2026-05-02T15:33:39.299Z",
   "stateCapacity": [
     {
       "state": "Gujarat",
@@ -333,74 +333,74 @@
   "sourceStatus": {
     "mnre": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:16:52.466Z"
+      "fetchedAt": "2026-05-02T15:32:51.026Z"
     },
     "cea": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:16:52.468Z",
+      "fetchedAt": "2026-05-02T15:32:51.028Z",
       "fixturesUsed": true
     },
     "niwe": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:16:52.468Z",
+      "fetchedAt": "2026-05-02T15:32:51.028Z",
       "fixturesUsed": true
     },
     "seci": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:49.489Z",
+      "fetchedAt": "2026-05-02T15:32:59.253Z",
       "fixturesUsed": true
     },
     "lenders": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:49.490Z",
+      "fetchedAt": "2026-05-02T15:32:59.253Z",
       "fixturesUsed": true
     },
     "cerc": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:49.490Z",
+      "fetchedAt": "2026-05-02T15:32:59.253Z",
       "fixturesUsed": true
     },
     "state_serc": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:50.671Z",
+      "fetchedAt": "2026-05-02T15:33:03.836Z",
       "fixturesUsed": true
     },
     "state_nodal": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:50.672Z",
+      "fetchedAt": "2026-05-02T15:33:03.836Z",
       "fixturesUsed": true
     },
     "mercom": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:50.672Z"
+      "fetchedAt": "2026-05-02T15:33:03.836Z"
     },
     "renewable_watch": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:53.828Z"
+      "fetchedAt": "2026-05-02T15:33:12.803Z"
     },
     "pib": {
       "ok": false,
       "error": "HTTP 403",
-      "fetchedAt": "2026-05-02T12:17:53.828Z"
+      "fetchedAt": "2026-05-02T15:33:12.804Z"
     },
     "grid": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:53.829Z",
+      "fetchedAt": "2026-05-02T15:33:12.804Z",
       "fixturesUsed": true
     },
     "global_wind_atlas": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:55.923Z",
+      "fetchedAt": "2026-05-02T15:33:19.292Z",
       "fixturesUsed": true
     },
     "oem_reports": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:55.923Z",
+      "fetchedAt": "2026-05-02T15:33:19.292Z",
       "fixturesUsed": true
     },
     "analyst_notes": {
       "ok": true,
-      "fetchedAt": "2026-05-02T12:17:55.924Z",
+      "fetchedAt": "2026-05-02T15:33:19.292Z",
       "fixturesUsed": true
     }
   },
@@ -421,6 +421,6 @@
     "exploitable_potential_150m_gw": 1164,
     "exploitable_potential_100m_gw": 695,
     "source": "Global Wind Atlas v3.3",
-    "fetchedAt": "2026-05-02T12:17:55.923Z"
+    "fetchedAt": "2026-05-02T15:33:19.292Z"
   }
 }

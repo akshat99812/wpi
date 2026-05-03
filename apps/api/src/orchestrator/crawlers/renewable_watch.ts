@@ -1,4 +1,4 @@
-import { SourceResult } from '../merge';
+import type { SourceResult } from '../merge';
 import { politeFetch, parseRssItems } from '../httpClient';
 
 export const renewableWatchCrawler = {

@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { merge, SourceResult } from './merge';
+import { merge, type SourceResult } from './merge';
 import { mnreCrawler } from './crawlers/mnre';
 import { seciCrawler } from './crawlers/seci';
 import { mercomCrawler } from './crawlers/mercom';
