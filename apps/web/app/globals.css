@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0b0f19;
+  --panel: #131826;
+  --border: #27324a;
+  --text: #e8ecf4;
+  --muted: #9aa4ba;
+  --orange: #ff8a1f;
+  --success: #4cc87a;
+  --link: #58a6ff;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-feature-settings: "cv11", "salt";
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(19, 24, 38, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+/* Animations */
+.hover-lift {
+  transition: all 0.15s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-1px);
+}
+
+/* Custom Scrollbar for knowledge bank */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
