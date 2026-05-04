@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { WpiBundle } from '@/lib/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://wpi-sjse.onrender.com/api/';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://wpi-sjse.onrender.com';
 
 export function useWpiData() {
   const [data, setData] = useState<WpiBundle | null>(null);
