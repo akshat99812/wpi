@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "bun run src/server.ts",
-    "dev": "bun run --watch src/server.ts"
+    "dev": "bun run --watch src/server.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",

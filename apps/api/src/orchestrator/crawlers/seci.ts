@@ -22,8 +22,8 @@ export const seciCrawler = {
       // Try to extract auction result rows from tables
       const rowMatches = html.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi);
       for (const row of rowMatches) {
-        const cells = [...row[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
-          .map(c => c[1].replace(/<[^>]+>/g, '').trim());
+        const cells = [...(row[1]?.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi) || [])]
+          .map(c => c[1]?.replace(/<[^>]+>/g, '').trim() || '');
 
         if (cells.length >= 3) {
           // Look for a tariff number (e.g. 3.15)

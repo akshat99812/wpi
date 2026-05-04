@@ -1,0 +1,419 @@
+{
+  "generatedAt": "2026-05-04T12:54:59.684Z",
+  "stateCapacity": [
+    {
+      "state": "Gujarat",
+      "installed_mw": 11000,
+      "year": 2025,
+      "potential_150m_gw": 142.5,
+      "potential_120m_gw": 108.5
+    },
+    {
+      "state": "Rajasthan",
+      "installed_mw": 7100,
+      "year": 2025,
+      "potential_150m_gw": 127,
+      "potential_120m_gw": 91.4
+    },
+    {
+      "state": "Karnataka",
+      "installed_mw": 6100,
+      "year": 2025,
+      "potential_150m_gw": 55.9,
+      "potential_120m_gw": 42
+    },
+    {
+      "state": "Tamil Nadu",
+      "installed_mw": 9500,
+      "year": 2025,
+      "potential_150m_gw": 84.7,
+      "potential_120m_gw": 68.2
+    },
+    {
+      "state": "Andhra Pradesh",
+      "installed_mw": 4200,
+      "year": 2025,
+      "potential_150m_gw": 75.3,
+      "potential_120m_gw": 62.4
+    },
+    {
+      "state": "Maharashtra",
+      "installed_mw": 3800,
+      "year": 2025,
+      "potential_150m_gw": 98.5,
+      "potential_120m_gw": 71.8
+    },
+    {
+      "state": "Madhya Pradesh",
+      "installed_mw": 3400,
+      "year": 2025,
+      "potential_150m_gw": 82.4,
+      "potential_120m_gw": 58.6
+    },
+    {
+      "state": "Telangana",
+      "installed_mw": 1200,
+      "year": 2025
+    }
+  ],
+  "tariffOrders": [
+    {
+      "regulator": "CERC",
+      "title": "Wind Tariff Regulations 2023 (Amendment)",
+      "date": "2023-11-01",
+      "category": "Tariff Regulation",
+      "type": "Wind"
+    },
+    {
+      "regulator": "CERC",
+      "title": "DSM Regulations Amendment 2024",
+      "date": "2024-03-15",
+      "category": "DSM",
+      "type": "General"
+    },
+    {
+      "regulator": "CERC",
+      "title": "FDRE Tariff Framework",
+      "date": "2024-01-20",
+      "category": "FDRE",
+      "type": "Hybrid"
+    },
+    {
+      "state": "Gujarat",
+      "regulator": "GERC",
+      "tariff_inr": 3.78,
+      "effectiveDate": "2024-04-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Karnataka",
+      "regulator": "KERC",
+      "tariff_inr": 4.05,
+      "effectiveDate": "2024-07-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Rajasthan",
+      "regulator": "RERC",
+      "tariff_inr": 3.62,
+      "effectiveDate": "2024-01-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Maharashtra",
+      "regulator": "MERC",
+      "tariff_inr": 4.12,
+      "effectiveDate": "2023-10-01",
+      "capacity_mw": null
+    },
+    {
+      "state": "Tamil Nadu",
+      "regulator": "TNERC",
+      "tariff_inr": 3.95,
+      "effectiveDate": "2024-04-01",
+      "capacity_mw": null
+    }
+  ],
+  "auctions": [
+    {
+      "issuer": "SECI",
+      "tranche": "Tranche XIV - Wind",
+      "capacityMw": 1200,
+      "tariffL1Inr": 3.15,
+      "resultDate": "2024-09-15T00:00:00Z"
+    },
+    {
+      "issuer": "SECI",
+      "tranche": "Tranche XI - Wind",
+      "capacityMw": 1500,
+      "tariffL1Inr": 3.35,
+      "resultDate": "2024-03-20T00:00:00Z"
+    },
+    {
+      "issuer": "SECI",
+      "tranche": "FDRE-II Wind+Solar+BESS",
+      "capacityMw": 2500,
+      "tariffL1Inr": 4.45,
+      "resultDate": "2024-06-10T00:00:00Z"
+    }
+  ],
+  "lendingRates": [
+    {
+      "institution": "IREDA",
+      "product": "Wind Project Loan",
+      "rate_pct": 9.4,
+      "tenor_yrs": 18,
+      "moratorium_months": 18
+    },
+    {
+      "institution": "REC",
+      "product": "Wind IPP Financing",
+      "rate_pct": 9.85,
+      "tenor_yrs": 15,
+      "moratorium_months": 12
+    },
+    {
+      "institution": "PFC",
+      "product": "Renewable Energy Loan",
+      "rate_pct": 9.65,
+      "tenor_yrs": 20,
+      "moratorium_months": 18
+    },
+    {
+      "institution": "SBI",
+      "product": "Green Climate Fund",
+      "rate_pct": 10.2,
+      "tenor_yrs": 15,
+      "moratorium_months": 12
+    }
+  ],
+  "news": [
+    {
+      "headline": "Rajasthan Issues Guidelines for Battery Storage Integration with Renewables",
+      "url": "https://www.mercomindia.com/rajasthan-issues-guidelines-for-battery-storage-integration-with-renewables",
+      "publishedAt": "2026-05-04T17:25:58.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article The Rajasthan Rajya Vidyut Prasaran Nigam (RRVPNL) has issued a standard operating procedure (SOP) for the first time charging of battery</p>"
+    },
+    {
+      "headline": "PFC Consulting Tenders Interstate Transmission Project in Maharashtra",
+      "url": "https://www.mercomindia.com/pfc-consulting-tenders-intrastate-transmission-project-maharashtra",
+      "publishedAt": "2026-05-04T16:29:04.000Z",
+      "source": "Mercom India",
+      "summary": "<p>PFC Consulting has issued a tender to select a transmission service provider to develop an interstate transmission system (ISTS) for a network expansion project.</p>"
+    },
+    {
+      "headline": "NEEPCO Issues Tender for Rooftop Solar Projects Across Northeast States",
+      "url": "https://www.mercomindia.com/neepco-issues-tender-for-rooftop-solar-projects-across-northeast-states",
+      "publishedAt": "2026-05-04T16:23:17.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article The North Eastern Electric Power Corporation (NEEPCO) has invited bids from empaneled channel partners to set up grid-connected rooftop solar systems</p>"
+    },
+    {
+      "headline": "Solar Cell Capacity Under ALMM List-II Nears 30 GW",
+      "url": "https://www.mercomindia.com/solar-cell-capacity-under-almm-list-ii-nears-30-gw",
+      "publishedAt": "2026-05-04T14:22:36.000Z",
+      "source": "Mercom India",
+      "summary": "<p>The Ministry of New and Renewable Energy (MNRE) has expanded the Approved List of Models and Manufacturers (ALMM) List-II for solar cells in its seventh revision. RenewSys India has entered the ALMM List-II with 452 MW of bifacial N-Type TOPCon solar cells at its manufacturing facility in the Ran"
+    },
+    {
+      "headline": "Punjab to Procure Firm, Dispatchable Renewable Energy from NHPC",
+      "url": "https://www.mercomindia.com/punjab-to-procure-firm-dispatchable-renewable-energy-from-nhpc",
+      "publishedAt": "2026-05-04T13:45:39.000Z",
+      "source": "Mercom India",
+      "summary": "<p>The Punjab State Electricity Regulatory Commission (PSERC) approved the long-term procurement of firm, dispatchable renewable energy by the Punjab State Power Corporation from NHPC for a period of 25 years.</p>"
+    },
+    {
+      "headline": "Gujarat Floats Tender to Procure Power from 250 MW Wind Projects",
+      "url": "https://www.mercomindia.com/gujarat-floats-tender-to-procure-power-from-250-mw-wind-projects",
+      "publishedAt": "2026-05-04T13:36:32.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Gujarat Urja Vikas Nigam (GUVNL) has invited bids to procure power from 250 MW of grid-connected wind projects.</p>"
+    },
+    {
+      "headline": "GRIDCO Floats Consultancy Tender for 225 MW Floating Solar Project",
+      "url": "https://www.mercomindia.com/gridco-floats-consultancy-tender-for-225-mw-floating-solar-project",
+      "publishedAt": "2026-05-04T12:22:16.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article The Grid Corporation of Odisha (GRIDCO) has invited bids to select a consultant to conduct an environmental and social impact assessment</p>"
+    },
+    {
+      "headline": "Drop in Module Shipments Pushes Jinko Solar’s Q1 Revenue Down 11.5% YoY",
+      "url": "https://www.mercomindia.com/drop-in-module-shipments-pushes-jinko-solars-q1-revenue-down-11-5-yoy",
+      "publishedAt": "2026-05-04T11:37:58.000Z",
+      "source": "Mercom India",
+      "summary": "<p>China-based solar cell and module manufacturer JinkoSolar posted a revenue of RMB12.25 billion (~$1.78 billion) in the first quarter (Q1) of 2026, down 11.5% year-over-year (YoY) from RMB13.84 billion (~$2 billion).</p>"
+    },
+    {
+      "headline": "Leading Solar Tracker Suppliers in India in 2025",
+      "url": "https://www.mercomindia.com/leading-solar-tracker-suppliers-in-india-in-2025",
+      "publishedAt": "2026-05-04T11:30:02.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article India is seeing an increased adoption of solar tracking systems, particularly in utility-scale projects, to maximize energy generation. By improving energy yield without additional land, trackers</p>"
+    },
+    {
+      "headline": "Weather, Financing Challenges Weigh on Enphase’s Weak Start to 2026",
+      "url": "https://www.mercomindia.com/weather-financing-challenges-weigh-on-enphases-weak-start-to-2026",
+      "publishedAt": "2026-05-04T11:12:11.000Z",
+      "source": "Mercom India",
+      "summary": "<p>Listen to this article Microinverter and battery storage supplier Enphase Energy reported revenue of $282.9 million in the first quarter (Q1) of 2026, decreasing 20.6% year-over-year (YoY)</p>"
+    },
+    {
+      "headline": "Northland Power signs CPPA for Hai Long offshore wind project in Taiwan",
+      "url": "https://renewablewatch.in/2026/05/04/northland-power-signs-cppa-for-hai-long-offshore-wind-project-in-taiwan/",
+      "publishedAt": "2026-05-04T06:23:50.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Northland Power has signed a 30-year corporate power purchase agreement (CPPA) with Taiwan Semiconductor Manufacturing Company (TSMC) for additional power from the Hai Long offshore wind project in Taiwan. The 1,022 MW project is being <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/20"
+    }
+  ],
+  "policies": [],
+  "oemModels": [
+    {
+      "oem": "Suzlon",
+      "model": "S144-3.0 MW",
+      "rated_kw": 3000,
+      "rotor_m": 144,
+      "hub_height_m": 140,
+      "almm": true
+    },
+    {
+      "oem": "Suzlon",
+      "model": "S120-2.8 MW",
+      "rated_kw": 2800,
+      "rotor_m": 120,
+      "hub_height_m": 120,
+      "almm": true
+    },
+    {
+      "oem": "Inox Wind",
+      "model": "DF116-2.0 MW",
+      "rated_kw": 2000,
+      "rotor_m": 116,
+      "hub_height_m": 100,
+      "almm": true
+    },
+    {
+      "oem": "GE",
+      "model": "Cypress 5.3-158",
+      "rated_kw": 5300,
+      "rotor_m": 158,
+      "hub_height_m": 155,
+      "almm": false
+    },
+    {
+      "oem": "Vestas",
+      "model": "V150-4.5 MW",
+      "rated_kw": 4500,
+      "rotor_m": 150,
+      "hub_height_m": 155,
+      "almm": false
+    },
+    {
+      "oem": "Windworld",
+      "model": "W-3000",
+      "rated_kw": 3000,
+      "rotor_m": 132,
+      "hub_height_m": 140,
+      "almm": true
+    }
+  ],
+  "analystReports": [
+    {
+      "analyst": "JMK Research",
+      "title": "India Wind Energy Market Outlook H2 FY2025",
+      "date": "2025-02-01",
+      "url": "https://jmkresearch.com"
+    },
+    {
+      "analyst": "IEEFA",
+      "title": "India Repowering: Unlocking 25 GW by 2030",
+      "date": "2024-12-10",
+      "url": "https://ieefa.org"
+    },
+    {
+      "analyst": "CRISIL",
+      "title": "Bankability of Indian Wind Projects – FY25 Update",
+      "date": "2024-11-15",
+      "url": "https://crisil.com"
+    },
+    {
+      "analyst": "BNEF",
+      "title": "India Auction Tracker Q4 2024",
+      "date": "2024-12-20",
+      "url": "https://about.bnef.com"
+    }
+  ],
+  "sourceStatus": {
+    "mnre": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:53:42.646Z"
+    },
+    "cea": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:53:42.652Z",
+      "fixturesUsed": true
+    },
+    "niwe": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:53:42.652Z",
+      "fixturesUsed": true
+    },
+    "seci": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:39.722Z",
+      "fixturesUsed": true
+    },
+    "lenders": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:39.731Z",
+      "fixturesUsed": true
+    },
+    "cerc": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:39.731Z",
+      "fixturesUsed": true
+    },
+    "state_serc": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:40.887Z",
+      "fixturesUsed": true
+    },
+    "state_nodal": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:40.888Z",
+      "fixturesUsed": true
+    },
+    "mercom": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:40.888Z"
+    },
+    "renewable_watch": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:42.241Z"
+    },
+    "pib": {
+      "ok": false,
+      "error": "HTTP 403",
+      "fetchedAt": "2026-05-04T12:54:42.242Z"
+    },
+    "grid": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:42.242Z",
+      "fixturesUsed": true
+    },
+    "global_wind_atlas": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:45.072Z",
+      "fixturesUsed": true
+    },
+    "oem_reports": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:45.072Z",
+      "fixturesUsed": true
+    },
+    "analyst_notes": {
+      "ok": true,
+      "fetchedAt": "2026-05-04T12:54:45.073Z",
+      "fixturesUsed": true
+    }
+  },
+  "capacity": {
+    "installed_mw": 48200,
+    "target_fy_mw": 100000
+  },
+  "grid": {
+    "daily_wind_gen_mu": 142.5,
+    "wind_grid_share_pct": 4.8,
+    "curtailment_pct": 2.1,
+    "date": "2026-05-04"
+  },
+  "windAtlas": {
+    "country": "IND",
+    "mean_wind_speed_100m": 5.8,
+    "mean_wind_speed_150m": 6.4,
+    "exploitable_potential_150m_gw": 1164,
+    "exploitable_potential_100m_gw": 695,
+    "source": "Global Wind Atlas v3.3",
+    "fetchedAt": "2026-05-04T12:54:45.072Z"
+  }
+}

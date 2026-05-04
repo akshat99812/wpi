@@ -20,7 +20,7 @@ export const mnreCrawler = {
         const html = await progressRes.value.text();
         // Look for MW figures in the page (e.g. "47,358 MW" or "47358")
         const mwMatch = html.match(/wind[^<]{0,200}?(\d[\d,]+)\s*(?:MW|mw)/i);
-        if (mwMatch) {
+        if (mwMatch && mwMatch[1]) {
           const parsed = parseInt(mwMatch[1].replace(/,/g, ''));
           if (parsed > 1000 && parsed < 500000) installed_mw = parsed;
         }
@@ -32,8 +32,8 @@ export const mnreCrawler = {
         const html = await windRes.value.text();
         const linkMatches = html.matchAll(/<a[^>]+href="([^"]+)"[^>]*>\s*([^<]{10,150})\s*<\/a>/gi);
         for (const match of linkMatches) {
-          const href = match[1];
-          const text = match[2].trim();
+          const href = match[1] || '';
+          const text = (match[2] || '').trim();
           if (text.toLowerCase().includes('wind') || text.toLowerCase().includes('renewable')) {
             pressReleases.push({
               title: text,

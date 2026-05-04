@@ -37,7 +37,7 @@ const crawlers = [
   analystNotesCrawler
 ];
 
-const dataDir = path.resolve(__dirname, '../../../../data');
+const dataDir = path.resolve(__dirname, '../../data');
 
 export const runOrchestrator = async (sourceKey?: string) => {
   console.log(`Starting orchestrator run. Target: ${sourceKey || 'all'}`);
@@ -81,7 +81,7 @@ export const runOrchestrator = async (sourceKey?: string) => {
   await fs.mkdir(dataDir, { recursive: true });
   await fs.mkdir(path.join(dataDir, 'by-source'), { recursive: true });
 
-  const dateStr = new Date().toISOString().split('T')[0];
+  const dateStr = new Date().toISOString().split('T')[0] || 'unknown-date';
   const archiveDir = path.join(dataDir, 'archive', dateStr);
   await fs.mkdir(archiveDir, { recursive: true });
 
@@ -97,7 +97,7 @@ export const runOrchestrator = async (sourceKey?: string) => {
     );
   }
 
-  const sourceStats = results.map(r => `${r.key ?? r.source}: ${r.ok ? '✓' : '✗'}${r.fixturesUsed ? ' (fixture)' : ''}`).join(', ');
+  const sourceStats = results.map(r => `${r.source}: ${r.ok ? '✓' : '✗'}${r.fixturesUsed ? ' (fixture)' : ''}`).join(', ');
   console.log(`Orchestrator complete. Results: ${sourceStats}`);
   console.log(`Bundle written to ${path.join(dataDir, 'latest.json')}`);
 };

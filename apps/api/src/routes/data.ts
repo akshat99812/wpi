@@ -15,7 +15,7 @@ router.get('/data', async (req: Request, res: Response) => {
 
 router.get('/source/:key', async (req: Request, res: Response) => {
   const { key } = req.params;
-  const data = await getSourceData(key);
+  const data = await getSourceData(key as string);
   if (!data) {
     res.status(404).json({ error: 'Source not found' });
     return;

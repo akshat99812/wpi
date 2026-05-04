@@ -14,7 +14,7 @@ export const ceaCrawler = {
       const html = await res.text();
       // Look for wind capacity in the page
       const mwMatch = html.match(/wind[^<]{0,300}?(\d[\d,]+)\s*(?:MW|GW)/i);
-      const installed_mw = mwMatch ? parseInt(mwMatch[1].replace(/,/g, '')) : null;
+      const installed_mw = mwMatch && mwMatch[1] ? parseInt(mwMatch[1].replace(/,/g, '')) : null;
       if (installed_mw && installed_mw > 1000) {
         return { source: 'cea', fetchedAt, ok: true, payload: { capacity: { installed_mw } } };
       }

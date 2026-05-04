@@ -56,7 +56,15 @@ const statVariants: Variants = {
   }
 };
 
-export default function TopBar({ generatedAt }: { generatedAt?: string }) {
+export default function TopBar({ 
+  generatedAt,
+  onRefresh,
+  isRefreshing
+}: { 
+  generatedAt?: string;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+}) {
   const [engineOpen, setEngineOpen] = useState<EngineType | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [hoveredEngine, setHoveredEngine] = useState<EngineType | null>(null);
@@ -367,6 +375,35 @@ export default function TopBar({ generatedAt }: { generatedAt?: string }) {
               transition={{ duration: 2, repeat: Infinity, delay: 1 }}
             />
           </motion.button>
+          {/* Refresh button */}
+          {onRefresh && (
+            <motion.button
+              onClick={onRefresh}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7, type: 'spring' }}
+              className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-colors shadow-sm"
+              disabled={isRefreshing}
+            >
+              <motion.svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="w-4 h-4"
+                animate={isRefreshing ? { rotate: 360 } : { rotate: 0 }}
+                transition={isRefreshing ? { repeat: Infinity, duration: 1, ease: "linear" } : {}}
+              >
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </motion.svg>
+            </motion.button>
+          )}
         </motion.div>
       </motion.header>
 

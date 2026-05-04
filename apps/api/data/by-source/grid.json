@@ -1,6 +1,6 @@
 {
   "source": "grid",
-  "fetchedAt": "2026-05-03T15:01:06.685Z",
+  "fetchedAt": "2026-05-04T12:54:42.242Z",
   "ok": true,
   "fixturesUsed": true,
   "payload": {
@@ -8,7 +8,7 @@
       "daily_wind_gen_mu": 142.5,
       "wind_grid_share_pct": 4.8,
       "curtailment_pct": 2.1,
-      "date": "2026-05-03"
+      "date": "2026-05-04"
     }
   }
 }

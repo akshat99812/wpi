@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-const dataDir = path.resolve(__dirname, '../../../../data');
+const dataDir = path.resolve(__dirname, '../../data');
 const latestPath = path.join(dataDir, 'latest.json');
 
 export const getLatestBundle = async () => {

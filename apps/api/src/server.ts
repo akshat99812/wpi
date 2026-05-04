@@ -14,7 +14,7 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors({ origin: process.env.WPI_ALLOW_ORIGINS || '*' }));
-app.use(compression());
+app.use(compression() as any);
 app.use(express.json());
 
 // Mount routers
@@ -26,19 +26,23 @@ app.use('/api', healthRoutes);
 // Setup node-cron
 setupScheduler();
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-  
-  // On startup, if data/latest.json doesn't exist, run the orchestrator once
-  const dataDir = path.resolve(__dirname, '../../data');
-  const latestPath = path.join(dataDir, 'latest.json');
-  if (!fs.existsSync(latestPath)) {
-    console.log('data/latest.json not found, running initial orchestrator...');
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+export default app;
+
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+    
+    // On startup, if data/latest.json doesn't exist, run the orchestrator once
+    const dataDir = path.resolve(__dirname, '../data');
+    const latestPath = path.join(dataDir, 'latest.json');
+    if (!fs.existsSync(latestPath)) {
+      console.log('data/latest.json not found, running initial orchestrator...');
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+      runOrchestrator().catch(err => {
+        console.error('Initial orchestrator run failed', err);
+      });
     }
-    runOrchestrator().catch(err => {
-      console.error('Initial orchestrator run failed', err);
-    });
-  }
-});
+  });
+}
