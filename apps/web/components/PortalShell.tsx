@@ -46,6 +46,7 @@ export default function PortalShell({ bundle }: Props) {
             <MapCanvas
               bundle={bundle ?? undefined}
               selectedState={selectedState}
+              basemap={basemap}
               onStateSelect={setSelected}
               onBasemapChange={setBasemap}
             />

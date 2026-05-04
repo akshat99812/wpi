@@ -115,15 +115,16 @@ interface TooltipState {
 interface Props {
   bundle?: WpiBundle;
   selectedState?: string | null;
+  basemap?: BasemapId;
   onStateSelect?: (s: string | null) => void;
   onBasemapChange?: (id: BasemapId) => void;
 }
 
-export default function MapCanvas({ bundle, selectedState, onStateSelect, onBasemapChange }: Props) {
+export default function MapCanvas({ bundle, selectedState, basemap = 'satellite', onStateSelect, onBasemapChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef       = useRef<maplibregl.Map | null>(null);
   const markersRef   = useRef<maplibregl.Marker[]>([]);
-  const modeRef      = useRef<BasemapId>('satellite');
+  const modeRef      = useRef<BasemapId>(basemap);
   const bundleRef    = useRef(bundle);
   const stateRef     = useRef(selectedState);
   const selectRef    = useRef(onStateSelect);
@@ -174,47 +175,138 @@ export default function MapCanvas({ bundle, selectedState, onStateSelect, onBase
     });
   }, []);
 
-  // Add wind heatmap layer
-  const addWindLayer = useCallback((m: maplibregl.Map) => {
-    const data = {
-      type: 'FeatureCollection' as const,
-      features: Object.entries(STATE_DATA).map(([, d]) => ({
-        type: 'Feature' as const,
-        properties: { windMs: d.windMs },
-        geometry: { type: 'Point' as const, coordinates: [d.lon, d.lat] },
-      })),
-    };
-    if (!m.getSource('sw-wind')) m.addSource('sw-wind', { type: 'geojson', data });
-    if (!m.getLayer('wm-heat')) m.addLayer({
-      id: 'wm-heat', type: 'heatmap', source: 'sw-wind',
+// ── Wind Atlas data points (expanded grid across India) ──
+const WIND_ATLAS_DATA: { lon: number; lat: number; windMs: number; windClass: string }[] = [
+  // High wind zones (7-9 m/s)
+  { lon: 71.57, lat: 22.26, windMs: 7.2, windClass: 'High' },     // Gujarat
+  { lon: 72.5, lat: 23.5, windMs: 8.1, windClass: 'Very High' },  // Gujarat coast
+  { lon: 70.8, lat: 20.5, windMs: 7.8, windClass: 'High' },       // Rajasthan border
+  { lon: 73.0, lat: 21.0, windMs: 8.5, windClass: 'Very High' },  // Gujarat interior
+
+  // Tamil Nadu zones (7-8 m/s)
+  { lon: 78.66, lat: 11.13, windMs: 7.8, windClass: 'High' },     // Tamil Nadu
+  { lon: 79.5, lat: 11.5, windMs: 8.2, windClass: 'Very High' },  // Tamil Nadu coast
+  { lon: 77.5, lat: 12.5, windMs: 7.1, windClass: 'High' },
+
+  // Rajasthan zones (7-8.5 m/s)
+  { lon: 74.22, lat: 27.02, windMs: 7.5, windClass: 'High' },     // Rajasthan
+  { lon: 73.5, lat: 26.5, windMs: 8.1, windClass: 'Very High' },
+  { lon: 75.5, lat: 28.5, windMs: 7.2, windClass: 'High' },
+
+  // Karnataka zones (6.5-7.5 m/s)
+  { lon: 75.71, lat: 15.32, windMs: 6.8, windClass: 'Good' },     // Karnataka
+  { lon: 75.2, lat: 14.5, windMs: 7.1, windClass: 'High' },
+
+  // Andhra Pradesh zones (6.5-7.5 m/s)
+  { lon: 79.74, lat: 15.91, windMs: 7.0, windClass: 'High' },     // Andhra Pradesh
+  { lon: 80.5, lat: 16.5, windMs: 7.3, windClass: 'High' },
+
+  // Maharashtra zones (5.8-6.5 m/s)
+  { lon: 75.71, lat: 19.75, windMs: 6.2, windClass: 'Good' },     // Maharashtra
+  { lon: 74.5, lat: 18.5, windMs: 6.8, windClass: 'Good' },
+
+  // Madhya Pradesh zones (5.5-6.5 m/s)
+  { lon: 78.66, lat: 22.97, windMs: 5.8, windClass: 'Moderate' }, // Madhya Pradesh
+  { lon: 77.5, lat: 23.5, windMs: 6.2, windClass: 'Good' },
+
+  // Telangana zones (6-6.8 m/s)
+  { lon: 79.02, lat: 18.11, windMs: 6.5, windClass: 'Good' },     // Telangana
+
+  // Low wind zones (< 6 m/s)
+  { lon: 76.0, lat: 24.0, windMs: 5.2, windClass: 'Low' },
+  { lon: 81.0, lat: 20.0, windMs: 5.5, windClass: 'Low' },
+  { lon: 82.5, lat: 25.0, windMs: 4.8, windClass: 'Low' },
+];
+
+// Add wind layer with GWA-style visualization
+const addWindLayer = useCallback((m: maplibregl.Map) => {
+  const data = {
+    type: 'FeatureCollection' as const,
+    features: WIND_ATLAS_DATA.map(d => ({
+      type: 'Feature' as const,
+      properties: { windMs: d.windMs, windClass: d.windClass },
+      geometry: { type: 'Point' as const, coordinates: [d.lon, d.lat] },
+    })),
+  };
+
+  if (!m.getSource('gwa-wind')) {
+    m.addSource('gwa-wind', { type: 'geojson', data });
+  } else {
+    // Update source if it exists
+    (m.getSource('gwa-wind') as maplibregl.GeoJSONSource).setData(data);
+  }
+
+  if (!m.getLayer('gwa-heatmap')) {
+    m.addLayer({
+      id: 'gwa-heatmap',
+      type: 'heatmap',
+      source: 'gwa-wind',
       paint: {
-        'heatmap-weight': ['interpolate', ['linear'], ['get', 'windMs'], 5, 0.1, 9, 1.5],
-        'heatmap-intensity': 0.7,
-        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 2, 90, 7, 240],
-        'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'],
-          0, 'rgba(13,71,161,0)', 0.25, '#0288d1', 0.5, '#26c6da', 0.7, '#ffeb3b', 1, '#f44336'],
-        'heatmap-opacity': 0.72,
+        'heatmap-weight': ['interpolate', ['linear'], ['get', 'windMs'], 4, 0, 9, 1.8],
+        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 0.8, 5, 1.2],
+        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 2, 60, 5, 150, 7, 280],
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0,     'rgba(33, 102, 172, 0)',      // #2166ac - dark blue
+          0.1,   'rgba(103, 169, 207, 0.8)',   // #67a9cf - light blue
+          0.25,  'rgba(171, 217, 233, 0.8)',   // #abd9e9 - very light blue
+          0.4,   'rgba(254, 224, 144, 0.9)',   // #fee090 - yellow
+          0.6,   'rgba(253, 174, 97, 0.95)',   // #fdae61 - orange
+          0.8,   'rgba(244, 109, 67, 0.95)',   // #f46d43 - dark orange
+          1,     'rgba(215, 48, 39, 1)'        // #d73027 - red
+        ],
+        'heatmap-opacity': 0.8,
       },
     });
-  }, []);
+  }
+
+  // Add wind speed contour/circle layer for better visual representation
+  if (!m.getLayer('gwa-points')) {
+    m.addLayer({
+      id: 'gwa-points',
+      type: 'circle',
+      source: 'gwa-wind',
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 5, 4, 7, 6],
+        'circle-color': [
+          'interpolate',
+          ['linear'],
+          ['get', 'windMs'],
+          4,   '#2166ac',  // dark blue - low
+          5,   '#67a9cf',  // light blue
+          6,   '#abd9e9',  // cyan
+          6.5, '#fee090',  // yellow
+          7,   '#fdae61',  // orange
+          8,   '#f46d43',  // dark orange
+          9,   '#d73027'   // red - high
+        ],
+        'circle-opacity': ['interpolate', ['linear'], ['zoom'], 0, 0.3, 5, 0.5, 7, 0.7],
+        'circle-stroke-width': 0.5,
+        'circle-stroke-color': 'rgba(255, 255, 255, 0.3)',
+      },
+    });
+  }
+}, []);
 
   // Init map once
   useEffect(() => {
     if (mapRef.current || !containerRef.current) return;
     const m = new maplibregl.Map({
       container: containerRef.current,
-      style: getStyle('satellite'),
-      center: [80.0, 22.5],
-      zoom: 3.9,
+      style: getStyle(basemap),
+      center: [78.5, 21.5],
+      zoom: 4.2,
+      pitch: 0,
+      bearing: 0,
       attributionControl: false,
     });
     mapRef.current = m;
+    modeRef.current = basemap;
+    setMode(basemap);
     m.addControl(new maplibregl.NavigationControl(), 'bottom-right');
-    m.addControl(new maplibregl.ScaleControl({ maxWidth: 80 }), 'bottom-left');
-    m.on('style.load', () => {
-      placeMarkers(m);
-      if (modeRef.current === 'wind') addWindLayer(m);
-    });
+    m.addControl(new maplibregl.ScaleControl({ maxWidth: 80, unit: 'metric' }), 'bottom-left');
     return () => {
       markersRef.current.forEach(mk => mk.remove());
       m.remove();
@@ -239,6 +331,7 @@ export default function MapCanvas({ bundle, selectedState, onStateSelect, onBase
       if (modeRef.current === 'wind') addWindLayer(m);
     };
     m.on('style.load', fn);
+    if (m.isStyleLoaded()) fn();
     return () => { m.off('style.load', fn); };
   }, [placeMarkers, addWindLayer]);
 
@@ -275,15 +368,17 @@ export default function MapCanvas({ bundle, selectedState, onStateSelect, onBase
 
       {/* ── Floating mode switcher ── */}
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-        <div className="flex flex-wrap gap-1 bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-2 py-1.5 shadow-2xl">
+        <div className="flex flex-wrap gap-1.5 bg-gradient-to-r from-black/70 to-black/50 backdrop-blur-lg border border-white/15 rounded-2xl px-2 py-2 shadow-2xl">
           {(Object.keys(BASEMAP_LABELS) as BasemapId[]).map(id => (
             <button
               key={id}
               onClick={() => switchMode(id)}
-              className={`px-2.5 py-1 rounded-xl text-[10.5px] font-bold transition-all duration-200 whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all duration-200 whitespace-nowrap ${
                 mode === id
-                  ? 'bg-orange-400 text-[#0a0e18] shadow-[0_0_12px_rgba(255,138,31,0.55)]'
-                  : 'text-white/55 hover:text-white hover:bg-white/10'
+                  ? id === 'wind'
+                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 shadow-[0_0_16px_rgba(34,211,238,0.6)] scale-105'
+                    : 'bg-orange-400 text-[#0a0e18] shadow-[0_0_12px_rgba(255,138,31,0.55)]'
+                  : 'text-white/50 hover:text-white hover:bg-white/10'
               }`}
             >
               {BASEMAP_LABELS[id]}
@@ -292,15 +387,28 @@ export default function MapCanvas({ bundle, selectedState, onStateSelect, onBase
         </div>
 
         {mode === 'wind' && (
-          <div className="bg-black/75 backdrop-blur-md border border-cyan-400/30 rounded-xl px-3 py-2 text-[10px] text-cyan-300 font-bold shadow-xl">
-            💨 Wind Speed Heatmap
-            <div className="flex gap-0.5 mt-1.5">
-              {['#0288d1','#26c6da','#4caf50','#ffeb3b','#f44336'].map(c => (
-                <div key={c} className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: c }} />
-              ))}
+          <div className="bg-gradient-to-b from-black/75 to-black/85 backdrop-blur-md border border-cyan-400/40 rounded-xl px-4 py-3 text-cyan-300 font-bold shadow-2xl">
+            <div className="text-[10px] text-cyan-400 uppercase tracking-widest mb-2.5">💨 Wind Speed (m/s)</div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-2 rounded-full bg-gradient-to-r from-[#2166ac] to-[#67a9cf]" />
+                <span className="text-[9px] text-white/70">Low (4–5)</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-2 rounded-full bg-gradient-to-r from-[#abd9e9] to-[#fee090]" />
+                <span className="text-[9px] text-white/70">Moderate (5–6)</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-2 rounded-full bg-gradient-to-r from-[#fdae61] to-[#f46d43]" />
+                <span className="text-[9px] text-white/70">Good (6–7)</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-2 rounded-full bg-gradient-to-r from-[#f46d43] to-[#d73027]" />
+                <span className="text-[9px] text-white/70">High (7–9+)</span>
+              </div>
             </div>
-            <div className="flex justify-between text-[8px] text-white/40 mt-0.5">
-              <span>Low</span><span>High</span>
+            <div className="mt-2.5 pt-2.5 border-t border-cyan-400/20 text-[8px] text-cyan-300/70 italic">
+              Global Wind Atlas Style — Mean Wind Speed @ 100m
             </div>
           </div>
         )}

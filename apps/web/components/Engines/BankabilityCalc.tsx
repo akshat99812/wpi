@@ -2,6 +2,8 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { calculateIRR } from '@/lib/math';
+import MethodologyPanel from '../KnowledgeBank/MethodologyPanel';
+import FinancialSliders from '../ui/Animatedsliders';
 
 // ── Constants (spec §10.3) ────────────────────────────────────────────────────
 const HOURS  = 8760;
@@ -38,34 +40,7 @@ function Tile({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-function Slider({
-  label, id, value, min, max, step, unit, onChange
-}: {
-  label: string; id: string; value: number;
-  min: number; max: number; step: number; unit: string;
-  onChange: (v: number) => void;
-}) {
-  const pct = ((value - min) / (max - min)) * 100;
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex justify-between items-center">
-        <label htmlFor={id} className="text-[10px] text-muted uppercase font-bold tracking-wide">{label}</label>
-        <span className="text-[11px] font-mono font-bold text-[#ffd0a0]">{value} {unit}</span>
-      </div>
-      <div className="relative flex items-center h-4">
-        <div className="w-full h-[3px] rounded-full bg-[#1e2c44] relative overflow-hidden">
-          <div className="absolute left-0 h-full bg-gradient-to-r from-orange to-[#ffb066]" style={{ width: `${pct}%` }} />
-        </div>
-        <input
-          id={id}
-          type="range" min={min} max={max} step={step} value={value}
-          onChange={e => onChange(Number(e.target.value))}
-          className="absolute w-full h-full opacity-0 cursor-pointer"
-        />
-      </div>
-    </div>
-  );
-}
+
 
 // ── Main DCF calculation ──────────────────────────────────────────────────────
 function runDcf(p: typeof DEFAULTS) {
@@ -196,19 +171,7 @@ export default function BankabilityCalc() {
       </div>
 
       {/* ── Sliders (9 inputs) ── */}
-      <div className="bg-[#0e1527] border border-[#1e2c44] rounded-xl p-4 grid grid-cols-2 gap-x-6 gap-y-4">
-        <Slider id="finSize"   label="Capacity"     value={p.size}   min={20}  max={1000} step={5}    unit="MW"     onChange={set('size')} />
-        <Slider id="finTariff" label="Tariff"       value={p.tariff} min={2.5} max={6.5}  step={0.05} unit="₹/kWh" onChange={set('tariff')} />
-        <Slider id="finPlf"    label="PLF"          value={p.plf}    min={16}  max={45}   step={0.5}  unit="%"      onChange={set('plf')} />
-        <Slider id="finRate"   label="Interest Rate" value={p.rate}   min={7}   max={13}   step={0.1}  unit="% p.a." onChange={set('rate')} />
-        <Slider id="finWtg"    label="WTG Cost"     value={p.wtg}    min={4.5} max={9.0}  step={0.05} unit="₹Cr/MW" onChange={set('wtg')} />
-        <Slider id="finBop"    label="BoP Cost"     value={p.bop}    min={1.5} max={4.0}  step={0.05} unit="₹Cr/MW" onChange={set('bop')} />
-        <Slider id="finDebt"   label="Debt %"       value={p.debt}   min={0}   max={85}   step={1}    unit="%"      onChange={set('debt')} />
-        <Slider id="finTenor"  label="Debt Tenor"   value={p.tenor}  min={5}   max={20}   step={1}    unit="yrs"    onChange={set('tenor')} />
-        <div className="col-span-2">
-          <Slider id="finOm"   label="O&M Cost"     value={p.om}     min={5}   max={30}   step={0.1}  unit="₹L/MW/yr" onChange={set('om')} />
-        </div>
-      </div>
+      <FinancialSliders p={p} set={set} />
 
       {/* ── Derived inputs (4 tiles) ── */}
       <div>
@@ -264,30 +227,11 @@ export default function BankabilityCalc() {
       </div>
 
       {/* ── Methodology disclosure ── */}
-      <details className="group bg-[#0e1527] border border-[#1e2c44] rounded-xl overflow-hidden">
-        <summary
-          className="flex justify-between items-center px-4 py-3 cursor-pointer list-none text-[11px] font-bold text-muted hover:text-text transition-colors select-none"
-        >
-          Calculation Methodology (12 Steps)
-          <span className="text-[10px] group-open:rotate-180 transition-transform duration-200">▼</span>
-        </summary>
-        <div className="px-4 pb-4 border-t border-[#1e2c44] pt-3 text-[10.5px] text-muted leading-relaxed flex flex-col gap-1.5">
-          {[
-            '1. Turnkey = WTG + BoP (₹ Cr/MW); TotalCapex = Capacity × Turnkey.',
-            '2. Debt = TotalCapex × Debt%; EquityHard = TotalCapex − Debt.',
-            '3. Annuity = Debt × r × (1+r)^N / ((1+r)^N − 1) — equated annual repayment.',
-            '4. GrossGen_Y1 = Capacity × 8,760 × PLF/100 (MWh); NetGen_Y1 = GrossGen × (1 − 0.5% aux).',
-            '5. Revenue_Y1 = NetGen × Tariff × 1,000 / 1Cr. Working Capital = Revenue_Y1 / 12.',
-            '6. For each Year n=1..25: NetGen_Yn = GrossY1 × (1−AUX) × (1−0.5%)^(n−1).',
-            '7. O&M_Yn = base O&M × (1+5%)^(n−1); Insurance_Yn = CapEx × 0.4% × (1+3%)^(n−1).',
-            '8. Depreciation: WDV method at 40%/yr until WDV exhausted (~Year 10).',
-            '9. Tax: TaxableUnlev = max(0, EBITDA − Dep); TaxLev = max(0, EBITDA − Dep − Interest). Rate 25.168%.',
-            '10. ProjectCF_n = EBITDA − TaxUnlev; EquityCF_n = EBITDA − Annuity − TaxLev (post-tenor: no DS).',
-            '11. Terminal: Salvage = CapEx × 5%; CapGainsTax = max(0, Salvage−WDV) × 25.168%; add WC return.',
-            '12. IRR: Newton-Raphson (seed 10%, 100 iterations). Payback: interpolated cumulative CF = 0.',
-          ].map((s, i) => <p key={i}>{s}</p>)}
+       {/* ── Methodology ── */}
+        <div className="mt-8">
+          <MethodologyPanel />
         </div>
-      </details>
+      
 
       {/* ── Disclaimer ── */}
       <div className="p-3 rounded-xl bg-[#1a1008] border border-orange/20 text-[10.5px] text-muted leading-relaxed">
