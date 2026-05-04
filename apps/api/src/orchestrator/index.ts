@@ -1,5 +1,9 @@
 import fs from 'fs/promises';
-import path from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 import { merge, type SourceResult } from './merge';
 import { mnreCrawler } from './crawlers/mnre';
 import { seciCrawler } from './crawlers/seci';

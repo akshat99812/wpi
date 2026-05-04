@@ -8,7 +8,11 @@ import healthRoutes from './routes/health';
 import { setupScheduler } from './services/scheduler';
 import { runOrchestrator } from './orchestrator';
 import fs from 'fs';
-import path from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3001;

@@ -1,6 +1,7 @@
 {
   "name": "api",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "start": "bun run src/server.ts",
     "dev": "bun run --watch src/server.ts",

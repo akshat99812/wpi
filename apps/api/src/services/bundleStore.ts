@@ -1,5 +1,9 @@
 import fs from 'fs/promises';
-import path from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const dataDir = path.resolve(__dirname, '../../data');
 const latestPath = path.join(dataDir, 'latest.json');

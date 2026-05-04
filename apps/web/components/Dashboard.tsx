@@ -8,7 +8,7 @@ import PortalShell from './PortalShell';
 export default function Dashboard() {
   const { data: bundle, loading, error, refetch } = useWpiData();
   const { triggerRefresh, loading: isRefreshing } = useRefresh();
-  const [adminToken, setAdminToken] = useState('secret-admin-token-2024');
+  const [adminToken] = useState('secret-admin-token-2024');
 
   const handleRefresh = async () => {
     try {

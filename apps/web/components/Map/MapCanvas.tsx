@@ -65,14 +65,7 @@ const GEOJSON_NAME_MAP: Record<string, string> = {
   'Telangana':      'Telangana',
 };
 
-// Wind colour per state (fill tint based on windMs)
-function windFillColor(windMs: number): string {
-  if (windMs >= 8)   return 'rgba(215,48,39,0.22)';
-  if (windMs >= 7)   return 'rgba(244,109,67,0.20)';
-  if (windMs >= 6.5) return 'rgba(253,174,97,0.18)';
-  if (windMs >= 6)   return 'rgba(254,224,144,0.15)';
-  return 'rgba(171,217,233,0.12)';
-}
+
 
 function mwColor(mw: number) {
   if (mw >= 8000) return '#4cc87a';
@@ -293,7 +286,8 @@ export default function MapCanvas({ bundle, selectedState, basemap = 'satellite'
             ['>=', ['get', 'windMs'], 6.5], 'rgba(253,174,97,0.13)',
             ['>=', ['get', 'windMs'], 6],   'rgba(254,224,144,0.11)',
             /* else */                       'rgba(171,217,233,0.09)',
-          ] as maplibregl.ExpressionSpecification,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ] as any,
           'fill-opacity': 1,
         },
       });
