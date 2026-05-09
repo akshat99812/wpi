@@ -9,48 +9,118 @@ interface Props {
   onToggle?:  () => void;
 }
 
-export default function MetricsStrip({ bundle, collapsed = false, onToggle }: Props) {
+// ── Accent palette ──────────────────────────────────────────────────────────
+type Accent = { text: string; glow: string; bar: string };
+
+const ACCENT: Record<'orange' | 'amber' | 'green' | 'cyan' | 'neutral', Accent> = {
+  orange:  { text: '#ff8a1f', glow: 'rgba(255,138,31,0.35)',  bar: '#ff8a1f' },
+  amber:   { text: '#ffd0a0', glow: 'rgba(255,208,160,0.25)', bar: '#ffb066' },
+  green:   { text: '#4cc87a', glow: 'rgba(76,200,122,0.28)',  bar: '#4cc87a' },
+  cyan:    { text: '#7bc4e2', glow: 'rgba(123,196,226,0.25)', bar: '#7bc4e2' },
+  neutral: { text: '#e8edf7', glow: 'rgba(232,237,247,0.18)', bar: '#3a4a6a' },
+};
+
+interface Metric {
+  label:  string;
+  value:  string;
+  sub:    string;
+  accent: Accent;
+}
+
+export default function MetricsStrip({ bundle }: Props) {
   const cap   = bundle?.capacity;
   const ok    = bundle ? Object.values(bundle.sourceStatus).filter(s => s.ok).length : 0;
   const total = bundle ? Object.keys(bundle.sourceStatus).length : 15;
 
-  const all = [
-    { label: 'Installed',     value: cap ? `${(cap.installed_mw / 1000).toFixed(1)} GW` : '48.2 GW', sub: 'All-India fleet',      color: 'text-orange' },
-    { label: 'FY30 Target',   value: cap ? `${(cap.target_fy_mw / 1000).toFixed(0)} GW` : '100 GW',  sub: 'MNRE wind-only',       color: 'text-[#ffd0a0]' },
-    { label: 'L1 Tariff',     value: bundle?.auctions?.[0] ? `₹${bundle.auctions[0].tariffL1Inr}` : '₹3.15', sub: `${bundle?.auctions?.[0]?.issuer ?? 'SECI'} latest`, color: 'text-[#4cc87a]' },
-    { label: 'Potential',     value: '1,164 GW',       sub: 'NIWE @150m',          color: 'text-[#7bc4e2]' },
-    { label: 'Nat. PLF',      value: '~24%',           sub: 'FY25 avg',            color: 'text-text' },
-    { label: 'Auctions',      value: `${bundle?.auctions?.length ?? 0}`, sub: 'SECI / State', color: 'text-[#ffd0a0]' },
-    { label: 'News',          value: `${bundle?.news?.length ?? 0}`,     sub: 'RSS live',     color: 'text-text' },
-    { label: 'Sources',       value: `${ok}/${total}`, sub: ok < total ? `${total - ok} degraded` : 'All healthy', color: ok === total ? 'text-[#4cc87a]' : ok >= total * 0.8 ? 'text-[#ffb066]' : 'text-red-400' },
+  const metrics: Metric[] = [
+    { label: 'Installed',   value: cap ? `${(cap.installed_mw / 1000).toFixed(1)} GW` : '48.2 GW',
+      sub: 'All-India fleet',                                  accent: ACCENT.orange },
+    { label: 'FY30 Target', value: cap ? `${(cap.target_fy_mw / 1000).toFixed(0)} GW` : '100 GW',
+      sub: 'MNRE wind-only',                                   accent: ACCENT.amber },
+    { label: 'L1 Tariff',   value: bundle?.auctions?.[0] ? `₹${bundle.auctions[0].tariffL1Inr}` : '₹3.15',
+      sub: `${bundle?.auctions?.[0]?.issuer ?? 'SECI'} latest`, accent: ACCENT.green },
+    { label: 'Potential',   value: '1,164 GW',                 sub: 'NIWE @150m',     accent: ACCENT.cyan },
   ];
 
-  const shown = collapsed ? all.slice(0, 4) : all;
-
   return (
-    <div className={`bg-gradient-to-b from-[#0f1424] to-[#0a0f1c] border border-[#2a3a54] rounded-2xl overflow-hidden transition-all duration-200 shadow-lg`}>
-      {/* Header row with toggle */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1a2a44] bg-[#0d121f]">
-        <span className="text-[11px] text-orange uppercase font-bold tracking-[1.5px] letter-spacing">Key Metrics</span>
-        <button
-          onClick={onToggle}
-          className="flex items-center gap-2 text-[10px] text-muted hover:text-orange transition-colors font-bold uppercase tracking-wider"
-        >
-          {collapsed ? 'Expand' : 'Compact'}
-          <span className={`transition-transform duration-200 ${collapsed ? '' : 'rotate-180'}`}>▼</span>
-        </button>
-      </div>
+    <div className="bg-gradient-to-b from-[#0f1424] to-[#0a0f1c] border border-[#2a3a54]/70 rounded-2xl overflow-hidden shadow-[0_4px_24px_-8px_rgba(0,0,0,0.6)]">
+      <Header ok={ok} total={total} />
 
-      {/* Metric tiles */}
-      <div className={`grid gap-0 divide-x divide-[#1a2a44] ${collapsed ? 'grid-cols-4' : 'grid-cols-4 xl:grid-cols-8'}`}>
-        {shown.map((m, i) => (
-          <div key={i} className="px-4 py-4 flex flex-col gap-1.5 hover:bg-[#0f1424]/50 transition-colors border-b border-[#1a2a44] last:border-b-0">
-            <span className="text-[10px] text-muted/70 uppercase tracking-wider font-bold leading-tight truncate">{m.label}</span>
-            <span suppressHydrationWarning className={`text-2xl font-black font-mono leading-tight ${m.color}`}>{m.value}</span>
-            {!collapsed && <span className="text-[9px] text-muted/50 leading-tight truncate">{m.sub}</span>}
-          </div>
+      <div className="grid divide-x divide-[#1a2a44] grid-cols-2 sm:grid-cols-4">
+        {metrics.map((m, i) => (
+          <MetricTile key={i} metric={m} />
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── Header ────────────────────────────────────────────────────────────────
+function Header({ ok, total }: { ok: number; total: number }) {
+  const dotColor =
+    ok === total      ? '#4cc87a' :
+    ok >= total * 0.8 ? '#ffb066' :
+                        '#f87171';
+
+  return (
+    <div className="flex items-center justify-between px-5 py-3 border-b border-[#1a2a44] bg-gradient-to-r from-[#0d121f] via-[#0d121f] to-[#0f1525]">
+      <div className="flex items-center gap-2.5">
+        <span
+          className="w-1.5 h-1.5 rounded-full"
+          style={{
+            backgroundColor: dotColor,
+            boxShadow: `0 0 8px ${dotColor}, 0 0 0 2px ${dotColor}22`,
+          }}
+        />
+        <span className="text-[11px] text-orange uppercase font-bold tracking-[1.5px]">
+          Key Metrics
+        </span>
+        <span className="text-[10px] text-muted/40 font-mono hidden sm:inline">·</span>
+        <span className="text-[10px] text-muted/60 font-mono tabular-nums hidden sm:inline">
+          {ok}/{total} feeds
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Single-line tile ─────────────────────────────────
+function MetricTile({ metric: m }: { metric: Metric }) {
+  return (
+    <div
+      className="group relative flex items-center gap-2.5 px-3.5 py-3 hover:bg-white/[0.015] transition-colors min-w-0 overflow-hidden"
+      title={`${m.label}: ${m.value} — ${m.sub}`}
+    >
+      {/* Left accent bar */}
+      <span
+        className="w-[3px] h-6 rounded-full flex-shrink-0"
+        style={{
+          backgroundColor: m.accent.bar,
+          boxShadow: `0 0 8px ${m.accent.glow}`,
+        }}
+      />
+
+      {/* Label */}
+      <span className="text-[9.5px] text-muted/55 uppercase tracking-[0.08em] font-bold leading-none whitespace-nowrap flex-shrink-0">
+        {m.label}
+      </span>
+
+      {/* Spacer */}
+      <div className="flex-1 min-w-0" />
+
+      {/* Value */}
+      <span
+        suppressHydrationWarning
+        className="font-black font-mono leading-none tracking-tight tabular-nums whitespace-nowrap flex-shrink-0 text-[16px]"
+        style={{ color: m.accent.text, textShadow: `0 0 10px ${m.accent.glow}` }}
+      >
+        {m.value}
+      </span>
+
+      {/* Sub Label */}
+      <span className="text-[9px] text-muted/45 leading-none whitespace-nowrap flex-shrink-0 truncate max-w-[100px] hidden md:inline">
+        · {m.sub}
+      </span>
     </div>
   );
 }

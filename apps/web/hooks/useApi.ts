@@ -3,6 +3,68 @@ import type { WpiBundle } from '@/lib/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://wpi-sjse.onrender.com';
 
+export interface NewsData {
+  generatedAt: string;
+  news: WpiBundle['news'];
+  policies: WpiBundle['policies'];
+  analystReports: WpiBundle['analystReports'];
+}
+
+export interface TariffsData {
+  generatedAt: string;
+  auctions: WpiBundle['auctions'];
+  tariffOrders: WpiBundle['tariffOrders'];
+  lendingRates: WpiBundle['lendingRates'];
+}
+
+export function useNewsData() {
+  const [data, setData] = useState<NewsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/api/news`);
+      if (!res.ok) throw new Error('Failed to fetch news');
+      setData(await res.json());
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || 'Error fetching news');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  return { data, loading, error, refetch: fetchData };
+}
+
+export function useTariffsData() {
+  const [data, setData] = useState<TariffsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/api/tariffs`);
+      if (!res.ok) throw new Error('Failed to fetch tariffs');
+      setData(await res.json());
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || 'Error fetching tariffs');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  return { data, loading, error, refetch: fetchData };
+}
+
 export function useWpiData() {
   const [data, setData] = useState<WpiBundle | null>(null);
   const [loading, setLoading] = useState(true);

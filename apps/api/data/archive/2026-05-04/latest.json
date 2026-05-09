@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T12:54:59.684Z",
+  "generatedAt": "2026-05-04T19:30:39.900Z",
   "stateCapacity": [
     {
       "state": "Gujarat",
@@ -169,6 +169,13 @@
   ],
   "news": [
     {
+      "headline": "Karnataka Sets Ceiling Tariff for Wind Power Projects Until FY 2029",
+      "url": "https://www.mercomindia.com/karnataka-sets-ceiling-tariff-for-wind-power-projects-until-fy-2029",
+      "publishedAt": "2026-05-04T17:38:02.000Z",
+      "source": "Mercom India",
+      "summary": "<p>The Karnataka Electricity Regulatory Commission (KERC) has set the ceiling tariff for wind power projects for the control period from financial year (FY) 2027 to FY 2029. The Commission also clarified that the approved tariff of ₹3.60 (~$0.0379)/kWh would apply to payments for banked energy procu"
+    },
+    {
       "headline": "Rajasthan Issues Guidelines for Battery Storage Integration with Renewables",
       "url": "https://www.mercomindia.com/rajasthan-issues-guidelines-for-battery-storage-integration-with-renewables",
       "publishedAt": "2026-05-04T17:25:58.000Z",
@@ -230,13 +237,6 @@
       "publishedAt": "2026-05-04T11:30:02.000Z",
       "source": "Mercom India",
       "summary": "<p>Listen to this article India is seeing an increased adoption of solar tracking systems, particularly in utility-scale projects, to maximize energy generation. By improving energy yield without additional land, trackers</p>"
-    },
-    {
-      "headline": "Weather, Financing Challenges Weigh on Enphase’s Weak Start to 2026",
-      "url": "https://www.mercomindia.com/weather-financing-challenges-weigh-on-enphases-weak-start-to-2026",
-      "publishedAt": "2026-05-04T11:12:11.000Z",
-      "source": "Mercom India",
-      "summary": "<p>Listen to this article Microinverter and battery storage supplier Enphase Energy reported revenue of $282.9 million in the first quarter (Q1) of 2026, decreasing 20.6% year-over-year (YoY)</p>"
     },
     {
       "headline": "Northland Power signs CPPA for Hai Long offshore wind project in Taiwan",
@@ -326,74 +326,74 @@
   "sourceStatus": {
     "mnre": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:53:42.646Z"
+      "fetchedAt": "2026-05-04T19:30:00.152Z"
     },
     "cea": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:53:42.652Z",
+      "fetchedAt": "2026-05-04T19:30:00.211Z",
       "fixturesUsed": true
     },
     "niwe": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:53:42.652Z",
+      "fetchedAt": "2026-05-04T19:30:00.252Z",
       "fixturesUsed": true
     },
     "seci": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:39.722Z",
+      "fetchedAt": "2026-05-04T19:30:17.909Z",
       "fixturesUsed": true
     },
     "lenders": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:39.731Z",
+      "fetchedAt": "2026-05-04T19:30:17.910Z",
       "fixturesUsed": true
     },
     "cerc": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:39.731Z",
+      "fetchedAt": "2026-05-04T19:30:17.910Z",
       "fixturesUsed": true
     },
     "state_serc": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:40.887Z",
+      "fetchedAt": "2026-05-04T19:30:19.084Z",
       "fixturesUsed": true
     },
     "state_nodal": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:40.888Z",
+      "fetchedAt": "2026-05-04T19:30:19.084Z",
       "fixturesUsed": true
     },
     "mercom": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:40.888Z"
+      "fetchedAt": "2026-05-04T19:30:19.085Z"
     },
     "renewable_watch": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:42.241Z"
+      "fetchedAt": "2026-05-04T19:30:22.495Z"
     },
     "pib": {
       "ok": false,
       "error": "HTTP 403",
-      "fetchedAt": "2026-05-04T12:54:42.242Z"
+      "fetchedAt": "2026-05-04T19:30:22.496Z"
     },
     "grid": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:42.242Z",
+      "fetchedAt": "2026-05-04T19:30:22.496Z",
       "fixturesUsed": true
     },
     "global_wind_atlas": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:45.072Z",
+      "fetchedAt": "2026-05-04T19:30:24.042Z",
       "fixturesUsed": true
     },
     "oem_reports": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:45.072Z",
+      "fetchedAt": "2026-05-04T19:30:24.042Z",
       "fixturesUsed": true
     },
     "analyst_notes": {
       "ok": true,
-      "fetchedAt": "2026-05-04T12:54:45.073Z",
+      "fetchedAt": "2026-05-04T19:30:24.043Z",
       "fixturesUsed": true
     }
   },
@@ -414,6 +414,6 @@
     "exploitable_potential_150m_gw": 1164,
     "exploitable_potential_100m_gw": 695,
     "source": "Global Wind Atlas v3.3",
-    "fetchedAt": "2026-05-04T12:54:45.072Z"
+    "fetchedAt": "2026-05-04T19:30:24.042Z"
   }
 }

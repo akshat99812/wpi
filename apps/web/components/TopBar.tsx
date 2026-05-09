@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import AboutModal from './AboutModal';
 import EngineModal from './Engines/EngineModal';
@@ -127,29 +128,17 @@ export default function TopBar({
 
         {/* ── Brand ── */}
         <motion.div variants={itemVariants} className="flex items-center gap-4 z-10">
-          {/* Static Logo mark with light background */}
-            <div className="relative w-10 h-10 flex items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm">
-              <div className="w-6 h-6 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-full h-full">
-                  {/* Outer 'C' shape */}
-                  <path 
-                    d="M 70,20 A 30,30 0 1,0 70,80" 
-                    fill="none" 
-                    stroke="#0f172a" 
-                    strokeWidth="14" 
-                    strokeLinecap="round"
-                  />
-                  {/* Inner 'E' shape */}
-                  <path 
-                    d="M 45,30 L 85,30 M 45,50 L 75,50 M 45,70 L 85,70" 
-                    fill="none" 
-                    stroke="#020617" 
-                    strokeWidth="12" 
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-            </div>
+          {/* Logo */}
+          <div className="relative w-20 h-20 flex items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="CECL Energy"
+              width={72}
+              height={72}
+              className="object-contain"
+              priority
+            />
+          </div>
 
           {/* Brand text */}
           <div className="flex flex-col gap-0.5">

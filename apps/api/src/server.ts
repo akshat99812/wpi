@@ -5,6 +5,7 @@ import dataRoutes from './routes/data';
 import sourcesRoutes from './routes/sources';
 import refreshRoutes from './routes/refresh';
 import healthRoutes from './routes/health';
+import usersRoutes from './routes/users';
 import { setupScheduler } from './services/scheduler';
 import { runOrchestrator } from './orchestrator';
 import fs from 'fs';
@@ -26,6 +27,7 @@ app.use('/api', dataRoutes);
 app.use('/api', sourcesRoutes);
 app.use('/api', refreshRoutes);
 app.use('/api', healthRoutes);
+app.use('/api', usersRoutes);
 
 // Setup node-cron
 setupScheduler();

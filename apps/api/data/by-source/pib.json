@@ -1,10 +1,102 @@
 {
   "source": "pib",
-  "fetchedAt": "2026-05-04T12:54:42.242Z",
-  "ok": false,
-  "error": "HTTP 403",
+  "fetchedAt": "2026-05-09T16:10:10.254Z",
+  "ok": true,
+  "fixturesUsed": true,
   "payload": {
-    "policies": [],
-    "news": []
+    "policies": [
+      {
+        "headline": "India Achieves 48 GW Wind Power Installed Capacity",
+        "title": "India Achieves 48 GW Wind Power Installed Capacity",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2120001",
+        "publishedAt": "2025-02-15T00:00:00Z",
+        "source": "PIB",
+        "category": "Wind",
+        "summary": "MNRE announces milestone in wind energy deployment"
+      },
+      {
+        "headline": "Government Extends RPO Targets for Wind Energy to FY2030",
+        "title": "Government Extends RPO Targets for Wind Energy to FY2030",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2100234",
+        "publishedAt": "2025-01-10T00:00:00Z",
+        "source": "PIB",
+        "category": "Wind",
+        "summary": "New RPO trajectory announced for wind energy sector"
+      },
+      {
+        "headline": "SECI Issues Tender for 2500 MW Wind-Solar Hybrid Power",
+        "title": "SECI Issues Tender for 2500 MW Wind-Solar Hybrid Power",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2090567",
+        "publishedAt": "2024-12-20T00:00:00Z",
+        "source": "PIB",
+        "category": "Wind",
+        "summary": "SECI floats major hybrid energy tender"
+      },
+      {
+        "headline": "Cabinet Approves Wind Energy Repowering Policy Framework",
+        "title": "Cabinet Approves Wind Energy Repowering Policy Framework",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2080123",
+        "publishedAt": "2024-11-05T00:00:00Z",
+        "source": "PIB",
+        "category": "Repowering",
+        "summary": "Cabinet clears repowering guidelines for older wind turbines"
+      },
+      {
+        "headline": "Offshore Wind Policy Updated: 37 GW Target by 2030",
+        "title": "Offshore Wind Policy Updated: 37 GW Target by 2030",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2070456",
+        "publishedAt": "2024-10-18T00:00:00Z",
+        "source": "PIB",
+        "category": "Offshore",
+        "summary": "Ministry updates offshore wind development roadmap"
+      }
+    ],
+    "news": [
+      {
+        "headline": "India Achieves 48 GW Wind Power Installed Capacity",
+        "title": "India Achieves 48 GW Wind Power Installed Capacity",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2120001",
+        "publishedAt": "2025-02-15T00:00:00Z",
+        "source": "PIB",
+        "category": "Wind",
+        "summary": "MNRE announces milestone in wind energy deployment"
+      },
+      {
+        "headline": "Government Extends RPO Targets for Wind Energy to FY2030",
+        "title": "Government Extends RPO Targets for Wind Energy to FY2030",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2100234",
+        "publishedAt": "2025-01-10T00:00:00Z",
+        "source": "PIB",
+        "category": "Wind",
+        "summary": "New RPO trajectory announced for wind energy sector"
+      },
+      {
+        "headline": "SECI Issues Tender for 2500 MW Wind-Solar Hybrid Power",
+        "title": "SECI Issues Tender for 2500 MW Wind-Solar Hybrid Power",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2090567",
+        "publishedAt": "2024-12-20T00:00:00Z",
+        "source": "PIB",
+        "category": "Wind",
+        "summary": "SECI floats major hybrid energy tender"
+      },
+      {
+        "headline": "Cabinet Approves Wind Energy Repowering Policy Framework",
+        "title": "Cabinet Approves Wind Energy Repowering Policy Framework",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2080123",
+        "publishedAt": "2024-11-05T00:00:00Z",
+        "source": "PIB",
+        "category": "Repowering",
+        "summary": "Cabinet clears repowering guidelines for older wind turbines"
+      },
+      {
+        "headline": "Offshore Wind Policy Updated: 37 GW Target by 2030",
+        "title": "Offshore Wind Policy Updated: 37 GW Target by 2030",
+        "url": "https://pib.gov.in/PressReleaseIframePage.aspx?PRID=2070456",
+        "publishedAt": "2024-10-18T00:00:00Z",
+        "source": "PIB",
+        "category": "Offshore",
+        "summary": "Ministry updates offshore wind development roadmap"
+      }
+    ]
   }
 }

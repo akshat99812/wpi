@@ -128,3 +128,19 @@ model SourceStatus {
   fetchedAt  DateTime
   updatedAt  DateTime @updatedAt
 }
+
+enum UserTier {
+  FREE
+  PREMIUM
+}
+
+model User {
+  id        String   @id @default(cuid())
+  googleId  String   @unique
+  email     String   @unique
+  name      String?
+  image     String?
+  tier      UserTier @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

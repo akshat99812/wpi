@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import type { WpiBundle } from '@/lib/types';
 import ContextBar from './ContextBar';
-import MapCanvas, { type BasemapId } from './Map/MapCanvas';
+import MapCanvas, { type BasemapId } from './Map';
 import MetricsStrip from './KnowledgeBank/MetricsStrip';
 import TabPanel from './KnowledgeBank/TabPanel';
 import SourceStatusBar from './SourceStatusBar';
@@ -33,7 +33,7 @@ export default function PortalShell({ bundle }: Props) {
           <div className="px-4 py-2.5 border-b border-[#1e2c44] flex justify-between items-center flex-none">
             <div className="flex items-center gap-2.5">
               <div className="w-2 h-2 rounded-full bg-orange shadow-[0_0_6px_#ff8a1f]" />
-              <h1 className="text-[14px] font-bold text-text">India Wind Intelligence Map</h1>
+              <h1 className="text-[14px] font-bold text-text">Wind Power India</h1>
               <span className="text-[9px] px-2 py-0.5 bg-orange/10 text-orange border border-orange/20 rounded-full font-bold uppercase tracking-wide">Live</span>
             </div>
             <span suppressHydrationWarning className="text-[10px] text-muted hidden md:block">
@@ -68,7 +68,7 @@ export default function PortalShell({ bundle }: Props) {
           {/* Zone 2 + 3: Glass panel */}
           <div className="glass-panel rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden mt-3">
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-              <TabPanel bundle={bundle ?? undefined} selectedState={selectedState} />
+              <TabPanel bundle={bundle ?? undefined} selectedState={selectedState} onClearState={clearState} />
             </div>
             <div className="flex-none border-t border-[#1a2138]">
               <SourceStatusBar status={bundle?.sourceStatus} />

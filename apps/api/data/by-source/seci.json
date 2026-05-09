@@ -1,30 +1,92 @@
 {
   "source": "seci",
-  "fetchedAt": "2026-05-04T12:54:39.722Z",
+  "fetchedAt": "2026-05-09T16:10:08.072Z",
   "ok": true,
-  "fixturesUsed": true,
   "payload": {
     "auctions": [
       {
         "issuer": "SECI",
-        "tranche": "Tranche XIV - Wind",
+        "tranche": "RfS for Setting up of 1200 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XIX)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2025-10-15T00:00:00.000Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for 500 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XVII)",
+        "capacityMw": 500,
+        "tariffL1Inr": null,
+        "resultDate": "2024-05-29T00:00:00.000Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1350 MW ISTS-connected Wind Power Projects (SECI-Tranche-XV",
+        "capacityMw": 1350,
+        "tariffL1Inr": null,
+        "resultDate": "2023-11-30T00:00:00.000Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIV)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2023-02-20T00:00:00.000Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIII)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2022-01-12T00:00:00.000Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "Tranche XIX – Wind (1200 MW)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2025-12-15T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "Tranche XVII – Wind (500 MW)",
+        "capacityMw": 500,
+        "tariffL1Inr": 3.08,
+        "resultDate": "2024-08-05T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "Wind-Solar Hybrid Tranche IX (400 MW)",
+        "capacityMw": 400,
+        "tariffL1Inr": 3.72,
+        "resultDate": "2024-08-06T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "Wind-Solar Hybrid Tranche VIII (1200 MW)",
+        "capacityMw": 1200,
+        "tariffL1Inr": 3.87,
+        "resultDate": "2024-05-20T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "Tranche XIV – Wind (1200 MW)",
         "capacityMw": 1200,
         "tariffL1Inr": 3.15,
-        "resultDate": "2024-09-15T00:00:00Z"
+        "resultDate": "2023-04-17T00:00:00Z"
       },
       {
         "issuer": "SECI",
-        "tranche": "Tranche XI - Wind",
-        "capacityMw": 1500,
-        "tariffL1Inr": 3.35,
-        "resultDate": "2024-03-20T00:00:00Z"
+        "tranche": "Tranche XV – Wind (1350 MW)",
+        "capacityMw": 1350,
+        "tariffL1Inr": 3.21,
+        "resultDate": "2024-01-10T00:00:00Z"
       },
       {
-        "issuer": "SECI",
-        "tranche": "FDRE-II Wind+Solar+BESS",
-        "capacityMw": 2500,
-        "tariffL1Inr": 4.45,
-        "resultDate": "2024-06-10T00:00:00Z"
+        "issuer": "NTPC",
+        "tranche": "Wind IPP 1200 MW (Tranche I)",
+        "capacityMw": 1200,
+        "tariffL1Inr": 3.28,
+        "resultDate": "2024-11-05T00:00:00Z"
       }
     ]
   }

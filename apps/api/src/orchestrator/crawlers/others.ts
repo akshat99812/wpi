@@ -1,7 +1,18 @@
 import { SourceResult } from '../merge';
 
-// CEA crawler — uses fixture data based on published CEA monthly reports
-// Real URL: cea.nic.in is often slow/down; authoritative figures are from CEA reports
+const CEA_FIXTURE = {
+  capacity: { installed_mw: 48200 },
+  monthlyGeneration: [
+    { month: 'Jan-2025', wind_mu: 8420 },
+    { month: 'Dec-2024', wind_mu: 7890 },
+    { month: 'Nov-2024', wind_mu: 6210 },
+    { month: 'Oct-2024', wind_mu: 5840 },
+    { month: 'Sep-2024', wind_mu: 7120 },
+    { month: 'Aug-2024', wind_mu: 9340 },
+  ]
+};
+
+// CEA (cea.nic.in) is frequently unreachable — try multiple URLs before falling back to fixture
 export const ceaCrawler = {
   key: 'cea',
   name: 'Central Electricity Authority',
@@ -9,28 +20,28 @@ export const ceaCrawler = {
     const fetchedAt = new Date();
     try {
       const { politeFetch } = await import('../httpClient');
-      const res = await politeFetch('https://cea.nic.in/renewable-dashboard/');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const html = await res.text();
-      // Look for wind capacity in the page
+      // Try multiple CEA URL paths; the site is frequently down/slow
+      const urlsToTry = [
+        'https://cea.nic.in/renewable-dashboard/',
+        'https://cea.nic.in/report/?lang=en',
+        'https://cea.nic.in/',
+      ];
+      let html = '';
+      for (const url of urlsToTry) {
+        try {
+          const res = await politeFetch(url);
+          if (res.ok) { html = await res.text(); break; }
+        } catch { continue; }
+      }
+      if (!html) throw new Error('All CEA URLs failed');
       const mwMatch = html.match(/wind[^<]{0,300}?(\d[\d,]+)\s*(?:MW|GW)/i);
-      const installed_mw = mwMatch && mwMatch[1] ? parseInt(mwMatch[1].replace(/,/g, '')) : null;
+      const installed_mw = mwMatch?.[1] ? parseInt(mwMatch[1].replace(/,/g, '')) : null;
       if (installed_mw && installed_mw > 1000) {
         return { source: 'cea', fetchedAt, ok: true, payload: { capacity: { installed_mw } } };
       }
-      throw new Error('No capacity data found');
+      throw new Error('No wind capacity data found in CEA page');
     } catch {
-      return {
-        source: 'cea', fetchedAt, ok: true, fixturesUsed: true,
-        payload: {
-          capacity: { installed_mw: 48200 },
-          monthlyGeneration: [
-            { month: 'Jan-2025', wind_mu: 8420 },
-            { month: 'Dec-2024', wind_mu: 7890 },
-            { month: 'Nov-2024', wind_mu: 6210 }
-          ]
-        }
-      };
+      return { source: 'cea', fetchedAt, ok: true, fixturesUsed: true, payload: CEA_FIXTURE };
     }
   }
 };

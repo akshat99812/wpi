@@ -1,6 +1,6 @@
 {
   "source": "cea",
-  "fetchedAt": "2026-05-04T12:53:42.652Z",
+  "fetchedAt": "2026-05-09T16:07:16.973Z",
   "ok": true,
   "fixturesUsed": true,
   "payload": {
@@ -19,6 +19,18 @@
       {
         "month": "Nov-2024",
         "wind_mu": 6210
+      },
+      {
+        "month": "Oct-2024",
+        "wind_mu": 5840
+      },
+      {
+        "month": "Sep-2024",
+        "wind_mu": 7120
+      },
+      {
+        "month": "Aug-2024",
+        "wind_mu": 9340
       }
     ]
   }

@@ -1,0 +1,71 @@
+import React from 'react';
+import type { TooltipState } from '../types';
+
+interface Props { tooltip: TooltipState }
+
+const ROWS: Array<[keyof TooltipState | 'mw' | 'plf' | 'windMs' | 'potential', string, string, string]> = [
+  ['mw',        'Installed',  '#ffb366', '⚡'],
+  ['windMs',    'Wind Speed', '#67e8f9', '🌬'],
+  ['plf',       'Avg PLF',    '#4ade80', '📈'],
+  ['potential', 'Potential',  '#a5b4fc', '🔭'],
+];
+
+function formatRow(key: string, t: TooltipState): string {
+  switch (key) {
+    case 'mw':        return `${(t.mw / 1000).toFixed(1)} GW`;
+    case 'windMs':    return `${t.windMs} m/s`;
+    case 'plf':       return `${t.plf}%`;
+    case 'potential': return `${t.potential} GW`;
+    default:          return '';
+  }
+}
+
+export function StateTooltip({ tooltip }: Props) {
+  return (
+    <div
+      className="absolute pointer-events-none z-30 w-[220px]"
+      style={{ left: tooltip.x + 18, top: Math.max(8, tooltip.y - 160) }}
+    >
+      <div className="absolute inset-0 rounded-2xl blur-xl opacity-40 bg-orange-500" />
+      <div className="relative bg-[#060c1a] border border-orange-400/50 rounded-2xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.85)]">
+        <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-white/15">
+          <div className="w-7 h-7 rounded-lg bg-orange-400/15 border border-orange-400/30 flex items-center justify-center text-[13px]">
+            💨
+          </div>
+          <span className="text-[13px] font-black text-white tracking-wide flex-1">
+            {tooltip.state}
+          </span>
+          <div className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_2px_rgba(255,138,31,0.7)] animate-pulse" />
+        </div>
+
+        <div className="space-y-2">
+          {ROWS.map(([key, label, color, icon]) => (
+            <div
+              key={label}
+              className="flex items-center justify-between gap-2 bg-white/[0.04] rounded-lg px-2.5 py-1.5"
+            >
+              <span className="text-[10px] text-white/55 flex items-center gap-1.5">
+                <span className="text-[11px]">{icon}</span>
+                {label}
+              </span>
+              <span
+                className="text-[12px] font-black font-mono tracking-tight"
+                style={{ color }}
+              >
+                {formatRow(key as string, tooltip)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-center gap-1.5">
+          <div className="w-1 h-1 rounded-full bg-orange-400" />
+          <span className="text-[9px] text-orange-300 font-bold tracking-widest uppercase">
+            Click to Filter Dashboard
+          </span>
+          <div className="w-1 h-1 rounded-full bg-orange-400" />
+        </div>
+      </div>
+    </div>
+  );
+}
