@@ -22,8 +22,13 @@ body {
   font-feature-settings: "cv11", "salt";
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
 }
 
 /* Glassmorphism utility */
@@ -56,4 +61,13 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
+}
+
+/* Hide scrollbar while keeping scroll functionality */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

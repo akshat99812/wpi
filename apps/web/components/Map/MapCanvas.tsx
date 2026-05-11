@@ -134,7 +134,13 @@ export default function MapCanvas({
       </div>
 
       {/* Hover tooltip */}
-      {tooltip && <StateTooltip tooltip={tooltip} />}
+      {tooltip && (
+        <StateTooltip
+          tooltip={tooltip}
+          containerWidth={containerRef.current?.offsetWidth}
+          containerHeight={containerRef.current?.offsetHeight}
+        />
+      )}
 
       {/* Selected-state badge */}
       {selectedState && (
@@ -151,7 +157,7 @@ export default function MapCanvas({
 
       {/* Bottom-right (above zoom controls): capacity legend on non-wind modes */}
       {mode !== 'wind' && (
-        <div className="absolute bottom-12 right-14 z-10">
+        <div className="absolute bottom-2 right-2 sm:bottom-12 sm:right-14 z-10">
           <CapacityLegend />
         </div>
       )}

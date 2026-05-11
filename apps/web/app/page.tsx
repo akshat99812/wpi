@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#090d18]">
+    <div className="flex flex-col min-h-screen lg:h-screen w-screen overflow-x-hidden lg:overflow-hidden bg-[#090d18]">
       <Dashboard />
     </div>
   );

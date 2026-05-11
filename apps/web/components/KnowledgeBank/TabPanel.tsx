@@ -59,9 +59,9 @@ export default function TabPanel({ bundle, selectedState, onClearState }: Props)
             </span>
             <button
               onClick={onClearState}
-              className="flex items-center gap-1 text-[10px] font-semibold text-muted/55 hover:text-orange transition-colors"
+              className="flex items-center gap-1.5 text-[12px] font-semibold text-muted/65 hover:text-orange transition-colors"
             >
-              <span className="text-[12px] leading-none">←</span>
+              <span className="text-[15px] leading-none">←</span>
               Back to India overview
             </button>
           </div>

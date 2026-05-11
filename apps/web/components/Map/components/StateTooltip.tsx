@@ -1,7 +1,11 @@
 import React from 'react';
 import type { TooltipState } from '../types';
 
-interface Props { tooltip: TooltipState }
+interface Props {
+  tooltip: TooltipState;
+  containerWidth?: number;
+  containerHeight?: number;
+}
 
 const ROWS: Array<[keyof TooltipState | 'mw' | 'plf' | 'windMs' | 'potential', string, string, string]> = [
   ['mw',        'Installed',  '#ffb366', '⚡'],
@@ -20,11 +24,24 @@ function formatRow(key: string, t: TooltipState): string {
   }
 }
 
-export function StateTooltip({ tooltip }: Props) {
+const TOOLTIP_W = 220;
+const TOOLTIP_H = 210;
+
+export function StateTooltip({ tooltip, containerWidth, containerHeight }: Props) {
+  const rawLeft = tooltip.x + 18;
+  const rawTop  = Math.max(8, tooltip.y - 160);
+
+  const left = containerWidth
+    ? Math.min(rawLeft, containerWidth - TOOLTIP_W - 4)
+    : rawLeft;
+  const top = containerHeight
+    ? Math.min(rawTop, containerHeight - TOOLTIP_H - 4)
+    : rawTop;
+
   return (
     <div
       className="absolute pointer-events-none z-30 w-[220px]"
-      style={{ left: tooltip.x + 18, top: Math.max(8, tooltip.y - 160) }}
+      style={{ left, top }}
     >
       <div className="absolute inset-0 rounded-2xl blur-xl opacity-40 bg-orange-500" />
       <div className="relative bg-[#060c1a] border border-orange-400/50 rounded-2xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.85)]">

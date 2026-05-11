@@ -29,8 +29,8 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold text-white/25 cursor-not-allowed select-none border border-white/5"
             >
               <Icon />
-              <span>{BASEMAP_LABELS[id]}</span>
-              <span className="text-[8px] uppercase tracking-wider text-white/30 ml-0.5">Locked</span>
+              <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
+              <span className="hidden sm:inline text-[8px] uppercase tracking-wider text-white/30 ml-0.5">Locked</span>
             </div>
           );
         }
@@ -39,7 +39,7 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
           <button
             key={id}
             onClick={() => onChange(id)}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all duration-200 whitespace-nowrap ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all duration-200 whitespace-nowrap ${
               isActive
                 ? id === 'wind'
                   ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 shadow-[0_0_16px_rgba(34,211,238,0.6)] scale-[1.03]'
@@ -48,7 +48,7 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
             }`}
           >
             <Icon />
-            <span>{BASEMAP_LABELS[id]}</span>
+            <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
           </button>
         );
       })}

@@ -26,7 +26,7 @@ export default function PortalShell({ bundle }: Props) {
         onStateClear={clearState}
       />
 
-      <main className="flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0 overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0 overflow-y-auto lg:overflow-hidden">
 
         {/* ── Left: Map ──────────────────────────────── */}
         <section className="flex-[6] glass-panel rounded-xl flex flex-col overflow-hidden min-h-[50vh] lg:min-h-0">
@@ -54,7 +54,7 @@ export default function PortalShell({ bundle }: Props) {
         </section>
 
         {/* ── Right: Three-zone knowledge bank ───────── */}
-        <section className="flex-[4] flex flex-col min-h-0 overflow-hidden gap-0">
+        <section className="flex-[4] flex flex-col min-h-[55vh] lg:min-h-0 overflow-hidden gap-0">
 
           {/* Zone 1: Collapsible metrics header */}
           <div className="flex-none">

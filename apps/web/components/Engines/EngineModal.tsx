@@ -21,29 +21,32 @@ export default function EngineModal({ initialEngine, onClose }: EngineModalProps
         onClick={e => e.stopPropagation()}
       >
         {/* Header bar */}
-        <header className="flex-none px-5 py-3.5 flex justify-between items-center bg-gradient-to-b from-[#13192a] to-[#0c111d] border-b border-[#1f2740]">
-          <div className="flex items-center gap-3.5">
-            <div className="w-[42px] h-[42px] rounded-xl flex items-center justify-center bg-gradient-to-br from-orange/20 to-orange/5 border border-orange/40 text-orange-200">
-              {/* Icon placeholder */}
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+        <header className="flex-none px-3 sm:px-5 py-3 sm:py-3.5 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2 sm:gap-0 bg-gradient-to-b from-[#13192a] to-[#0c111d] border-b border-[#1f2740]">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 order-1 min-w-0">
+            <div className="w-8 h-8 sm:w-[42px] sm:h-[42px] rounded-xl flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-orange/20 to-orange/5 border border-orange/40 text-orange-200">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
-            <div>
-              <div className="text-[10px] tracking-[1.2px] text-orange font-bold uppercase mb-0.5">Persona Engine</div>
-              <h2 className="text-lg font-bold text-text m-0">{activeEngine} Intelligence</h2>
+            <div className="min-w-0">
+              <div className="text-[9px] sm:text-[10px] tracking-[1.2px] text-orange font-bold uppercase mb-0.5">Persona Engine</div>
+              <h2 className="text-sm sm:text-lg font-bold text-text m-0 truncate">{activeEngine} Intelligence</h2>
             </div>
           </div>
 
-          <div className="flex gap-1 bg-[#0a0e18] border border-border rounded-lg p-1">
+          <button onClick={onClose} className="order-2 sm:order-3 w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] rounded-lg border border-border text-muted hover:text-orange hover:border-orange hover:bg-orange/10 flex items-center justify-center text-xl transition-all flex-shrink-0">
+            &times;
+          </button>
+
+          <div className="flex gap-1 bg-[#0a0e18] border border-border rounded-lg p-1 order-3 sm:order-2 w-full sm:w-auto">
             {(['Finance', 'Research', 'Operators'] as EngineType[]).map((engine) => (
               <button
                 key={engine}
                 onClick={() => setActiveEngine(engine)}
                 disabled={engine === 'Operators'}
-                className={`px-4 py-2 text-[11px] font-bold uppercase tracking-[0.6px] rounded-md transition-colors flex items-center gap-1.5 ${
-                  activeEngine === engine 
-                    ? 'bg-gradient-to-br from-[#2a1f11] to-[#1a130a] text-[#ffd7a8] shadow-[inset_0_0_0_1px_rgba(255,138,31,0.32)]' 
-                    : engine === 'Operators' 
-                      ? 'opacity-50 cursor-not-allowed text-muted' 
+                className={`flex-1 sm:flex-none px-2 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.6px] rounded-md transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
+                  activeEngine === engine
+                    ? 'bg-gradient-to-br from-[#2a1f11] to-[#1a130a] text-[#ffd7a8] shadow-[inset_0_0_0_1px_rgba(255,138,31,0.32)]'
+                    : engine === 'Operators'
+                      ? 'opacity-50 cursor-not-allowed text-muted'
                       : 'text-muted hover:text-orange-200 bg-transparent'
                 }`}
               >
@@ -54,10 +57,6 @@ export default function EngineModal({ initialEngine, onClose }: EngineModalProps
               </button>
             ))}
           </div>
-
-          <button onClick={onClose} className="w-[34px] h-[34px] rounded-lg border border-border text-muted hover:text-orange hover:border-orange hover:bg-orange/10 flex items-center justify-center text-xl transition-all">
-            &times;
-          </button>
         </header>
 
         {/* Body */}

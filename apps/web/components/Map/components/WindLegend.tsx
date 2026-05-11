@@ -19,9 +19,9 @@ const RAMP =
 
 export function WindLegend() {
   return (
-    <div className="bg-gradient-to-b from-black/75 to-black/85 backdrop-blur-md border border-cyan-400/40 rounded-xl px-4 py-3 shadow-2xl w-[220px]">
-      <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-2.5">
-        Mean Wind Speed @ 100 m AGL
+    <div className="bg-gradient-to-b from-black/75 to-black/85 backdrop-blur-md border border-cyan-400/40 rounded-xl px-3 sm:px-4 py-2 sm:py-3 shadow-2xl w-[160px] sm:w-[220px]">
+      <div className="text-[9px] sm:text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-2">
+        Wind Speed @ 100 m
       </div>
 
       {/* Continuous gradient bar */}

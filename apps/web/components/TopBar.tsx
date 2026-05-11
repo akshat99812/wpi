@@ -76,7 +76,7 @@ export default function TopBar({
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="flex-none relative flex items-center justify-between px-6 py-6 h-[68px] overflow-hidden z-30"
+        className="flex-none relative flex items-center justify-between px-3 lg:px-6 py-2 lg:py-6 min-h-[52px] lg:h-[68px] overflow-hidden z-30"
         style={{ 
           background: 'linear-gradient(135deg, rgba(6,8,15,0.98) 0%, rgba(12,17,32,0.95) 50%, rgba(10,13,26,0.97) 100%)',
           backdropFilter: 'blur(20px)',
@@ -127,15 +127,15 @@ export default function TopBar({
         />
 
         {/* ── Brand ── */}
-        <motion.div variants={itemVariants} className="flex items-center gap-4 z-10">
+        <motion.div variants={itemVariants} className="flex items-center gap-2 lg:gap-4 z-10 min-w-0">
           {/* Logo */}
-          <div className="relative w-20 h-20 flex items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+          <div className="relative w-8 h-8 sm:w-12 sm:h-12 lg:w-20 lg:h-20 flex items-center justify-center overflow-hidden flex-shrink-0">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="CECL Energy"
-              width={72}
-              height={72}
-              className="object-contain"
+              width={80}
+              height={80}
+              className="object-contain w-full h-full"
               priority
             />
           </div>
@@ -143,7 +143,7 @@ export default function TopBar({
           {/* Brand text */}
           <div className="flex flex-col gap-0.5">
             <motion.span 
-              className="text-[18px] font-black leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#d0e4ff] to-[#ffc87a]"
+              className="text-[12px] sm:text-[15px] lg:text-[18px] font-black leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#d0e4ff] to-[#ffc87a]"
               animate={{ 
                 backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
               }}
@@ -156,7 +156,7 @@ export default function TopBar({
             >
               Wind Power India
             </motion.span>
-            <span className="text-[11px] font-medium text-white/35 tracking-[0.08em]">
+            <span className="text-[9px] lg:text-[11px] font-medium text-white/35 tracking-[0.08em] hidden sm:block">
               Geospatial Wind Intelligence Terminal
             </span>
           </div>
@@ -167,7 +167,7 @@ export default function TopBar({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0d1f12]/80 border border-[#1a3a20] shadow-[0_0_20px_rgba(76,200,122,0.15)] backdrop-blur-sm"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0d1f12]/80 border border-[#1a3a20] shadow-[0_0_20px_rgba(76,200,122,0.15)] backdrop-blur-sm"
             >
               <motion.div 
                 className="w-2 h-2 rounded-full bg-[#4cc87a]"
@@ -213,11 +213,11 @@ export default function TopBar({
         </motion.div>
 
         {/* ── Engine buttons + About ── */}
-        <motion.div variants={itemVariants} className="flex items-center gap-3 z-10">
+        <motion.div variants={itemVariants} className="flex items-center gap-1.5 lg:gap-3 z-10 flex-shrink-0">
           {/* Engine switcher pill */}
           <motion.div 
             whileHover={{ scale: 1.02 }}
-            className="flex items-center gap-2 p-1.5 rounded-[20px] border border-white/[0.08]"
+            className="flex items-center gap-1 lg:gap-2 p-1 lg:p-1.5 rounded-[20px] border border-white/[0.08]"
             style={{ 
               background: 'rgba(20, 25, 40, 0.5)', 
               backdropFilter: 'blur(20px)',
@@ -246,14 +246,14 @@ export default function TopBar({
                   onHoverEnd={() => setHoveredEngine(null)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`group relative flex items-center gap-2.5 px-4 py-2 rounded-2xl border transition-all duration-300 ${
+                  className={`group relative flex items-center gap-1.5 lg:gap-2.5 px-2 lg:px-4 py-1.5 lg:py-2 rounded-2xl border transition-all duration-300 ${
                     hoveredEngine === engine.id 
                       ? `bg-gradient-to-br ${gradients[idx]}`
                       : 'border-transparent hover:bg-white/5'
                   }`}
                 >
                   <motion.span 
-                    className="text-[18px] group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300 drop-shadow-md"
+                    className="text-[14px] lg:text-[18px] group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300 drop-shadow-md"
                     animate={hoveredEngine === engine.id ? {
                       rotate: [0, 10, -10, 0],
                       transition: { duration: 0.5 }
@@ -261,7 +261,7 @@ export default function TopBar({
                   >
                     {engine.icon}
                   </motion.span>
-                  <div className="flex flex-col items-start">
+                  <div className="hidden sm:flex flex-col items-start">
                     <span className={`text-[12.5px] font-bold leading-tight transition-colors duration-300 ${
                       hoveredEngine === engine.id 
                         ? textColors[idx]
@@ -299,7 +299,7 @@ export default function TopBar({
             initial={{ scaleY: 0 }}
             animate={{ scaleY: 1 }}
             transition={{ delay: 0.5 }}
-            className="w-px h-8 bg-white/10"
+            className="hidden sm:block w-px h-8 bg-white/10"
           />
 
           {/* About button */}
@@ -310,7 +310,7 @@ export default function TopBar({
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, type: 'spring' }}
-            className="relative flex items-center gap-2 px-8 py-2.5 rounded-xl font-bold text-[13px] text-orange border border-orange/30 overflow-hidden group"
+            className="relative flex items-center gap-1.5 lg:gap-2 px-3 lg:px-8 py-2 lg:py-2.5 rounded-xl font-bold text-[11px] lg:text-[13px] text-orange border border-orange/30 overflow-hidden group"
             style={{ 
               background: 'rgba(255,138,31,0.08)', 
               backdropFilter: 'blur(12px)',
@@ -373,7 +373,7 @@ export default function TopBar({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.7, type: 'spring' }}
-              className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-colors shadow-sm"
+              className="relative flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-white/[0.03] border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-colors shadow-sm"
               disabled={isRefreshing}
             >
               <motion.svg 

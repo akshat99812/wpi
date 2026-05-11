@@ -17,7 +17,7 @@ export function CursorReadoutBar({ readout }: Props) {
   const zoom = readout ? readout.zoom.toFixed(2) : '— —';
 
   return (
-    <div className="bg-black/70 backdrop-blur-md border border-white/10 rounded-lg px-3 py-1.5 shadow-xl flex items-center gap-3 font-mono text-[10px] text-white/75 tabular-nums">
+    <div className="hidden sm:flex bg-black/70 backdrop-blur-md border border-white/10 rounded-lg px-3 py-1.5 shadow-xl items-center gap-3 font-mono text-[10px] text-white/75 tabular-nums">
       <span className="flex items-center gap-1">
         <span className="text-white/40 uppercase tracking-wider text-[9px]">Lat</span>
         <span>{lat}°</span>
