@@ -5,6 +5,7 @@ import type { WpiBundle } from '@/lib/types';
 import {
   InfoCard, Prose, ChipRow, SectionHeader, EmptyState, SourceLinks,
 } from '../WindCards';
+import { STATE_PROFILES } from '../stateProfiles';
 
 interface Props {
   bundle?:        WpiBundle;
@@ -87,14 +88,44 @@ const SOURCES = [
   { label: 'PIB Press Releases', url: 'https://pib.gov.in/' },
 ];
 
-export default function PolicySection({ bundle }: Props) {
+export default function PolicySection({ bundle, selectedState }: Props) {
+  const profile = selectedState ? STATE_PROFILES[selectedState] ?? null : null;
+
   return (
     <div className="flex flex-col gap-3.5">
       <SectionHeader
-        eyebrow="Central Government"
-        title="Policy — Central Stack"
+        eyebrow={selectedState ? `${selectedState} · Policy Anchor` : 'Central Government'}
+        title={selectedState ? `Policy — ${selectedState}` : 'Policy — Central Stack'}
         delay={0}
       />
+
+      {/* State-specific policy + nodal context */}
+      {profile && (
+        <>
+          <InfoCard
+            title={`${selectedState} — state policy & nodal stack`}
+            delay={30}
+            defaultOpen
+            icon={<DocIcon />}
+            accent="#ff8a1f"
+          >
+            <Prose>
+              State policy anchor: <b className="text-[#ffd0a0]">{profile.policyAnchor}</b>.
+            </Prose>
+            {profile.sectorProfile.map((para, i) => (
+              <Prose key={i}>{para}</Prose>
+            ))}
+          </InfoCard>
+
+          <div className="flex items-center gap-2 mt-1 mb-1 px-1">
+            <span className="h-px flex-1 bg-[#2a3a54]/60" />
+            <span className="text-[9px] uppercase tracking-[0.18em] font-bold text-muted/45">
+              Central stack applies on top
+            </span>
+            <span className="h-px flex-1 bg-[#2a3a54]/60" />
+          </div>
+        </>
+      )}
 
       {/* Issuer chip overview */}
       <div

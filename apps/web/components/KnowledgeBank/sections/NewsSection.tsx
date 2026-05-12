@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import type { WpiBundle } from '@/lib/types';
 import { SectionHeader, EmptyState, InfoCard } from '../WindCards';
+import { useStateNews } from '@/hooks/useApi';
 
 interface Props {
   bundle?:        WpiBundle;
@@ -11,7 +12,7 @@ interface Props {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://wpi-sjse.onrender.com';
 
-export default function NewsSection({ bundle }: Props) {
+export default function NewsSection({ bundle, selectedState }: Props) {
   // Seed with bundle data immediately (no loading flash), then upgrade with fresh API data
   const [news, setNews] = useState<WpiBundle['news']>(bundle?.news ?? []);
   const [analystReports, setAnalystReports] = useState(bundle?.analystReports ?? []);
@@ -38,20 +39,116 @@ export default function NewsSection({ bundle }: Props) {
 
   useEffect(() => { fetchNews(); }, [fetchNews]);
 
+  // Live state-specific news via the backend Google-News aggregator. Only
+  // fires when a state is selected. Re-runs whenever the state changes.
+  const stateNewsApi = useStateNews(selectedState ?? null);
+
+  // Filter to state-relevant news when a state is selected. Match against
+  // headline + summary + source (case-insensitive) using an alias list that
+  // includes the state name, common short forms, prime districts, the state
+  // transco/utility, and notable wind-corridor cities — most wind headlines
+  // mention a district or utility rather than the state name itself.
+  const { stateScopedNews, isStateFallback } = useMemo(() => {
+    if (!selectedState) return { stateScopedNews: news, isStateFallback: false };
+
+    // Prefer the live state-news endpoint when it returned results.
+    const liveStateNews = stateNewsApi.data?.news ?? [];
+    if (liveStateNews.length > 0) {
+      return { stateScopedNews: liveStateNews, isStateFallback: false };
+    }
+
+    const aliases: Record<string, string[]> = {
+      'Andhra Pradesh':   ['andhra pradesh', 'andhra', ' ap ', 'apepdcl', 'apspdcl', 'aptransco', 'nredcap',
+                            'anantapur', 'kurnool', 'nellore', 'rayalaseema', 'chittoor', 'prakasam'],
+      'Gujarat':          ['gujarat', 'guvnl', 'getco', 'geda', 'kutch', 'khavda', 'jamnagar', 'rajkot',
+                            'porbandar', 'bhavnagar', 'gulf of kutch', 'saurashtra'],
+      'Himachal Pradesh': ['himachal pradesh', 'himachal', 'himurja', 'hpptcl', 'lahaul', 'spiti', 'chamba', 'kangra'],
+      'Karnataka':        ['karnataka', 'bescom', 'kredl', 'kptcl', 'chitradurga', 'gadag', 'davangere',
+                            'tumkur', 'pavagada', 'bellary', 'bagalkot'],
+      'Kerala':           ['kerala', 'kseb', 'anert', 'palakkad', 'palghat', 'idukki', 'thrissur'],
+      'Madhya Pradesh':   ['madhya pradesh', ' mp ', 'mppmcl', 'mpptcl', 'mpuvnl', 'mperc',
+                            'dhar', 'ratlam', 'shajapur', 'ujjain', 'khargone', 'mandsaur'],
+      'Maharashtra':      ['maharashtra', 'msedcl', 'mahatransco', 'meda', 'merc',
+                            'satara', 'sangli', 'dhule', 'nashik', 'ahmednagar', 'nandurbar'],
+      'Odisha':           ['odisha', 'orissa', 'gridco', 'oreda', 'optcl', 'kalahandi', 'koraput',
+                            'bolangir', 'paradip', 'gopalpur'],
+      'Rajasthan':        ['rajasthan', 'rvpn', 'rrecl', 'rerc', 'jaisalmer', 'barmer', 'jodhpur',
+                            'bikaner', 'nagaur', 'thar', 'khimsar', 'bhadla', 'fatehgarh'],
+      'Tamil Nadu':       ['tamil nadu', ' tn ', 'tamilnadu', 'tangedco', 'tantransco', 'teda', 'tnerc',
+                            'tirunelveli', 'thoothukudi', 'tuticorin', 'coimbatore', 'muppandal',
+                            'aralvaimozhi', 'kanyakumari', 'dindigul', 'palghat gap', 'gulf of mannar', 'dhanushkodi'],
+      'Telangana':        ['telangana', 'tsredco', 'tstransco', 'tserc', 'narayanpet', 'mahabubnagar',
+                            'jogulamba', 'nizamabad', 'hyderabad'],
+    };
+
+    const needles = (aliases[selectedState] ?? [selectedState.toLowerCase()])
+      .map(s => s.toLowerCase());
+
+    const filtered = news.filter(n => {
+      const hay = `${n.headline} ${n.summary ?? ''} ${n.source ?? ''}`.toLowerCase();
+      return needles.some(needle => hay.includes(needle));
+    });
+
+    // If nothing matched, fall back to the national feed with a notice
+    // rather than showing an empty card — useful while the live state-news
+    // endpoint is still loading on first hit (Render cold start).
+    if (filtered.length === 0) {
+      return { stateScopedNews: news, isStateFallback: true };
+    }
+    return { stateScopedNews: filtered, isStateFallback: false };
+  }, [news, selectedState, stateNewsApi.data]);
+
   const sources = useMemo(() => {
-    const set = new Set(news.map(n => n.source));
+    const set = new Set(stateScopedNews.map(n => n.source));
     return ['All', ...Array.from(set).sort()];
-  }, [news]);
+  }, [stateScopedNews]);
 
   const [activeSource, setActiveSource] = useState<string>('All');
 
+  // Reset the source filter when the selected state changes — the source
+  // list shifts (national → state) and a stale active source would otherwise
+  // empty the feed.
+  useEffect(() => { setActiveSource('All'); }, [selectedState]);
+
   const filtered = activeSource === 'All'
-    ? news
-    : news.filter(n => n.source === activeSource);
+    ? stateScopedNews
+    : stateScopedNews.filter(n => n.source === activeSource);
 
   return (
     <div className="flex flex-col gap-3.5">
-      <SectionHeader eyebrow="Live RSS Feed" title="News — Wind Energy India" delay={0} />
+      <SectionHeader
+        eyebrow={selectedState ? `${selectedState} · Filtered Feed` : 'Live RSS Feed'}
+        title={selectedState ? `News — ${selectedState}` : 'News — Wind Energy India'}
+        delay={0}
+      />
+
+      {/* Live state-news loading indicator */}
+      {selectedState && stateNewsApi.loading && (
+        <div
+          className="wpi-card-in flex items-center gap-2 bg-[#0a0f1c]/60 border border-[#1f2c44] rounded-lg px-3 py-2"
+          style={{ ['--wpi-delay' as string]: '30ms' }}
+        >
+          <span className="w-3 h-3 rounded-full border border-orange/60 border-t-transparent animate-spin" />
+          <span className="text-[10.5px] text-muted/75">
+            Fetching latest <b className="text-text/85">{selectedState}</b> wind news…
+          </span>
+        </div>
+      )}
+
+      {/* Fallback notice — only shown after the live fetch finished without
+          results AND the client-side filter also matched nothing. */}
+      {selectedState && !stateNewsApi.loading && isStateFallback && news.length > 0 && (
+        <div
+          className="wpi-card-in flex items-start gap-2.5 bg-[#0a0f1c]/60 border border-dashed border-[#2a3a54] rounded-lg px-3 py-2.5"
+          style={{ ['--wpi-delay' as string]: '40ms' }}
+        >
+          <span className="text-[11px] mt-0.5 leading-none">ℹ</span>
+          <p className="text-[10.5px] text-muted/75 leading-relaxed">
+            No recent headlines mention <b className="text-text/85">{selectedState}</b> or its
+            districts / utilities. Showing the national wind feed instead.
+          </p>
+        </div>
+      )}
 
       {/* Source filter */}
       {sources.length > 1 && (
@@ -107,7 +204,14 @@ export default function NewsSection({ bundle }: Props) {
           ))}
         </div>
       ) : (
-        <EmptyState delay={0} message={news.length === 0 ? 'No news available — try refreshing.' : `No items from "${activeSource}".`} />
+        <EmptyState
+          delay={0}
+          message={
+            news.length === 0
+              ? 'No news available — try refreshing.'
+              : `No items from "${activeSource}".`
+          }
+        />
       )}
 
       {/* Analyst reports */}

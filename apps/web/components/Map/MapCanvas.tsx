@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
+import { motion } from 'framer-motion';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import type { WpiBundle } from '@/lib/types';
@@ -55,6 +56,7 @@ export default function MapCanvas({
 
   const [mode, setMode]       = useState<BasemapId>(basemap);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [isSwitching, setIsSwitching] = useState(false);
 
   // ── Hooks ──────────────────────────────────────────────────────────────
   useMapInit({ containerRef, mapRef, modeRef, initialBasemap: basemap });
@@ -83,7 +85,13 @@ export default function MapCanvas({
     const m = mapRef.current;
     if (!m) return;
 
-    const onStyleLoad = () => { applyMode(m); };
+    const onStyleLoad = () => {
+      // Lift the veil immediately — tiles paint progressively underneath.
+      // Reinstalling boundaries/turbines/wind runs fire-and-forget; they pop
+      // in as their data resolves without blocking the basemap reveal.
+      setIsSwitching(false);
+      applyMode(m);
+    };
     m.on('style.load', onStyleLoad);
     if (m.isStyleLoaded()) onStyleLoad();
 
@@ -110,9 +118,13 @@ export default function MapCanvas({
     setMode(next);
     onBasemapChange?.(next);
     setTooltip(null);
+    setIsSwitching(true);
 
     const m = mapRef.current;
-    if (!m) return;
+    if (!m) {
+      setIsSwitching(false);
+      return;
+    }
 
     m.setStyle(getStyle(next));
   }, [onBasemapChange]);
@@ -121,6 +133,21 @@ export default function MapCanvas({
   return (
     <div className="absolute inset-0">
       <div ref={containerRef} className="w-full h-full" />
+
+      {/* Crossfade veil — masks the setStyle rebuild flicker only. Snaps in
+          fast and fades out immediately on style.load so the switch feels
+          instant; tiles paint progressively under the dissolving veil. */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[5] bg-[#0a0e18]"
+        initial={false}
+        animate={{ opacity: isSwitching ? 0.6 : 0 }}
+        transition={
+          isSwitching
+            ? { duration: 0.05, ease: 'linear' }
+            : { duration: 0.18, ease: 'easeOut' }
+        }
+      />
 
       {/* Top-left: basemap switcher + (in wind mode) wind legend */}
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">

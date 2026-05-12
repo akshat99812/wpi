@@ -37,8 +37,6 @@ export default function MetricsStrip({ bundle }: Props) {
       sub: 'All-India fleet',                                  accent: ACCENT.orange },
     { label: 'FY30 Target', value: cap ? `${(cap.target_fy_mw / 1000).toFixed(0)} GW` : '100 GW',
       sub: 'MNRE wind-only',                                   accent: ACCENT.amber },
-    { label: 'L1 Tariff',   value: bundle?.auctions?.[0] ? `₹${bundle.auctions[0].tariffL1Inr}` : '₹3.15',
-      sub: `${bundle?.auctions?.[0]?.issuer ?? 'SECI'} latest`, accent: ACCENT.green },
     { label: 'Potential',   value: '1,164 GW',                 sub: 'NIWE @150m',     accent: ACCENT.cyan },
   ];
 
@@ -46,7 +44,7 @@ export default function MetricsStrip({ bundle }: Props) {
     <div className="bg-gradient-to-b from-[#0f1424] to-[#0a0f1c] border border-[#2a3a54]/70 rounded-2xl overflow-hidden shadow-[0_4px_24px_-8px_rgba(0,0,0,0.6)]">
       <Header ok={ok} total={total} />
 
-      <div className="grid divide-x divide-[#1a2a44] grid-cols-2 sm:grid-cols-4">
+      <div className="grid divide-x divide-[#1a2a44] grid-cols-3">
         {metrics.map((m, i) => (
           <MetricTile key={i} metric={m} />
         ))}
@@ -84,16 +82,16 @@ function Header({ ok, total }: { ok: number; total: number }) {
   );
 }
 
-// ── Single-line tile ─────────────────────────────────
+// ── Single tile ───────────────────────────────────────
 function MetricTile({ metric: m }: { metric: Metric }) {
   return (
     <div
-      className="group relative flex items-center gap-2.5 px-3.5 py-3 hover:bg-white/[0.015] transition-colors min-w-0 overflow-hidden"
+      className="group relative flex flex-col gap-1.5 px-3.5 py-3 hover:bg-white/[0.015] transition-colors min-w-0 overflow-hidden"
       title={`${m.label}: ${m.value} — ${m.sub}`}
     >
-      {/* Left accent bar */}
+      {/* Top accent bar */}
       <span
-        className="w-[3px] h-6 rounded-full flex-shrink-0"
+        className="w-6 h-[3px] rounded-full"
         style={{
           backgroundColor: m.accent.bar,
           boxShadow: `0 0 8px ${m.accent.glow}`,
@@ -101,25 +99,22 @@ function MetricTile({ metric: m }: { metric: Metric }) {
       />
 
       {/* Label */}
-      <span className="text-[9.5px] text-muted/55 uppercase tracking-[0.08em] font-bold leading-none whitespace-nowrap flex-shrink-0">
+      <span className="text-[9px] text-muted/55 uppercase tracking-[0.08em] font-bold leading-none truncate">
         {m.label}
       </span>
-
-      {/* Spacer */}
-      <div className="flex-1 min-w-0" />
 
       {/* Value */}
       <span
         suppressHydrationWarning
-        className="font-black font-mono leading-none tracking-tight tabular-nums whitespace-nowrap flex-shrink-0 text-[16px]"
+        className="font-black font-mono leading-none tracking-tight tabular-nums text-[15px] truncate"
         style={{ color: m.accent.text, textShadow: `0 0 10px ${m.accent.glow}` }}
       >
         {m.value}
       </span>
 
-      {/* Sub Label */}
-      <span className="text-[9px] text-muted/45 leading-none whitespace-nowrap flex-shrink-0 truncate max-w-[100px] hidden md:inline">
-        · {m.sub}
+      {/* Sub label */}
+      <span className="text-[8.5px] text-muted/45 leading-none truncate">
+        {m.sub}
       </span>
     </div>
   );

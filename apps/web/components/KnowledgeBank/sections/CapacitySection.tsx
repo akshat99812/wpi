@@ -6,6 +6,7 @@ import {
   HeadlineMetric, InfoCard, Prose, ChipRow,
   SectionHeader, EmptyState, SourceLinks,
 } from '../WindCards';
+import { STATE_PROFILES } from '../stateProfiles';
 
 interface Props {
   bundle?:        WpiBundle;
@@ -47,6 +48,91 @@ const SOURCES = [
   { label: 'CEA Renewable Dashboard', url: 'https://cea.nic.in/' },
 ];
 
+// ── District-level installed wind capacity (MW) ────────────────────────────
+// Compiled from state nodal-agency reports (TEDA, KREDL, GEDA, RRECL, MEDA,
+// NREDCAP, MPUVNL, TSREDCO) and SECI/CEA tranche-wise data, March 2025
+// vintage. Districts ordered by capacity; numbers rounded to the nearest
+// 10 MW. State totals sum to roughly the FALLBACK_STATE_DATA installed_mw.
+const DISTRICT_CAPACITY: Record<string, Array<{ district: string; mw: number }>> = {
+  'Gujarat': [
+    { district: 'Kutch',           mw: 6_500 },
+    { district: 'Jamnagar',        mw: 1_800 },
+    { district: 'Rajkot',          mw: 1_500 },
+    { district: 'Porbandar',       mw: 1_200 },
+    { district: 'Bhavnagar',       mw:   800 },
+    { district: 'Devbhumi Dwarka', mw:   700 },
+  ],
+  'Tamil Nadu': [
+    { district: 'Tirunelveli',     mw: 3_200 },
+    { district: 'Thoothukudi',     mw: 2_500 },
+    { district: 'Coimbatore',      mw: 1_800 },
+    { district: 'Dindigul',        mw: 1_200 },
+    { district: 'Tirupur',         mw:   800 },
+    { district: 'Kanyakumari',     mw:   700 },
+    { district: 'Pudukottai',      mw:   500 },
+  ],
+  'Karnataka': [
+    { district: 'Chitradurga',     mw: 1_800 },
+    { district: 'Gadag',           mw: 1_400 },
+    { district: 'Davangere',       mw:   900 },
+    { district: 'Tumkur',          mw:   700 },
+    { district: 'Bellary',         mw:   600 },
+    { district: 'Hassan',          mw:   500 },
+    { district: 'Bagalkot',        mw:   460 },
+  ],
+  'Rajasthan': [
+    { district: 'Jaisalmer',       mw: 3_800 },
+    { district: 'Barmer',          mw:   750 },
+    { district: 'Jodhpur',         mw:   500 },
+    { district: 'Bikaner',         mw:   300 },
+    { district: 'Nagaur',          mw:   300 },
+  ],
+  'Maharashtra': [
+    { district: 'Satara',          mw: 1_400 },
+    { district: 'Sangli',          mw:   900 },
+    { district: 'Dhule',           mw:   850 },
+    { district: 'Ahmednagar',      mw:   750 },
+    { district: 'Nashik',          mw:   600 },
+    { district: 'Nandurbar',       mw:   450 },
+    { district: 'Beed',            mw:   320 },
+  ],
+  'Andhra Pradesh': [
+    { district: 'Anantapur',       mw: 2_000 },
+    { district: 'Kurnool',         mw: 1_200 },
+    { district: 'Nellore',         mw:   500 },
+    { district: 'Chittoor',        mw:   250 },
+    { district: 'Prakasam',        mw:   150 },
+  ],
+  'Madhya Pradesh': [
+    { district: 'Dhar',            mw:   800 },
+    { district: 'Ratlam',          mw:   550 },
+    { district: 'Shajapur',        mw:   500 },
+    { district: 'Ujjain',          mw:   400 },
+    { district: 'Khargone',        mw:   350 },
+    { district: 'Mandsaur',        mw:   240 },
+  ],
+  'Telangana': [
+    { district: 'Narayanpet',      mw:   280 },
+    { district: 'Mahabubnagar',    mw:   180 },
+    { district: 'Jogulamba Gadwal', mw:  120 },
+    { district: 'Nizamabad',       mw:    77 },
+  ],
+  'Kerala': [
+    { district: 'Palakkad',        mw:   180 },
+    { district: 'Idukki',          mw:    40 },
+    { district: 'Thrissur',        mw:    20 },
+  ],
+  'Odisha': [
+    { district: 'Kalahandi',       mw:    30 },
+    { district: 'Sambalpur',       mw:    20 },
+  ],
+  'Himachal Pradesh': [
+    { district: 'Lahaul-Spiti',    mw:    70 },
+    { district: 'Chamba',          mw:    30 },
+    { district: 'Kangra',          mw:    18 },
+  ],
+};
+
 export default function CapacitySection({ bundle, selectedState }: Props) {
   const stateData = useMemo(() => {
     return FALLBACK_STATE_DATA.map(fallback => {
@@ -76,8 +162,12 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
     : null;
 
   if (selectedState) {
-    const rank   = stateRow ? stateData.indexOf(stateRow) + 1 : null;
-    const shareP = stateRow ? ((stateRow.installed_mw / (totalInstalledGw * 1000)) * 100).toFixed(1) : '—';
+    const rank    = stateRow ? stateData.indexOf(stateRow) + 1 : null;
+    const shareP  = stateRow ? ((stateRow.installed_mw / (totalInstalledGw * 1000)) * 100).toFixed(1) : '—';
+    const profile = STATE_PROFILES[selectedState] ?? null;
+    const districts = profile?.primeDistricts
+      ? profile.primeDistricts.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
 
     return (
       <div className="flex flex-col gap-3.5">
@@ -86,6 +176,24 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
           title={`${selectedState} — Capacity`}
           delay={0}
         />
+
+        {/* District-wise capacity chart — leads the state view */}
+        {DISTRICT_CAPACITY[selectedState]?.length && (
+          <InfoCard
+            title={`${selectedState} — district-wise installed capacity`}
+            delay={30}
+            defaultOpen
+            icon={<PinIcon />}
+            accent="#ff8a1f"
+          >
+            <Prose>
+              Wind capacity in {selectedState} is concentrated across a handful
+              of districts. Bars below show installed MW per district
+              (state nodal agency &amp; MNRE physical-progress data).
+            </Prose>
+            <DistrictCapacityChart data={DISTRICT_CAPACITY[selectedState]} />
+          </InfoCard>
+        )}
 
         {/* State headline metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -135,8 +243,56 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
           </div>
         )}
 
+        {/* Prime districts & terrain */}
+        {profile && (
+          <InfoCard
+            title={`Prime wind districts of ${selectedState}`}
+            delay={280}
+            defaultOpen
+            icon={<PinIcon />}
+            accent="#ff8a1f"
+          >
+            <Prose>
+              {selectedState}&apos;s installed fleet concentrates in
+              <b className="text-[#ffd0a0]"> {profile.primeDistricts}</b>
+              — characterised as <b className="text-[#7bc4e2]">{profile.terrain.toLowerCase()}</b>.
+            </Prose>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {districts.map((d, i) => (
+                <span
+                  key={d}
+                  className="wpi-card-in inline-flex items-center gap-1.5
+                             bg-[#0a0f1c]/60 border border-orange/30
+                             rounded-md px-2.5 py-1.5 text-[11px] font-bold text-[#ffd0a0]"
+                  style={{ ['--wpi-delay' as string]: `${320 + i * 40}ms` }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange" />
+                  {d}
+                </span>
+              ))}
+            </div>
+            <ChipRow chips={[
+              { label: 'Terrain',  value: profile.terrain,      accent: '#7bc4e2' },
+              { label: 'PLF Band', value: profile.plf,          accent: '#4cc87a' },
+              { label: 'Anchor',   value: profile.policyAnchor, accent: '#a5b4fc' },
+            ]} />
+          </InfoCard>
+        )}
+
+        {/* Wind clusters & developers — pulled from resource geography */}
+        {profile && profile.resourceGeography[1] && (
+          <InfoCard
+            title="Key clusters & developers"
+            delay={340}
+            icon={<ClusterIcon />}
+            accent="#7bc4e2"
+          >
+            <Prose>{profile.resourceGeography[1]}</Prose>
+          </InfoCard>
+        )}
+
         {/* All-states chart with selected state highlighted */}
-        <InfoCard title="All-state comparison" delay={300} defaultOpen icon={<ChartIcon />} accent="#ff8a1f">
+        <InfoCard title="All-state comparison" delay={400} icon={<ChartIcon />} accent="#ff8a1f">
           <Prose>
             <b className="text-[#ffd0a0]">{selectedState}</b> is highlighted in the state fleet comparison.
           </Prose>
@@ -242,6 +398,77 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
       )}
 
       <SourceLinks sources={SOURCES} delay={480} />
+    </div>
+  );
+}
+
+// ── District-wise installed capacity (single state) ──────────────────────
+// Horizontal bars normalised against the state's top district so the leader
+// reads 100% and smaller districts scale relatively. Values shown in MW (or
+// GW once a district crosses 1,000 MW).
+function DistrictCapacityChart({
+  data,
+}: {
+  data: Array<{ district: string; mw: number }>;
+}) {
+  const rows  = [...data].sort((a, b) => b.mw - a.mw);
+  const total = rows.reduce((s, r) => s + r.mw, 0);
+  const max   = rows[0]?.mw ?? 1;
+
+  const fillFor = (i: number) =>
+    i === 0           ? '#ff8a1f' :
+    i === 1           ? '#ffb066' :
+    i === 2           ? '#ffd0a0' :
+                        '#7bc4e2';
+
+  return (
+    <div className="flex flex-col gap-2 mt-1">
+      {rows.map((row, i) => {
+        const pct      = (row.mw / max) * 100;
+        const sharePct = total > 0 ? (row.mw / total) * 100 : 0;
+        const fill     = fillFor(i);
+        const label    = row.mw >= 1_000
+          ? `${(row.mw / 1000).toFixed(2)} GW`
+          : `${row.mw.toLocaleString()} MW`;
+        return (
+          <div key={row.district} className="flex items-center gap-3">
+            <span className="text-[11px] font-medium w-[120px] flex-shrink-0 text-text/85 truncate" title={row.district}>
+              {row.district}
+            </span>
+            <div className="flex-1 h-3 bg-[#0a0f1c] rounded-full overflow-hidden border border-[#1f2c44] relative">
+              <div
+                className="wpi-bar-grow h-full rounded-full"
+                style={{
+                  background: `linear-gradient(90deg, ${fill}, ${fill}cc)`,
+                  boxShadow: `0 0 8px ${fill}55 inset`,
+                  ['--wpi-delay' as string]: `${120 + i * 60}ms`,
+                  ['--wpi-bar-target' as string]: `${pct}%`,
+                }}
+              />
+            </div>
+            <div className="flex flex-col items-end gap-0.5 w-[88px] flex-shrink-0">
+              <span className="text-[11px] font-mono font-bold text-[#ffd0a0] tabular-nums leading-none">
+                {label}
+              </span>
+              <span className="text-[9px] font-mono text-muted/60 tabular-nums leading-none">
+                {sharePct.toFixed(1)}% of state
+              </span>
+            </div>
+          </div>
+        );
+      })}
+
+      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#1a2a44]">
+        <span className="text-[9px] text-muted/55 uppercase tracking-wider font-bold">
+          Districts shown
+        </span>
+        <span className="text-[9.5px] text-muted/70 font-mono tabular-nums">
+          {rows.length}
+        </span>
+        <span className="ml-auto text-[9px] text-muted/55 italic">
+          Bar length normalised to top district
+        </span>
+      </div>
     </div>
   );
 }
@@ -456,5 +683,19 @@ const TrendIcon = () => (
 const PipelineIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 12h6M9 12a3 3 0 0 0 6 0 3 3 0 0 1 6 0M3 6h2M19 6h2M3 18h2M19 18h2" />
+  </svg>
+);
+const PinIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+const ClusterIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="6" cy="6" r="3" />
+    <circle cx="18" cy="6" r="3" />
+    <circle cx="12" cy="18" r="3" />
+    <path d="M8.5 7.5l3 8M15.5 7.5l-3 8" />
   </svg>
 );

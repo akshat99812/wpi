@@ -5,22 +5,24 @@ import type { WpiBundle } from '@/lib/types';
 import './tabpanel.animations.css';
 import { STATE_PROFILES } from './stateProfiles';
 
-import WindSection     from './sections/WindSection';
-import CapacitySection from './sections/CapacitySection';
-import PolicySection   from './sections/PolicySection';
-import TariffsSection  from './sections/TariffsSection';
-import GridSection     from './sections/GridSection';
-import LandSection     from './sections/LandSection';
-import NewsSection     from './sections/NewsSection';
+import WindSection       from './sections/WindSection';
+import CapacitySection   from './sections/CapacitySection';
+import PolicySection     from './sections/PolicySection';
+import TariffsSection    from './sections/TariffsSection';
+import GridSection       from './sections/GridSection';
+import LandSection       from './sections/LandSection';
+import NewsSection       from './sections/NewsSection';
+import TechnologySection from './sections/TechnologySection';
 
 const TABS = [
-  { id: 'wind',     label: 'Wind',     Component: WindSection },
-  { id: 'capacity', label: 'Capacity', Component: CapacitySection },
-  { id: 'policy',   label: 'Policy',   Component: PolicySection },
-  { id: 'tariffs',  label: 'Tariffs',  Component: TariffsSection },
-  { id: 'grid',     label: 'Grid',     Component: GridSection },
-  { id: 'land',     label: 'Land',     Component: LandSection },
-  { id: 'news',     label: 'News',     Component: NewsSection },
+  { id: 'wind',       label: 'Wind',       Component: WindSection,       indiaOnly: false },
+  { id: 'capacity',   label: 'Capacity',   Component: CapacitySection,   indiaOnly: false },
+  { id: 'policy',     label: 'Policy',     Component: PolicySection,     indiaOnly: false },
+  { id: 'tariffs',    label: 'Tariffs',    Component: TariffsSection,    indiaOnly: false },
+  { id: 'grid',       label: 'Grid',       Component: GridSection,       indiaOnly: false },
+  { id: 'land',       label: 'Land',       Component: LandSection,       indiaOnly: true  },
+  { id: 'technology', label: 'Technology', Component: TechnologySection, indiaOnly: true  },
+  { id: 'news',       label: 'News',       Component: NewsSection,       indiaOnly: false },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -34,8 +36,11 @@ interface Props {
 export default function TabPanel({ bundle, selectedState, onClearState }: Props) {
   const [active, setActive] = useState<TabId>('wind');
 
+  // Reset to Wind whenever the state selection changes — both when entering
+  // a state (e.g. from the India News tab) and when leaving one (back to the
+  // India overview), so the user always lands on the primary tab.
   useEffect(() => {
-    if (selectedState) setActive('wind');
+    setActive('wind');
   }, [selectedState]);
 
   const ActiveComponent = TABS.find(t => t.id === active)?.Component ?? WindSection;
@@ -95,9 +100,11 @@ export default function TabPanel({ bundle, selectedState, onClearState }: Props)
             </div>
           )}
 
-          {/* Tab bar */}
+          {/* Tab bar — always visible so users can browse sections even when
+              we don't have a curated profile for the state. India-only tabs
+              (e.g. Technology / ALMM) are hidden in state detail. */}
           <div className="flex gap-0.5 border-t border-[#2a3a54] px-4 pt-2 pb-0 overflow-x-auto no-scrollbar">
-            {TABS.map(tab => (
+            {TABS.filter(t => !t.indiaOnly).map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActive(tab.id)}
@@ -115,11 +122,19 @@ export default function TabPanel({ bundle, selectedState, onClearState }: Props)
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-4">
-          <ActiveComponent
-            key={`${active}-${selectedState}`}
-            bundle={bundle}
-            selectedState={selectedState}
-          />
+          {profile ? (
+            <ActiveComponent
+              key={`${active}-${selectedState}`}
+              bundle={bundle}
+              selectedState={selectedState}
+            />
+          ) : (
+            <NoProfileNotice
+              key={`${active}-${selectedState}`}
+              state={selectedState}
+              tabLabel={TABS.find(t => t.id === active)?.label ?? ''}
+            />
+          )}
         </div>
       </div>
     );
@@ -175,6 +190,60 @@ function StatMetricCard({
       <span className="text-[8px] text-muted/50 leading-tight line-clamp-2">
         {caption}
       </span>
+    </div>
+  );
+}
+
+// ── Notice shown for states without a curated wind profile ────────────────
+function NoProfileNotice({ state, tabLabel }: { state: string; tabLabel: string }) {
+  return (
+    <div className="flex flex-col gap-3.5">
+      <div className="flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-muted/40" />
+        <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-muted/55">
+          {tabLabel} · No Data
+        </span>
+      </div>
+
+      {/* Per-tab empty state */}
+      <div className="bg-[#0d1628]/70 border border-dashed border-[#2a3a54] rounded-xl p-5 flex flex-col items-center text-center gap-2">
+        <div className="w-9 h-9 rounded-full bg-[#1a2138] border border-[#2a3a54] flex items-center justify-center text-muted/55">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <p className="text-[12.5px] font-semibold text-text/85">
+          No {tabLabel.toLowerCase()} data available for {state}.
+        </p>
+        <p className="text-[10.5px] text-muted/60 leading-relaxed max-w-[36ch]">
+          We don&apos;t track this section for non-primary wind states.
+        </p>
+      </div>
+
+      {/* NIWE blurb — shown alongside every tab's empty state */}
+      <div className="bg-[#0d1628]/70 border border-[#1e2c44] rounded-xl p-4 flex flex-col gap-3">
+        <p className="text-[12.5px] leading-relaxed text-text/85">
+          <b className="text-[#ffd0a0]">{state}</b> is not currently one of India&apos;s
+          primary wind-energy states. Any latent 150 m potential should be
+          consulted on the NIWE Resource Portal.
+        </p>
+
+        <a
+          href="https://maps.niwe.res.in/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 self-start text-[10px] font-semibold uppercase tracking-wider text-orange hover:opacity-80 transition-opacity"
+        >
+          Open NIWE Resource Portal
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </a>
+      </div>
     </div>
   );
 }

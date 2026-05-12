@@ -1,4 +1,7 @@
+"use client";
+
 import React from 'react';
+import { motion } from 'framer-motion';
 import { BASEMAP_LABELS, ENABLED_BASEMAPS, LOCKED_BASEMAPS } from '../constants';
 import { BASEMAP_ICONS } from './BasemapIcons';
 import type { BasemapId } from '../types';
@@ -8,17 +11,53 @@ interface Props {
   onChange: (id: BasemapId) => void;
 }
 
-/**
- * Top-left basemap switcher. Each button is icon + label.
- * "Pro" is rendered as a locked/disabled chip per spec change #1.
- */
+const ACTIVE_GLOW: Partial<Record<BasemapId, { from: string; to: string; text: string; shadow: string }>> = {
+  satellite: { from: '#ff9a3c', to: '#ff7a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.55)' },
+  terrain:   { from: '#ffb066', to: '#ff8a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.50)' },
+  wind:      { from: '#67e8f9', to: '#22d3ee', text: '#06121a', shadow: 'rgba(34,211,238,0.60)' },
+  street:    { from: '#ffd0a0', to: '#ff8a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.50)' },
+};
+
 export function BasemapSwitcher({ mode, onChange }: Props) {
+  const isLightMap = mode === 'street' || mode === 'terrain';
+
   return (
-    <div className="flex flex-wrap gap-1 bg-gradient-to-r from-black/70 to-black/50 backdrop-blur-lg border border-white/15 rounded-2xl px-1.5 py-1.5 shadow-2xl">
+    <motion.div
+      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className={`relative flex flex-wrap gap-1 rounded-2xl px-1.5 py-1.5
+                  backdrop-blur-2xl backdrop-saturate-150 overflow-hidden
+                  transition-colors duration-300
+                  ${isLightMap
+                    ? 'bg-white/55 border border-black/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(0,0,0,0.08)]'
+                    : 'bg-white/[0.06] border border-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(0,0,0,0.25)]'
+                  }`}
+    >
+      {/* Specular highlight — subtle diagonal sheen */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-2xl opacity-60"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 35%, rgba(255,255,255,0) 60%)',
+        }}
+      />
+      {/* Inner edge softener */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-2xl"
+        style={{
+          background:
+            'radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.08), transparent 60%)',
+        }}
+      />
+
       {ENABLED_BASEMAPS.map(id => {
         const Icon     = BASEMAP_ICONS[id];
         const isActive = mode === id;
         const isLocked = LOCKED_BASEMAPS.includes(id);
+        const glow     = ACTIVE_GLOW[id];
 
         if (isLocked) {
           return (
@@ -26,32 +65,70 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
               key={id}
               title="Pro mode is coming soon"
               aria-disabled
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold text-white/25 cursor-not-allowed select-none border border-white/5"
+              className={`relative z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold
+                          cursor-not-allowed select-none transition-colors duration-300
+                          ${isLightMap
+                            ? 'text-black/35 border border-black/[0.06]'
+                            : 'text-white/25 border border-white/[0.06]'}`}
             >
               <Icon />
               <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
-              <span className="hidden sm:inline text-[8px] uppercase tracking-wider text-white/30 ml-0.5">Locked</span>
+              <span className={`hidden sm:inline text-[8px] uppercase tracking-wider ml-0.5 transition-colors duration-300
+                                ${isLightMap ? 'text-black/40' : 'text-white/30'}`}>
+                Locked
+              </span>
             </div>
           );
         }
 
         return (
-          <button
+          <motion.button
             key={id}
             onClick={() => onChange(id)}
-            className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all duration-200 whitespace-nowrap ${
-              isActive
-                ? id === 'wind'
-                  ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-900 shadow-[0_0_16px_rgba(34,211,238,0.6)] scale-[1.03]'
-                  : 'bg-orange-400 text-[#0a0e18] shadow-[0_0_12px_rgba(255,138,31,0.55)]'
-                : 'text-white/55 hover:text-white hover:bg-white/10'
-            }`}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+            className={`group relative z-10 flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 rounded-xl
+                        text-[10px] font-bold whitespace-nowrap outline-none
+                        transition-colors duration-200
+                        ${isActive
+                          ? ''
+                          : isLightMap
+                            ? 'text-black/75 hover:text-black'
+                            : 'text-white/65 hover:text-white'}`}
+            style={isActive && glow ? { color: glow.text } : undefined}
           >
-            <Icon />
-            <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
-          </button>
+            {/* Animated active background — slides between buttons via shared layoutId */}
+            {isActive && glow && (
+              <motion.span
+                layoutId="basemap-active-pill"
+                className="absolute inset-0 rounded-xl"
+                style={{
+                  background: `linear-gradient(135deg, ${glow.from} 0%, ${glow.to} 100%)`,
+                  boxShadow:  `0 0 18px ${glow.shadow}, inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.18)`,
+                }}
+                transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.7 }}
+              />
+            )}
+
+            {/* Soft hover wash for inactive buttons */}
+            {!isActive && (
+              <span
+                aria-hidden
+                className={`absolute inset-0 rounded-xl transition-colors duration-200
+                            ${isLightMap
+                              ? 'bg-black/0 group-hover:bg-black/[0.06]'
+                              : 'bg-white/0 group-hover:bg-white/[0.08]'}`}
+              />
+            )}
+
+            <span className="relative flex items-center gap-1 sm:gap-1.5">
+              <Icon />
+              <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
+            </span>
+          </motion.button>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

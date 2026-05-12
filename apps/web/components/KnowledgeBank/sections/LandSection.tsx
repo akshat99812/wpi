@@ -6,6 +6,7 @@ import {
   HeadlineMetric, InfoCard, Prose, ChipRow,
   SectionHeader, SourceLinks,
 } from '../WindCards';
+import { STATE_PROFILES } from '../stateProfiles';
 
 interface Props {
   bundle?:        WpiBundle;
@@ -19,14 +20,52 @@ const SOURCES = [
   { label: 'Supreme Court — Bustard order', url: 'https://main.sci.gov.in/' },
 ];
 
-export default function LandSection({ bundle: _bundle }: Props) {
+export default function LandSection({ bundle: _bundle, selectedState }: Props) {
+  const profile = selectedState ? STATE_PROFILES[selectedState] ?? null : null;
+  const districts = profile?.primeDistricts
+    ? profile.primeDistricts.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+
   return (
     <div className="flex flex-col gap-3.5">
       <SectionHeader
-        eyebrow="Land & Permitting"
-        title="Land — Acquisition, Forest, Wildlife"
+        eyebrow={selectedState ? `${selectedState} · Land Context` : 'Land & Permitting'}
+        title={selectedState ? `Land — ${selectedState}` : 'Land — Acquisition, Forest, Wildlife'}
         delay={0}
       />
+
+      {/* State-specific terrain + prime districts */}
+      {profile && (
+        <InfoCard
+          title={`${selectedState} — terrain & target districts`}
+          delay={30}
+          defaultOpen
+          icon={<MapIcon />}
+          accent="#ff8a1f"
+        >
+          <Prose>
+            {selectedState} sits on <b className="text-[#7bc4e2]">{profile.terrain.toLowerCase()}</b>.
+            Land acquisition concentrates in the
+            <b className="text-[#ffd0a0]"> {profile.primeDistricts}</b> belt,
+            aligned to the state&apos;s wind corridor.
+          </Prose>
+          <div className="flex flex-wrap gap-2 mt-1">
+            {districts.map(d => (
+              <span
+                key={d}
+                className="inline-flex items-center gap-1.5 bg-[#0a0f1c]/60 border border-orange/30 rounded-md px-2.5 py-1.5 text-[11px] font-bold text-[#ffd0a0]"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-orange" />
+                {d}
+              </span>
+            ))}
+          </div>
+          <ChipRow chips={[
+            { label: 'Terrain',  value: profile.terrain,      accent: '#7bc4e2' },
+            { label: 'Anchor',   value: profile.policyAnchor, accent: '#a5b4fc' },
+          ]} />
+        </InfoCard>
+      )}
 
       {/* Headline benchmarks */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

@@ -65,6 +65,48 @@ export function useTariffsData() {
   return { data, loading, error, refetch: fetchData };
 }
 
+export interface StateNewsPayload {
+  generatedAt: string;
+  state:       string;
+  news:        WpiBundle['news'];
+  cached?:     boolean;
+  fallback?:   boolean;
+}
+
+export function useStateNews(state: string | null | undefined) {
+  const [data, setData] = useState<StateNewsPayload | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async (s: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/news/state/${encodeURIComponent(s)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = (await res.json()) as StateNewsPayload;
+      setData(json);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error fetching state news');
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!state) { setData(null); return; }
+    fetchData(state);
+  }, [state, fetchData]);
+
+  return {
+    data,
+    loading,
+    error,
+    refetch: state ? () => fetchData(state) : () => {},
+  };
+}
+
 export function useWpiData() {
   const [data, setData] = useState<WpiBundle | null>(null);
   const [loading, setLoading] = useState(true);

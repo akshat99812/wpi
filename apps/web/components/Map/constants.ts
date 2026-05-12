@@ -183,8 +183,14 @@ export const WIND_ATLAS_DATA: Array<{ lon: number; lat: number; windMs: number }
   { lon: 92.8, lat: 10.8, windMs: 6.4 }, { lon: 73.0, lat: 10.6, windMs: 6.7 },
 ];
 
-// India GeoJSON CDN
+// India GeoJSON CDN — post-2014 state boundaries (Telangana split from
+// Andhra Pradesh, Jammu & Kashmir / Ladakh split, all 28 states + 8 UTs).
+// jbrobst's gist uses ST_NM as the name property; the older geohacker source
+// (NAME_1) is kept as a fallback if the gist is unreachable.
 export const INDIA_GEOJSON_URL =
+  'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';
+
+export const INDIA_GEOJSON_FALLBACK_URL =
   'https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson';
 
 // Shared layer IDs (kept in one place to avoid drift)
@@ -201,6 +207,7 @@ export const LAYER_IDS = {
 } as const;
 
 export const SOURCE_IDS = {
-  windAtlas: 'gwa-wind',
-  india:     'india-states',
+  windAtlas:   'gwa-wind',
+  india:       'india-states',
+  indiaLabels: 'india-state-labels',
 } as const;

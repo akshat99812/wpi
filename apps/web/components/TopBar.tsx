@@ -18,7 +18,6 @@ const statsData = [
   { v: '350+', l: 'Clients' },
   { v: '600+', l: 'Projects' },
   { v: '340+', l: 'Sites' },
-  { v: '15',   l: 'Sources' },
 ];
 
 // Animation variants

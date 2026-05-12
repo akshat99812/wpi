@@ -4,7 +4,6 @@ import React, { useState, useCallback } from 'react';
 import type { WpiBundle } from '@/lib/types';
 import ContextBar from './ContextBar';
 import MapCanvas, { type BasemapId } from './Map';
-import MetricsStrip from './KnowledgeBank/MetricsStrip';
 import TabPanel from './KnowledgeBank/TabPanel';
 import SourceStatusBar from './SourceStatusBar';
 
@@ -13,7 +12,6 @@ interface Props { bundle: WpiBundle | null }
 export default function PortalShell({ bundle }: Props) {
   const [selectedState, setSelected]  = useState<string | null>(null);
   const [basemap, setBasemap]         = useState<BasemapId>('satellite');
-  const [metricsOpen, setMetricsOpen] = useState(true);
 
   const clearState = useCallback(() => setSelected(null), []);
 
@@ -53,20 +51,9 @@ export default function PortalShell({ bundle }: Props) {
           </div>
         </section>
 
-        {/* ── Right: Three-zone knowledge bank ───────── */}
+        {/* ── Right: Knowledge bank ───────── */}
         <section className="flex-[4] flex flex-col min-h-[55vh] lg:min-h-0 overflow-hidden gap-0">
-
-          {/* Zone 1: Collapsible metrics header */}
-          <div className="flex-none">
-            <MetricsStrip
-              bundle={bundle ?? undefined}
-              collapsed={!metricsOpen}
-              onToggle={() => setMetricsOpen(v => !v)}
-            />
-          </div>
-
-          {/* Zone 2 + 3: Glass panel */}
-          <div className="glass-panel rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden mt-3">
+          <div className="glass-panel rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
               <TabPanel bundle={bundle ?? undefined} selectedState={selectedState} onClearState={clearState} />
             </div>
@@ -74,7 +61,6 @@ export default function PortalShell({ bundle }: Props) {
               <SourceStatusBar status={bundle?.sourceStatus} />
             </div>
           </div>
-
         </section>
       </main>
     </>
