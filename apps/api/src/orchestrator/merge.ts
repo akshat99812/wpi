@@ -46,16 +46,27 @@ export const merge = (results: SourceResult[]): Bundle => {
   bundle.capacity = (mnrePayload?.capacity as Record<string, unknown>) ||
                     (ceaPayload?.capacity as Record<string, unknown>);
 
-  // === State Capacity: from state_nodal + enrich with niwe potential ===
+  // === State Capacity: prefer MNRE (live), fall back to state_nodal,
+  // then enrich with NIWE potential. MNRE Table 8.2 is the canonical
+  // 31 Mar cumulative; state_nodal provides supplemental fields when
+  // MNRE doesn't carry a state (e.g., minor wind states).
+  const niweData       = getPayload('niwe');
   const stateNodalData = getPayload('state_nodal');
-  const niweData = getPayload('niwe');
-  const stateInstalled = (stateNodalData?.stateCapacity as Record<string, unknown>[]) ?? [];
+  const mnreState = (mnrePayload?.stateCapacity as Record<string, unknown>[]) ?? [];
+  const fallbackState = (stateNodalData?.stateCapacity as Record<string, unknown>[]) ?? [];
   const statePotential = (niweData?.statePotential as Record<string, unknown>[]) ?? [];
 
   const stateMap: Record<string, Record<string, unknown>> = {};
-  for (const s of stateInstalled) {
+  // Layer 1: nodal fallback (covers states MNRE doesn't list).
+  for (const s of fallbackState) {
     stateMap[s.state as string] = { ...s };
   }
+  // Layer 2: MNRE (overwrites installed_mw with the official figure).
+  for (const s of mnreState) {
+    const key = s.state as string;
+    stateMap[key] = { ...(stateMap[key] ?? {}), ...s };
+  }
+  // Layer 3: NIWE potential.
   for (const p of statePotential) {
     const stateName = p.state as string;
     if (stateMap[stateName]) {

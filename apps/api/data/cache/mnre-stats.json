@@ -1,0 +1,48 @@
+{
+  "fetchedAt": "2026-05-14T14:01:04.370Z",
+  "fy": "2024-25",
+  "sourceUrl": "https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2025/11/202511061627678782.pdf",
+  "asOf": "31.03.2025",
+  "stateCapacity": [
+    {
+      "state": "Andhra Pradesh",
+      "installed_mw": 4377
+    },
+    {
+      "state": "Gujarat",
+      "installed_mw": 12677
+    },
+    {
+      "state": "Karnataka",
+      "installed_mw": 7351
+    },
+    {
+      "state": "Kerala",
+      "installed_mw": 71
+    },
+    {
+      "state": "Madhya Pradesh",
+      "installed_mw": 3195
+    },
+    {
+      "state": "Maharashtra",
+      "installed_mw": 5285
+    },
+    {
+      "state": "Rajasthan",
+      "installed_mw": 5209
+    },
+    {
+      "state": "Tamil Nadu",
+      "installed_mw": 11740
+    },
+    {
+      "state": "Telangana",
+      "installed_mw": 128
+    }
+  ],
+  "capacity": {
+    "installed_mw": 50033,
+    "target_fy_mw": 100000
+  }
+}

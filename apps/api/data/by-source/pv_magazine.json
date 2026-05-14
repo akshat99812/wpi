@@ -1,0 +1,23 @@
+{
+  "source": "pv_magazine",
+  "fetchedAt": "2026-05-14T13:13:07.488Z",
+  "ok": true,
+  "payload": {
+    "news": [
+      {
+        "headline": "Hybrid energy systems: Combining solar, wind &#038; storage for maximum efficiency",
+        "url": "https://www.pv-magazine-india.com/2026/05/12/hybrid-energy-systems-combining-solar-wind-storage-for-maximum-efficiency/",
+        "publishedAt": "2026-05-12T10:59:01.000Z",
+        "source": "PV Magazine India",
+        "summary": "Hybrid energy systems are set to play a crucial role in shaping the future of energy infrastructure. With advancements in smart grid technologies, artificial intelligence, and predictive analytics, these systems will become even more efficient and adaptive. They offer a scalable and sustainable solu"
+      },
+      {
+        "headline": "Adani Green commissions 150 MW solar capacity at Khavda",
+        "url": "https://www.pv-magazine-india.com/2026/05/11/adani-green-commissions-150-mw-solar-capacity-at-khavda/",
+        "publishedAt": "2026-05-11T10:49:15.000Z",
+        "source": "PV Magazine India",
+        "summary": "Adani Green Energy Ltd (AGEL) has commissioned a 150 MW solar power project at Khavda, taking its total operational renewable energy generation capacity to 19,735.8 MW and its operational battery energy storage system (BESS) capacity to 1,376 MWh."
+      }
+    ]
+  }
+}

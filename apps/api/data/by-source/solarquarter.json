@@ -1,9 +1,17 @@
 {
   "source": "solarquarter",
-  "fetchedAt": "2026-05-13T23:47:23.150Z",
+  "fetchedAt": "2026-05-14T13:12:45.909Z",
   "ok": true,
   "payload": {
-    "news": [],
+    "news": [
+      {
+        "headline": "Infinity Power Seeks European Funding for 1 GW Hybrid Renewable Project in Egypt",
+        "url": "https://solarquarter.com/2026/05/14/infinity-power-seeks-european-funding-for-1-gw-hybrid-renewable-project-in-egypt/",
+        "publishedAt": "2026-05-14T11:23:21.000Z",
+        "source": "SolarQuarter",
+        "summary": "<a href=\"https://solarquarter.com/2026/05/14/infinity-power-seeks-european-funding-for-1-gw-hybrid-renewable-project-in-egypt/\" title=\"Infinity Power Seeks European Funding for 1 GW Hybrid Renewable Project in Egypt\" rel=\"nofollow\"><img width=\"1200\" height=\"675\" src=\"https://i0.wp.com/solarquarter.c"
+      }
+    ],
     "tariffOrders": [
       {
         "state": "Tamil Nadu",

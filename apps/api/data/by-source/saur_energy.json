@@ -1,0 +1,38 @@
+{
+  "source": "saur_energy",
+  "fetchedAt": "2026-05-14T13:13:07.488Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "news": [
+      {
+        "headline": "India Adds 4.5 GW of Wind Capacity in FY25 — Highest Ever",
+        "url": "https://www.saurenergy.com/wind-energy/india-wind-fy25-record",
+        "publishedAt": "2025-04-10T00:00:00Z",
+        "source": "Saur Energy",
+        "summary": "FY25 wind additions cross 4.5 GW, highest in a single fiscal"
+      },
+      {
+        "headline": "Suzlon Q4 Order Book Crosses 5.5 GW with Fresh NTPC Contracts",
+        "url": "https://www.saurenergy.com/wind-energy/suzlon-order-book-ntpc",
+        "publishedAt": "2025-03-28T00:00:00Z",
+        "source": "Saur Energy",
+        "summary": "Suzlon Energy adds 504 MW NTPC REL order to growing pipeline"
+      },
+      {
+        "headline": "Inox Wind Bags 200 MW Repowering Order from Adani Green",
+        "url": "https://www.saurenergy.com/wind-energy/inox-200mw-repowering-adani",
+        "publishedAt": "2025-03-15T00:00:00Z",
+        "source": "Saur Energy",
+        "summary": "Major repowering deal for Inox Wind under MNRE 2023 policy"
+      },
+      {
+        "headline": "MNRE Notifies Revised Offshore Wind VGF Framework",
+        "url": "https://www.saurenergy.com/wind-energy/mnre-offshore-vgf-framework",
+        "publishedAt": "2025-02-22T00:00:00Z",
+        "source": "Saur Energy",
+        "summary": "Revised VGF caps and bid timelines for Gulf of Kutch and TN zones"
+      }
+    ]
+  }
+}

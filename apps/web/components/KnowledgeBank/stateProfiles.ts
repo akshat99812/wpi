@@ -29,8 +29,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Andhra Pradesh ─────────────────────────────────────────────────────────
   'Andhra Pradesh': {
-    installed_mw:      4_100,
-    installed_caption: 'June 2025 (APEPDCL / APSPDCL)',
+    installed_mw:      4377,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      74.1,
 
     plf:            '28 – 38%',
@@ -60,8 +60,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Gujarat ────────────────────────────────────────────────────────────────
   'Gujarat': {
-    installed_mw:      12_500,
-    installed_caption: 'March 2025 (GUVNL / GWEL)',
+    installed_mw:      12677,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      142.6,
 
     plf:            '28 – 35%',
@@ -91,8 +91,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Karnataka ─────────────────────────────────────────────────────────────
   'Karnataka': {
-    installed_mw:      6_360,
-    installed_caption: 'March 2025 (KREDL / BESCOM)',
+    installed_mw:      7351,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      169.5,
 
     plf:            '25 – 35%',
@@ -122,8 +122,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Kerala ────────────────────────────────────────────────────────────────
   'Kerala': {
-    installed_mw:      240,
-    installed_caption: 'March 2025 (ANERT / KSEB)',
+    installed_mw:      71,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      10.0,
 
     plf:            '18 – 25%',
@@ -153,8 +153,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Madhya Pradesh ────────────────────────────────────────────────────────
   'Madhya Pradesh': {
-    installed_mw:      3_560,
-    installed_caption: 'April 2025 (MPUVNL / MPPMCL)',
+    installed_mw:      3195,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      22.76,
 
     plf:            '~26%',
@@ -183,8 +183,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Maharashtra ───────────────────────────────────────────────────────────
   'Maharashtra': {
-    installed_mw:      5_270,
-    installed_caption: 'March 2025 (MSEDCL / MEDA)',
+    installed_mw:      5285,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      99.2,
 
     plf:            '22 – 30%',
@@ -245,8 +245,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Rajasthan ─────────────────────────────────────────────────────────────
   'Rajasthan': {
-    installed_mw:      5_650,
-    installed_caption: 'March 2025 (RVUNL / RRECL)',
+    installed_mw:      5209,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      127.8,
 
     plf:            '28 – 38%',
@@ -276,8 +276,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Tamil Nadu ────────────────────────────────────────────────────────────
   'Tamil Nadu': {
-    installed_mw:      10_700,
-    installed_caption: 'March 2025 (TANGEDCO / TEDA)',
+    installed_mw:      11740,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      68.0,
 
     plf:            '30 – 40%',
@@ -307,8 +307,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Telangana ─────────────────────────────────────────────────────────────
   'Telangana': {
-    installed_mw:      657,
-    installed_caption: 'March 2025 (TSGENCO / TSNPDCL)',
+    installed_mw:      128,
+    installed_caption: '31 March 2025 (MNRE RE-Stats 2024-25)',
     potential_gw:      9.8,
 
     plf:            '20 – 28%',

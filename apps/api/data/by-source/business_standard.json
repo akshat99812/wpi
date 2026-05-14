@@ -1,0 +1,31 @@
+{
+  "source": "business_standard",
+  "fetchedAt": "2026-05-14T13:13:09.436Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "news": [
+      {
+        "headline": "Wind Power: India Targets 100 GW Installed by FY32",
+        "url": "https://www.business-standard.com/industry/news/india-wind-100gw-fy32",
+        "publishedAt": "2025-04-08T00:00:00Z",
+        "source": "Business Standard",
+        "summary": "MNRE roadmap pegs wind contribution at 100 GW under 500 GW RE goal"
+      },
+      {
+        "headline": "JSW Energy to Invest ₹15,000 Cr in Wind-BESS Hybrid Build-out",
+        "url": "https://www.business-standard.com/companies/news/jsw-energy-wind-bess-investment",
+        "publishedAt": "2025-03-20T00:00:00Z",
+        "source": "Business Standard",
+        "summary": "JSW Energy capex plan focuses on wind-storage hybrid projects"
+      },
+      {
+        "headline": "PGCIL to Bid Out ₹13,000 Cr Offshore Wind Transmission Line",
+        "url": "https://www.business-standard.com/industry/news/pgcil-offshore-wind-transmission",
+        "publishedAt": "2025-03-01T00:00:00Z",
+        "source": "Business Standard",
+        "summary": "PGCIL undersea cable tender for Gulf of Kutch offshore wind zone"
+      }
+    ]
+  }
+}

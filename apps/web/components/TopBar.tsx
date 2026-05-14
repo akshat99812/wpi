@@ -14,12 +14,6 @@ const ENGINES: { id: EngineType; icon: string; desc: string }[] = [
   { id: 'Operators', icon: '⚙️', desc: 'Fleet & O&M' },
 ];
 
-const statsData = [
-  { v: '350+', l: 'Clients' },
-  { v: '600+', l: 'Projects' },
-  { v: '340+', l: 'Sites' },
-];
-
 // Animation variants
 const containerVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -43,19 +37,6 @@ const itemVariants: Variants = {
   }
 };
 
-const statVariants: Variants = {
-  hidden: { scale: 0.8, opacity: 0 },
-  visible: { 
-    scale: 1, 
-    opacity: 1,
-    transition: { type: 'spring', stiffness: 200, damping: 15 }
-  },
-  hover: {
-    scale: 1.05,
-    transition: { type: 'spring', stiffness: 400, damping: 10 }
-  }
-};
-
 export default function TopBar({ 
   generatedAt,
   onRefresh,
@@ -68,6 +49,20 @@ export default function TopBar({
   const [engineOpen, setEngineOpen] = useState<EngineType | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [hoveredEngine, setHoveredEngine] = useState<EngineType | null>(null);
+
+  // Engines that aren't yet available — clicking them flashes an inline
+  // "coming soon" toast on the same page instead of opening the modal.
+  const LOCKED_ENGINES = new Set<EngineType>(['Operators']);
+  const [comingSoon, setComingSoon] = useState<EngineType | null>(null);
+  const comingSoonTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flashComingSoon = (engine: EngineType) => {
+    if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
+    setComingSoon(engine);
+    comingSoonTimer.current = setTimeout(() => setComingSoon(null), 2400);
+  };
+  React.useEffect(() => () => {
+    if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
+  }, []);
 
   return (
     <>
@@ -185,32 +180,6 @@ export default function TopBar({
           )}
         </motion.div>
 
-        {/* ── Stats strip (center) ── */}
-        <motion.div variants={itemVariants} className="hidden xl:flex items-center gap-1 z-10">
-          {statsData.map((stat) => (
-            <motion.div
-              key={stat.l}
-              variants={statVariants}
-              whileHover="hover"
-              className="relative flex flex-col items-center px-4 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] cursor-default overflow-hidden group"
-            >
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-t from-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              />
-              <motion.span 
-                className="text-[15px] font-black text-orange leading-none relative z-10"
-                initial={{ y: 0 }}
-                whileHover={{ y: -2 }}
-              >
-                {stat.v}
-              </motion.span>
-              <span className="text-[10px] text-white/30 mt-0.5 tracking-wide relative z-10">
-                {stat.l}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-
         {/* ── Engine buttons + About ── */}
         <motion.div variants={itemVariants} className="flex items-center gap-1.5 lg:gap-3 z-10 flex-shrink-0">
           {/* Engine switcher pill */}
@@ -240,7 +209,13 @@ export default function TopBar({
               return (
                 <motion.button
                   key={engine.id}
-                  onClick={() => setEngineOpen(engine.id)}
+                  onClick={() => {
+                    if (LOCKED_ENGINES.has(engine.id)) {
+                      flashComingSoon(engine.id);
+                    } else {
+                      setEngineOpen(engine.id);
+                    }
+                  }}
                   onHoverStart={() => setHoveredEngine(engine.id)}
                   onHoverEnd={() => setHoveredEngine(null)}
                   whileHover={{ scale: 1.05 }}
@@ -301,66 +276,48 @@ export default function TopBar({
             className="hidden sm:block w-px h-8 bg-white/10"
           />
 
-          {/* About button */}
+          {/* About button — clean SaaS: solid weight, restrained accent,
+              one quiet hover sweep. Bigger and brighter than the prior
+              pass without going back to the shiny look. */}
           <motion.button
             onClick={() => setAboutOpen(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6, type: 'spring' }}
-            className="relative flex items-center gap-1.5 lg:gap-2 px-3 lg:px-8 py-2 lg:py-2.5 rounded-xl font-bold text-[11px] lg:text-[13px] text-orange border border-orange/30 overflow-hidden group"
-            style={{ 
-              background: 'rgba(255,138,31,0.08)', 
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)'
-            }}
+            whileTap={{ scale: 0.97 }}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="group relative flex items-center gap-2
+                       px-4 lg:px-5 py-2.5 lg:py-3 rounded-lg
+                       text-[12.5px] lg:text-[13.5px] font-semibold tracking-tight
+                       text-white hover:text-white
+                       border border-white/15 hover:border-white/30
+                       bg-white/[0.06] hover:bg-white/[0.10]
+                       shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_0_rgba(0,0,0,0.35)]
+                       transition-colors duration-200 overflow-hidden
+                       focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
           >
-            {/* Multiple animated gradient sweeps */}
-            <motion.div 
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-orange/20 to-transparent"
-              animate={{ 
-                x: ['-100%', '200%']
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: 'linear'
-              }}
-            />
-            <motion.div 
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-              animate={{ 
-                x: ['-100%', '200%']
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                delay: 1,
-                ease: 'linear'
-              }}
-            />
-            
-            {/* Glow effect */}
-            <motion.div 
-              className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{
-                boxShadow: '0 0 30px rgba(255,138,31,0.3), inset 0 0 20px rgba(255,138,31,0.1)'
-              }}
-            />
-            
-            <span className="relative z-10">About</span>
-            
-            {/* Animated corner decorations */}
-            <motion.div 
-              className="absolute top-0 left-0 w-2 h-2 border-t border-l border-orange/50 rounded-tl"
-              animate={{ opacity: [0.3, 1, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            <motion.div 
-              className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-orange/50 rounded-br"
-              animate={{ opacity: [0.3, 1, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+            {/* Info icon with a soft orange wash on hover for personality */}
+            <svg
+              width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round"
+              className="text-white/70 group-hover:text-orange-200 transition-colors duration-200"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 11v5" />
+              <circle cx="12" cy="7.5" r="0.6" fill="currentColor" />
+            </svg>
+
+            <span className="relative">About</span>
+
+            {/* Single light sweep — runs ONCE on hover, then resets.
+                No continuous animation. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3
+                         bg-gradient-to-r from-transparent via-white/[0.12] to-transparent
+                         -translate-x-full opacity-0
+                         group-hover:opacity-100 group-hover:translate-x-[420%]
+                         transition-[transform,opacity] duration-[800ms] ease-out"
             />
           </motion.button>
           {/* Refresh button */}
@@ -394,6 +351,33 @@ export default function TopBar({
           )}
         </motion.div>
       </motion.header>
+
+      {/* Inline "coming soon" toast — anchored under the topbar, doesn't
+          open a new modal/terminal. */}
+      <AnimatePresence>
+        {comingSoon && (
+          <motion.div
+            key="engine-coming-soon"
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed top-[60px] sm:top-[68px] left-1/2 -translate-x-1/2 z-40
+                       flex items-center gap-2.5 px-3.5 py-2 rounded-xl
+                       bg-[#0a0e18]/95 backdrop-blur-xl
+                       border border-orange/35
+                       shadow-[0_12px_28px_-10px_rgba(0,0,0,0.7)]"
+          >
+            <span className="text-[9px] font-semibold uppercase tracking-[0.14em]
+                             px-1.5 py-0.5 rounded bg-orange text-[#0a0e18]">
+              {comingSoon}
+            </span>
+            <span className="text-[12px] font-medium text-white/90">
+              Engine · coming soon
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {engineOpen && (

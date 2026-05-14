@@ -20,7 +20,6 @@ import { useWindLayer }       from './hooks/useWindLayer';
 // UI
 import { BasemapSwitcher }    from './components/BasemapSwitcher';
 import { WindLegend }         from './components/WindLegend';
-import { CapacityLegend }     from './components/CapacityLegend';
 import { StateTooltip }       from './components/StateTooltip';
 import { SelectedBadge }      from './components/SelectedBadge';
 import { CursorReadoutBar }   from './components/CursorReadout';
@@ -61,7 +60,7 @@ export default function MapCanvas({
   // ── Hooks ──────────────────────────────────────────────────────────────
   useMapInit({ containerRef, mapRef, modeRef, initialBasemap: basemap });
   const { isFullscreen, toggle: toggleFs } = useFullscreen(containerRef);
-  const cursor = useCursorTracker(mapRef);
+  const cursor = useCursorTracker(mapRef, mode);
 
   const { install: installBoundaries } =
     useStateBoundaries({ mapRef, modeRef, stateRef, selectRef, setTooltip });
@@ -160,9 +159,13 @@ export default function MapCanvas({
         <FullscreenButton isFullscreen={isFullscreen} onToggle={toggleFs} />
       </div>
 
-      {/* Hover tooltip */}
+      {/* Hover tooltip. The `key` includes the state name so React unmounts
+          and remounts the card on every state change — eliminates any chance
+          of stale internal state lingering across hovers (Safari was showing
+          the previously-hovered state's card on rapid transitions). */}
       {tooltip && (
         <StateTooltip
+          key={tooltip.state}
           tooltip={tooltip}
           containerWidth={containerRef.current?.offsetWidth}
           containerHeight={containerRef.current?.offsetHeight}
@@ -182,12 +185,6 @@ export default function MapCanvas({
         <CursorReadoutBar readout={cursor} />
       </div>
 
-      {/* Bottom-right (above zoom controls): capacity legend on non-wind modes */}
-      {mode !== 'wind' && (
-        <div className="absolute bottom-2 right-2 sm:bottom-12 sm:right-14 z-10">
-          <CapacityLegend />
-        </div>
-      )}
     </div>
   );
 }

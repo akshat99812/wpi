@@ -226,8 +226,25 @@ export default function BankabilityCalc() {
         </div>
       </div>
 
-      {/* ── Contact CECL for Bankable Reports ────────────────────────── */}
-      <div className="mt-8 rounded-xl border border-orange/30 overflow-hidden
+      {/* ── Methodology ── */}
+      <div className="mt-8">
+        <MethodologyPanel />
+      </div>
+      
+
+      {/* ── Disclaimer ── */}
+      <div className="p-3 rounded-xl bg-[#1a1008] border border-orange/20 text-[10.5px] text-muted leading-relaxed">
+        <b className="text-orange block mb-1">⚠ Indicative model — not a bankability certificate</b>
+        This calculator cannot see: mast data · terrain correction · P50/P75/P90 · offtaker credit risk ·
+        evacuation feasibility · land title · environmental clearances · force majeure provisions.
+        Always commission a bankability study before project finance.
+      </div>
+
+      {/* ── Contact CECL for Bankable Reports ──────────────────────────
+          Sits below the indicative-model disclaimer. Full contact card
+          with title, agency name, contact grid (emails / phones /
+          registered office) and CTA. */}
+      <div className="rounded-xl border border-orange/30 overflow-hidden
                       bg-gradient-to-br from-[#1a140a] via-[#0e1422] to-[#090d18]
                       relative">
         <div
@@ -252,13 +269,6 @@ export default function BankabilityCalc() {
               <div className="mt-1 text-[10px] uppercase tracking-[0.1em] font-bold text-muted/80">
                 Consolidated Energy Consultants Limited
               </div>
-              <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted">
-                Bankability-grade reports prepared for lenders, IPP sponsors,
-                and offtakers — covering <b className="text-[#ffd0a0]">resource
-                P50/P75/P90, evacuation feasibility, PPA term review, DSCR
-                stress tests, and ESG due diligence</b>. Includes site visits
-                and a signed engineering certificate.
-              </p>
             </div>
           </div>
 
@@ -310,25 +320,11 @@ export default function BankabilityCalc() {
           </a>
         </div>
       </div>
-
-      {/* ── Methodology ── */}
-      <div className="mt-8">
-        <MethodologyPanel />
-      </div>
-      
-
-      {/* ── Disclaimer ── */}
-      <div className="p-3 rounded-xl bg-[#1a1008] border border-orange/20 text-[10.5px] text-muted leading-relaxed">
-        <b className="text-orange block mb-1">⚠ Indicative model — not a bankability certificate</b>
-        This calculator cannot see: mast data · terrain correction · P50/P75/P90 · offtaker credit risk ·
-        evacuation feasibility · land title · environmental clearances · force majeure provisions.
-        Always commission a bankability study before project finance.
-      </div>
     </div>
   );
 }
 
-// ── Contact row used in the CECL Advisory CTA card ────────────────────────
+// ── Contact row used in the CECL Advisory card ────────────────────────────
 function ContactRow({
   icon, label, value, href, wide,
 }: {
@@ -401,3 +397,4 @@ function PinIcon() {
     </svg>
   );
 }
+

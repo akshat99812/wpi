@@ -38,7 +38,6 @@ const Factory  = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="non
 const Anchor   = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="6" r="2"/><path d="M12 8v13M5 17a7 7 0 0 0 14 0M8 11h8"/></svg>;
 const Refresh  = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3L21 9M21 4v5h-5M20 12a8 8 0 0 1-14 5.3L3 15M3 20v-5h5"/></svg>;
 const Scroll   = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3h10a2 2 0 0 1 2 2v3h-3M8 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3H8"/></svg>;
-const GridIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>;
 const TrendUp  = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg>;
 
 export default function WindSection({ bundle, selectedState }: Props) {
@@ -159,11 +158,6 @@ export default function WindSection({ bundle, selectedState }: Props) {
           ))}
         </InfoCard>
 
-        {/* Grid & transmission */}
-        <InfoCard title="Grid & transmission" delay={300} icon={<GridIcon />} accent="#a5b4fc">
-          <Prose>{profile.gridTransmission}</Prose>
-        </InfoCard>
-
         {/* Near-term outlook */}
         <InfoCard title="Near-term outlook" delay={360} icon={<TrendUp />} accent="#4cc87a">
           <Prose>{profile.nearTermOutlook}</Prose>
@@ -176,7 +170,9 @@ export default function WindSection({ bundle, selectedState }: Props) {
   }
 
   // ── India-wide view ──────────────────────────────────────────────────────
-  const installedMw  = bundle?.capacity?.installed_mw ?? 49_601;
+  // Default falls back to MNRE RE-Statistics 2024-25 national wind total
+  // (50,038 MW, 31 Mar 2025) when the live bundle is unavailable.
+  const installedMw  = bundle?.capacity?.installed_mw ?? 50_038;
   const installedGw  = (installedMw / 1000).toFixed(2);
   const potentialGw  = 1163.86;
   const realisation  = ((installedMw / 1000) / potentialGw * 100).toFixed(2);

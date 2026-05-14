@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BASEMAP_LABELS, ENABLED_BASEMAPS, LOCKED_BASEMAPS } from '../constants';
 import { BASEMAP_ICONS } from './BasemapIcons';
 import type { BasemapId } from '../types';
@@ -19,7 +19,22 @@ const ACTIVE_GLOW: Partial<Record<BasemapId, { from: string; to: string; text: s
 };
 
 export function BasemapSwitcher({ mode, onChange }: Props) {
+  // Toast shown when a locked basemap (e.g., Pro) is clicked. Auto-dismisses.
+  const [showLockedToast, setShowLockedToast] = useState(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+  }, []);
+
+  const flashLockedToast = () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setShowLockedToast(true);
+    toastTimerRef.current = setTimeout(() => setShowLockedToast(false), 2400);
+  };
+
   return (
+    <div className="relative inline-flex flex-col items-start gap-2">
     <motion.div
       initial={{ opacity: 0, y: -8, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -56,20 +71,27 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
 
         if (isLocked) {
           return (
-            <div
+            <motion.button
               key={id}
-              title="Pro mode is coming soon"
+              type="button"
+              onClick={flashLockedToast}
+              whileTap={{ scale: 0.94 }}
               aria-disabled
               className="relative z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold
-                         cursor-not-allowed select-none
-                         text-white/25 border border-white/[0.06]"
+                         select-none cursor-pointer
+                         text-white/35 hover:text-white/65
+                         border border-white/[0.08] hover:border-orange/30
+                         bg-white/[0.02] hover:bg-orange/[0.06]
+                         transition-colors"
             >
               <Icon />
               <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
-              <span className="hidden sm:inline text-[8px] uppercase tracking-wider ml-0.5 text-white/30">
-                Locked
+              <span className="hidden sm:inline text-[8px] uppercase tracking-wider ml-0.5
+                               px-1 py-[1px] rounded
+                               bg-orange/15 text-orange border border-orange/30">
+                Pro
               </span>
-            </div>
+            </motion.button>
           );
         }
 
@@ -116,5 +138,31 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
         );
       })}
     </motion.div>
+
+      {/* Locked-mode toast — slides in below the switcher pill */}
+      <AnimatePresence>
+        {showLockedToast && (
+          <motion.div
+            key="locked-toast"
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.96 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl
+                       bg-[#0a0e18]/90 backdrop-blur-xl
+                       border border-orange/35
+                       shadow-[0_8px_24px_-8px_rgba(0,0,0,0.6)]"
+          >
+            <span className="text-[9px] font-semibold uppercase tracking-[0.14em]
+                             px-1.5 py-0.5 rounded bg-orange text-[#0a0e18]">
+              Pro
+            </span>
+            <span className="text-[11.5px] font-medium text-white/90">
+              Premium version coming soon
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

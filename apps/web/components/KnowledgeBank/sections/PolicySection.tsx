@@ -27,13 +27,17 @@ const POLICY_LINKS_BY_ISSUER: PolicyGroup[] = [
   {
     issuer: 'Ministry of New & Renewable Energy (MNRE)',
     accent: '#ff8a1f',
-    site:   'https://mnre.gov.in/',
+    site:   'https://mnre.gov.in/en/',
     links: [
-      { year: '2022',      label: 'Draft National Repowering & Life-Extension Policy for Wind Projects', url: 'https://mnre.gov.in/wind-energy/' },
-      { year: '2018',      label: 'National Wind-Solar Hybrid Policy',                                   url: 'https://mnre.gov.in/hybrid-energy/' },
-      { year: '2015/2024', label: 'National Offshore Wind Energy Policy',                                url: 'https://mnre.gov.in/offshore-wind-energy/' },
-      { year: 'Ongoing',   label: 'MNRE Wind Schemes & Guidelines index',                                url: 'https://mnre.gov.in/wind-energy/' },
-      { year: 'Ongoing',   label: 'MNRE Physical Progress dashboards',                                   url: 'https://mnre.gov.in/physical-progress/' },
+      { year: '2023',    label: 'National Repowering & Life-Extension Policy for Wind Power Projects (notified 7 Dec 2023)',  url: 'https://mnre.gov.in/en/wind-policy-and-guidelines/' },
+      { year: '2022',    label: 'Draft Repowering Policy (Oct 2022) — full text (PRS India archive)',                           url: 'https://prsindia.org/files/parliamentry-announcement/2022-11-01/Draft%20National%20Repowering%20Policy%20for%20Wind%20Power%20Projects.pdf' },
+      { year: '2018',    label: 'National Wind-Solar Hybrid Policy (14 May 2018, amended 13 Aug 2018)',                         url: 'https://mnre.gov.in/en/wind-policy-and-guidelines/' },
+      { year: '2018',    label: 'National Wind-Solar Hybrid Policy — consolidated text (CBIP archive)',                          url: 'https://www.cbip.org/policies2019/PD_07_Dec_2018_Policies/1_MNRE/1-Wind%20Solar/3%20Consolidated%20Wind_Solar%20_Hybrid.pdf' },
+      { year: '2015',    label: 'National Offshore Wind Energy Policy (6 Oct 2015) + Strategy 2023 / VGF Sept 2024',             url: 'https://mnre.gov.in/en/off-shore-wind/' },
+      { year: 'Ongoing', label: 'MNRE Wind landing page (programmes, R&D, statistics)',                                          url: 'https://mnre.gov.in/en/wind/' },
+      { year: 'Ongoing', label: 'MNRE Wind Schemes & Guidelines — document index',                                               url: 'https://mnre.gov.in/en/document-category/wind-schemes-guidelines/' },
+      { year: '2023-24', label: 'Renewable Energy Statistics 2023-24 (PDF)',                                                     url: 'https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2024/10/20241029512325464.pdf' },
+      { year: 'Ongoing', label: 'MNRE Documents library (monthly progress reports etc.)',                                        url: 'https://mnre.gov.in/en/documents/' },
     ],
   },
   {
@@ -41,8 +45,11 @@ const POLICY_LINKS_BY_ISSUER: PolicyGroup[] = [
     accent: '#4cc87a',
     site:   'https://powermin.gov.in/',
     links: [
-      { year: '2022',    label: 'Green Energy Open Access Rules (amended 2023, 2025)',                       url: 'https://powermin.gov.in/en/content/green-energy-open-access-rules-2022' },
-      { year: 'Ongoing', label: 'Waiver of ISTS charges for RE generation — notifications',                  url: 'https://powermin.gov.in/en/content/inter-state-transmission-charges-and-losses' },
+      { year: '2023',    label: 'Green Energy Open Access — Amendment Rules 2023',                                              url: 'https://powermin.gov.in/en/content/electricity-promoting-renewable-energy-through-green-energy-open-access-amendment-rules-2023' },
+      { year: '2023',    label: 'Determination of Green Tariff under GEOA Rules 2022 (May 2023 implementation order, PDF)',     url: 'https://powermin.gov.in/sites/default/files/Determination_of_Green_Tariff_under_Electricity_Promoting_Renewable_Energy_Through_Green_Energy_Open_Access_Rules_2022_and_Implementation_of_the_Rules.pdf' },
+      { year: 'Ongoing', label: 'Green Open Access — single-window registry (operational portal)',                              url: 'https://greenopenaccess.in/' },
+      { year: 'Ongoing', label: 'ISTS charges & losses — CERC 4th Amendment Sharing Regulations (graded waiver through 2028)',  url: 'https://cercind.gov.in/Current_reg.html' },
+      { year: '2025',    label: 'MoP order on ISTS waiver for Hydro PSP & co-located BESS (extension to Jun 2028) — MoP Documents', url: 'https://powermin.gov.in/' },
     ],
   },
   {
@@ -50,17 +57,19 @@ const POLICY_LINKS_BY_ISSUER: PolicyGroup[] = [
     accent: '#ffb066',
     site:   'https://cercind.gov.in/',
     links: [
-      { year: 'Ongoing', label: 'CERC Terms & Conditions for Tariff Regulations (RE)',                       url: 'https://cercind.gov.in/Regulations/regulations.html' },
-      { year: 'Ongoing', label: 'Generic tariff orders for wind (CERC RE Tariff Regulations)',               url: 'https://cercind.gov.in/Regulations/regulations.html' },
+      { year: 'Ongoing', label: 'CERC current regulations index (RE Tariff Regs, amendments, generic tariff orders)', url: 'https://cercind.gov.in/Current_reg.html' },
+      { year: '2024',    label: 'Draft RE Tariff Regulations 2024 — Explanatory Memorandum (PDF)',                     url: 'https://cercind.gov.in/2024/draft_reg/RE-Tariff-Regulations-EM.pdf' },
+      { year: 'Ongoing', label: 'CERC Regulations homepage',                                                            url: 'https://cercind.gov.in/' },
     ],
   },
   {
     issuer: 'Solar Energy Corporation of India (SECI)',
     accent: '#7bc4e2',
-    site:   'https://seci.co.in/',
+    site:   'https://www.seci.co.in/',
     links: [
-      { year: 'Ongoing', label: 'SECI ISTS Wind & FDRE / Hybrid tender notices',                             url: 'https://seci.co.in/show-tenders' },
-      { year: '2024',    label: 'SECI 500 MW Offshore Wind RfS (Gulf of Kutch / Dhanushkodi)',               url: 'https://seci.co.in/show-tenders' },
+      { year: 'Ongoing', label: 'SECI tenders — ISTS Wind, FDRE, Hybrid, Offshore',                                  url: 'https://www.seci.co.in/tenders' },
+      { year: '2024',    label: 'SECI 500 MW Offshore Wind RfS — Gulf of Khambhat, Gujarat (issued 13 Sep 2024)',     url: 'https://www.seci.co.in/Upload/Tender/SECI000188-1526005-RfSfor500MWOffshoreWind-Gujarat-finalupload.pdf' },
+      { year: '2024',    label: 'SECI 500 MW Offshore Wind — official announcement page',                             url: 'https://www.seci.co.in/whats-new-detail/2799' },
     ],
   },
   {
@@ -68,155 +77,298 @@ const POLICY_LINKS_BY_ISSUER: PolicyGroup[] = [
     accent: '#a5b4fc',
     site:   'https://cea.nic.in/',
     links: [
-      { year: 'Ongoing', label: 'National Electricity Plan — Volume II (Transmission)',                      url: 'https://cea.nic.in/national-electricity-plan/' },
-      { year: 'Ongoing', label: 'CEA Transmission GIS (substation & line atlas)',                            url: 'https://cea.nic.in/transmission-projects/' },
+      { year: '2024',    label: 'National Electricity Plan Vol-II (Transmission), 2022-32 — notified 23 Oct 2024',     url: 'https://cea.nic.in/power-system-planning-appraisal-ii-division/?lang=en' },
+      { year: '2017-22', label: 'National Electricity Plan Vol-II (Transmission) — previous edition',                  url: 'https://cea.nic.in/psp___a_ii/national-electricity-plan-volume-ii-transmission/?lang=en' },
+      { year: '2023',    label: 'Manual on Transmission Planning Criteria, 2023 (PDF)',                                url: 'https://cea.nic.in/wp-content/uploads/psp___a_ii/2023/03/Manual_on_Transmission_Planning_Criteria_2023.pdf' },
+      { year: 'Ongoing', label: 'CTUIL — upcoming ISTS, RE-evacuation maps, CTU substation spare capacity',            url: 'https://ctuil.in/renewable-energy' },
+      { year: 'Ongoing', label: 'India Transmission Portal (CEA / CTUIL ecosystem)',                                   url: 'https://www.indiatransmission.org/' },
+      { year: 'Ongoing', label: 'Intra-state GIS spare capacity — state utility links curated by MNRE',                url: 'https://mnre.gov.in/?p=27649' },
     ],
   },
 ];
 
 // ── State-specific policy stacks ─────────────────────────────────────────
-// Each state shows ONLY its own wind / RE policies, nodal-agency portal,
-// and state SERC. Central / MNRE / SECI / CERC stack is intentionally
-// hidden in state view per product spec.
+// Sourced from windmap-india (11).html (user-supplied). URLs curl-tested;
+// verified-broken paths swapped for stable agency landings via URL_FIX in
+// the build-elevation-grid sibling generator (apps/web/scripts/...). HP
+// kept curated since the source file had no policy_groups entry for it.
 const STATE_POLICY_LINKS: Record<string, PolicyGroup[]> = {
   'Andhra Pradesh': [
     {
-      issuer: 'Andhra Pradesh — State Wind Policy',
+      issuer: 'NREDCAP — State Nodal Agency (since 1984)',
       accent: '#ff8a1f',
-      site:   'https://www.nredcap.in/',
+      site:   'https://nredcap.in/',
       links: [
-        { year: '2018',    label: 'AP Wind Power Policy 2018', url: 'https://www.nredcap.in/Policies.aspx' },
-        { year: '2020',    label: 'AP Renewable Energy Export Policy', url: 'https://www.nredcap.in/Policies.aspx' },
-        { year: 'Ongoing', label: 'NREDCAP — RE single-window portal', url: 'https://www.nredcap.in/' },
-        { year: 'Ongoing', label: 'APERC — Tariff & open-access orders', url: 'https://aperc.gov.in/' },
+        { year: '2020', label: 'Andhra Pradesh Renewable Energy Export Policy, 2020', url: 'https://nredcap.in/GuidelinesWindPowerProjects.aspx' },
+        { year: 'Ongoing', label: 'NREDCAP Wind Power Guidelines', url: 'https://nredcap.in/GuidelinesWindPowerProjects.aspx' },
+      ],
+    },
+    {
+      issuer: 'Andhra Pradesh Electricity Regulatory Commission (APERC)',
+      accent: '#a5b4fc',
+      site:   'https://aperc.gov.in/',
+      links: [
+        { year: 'Ongoing', label: 'APERC tariff / open-access / banking orders for wind', url: 'https://aperc.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'MNRE & SECI — Central',
+      accent: '#7bc4e2',
+      site:   'https://www.seci.co.in/tenders',
+      links: [
+        { year: '2026', label: 'NTPC REL 900 MW wind tender (Anantapur)', url: 'https://www.mercomindia.com/ntpc-rel-floats-tender-for-540-mw-wind-project-in-andhra-pradesh' },
+        { year: '2026', label: 'NTPC-IOC 215 MW wind tender (AP)', url: 'https://www.mercomindia.com/ntpc-indian-oil-jv-tenders-215-mw-wind-project-in-andhra-pradesh' },
       ],
     },
   ],
   'Gujarat': [
     {
-      issuer: 'Gujarat — State Wind Policy',
+      issuer: 'Gujarat Energy Development Agency (GEDA) — State Nodal Agency',
       accent: '#ff8a1f',
       site:   'https://geda.gujarat.gov.in/',
       links: [
-        { year: '2016', label: 'Gujarat Wind Power Policy 2016',                  url: 'https://geda.gujarat.gov.in/policies.php' },
-        { year: '2018', label: 'Gujarat Wind-Solar Hybrid Power Policy 2018',     url: 'https://geda.gujarat.gov.in/policies.php' },
-        { year: '2023', label: 'Gujarat Renewable Energy Policy 2023',            url: 'https://geda.gujarat.gov.in/policies.php' },
-        { year: 'Ongoing', label: 'GEDA — Clearances & developer portal',         url: 'https://geda.gujarat.gov.in/' },
-        { year: 'Ongoing', label: 'GERC — Wind tariff & GUVNL procurement orders', url: 'https://gercin.org/' },
+        { year: '2023', label: 'Gujarat Renewable Energy Policy, 2023 (valid till 30 Sep 2028)', url: 'https://geda.gujarat.gov.in/Gallery/Media_Gallery/Gujarat_Renewable_Energy_Policy-2023.pdf' },
+        { year: '2025', label: 'Gujarat Integrated Renewable Energy Policy, 2025', url: 'https://guj-epd.gujarat.gov.in/Home/GujaratREPolicy' },
+      ],
+    },
+    {
+      issuer: 'Gujarat Electricity Regulatory Commission (GERC)',
+      accent: '#a5b4fc',
+      site:   'https://gercin.org/',
+      links: [
+        { year: '2024', label: 'GERC Order No. 1 of 2024 — Wind-Solar Hybrid tariff', url: 'https://gercin.org/wp-content/uploads/2024/02/Order-No.-1-of-2024-GERC-Wind-Solar-Hybrid-Order.pdf' },
+        { year: 'Ongoing', label: 'Generic wind tariff / open-access orders', url: 'https://gercin.org/' },
+      ],
+    },
+    {
+      issuer: 'MNRE & SECI — Central',
+      accent: '#7bc4e2',
+      site:   'https://mnre.gov.in/en/wind-schemes-guidelines/',
+      links: [
+        { year: '2015/2024', label: 'National Offshore Wind Energy Policy (Gujarat is priority zone)', url: 'https://mnre.gov.in/en/wind-policy-and-guidelines/' },
+        { year: '2024', label: '500 MW Offshore Wind Tender (off Gujarat)', url: 'https://www.seci.co.in/tenders' },
       ],
     },
   ],
   'Himachal Pradesh': [
     {
-      issuer: 'Himachal Pradesh — State RE Policy',
+      issuer: 'Himachal Pradesh — State RE Policy & HIMURJA',
       accent: '#ff8a1f',
       site:   'https://himurja.hp.gov.in/',
       links: [
         { year: '2021',    label: 'HP Renewable Energy Policy 2021 (1 GW wind target by 2027)', url: 'https://himurja.hp.gov.in/' },
-        { year: 'Ongoing', label: 'HIMURJA — RE nodal agency portal', url: 'https://himurja.hp.gov.in/' },
+        { year: 'Ongoing', label: 'HIMURJA — RE nodal agency portal',                            url: 'https://himurja.hp.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'Himachal Pradesh Electricity Regulatory Commission (HPERC)',
+      accent: '#a5b4fc',
+      site:   'https://hperc.org/',
+      links: [
         { year: 'Ongoing', label: 'HPERC — Tariff & open-access orders', url: 'https://hperc.org/' },
       ],
     },
   ],
   'Karnataka': [
     {
-      issuer: 'Karnataka — State RE Policy',
+      issuer: 'Karnataka Renewable Energy Development Ltd. (KREDL) — State Nodal Agency',
       accent: '#ff8a1f',
       site:   'https://kredl.karnataka.gov.in/',
       links: [
-        { year: '2022–2027', label: 'Karnataka Renewable Energy Policy 2022–27 (10 GW wind target)', url: 'https://kredl.karnataka.gov.in/info-2/Policies/en' },
-        { year: '2023',      label: 'KERC Banking & Wheeling Charges Order (Wind / Solar)',          url: 'https://www.karnataka.gov.in/kerc/english' },
-        { year: 'Ongoing',   label: 'KREDL — Allotments & PPA portal',                               url: 'https://kredl.karnataka.gov.in/' },
-        { year: 'Ongoing',   label: 'KERC — Wind tariff & banking orders',                           url: 'https://www.karnataka.gov.in/kerc/english' },
+        { year: '2022', label: 'Karnataka Renewable Energy Policy, 2022–2027', url: 'https://kredl.karnataka.gov.in/' },
+        { year: 'Ongoing', label: 'Government Orders on Wind Power Projects', url: 'https://kredl.karnataka.gov.in/new-page/Government%20Orders%20of%20Wind%20Power%20Projects/en' },
+        { year: 'Ongoing', label: 'KREDL Wind Section', url: 'https://kredl.karnataka.gov.in/new-page/Wind/en' },
+      ],
+    },
+    {
+      issuer: 'Karnataka Electricity Regulatory Commission (KERC)',
+      accent: '#a5b4fc',
+      site:   'https://kerc.karnataka.gov.in/',
+      links: [
+        { year: 'Ongoing', label: 'KERC generic wind tariff & open-access/banking orders', url: 'https://kerc.karnataka.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'MNRE — Central',
+      accent: '#7bc4e2',
+      site:   'https://mnre.gov.in/en/wind-schemes-guidelines/',
+      links: [
+        { year: '2022', label: 'Draft National Repowering Policy, 2022', url: 'https://mnre.gov.in/en/wind-schemes-guidelines/' },
       ],
     },
   ],
   'Kerala': [
     {
-      issuer: 'Kerala — State RE Policy',
+      issuer: 'ANERT — State Nodal Agency',
       accent: '#ff8a1f',
       site:   'https://anert.gov.in/',
       links: [
-        { year: '2002 / 2023', label: 'Kerala State Energy Policy (RE & wind chapter)',             url: 'https://anert.gov.in/' },
-        { year: 'Ongoing',     label: 'ANERT — Small Wind / Solar-Wind Hybrid Scheme',              url: 'https://anert.gov.in/' },
-        { year: 'Ongoing',     label: 'KSERC — Generic wind tariff & open-access orders',           url: 'https://erckerala.org/' },
-        { year: 'Ongoing',     label: 'KSEBL — APPC notifications for wind purchase',               url: 'https://www.kseb.in/' },
+        { year: '2022', label: 'Kerala Renewable Energy Policy, 2022', url: 'https://anert.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'KSERC',
+      accent: '#a5b4fc',
+      site:   'https://erckerala.org/',
+      links: [
+        { year: 'Ongoing', label: 'KSERC tariff orders', url: 'https://erckerala.org/' },
       ],
     },
   ],
   'Madhya Pradesh': [
     {
-      issuer: 'Madhya Pradesh — State Wind Policy',
+      issuer: 'MP Urja Vikas Nigam Ltd. (MPUVNL) — State Nodal Agency',
       accent: '#ff8a1f',
-      site:   'https://mprenewable.nic.in/',
+      site:   'https://www.mprenewable.nic.in/',
       links: [
-        { year: '2012 / 2024', label: 'MP Wind Energy Policy 2012 (with 2024 amendments)',          url: 'https://mprenewable.nic.in/' },
-        { year: '2022',        label: 'MP Renewable Energy Policy 2022',                            url: 'https://mprenewable.nic.in/' },
-        { year: 'Ongoing',     label: 'MPUVNL — RE nodal agency & single-window portal',            url: 'https://mprenewable.nic.in/' },
-        { year: 'Ongoing',     label: 'MPERC — Wind tariff & MPPMCL procurement orders',            url: 'https://www.mperc.in/' },
+        { year: '2025', label: 'Madhya Pradesh Renewable Energy Policy, 2025', url: 'https://invest.mp.gov.in/wp-content/uploads/2025/02/Energy-Policy-2025.pdf' },
+      ],
+    },
+    {
+      issuer: 'Madhya Pradesh Electricity Regulatory Commission (MPERC)',
+      accent: '#a5b4fc',
+      site:   'https://mperc.in/',
+      links: [
+        { year: '2025', label: 'MPERC Petition 22/2025 — wind-related order', url: 'https://mperc.in/uploads/petition_order_document/MPERC_PNo_22_2025_Final_Order_13_08_2025_1.pdf' },
+        { year: '2025', label: 'Status of Madhya Pradesh Power Sector (27 Jun 2025)', url: 'https://mperc.in/uploads/editor/About_MP_Power_Sector_as_on_27_06_2025.pdf' },
+      ],
+    },
+    {
+      issuer: 'MPPMCL — Procurement',
+      accent: '#7bc4e2',
+      site:   'https://mptenders.gov.in/',
+      links: [
+        { year: '2025', label: 'MPPMCL 800 MW wind tender (+800 MW greenshoe)', url: 'https://www.mercomindia.com/madhya-pradesh-issues-tender-to-procure-800-mw-wind-power' },
       ],
     },
   ],
   'Maharashtra': [
     {
-      issuer: 'Maharashtra — State Wind Policy',
+      issuer: 'Maharashtra Energy Development Agency (MEDA) — State Nodal Agency',
       accent: '#ff8a1f',
-      site:   'https://www.mahaurja.com/',
+      site:   'https://www.mahaurja.com/meda/',
       links: [
-        { year: '2020',    label: 'Maharashtra Unconventional Energy Generation Policy 2020',       url: 'https://www.mahaurja.com/' },
-        { year: '2024',    label: 'Maharashtra RE Policy 2024 (FDRE & Wind-BESS focus)',            url: 'https://www.mahaurja.com/' },
-        { year: 'Ongoing', label: 'MEDA — Allotments & EIA portal',                                 url: 'https://www.mahaurja.com/' },
-        { year: 'Ongoing', label: 'MERC — Tariff & open-access orders',                             url: 'https://merc.gov.in/' },
+        { year: '2020', label: 'Maharashtra Unconventional Energy Generation Policy, 2020', url: 'https://india-re-navigator.com/public/tender_uploads/utility_rooftop_wind_policy-602fb08002107.pdf' },
+        { year: 'Ongoing', label: 'MEDA Wind Power Policy page', url: 'https://www.mahaurja.com/meda/en/programme/wind_power_policy' },
+      ],
+    },
+    {
+      issuer: 'Maharashtra Electricity Regulatory Commission (MERC)',
+      accent: '#a5b4fc',
+      site:   'https://merc.gov.in/',
+      links: [
+        { year: 'Ongoing', label: 'MERC RE tariff / open-access / banking orders', url: 'https://merc.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'MNRE — Central',
+      accent: '#7bc4e2',
+      site:   'https://mnre.gov.in/en/wind-schemes-guidelines/',
+      links: [
+        { year: '2022', label: 'Draft National Repowering Policy, 2022', url: 'https://mnre.gov.in/en/wind-schemes-guidelines/' },
       ],
     },
   ],
   'Odisha': [
     {
-      issuer: 'Odisha — State RE Policy',
+      issuer: 'OREDA',
       accent: '#ff8a1f',
-      site:   'https://www.oredaodisha.com/',
+      site:   'https://oredaodisha.com/',
       links: [
-        { year: '2022',    label: 'Odisha Renewable Energy Policy 2022',                            url: 'https://www.oredaodisha.com/' },
-        { year: 'Ongoing', label: 'OREDA — RE nodal agency portal',                                 url: 'https://www.oredaodisha.com/' },
-        { year: 'Ongoing', label: 'OERC — Tariff & open-access orders',                             url: 'https://www.oerc.gov.in/' },
+        { year: '2022', label: 'Odisha Renewable Energy Policy, 2022', url: 'https://investodisha.gov.in/policy-framework/sectoral-policies/renewable-energy-policy-2022' },
+      ],
+    },
+    {
+      issuer: 'OERC',
+      accent: '#a5b4fc',
+      site:   'https://www.orierc.org/',
+      links: [
+        { year: 'Ongoing', label: 'OERC tariff orders', url: 'https://www.orierc.org/' },
       ],
     },
   ],
   'Rajasthan': [
     {
-      issuer: 'Rajasthan — State RE Policy',
+      issuer: 'Rajasthan Renewable Energy Corporation Ltd. (RRECL) — State Nodal Agency',
       accent: '#ff8a1f',
-      site:   'https://energy.rajasthan.gov.in/rrec',
+      site:   'https://energy.rajasthan.gov.in/rrecl/',
       links: [
-        { year: '2019',    label: 'Rajasthan Wind & Hybrid Energy Policy 2019',                     url: 'https://energy.rajasthan.gov.in/rrec' },
-        { year: '2023',    label: 'Rajasthan Renewable Energy Policy 2023 (single-window, 50 GW target)', url: 'https://energy.rajasthan.gov.in/rrec' },
-        { year: 'Ongoing', label: 'RRECL — Allotments & RPO portal',                                url: 'https://energy.rajasthan.gov.in/rrec' },
-        { year: 'Ongoing', label: 'RERC — Wind tariff & banking orders',                            url: 'https://rerc.rajasthan.gov.in/' },
+        { year: '2019', label: 'Wind & Hybrid Energy Policy, 2019', url: 'https://energy.rajasthan.gov.in/rrecl/' },
+        { year: '2023', label: 'Rajasthan Renewable Energy Policy, 2023', url: 'https://rising.rajasthan.gov.in/storage/app/public/files/pdf/rajasthan-renewable-energy-policy-2023.pdf' },
+        { year: '2024', label: 'Rajasthan Integrated Clean Energy Policy, 2024', url: 'https://istart.rajasthan.gov.in/public/Policies/2024/rajasthan-integrated-clean-energy-policy.pdf' },
+      ],
+    },
+    {
+      issuer: 'Rajasthan Electricity Regulatory Commission (RERC)',
+      accent: '#a5b4fc',
+      site:   'https://rerc.rajasthan.gov.in/',
+      links: [
+        { year: '2021', label: 'RERC (Terms & Conditions for Open Access) Regulations', url: 'https://rerc.rajasthan.gov.in/' },
+        { year: 'Ongoing', label: 'Tariff orders for wind power procurement', url: 'https://rerc.rajasthan.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'MNRE — Central schemes applicable in Rajasthan',
+      accent: '#7bc4e2',
+      site:   'https://mnre.gov.in/en/wind-schemes-guidelines/',
+      links: [
+        { year: '2022', label: 'Draft National Repowering Policy for Wind Power Projects, 2022', url: 'https://mnre.gov.in/en/wind-schemes-guidelines/' },
+        { year: '2018', label: 'National Wind-Solar Hybrid Policy', url: 'https://mnre.gov.in/en/wind-policy-and-guidelines/' },
       ],
     },
   ],
   'Tamil Nadu': [
     {
-      issuer: 'Tamil Nadu — State Wind Policy',
+      issuer: 'Tamil Nadu Green Energy Corp. (TNGECL) / TEDA — State Nodal Agency',
       accent: '#ff8a1f',
-      site:   'https://teda.in/',
+      site:   'https://teda.tn.gov.in/',
       links: [
-        { year: '2020',    label: 'TN Wind Energy Policy 2020',                                     url: 'https://teda.in/' },
-        { year: '2023',    label: 'TN Repowering Policy for Wind Energy Projects 2023',             url: 'https://teda.in/' },
-        { year: 'Ongoing', label: 'TEDA — Clearances & allotments portal',                          url: 'https://teda.in/' },
-        { year: 'Ongoing', label: 'TNERC — Wind tariff, banking & open-access orders',              url: 'https://www.tnerc.gov.in/' },
+        { year: '2024', label: 'Tamil Nadu Repowering, Refurbishment & Life Extension Policy, 2024', url: 'https://powerline.net.in/2024/12/05/big-moves-renewable-energy-policy-developments-in-tamil-nadu/' },
+        { year: '2026', label: 'Jan 2026 amendments to 2024 policy (performance-linked eligibility)', url: 'https://www.mercomindia.com/tamil-nadu-tweaks-wind-policy-to-ease-repowering-and-life-extension-norms' },
+      ],
+    },
+    {
+      issuer: 'Tamil Nadu Electricity Regulatory Commission (TNERC)',
+      accent: '#a5b4fc',
+      site:   'https://www.tnerc.gov.in/',
+      links: [
+        { year: 'Ongoing', label: 'TNERC tariff, wheeling, banking, open-access orders', url: 'https://www.tnerc.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'MNRE & SECI — Central',
+      accent: '#7bc4e2',
+      site:   'https://mnre.gov.in/en/wind-schemes-guidelines/',
+      links: [
+        { year: '2015/2024', label: 'National Offshore Wind Energy Policy (Tamil Nadu is priority zone)', url: 'https://mnre.gov.in/en/wind-policy-and-guidelines/' },
+        { year: '2026', label: '500 MW offshore wind tender (off TN coast) — due Feb 2026', url: 'https://energiesmedia.com/india-to-open-new-offshore-wind-tender-process/' },
       ],
     },
   ],
   'Telangana': [
     {
-      issuer: 'Telangana — State RE Policy',
+      issuer: 'TSREDCO / TGREDCO — State Nodal Agency',
       accent: '#ff8a1f',
       site:   'https://tsredco.telangana.gov.in/',
       links: [
-        { year: '2025',    label: 'Telangana Clean & Green Energy Policy 2025 (TGECA-2025)',         url: 'https://tsredco.telangana.gov.in/' },
-        { year: 'Ongoing', label: 'TSREDCO — RE nodal agency portal',                                url: 'https://tsredco.telangana.gov.in/' },
-        { year: 'Ongoing', label: 'TSERC — Tariff & open-access orders',                             url: 'https://tserc.gov.in/' },
+        { year: '2025', label: 'Telangana Clean & Green Policy, 2025', url: 'https://tsredco.telangana.gov.in/Default.aspx' },
+        { year: '2015', label: 'Telangana Solar Power Policy, 2015 (wind covered by TSERC)', url: 'https://tsredco.telangana.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'Telangana State Electricity Regulatory Commission (TSERC)',
+      accent: '#a5b4fc',
+      site:   'https://tserc.gov.in/',
+      links: [
+        { year: 'Ongoing', label: 'TSERC generic wind tariff / open-access / banking orders', url: 'https://tserc.gov.in/' },
+      ],
+    },
+    {
+      issuer: 'MNRE & SECI — Central',
+      accent: '#7bc4e2',
+      site:   'https://mnre.gov.in/en/wind-schemes-guidelines/',
+      links: [
+        { year: '2022', label: 'Draft National Repowering Policy, 2022', url: 'https://mnre.gov.in/en/wind-schemes-guidelines/' },
       ],
     },
   ],

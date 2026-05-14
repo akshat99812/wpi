@@ -14,70 +14,76 @@ interface Props {
 }
 
 // ── Static reference data (state-wise) ─────────────────────────────────────
-// Installed MW values reflect MNRE physical-progress dashboard (Mar 2025).
-// Potential figures are NIWE 150 m atlas. When bundle data is present we
-// reconcile from the bundle; this static set is the fallback so the chart
-// never renders empty.
+// Installed MW values are cumulative as on 31 Mar 2025, sourced verbatim
+// from MNRE RE-Statistics 2024-25 (Table 8.2). Potential figures are
+// NIWE @150 m AGL. When the live bundle ships state capacity we prefer
+// that; this static set is the fallback so the chart never renders empty.
 const FALLBACK_STATE_DATA = [
-  { state: 'Gujarat',        installed_mw: 12_500, potential_gw: 142 },
-  { state: 'Tamil Nadu',     installed_mw: 10_700, potential_gw:  68 },
-  { state: 'Karnataka',      installed_mw:  6_360, potential_gw: 169 },
-  { state: 'Rajasthan',      installed_mw:  5_650, potential_gw: 128 },
-  { state: 'Maharashtra',    installed_mw:  5_270, potential_gw:  99 },
-  { state: 'Andhra Pradesh', installed_mw:  4_100, potential_gw:  74 },
-  { state: 'Madhya Pradesh', installed_mw:  3_560, potential_gw:  22.76 },
+  { state: 'Gujarat',        installed_mw: 12_677, potential_gw: 142 },
+  { state: 'Tamil Nadu',     installed_mw: 11_740, potential_gw:  68 },
+  { state: 'Karnataka',      installed_mw:  7_351, potential_gw: 169 },
+  { state: 'Maharashtra',    installed_mw:  5_285, potential_gw:  99 },
+  { state: 'Rajasthan',      installed_mw:  5_209, potential_gw: 128 },
+  { state: 'Andhra Pradesh', installed_mw:  4_377, potential_gw:  74 },
+  { state: 'Madhya Pradesh', installed_mw:  3_195, potential_gw:  22.76 },
   { state: 'Telangana',      installed_mw:    128, potential_gw:  54 },
+  { state: 'Kerala',         installed_mw:     71, potential_gw:   2 },
 ];
 
-// ── Annual additions trend (FY18 → FY25) ───────────────────────────────────
-// Source: MNRE annual addition data; rounded to nearest 100 MW.
+// ── Annual additions trend (FY16 → FY25, all-India) ───────────────────────
+// Derived from MNRE RE-Statistics 2024-25 Table 2.1 — wind cumulative
+// (GW) at fiscal-year close, differenced into annual additions (MW).
 const ANNUAL_ADDITIONS = [
-  { fy: 'FY18', mw: 1_762 },
+  { fy: 'FY18', mw: 1_870 },
   { fy: 'FY19', mw: 1_480 },
-  { fy: 'FY20', mw:   968 },
-  { fy: 'FY21', mw: 1_503 },
-  { fy: 'FY22', mw: 1_111 },
-  { fy: 'FY23', mw: 2_277 },
-  { fy: 'FY24', mw: 3_253 },
+  { fy: 'FY20', mw: 2_110 },
+  { fy: 'FY21', mw: 1_510 },
+  { fy: 'FY22', mw: 1_110 },
+  { fy: 'FY23', mw: 2_270 },
+  { fy: 'FY24', mw: 3_260 },
   { fy: 'FY25', mw: 4_150 },
 ];
 
 // ── State-wise annual additions (FY18 → FY25) ─────────────────────────────
-// Compiled from MNRE physical-progress monthly bulletins, CEA renewable
-// dashboard, and state nodal-agency reports (TEDA, KREDL, GEDA, RRECL,
-// MEDA, NREDCAP, MPUVNL, TSREDCO, ANERT). State sums approximate the
-// national ANNUAL_ADDITIONS series; rounding/timing splits produce minor
-// residuals which we accept rather than introducing synthetic adjustments.
+// Top 5 states derived from MNRE RE-Statistics 2024-25 Tables 11.2.1 (RJ),
+// 12.2.1 (GJ), 13.2.1 (TN), 14.2.1 (KA), 15.2.1 (MH) — wind cumulative
+// FY-by-FY differenced into annual additions, rounded to nearest MW.
+// AP, MP, Telangana, Kerala are NOT broken out per-FY in the MNRE
+// statistics report — values shown there are best-effort estimates
+// reconciled to match the FY25 cumulative published by MNRE (Table 8.2).
 const STATE_ANNUAL_ADDITIONS: Record<string, Array<{ fy: string; mw: number }>> = {
   'Gujarat': [
-    { fy: 'FY18', mw:   400 }, { fy: 'FY19', mw:   370 }, { fy: 'FY20', mw:   250 },
-    { fy: 'FY21', mw:   620 }, { fy: 'FY22', mw:   485 }, { fy: 'FY23', mw:   810 },
-    { fy: 'FY24', mw: 1_160 }, { fy: 'FY25', mw: 1_600 },
+    { fy: 'FY18', mw:   273 }, { fy: 'FY19', mw:   460 }, { fy: 'FY20', mw: 1_468 },
+    { fy: 'FY21', mw: 1_020 }, { fy: 'FY22', mw:   647 }, { fy: 'FY23', mw:   770 },
+    { fy: 'FY24', mw: 1_744 }, { fy: 'FY25', mw:   955 },
   ],
   'Tamil Nadu': [
-    { fy: 'FY18', mw:   720 }, { fy: 'FY19', mw:   520 }, { fy: 'FY20', mw:   115 },
-    { fy: 'FY21', mw:   135 }, { fy: 'FY22', mw:   210 }, { fy: 'FY23', mw:   325 },
-    { fy: 'FY24', mw:   440 }, { fy: 'FY25', mw:   625 },
+    { fy: 'FY18', mw:   336 }, { fy: 'FY19', mw:   772 }, { fy: 'FY20', mw:   335 },
+    { fy: 'FY21', mw:   304 }, { fy: 'FY22', mw:   258 }, { fy: 'FY23', mw:   151 },
+    { fy: 'FY24', mw:   586 }, { fy: 'FY25', mw: 1_136 },
   ],
   'Karnataka': [
-    { fy: 'FY18', mw:   220 }, { fy: 'FY19', mw:   280 }, { fy: 'FY20', mw:   178 },
-    { fy: 'FY21', mw:   232 }, { fy: 'FY22', mw:   163 }, { fy: 'FY23', mw:   382 },
-    { fy: 'FY24', mw:   610 }, { fy: 'FY25', mw:   795 },
+    { fy: 'FY18', mw:   857 }, { fy: 'FY19', mw:    87 }, { fy: 'FY20', mw:    96 },
+    { fy: 'FY21', mw:   148 }, { fy: 'FY22', mw:   192 }, { fy: 'FY23', mw:   164 },
+    { fy: 'FY24', mw:   725 }, { fy: 'FY25', mw: 1_331 },
   ],
   'Rajasthan': [
-    { fy: 'FY18', mw:   120 }, { fy: 'FY19', mw:   125 }, { fy: 'FY20', mw:   205 },
-    { fy: 'FY21', mw:   242 }, { fy: 'FY22', mw:    76 }, { fy: 'FY23', mw:   292 },
-    { fy: 'FY24', mw:   558 }, { fy: 'FY25', mw:   720 },
+    { fy: 'FY18', mw:    16 }, { fy: 'FY19', mw:     2 }, { fy: 'FY20', mw:     0 },
+    { fy: 'FY21', mw:    27 }, { fy: 'FY22', mw:     0 }, { fy: 'FY23', mw:   867 },
+    { fy: 'FY24', mw:     2 }, { fy: 'FY25', mw:    13 },
   ],
+  'Maharashtra': [
+    { fy: 'FY18', mw:    13 }, { fy: 'FY19', mw:    10 }, { fy: 'FY20', mw:   206 },
+    { fy: 'FY21', mw:     0 }, { fy: 'FY22', mw:    13 }, { fy: 'FY23', mw:     0 },
+    { fy: 'FY24', mw:   195 }, { fy: 'FY25', mw:    77 },
+  ],
+  // ── Per-FY breakdown not in MNRE RE-Stats 2024-25 for these states.
+  // FY18-FY24 figures are estimates from the prior data set; FY25 cumulative
+  // matches MNRE Table 8.2 (AP 4,377 / MP 3,195 / TG 128 / KL 71).
   'Andhra Pradesh': [
     { fy: 'FY18', mw:   135 }, { fy: 'FY19', mw:    38 }, { fy: 'FY20', mw:    32 },
     { fy: 'FY21', mw:    46 }, { fy: 'FY22', mw:    52 }, { fy: 'FY23', mw:    78 },
     { fy: 'FY24', mw:   115 }, { fy: 'FY25', mw:   165 },
-  ],
-  'Maharashtra': [
-    { fy: 'FY18', mw:   125 }, { fy: 'FY19', mw:    95 }, { fy: 'FY20', mw:    80 },
-    { fy: 'FY21', mw:    88 }, { fy: 'FY22', mw:    58 }, { fy: 'FY23', mw:   178 },
-    { fy: 'FY24', mw:   245 }, { fy: 'FY25', mw:   325 },
   ],
   'Madhya Pradesh': [
     { fy: 'FY18', mw:    32 }, { fy: 'FY19', mw:    32 }, { fy: 'FY20', mw:    76 },
@@ -274,53 +280,6 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
             caption={`Of India's ${totalInstalledGw.toFixed(1)} GW total installed`}
           />
         </div>
-
-        {/* Realisation bar for selected state — uses a sqrt visual scale so
-            small realisations (most Indian states sit at 1–15%) are
-            readable. The numeric % to the right is the true linear value. */}
-        {stateRow && (() => {
-          const pct = Math.min(100, Math.max(0, stateRow.realisation_pct));
-          const visualPct = Math.sqrt(pct / 100) * 100;
-          return (
-            <div className="wpi-card-in bg-[#0a0f1c]/40 border border-[#1f2c44] rounded-xl p-4" style={{ ['--wpi-delay' as string]: '240ms' }}>
-              <div className="text-[9.5px] text-muted/55 uppercase tracking-[0.12em] font-bold mb-3">
-                Realisation — installed vs. 150 m potential
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="relative flex-1 h-4 bg-[#0a0f1c] rounded-full overflow-hidden border border-[#1f2c44]">
-                  {/* Quarter-tick marks on the sqrt-scaled axis (true % = 6.25, 25, 56.25) */}
-                  {[25, 50, 75].map(t => (
-                    <span
-                      key={t}
-                      aria-hidden
-                      className="absolute top-0 bottom-0 w-px bg-[#1f2c44]/70"
-                      style={{ left: `${t}%` }}
-                    />
-                  ))}
-                  <div
-                    className="wpi-bar-grow absolute inset-y-0 left-0 rounded-full"
-                    style={{
-                      background: 'linear-gradient(90deg, #ff8a1f, #ffb066cc)',
-                      boxShadow: '0 0 10px #ff8a1f55 inset, 0 0 6px #ff8a1f44',
-                      ['--wpi-delay' as string]: '300ms',
-                      ['--wpi-bar-target' as string]: `${visualPct}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-[13px] font-mono font-black text-[#ffd0a0] tabular-nums w-14 text-right">
-                  {pct.toFixed(2)}%
-                </span>
-              </div>
-              <div className="flex justify-between mt-1.5">
-                <span className="text-[9px] text-muted/50">0 MW</span>
-                <span className="text-[9px] text-muted/45 italic">perceptual (√) scale</span>
-                <span className="text-[9px] text-[#7bc4e2]/70">
-                  {(stateRow.potential_gw * 1000).toLocaleString('en-IN')} MW potential
-                </span>
-              </div>
-            </div>
-          );
-        })()}
 
         {/* Prime districts & terrain */}
         {profile && (

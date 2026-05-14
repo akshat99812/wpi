@@ -41,7 +41,15 @@ export function useTurbineMarkers({ bundleRef, stateRef, selectRef, setTooltip }
 
       const { el, inner, overlay, scale } = createWindFarmEl(sizingMw);
 
-      overlay.addEventListener('mouseenter', () => {
+      // ── Hover handling ────────────────────────────────────────────────
+      // Use Pointer Events (pointerenter / pointerleave / pointercancel)
+      // rather than legacy mouse events. Safari is known to drop
+      // `mouseleave` on transformed/stacked elements when the cursor
+      // crosses quickly between markers (each marker has a CSS-transformed
+      // inner inside an overlay), which left the tooltip stuck on the
+      // previously-hovered state. Pointer events fire reliably across
+      // Chromium / Safari / Firefox for the same transitions.
+      const show = () => {
         const p = m.project([d.lon, d.lat]);
         setTooltip({
           x: p.x,
@@ -53,12 +61,18 @@ export function useTurbineMarkers({ bundleRef, stateRef, selectRef, setTooltip }
           potential: d.potential,
         });
         inner.style.transform = `scale(${scale * 1.15})`;
-      });
-
-      overlay.addEventListener('mouseleave', () => {
+      };
+      const hide = () => {
         setTooltip(null);
         inner.style.transform = `scale(${scale})`;
-      });
+      };
+
+      overlay.addEventListener('pointerenter',  show);
+      overlay.addEventListener('pointerleave',  hide);
+      overlay.addEventListener('pointercancel', hide);
+      // Belt-and-suspenders: legacy mouseleave catches the rare case where
+      // pointer events aren't dispatched (older WebKit on iOS, e.g.).
+      overlay.addEventListener('mouseleave',    hide);
 
       overlay.addEventListener('click', (e) => {
         e.stopPropagation();

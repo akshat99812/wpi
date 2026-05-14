@@ -1,0 +1,16 @@
+{
+  "source": "et_energyworld",
+  "fetchedAt": "2026-05-14T13:13:07.488Z",
+  "ok": true,
+  "payload": {
+    "news": [
+      {
+        "headline": "Inox Clean acquires US solar manufacturing assets from Boviet Solar for $750 million",
+        "url": "https://energy.economictimes.indiatimes.com/news/renewable/inox-clean-energy-acquires-750-million-solar-manufacturing-assets-from-boviet-solar-in-the-us/131089376",
+        "publishedAt": "2026-05-14T10:02:00.000Z",
+        "source": "ETEnergyWorld",
+        "summary": "Inox Clean said the localised manufacturing footprint in the US would help reduce tariff- and policy-related risks while improving profitability."
+      }
+    ]
+  }
+}

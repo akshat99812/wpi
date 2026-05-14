@@ -1,0 +1,31 @@
+{
+  "source": "eq_magazine",
+  "fetchedAt": "2026-05-14T13:13:09.435Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "news": [
+      {
+        "headline": "India Wind Installed Capacity Touches 49.5 GW at FY25 Close",
+        "url": "https://www.eqmagpro.com/india-wind-49gw-fy25",
+        "publishedAt": "2025-04-05T00:00:00Z",
+        "source": "EQ Magazine",
+        "summary": "India wind fleet reaches new high; Gujarat, TN, Karnataka lead additions"
+      },
+      {
+        "headline": "Vestas Reopens Chennai Nacelle Plant after 2-Year Pause",
+        "url": "https://www.eqmagpro.com/vestas-chennai-restart",
+        "publishedAt": "2025-03-12T00:00:00Z",
+        "source": "EQ Magazine",
+        "summary": "Vestas resumes Indian wind nacelle manufacturing at Chennai facility"
+      },
+      {
+        "headline": "GWEC: India Tops APAC Wind Additions for Second Year",
+        "url": "https://www.eqmagpro.com/gwec-india-apac-wind-additions",
+        "publishedAt": "2025-02-28T00:00:00Z",
+        "source": "EQ Magazine",
+        "summary": "Global Wind Energy Council report ranks India #1 in APAC additions"
+      }
+    ]
+  }
+}
