@@ -53,9 +53,10 @@ router.post('/users/upsert', (req: Request, res: Response) => {
   const idx   = users.findIndex(u => u.googleId === googleId);
 
   let user: User;
-  if (idx >= 0) {
-    users[idx] = { ...users[idx], email, name: name ?? null, image: image ?? null, updatedAt: now };
-    user = users[idx];
+  const existing = idx >= 0 ? users[idx] : undefined;
+  if (existing) {
+    user = { ...existing, email, name: name ?? null, image: image ?? null, updatedAt: now };
+    users[idx] = user;
   } else {
     user = { id: cuid(), googleId, email, name: name ?? null, image: image ?? null, tier: 'FREE', createdAt: now, updatedAt: now };
     users.push(user);
@@ -85,12 +86,13 @@ router.patch('/users/:id/tier', adminAuth, (req: Request, res: Response) => {
 
   const users = readUsers();
   const idx   = users.findIndex(u => u.id === id || u.googleId === id);
-  if (idx < 0) { res.status(404).json({ error: 'Not found' }); return; }
+  const target = idx >= 0 ? users[idx] : undefined;
+  if (!target) { res.status(404).json({ error: 'Not found' }); return; }
 
-  users[idx].tier      = tier;
-  users[idx].updatedAt = new Date().toISOString();
+  target.tier      = tier;
+  target.updatedAt = new Date().toISOString();
   writeUsers(users);
-  res.json(users[idx]);
+  res.json(target);
 });
 
 export default router;
