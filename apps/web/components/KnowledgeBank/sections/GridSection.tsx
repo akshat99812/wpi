@@ -2,342 +2,235 @@
 
 import React from 'react';
 import type { WpiBundle } from '@/lib/types';
-import {
-  HeadlineMetric, InfoCard, Prose, ChipRow,
-  SectionHeader, EmptyState, SourceLinks,
-} from '../WindCards';
-import { STATE_PROFILES } from '../stateProfiles';
+import { SectionHeader } from '../WindCards';
 
 interface Props {
   bundle?:        WpiBundle;
   selectedState?: string | null;
 }
 
-const SOURCES = [
-  { label: 'POSOCO Daily Generation Report', url: 'https://posoco.in/' },
-  { label: 'NLDC Real-time Dashboard',       url: 'https://nldc.in/' },
-  { label: 'CEA Daily Report',               url: 'https://cea.nic.in/dailyreports/' },
-  { label: 'Grid-India',                     url: 'https://grid-india.in/' },
-];
+// ── Per-state authoritative grid sources ──────────────────────────────────
+// Each state lists exactly ONE entry — the state transmission utility
+// (Transco) — followed downstream by the shared national authorities.
+// Naming matches the user-supplied copy exactly.
+type GridKind = 'transco' | 'national';
+type GridSource = { title: string; description: string; url: string; kind: GridKind };
 
-// ── Per-state transmission utility lookup ─────────────────────────────────
-// The state Transco is the authoritative reference for intra-state evacuation
-// and OPGW / 220-400 kV substation status.
-const STATE_TRANSCO: Record<string, { short: string; long: string; url: string }> = {
-  'Andhra Pradesh':   { short: 'APTRANSCO',  long: 'AP Transmission Corporation',                  url: 'https://www.aptransco.gov.in/' },
-  'Gujarat':          { short: 'GETCO',      long: 'Gujarat Energy Transmission Corporation',      url: 'https://www.getcogujarat.com/' },
-  'Himachal Pradesh': { short: 'HPPTCL',     long: 'HP Power Transmission Corporation',            url: 'https://hpptcl.in/' },
-  'Karnataka':        { short: 'KPTCL',      long: 'Karnataka Power Transmission Corporation',     url: 'https://kptcl.karnataka.gov.in/' },
-  'Kerala':           { short: 'KSEBL',      long: 'Kerala State Electricity Board Ltd.',          url: 'https://www.kseb.in/' },
-  'Madhya Pradesh':   { short: 'MPPTCL',     long: 'MP Power Transmission Co.',                    url: 'https://www.mpptcl.com/' },
-  'Maharashtra':      { short: 'MSETCL',     long: 'Maharashtra State Electricity Transmission',   url: 'https://www.mahatransco.in/' },
-  'Odisha':           { short: 'OPTCL',      long: 'Odisha Power Transmission Corporation',        url: 'https://www.optcl.co.in/' },
-  'Rajasthan':        { short: 'RVPN',       long: 'Rajasthan Rajya Vidyut Prasaran Nigam',        url: 'https://energy.rajasthan.gov.in/rvpn' },
-  'Tamil Nadu':       { short: 'TANTRANSCO', long: 'Tamil Nadu Transmission Corporation',          url: 'https://www.tnebnet.org/' },
-  'Telangana':        { short: 'TSTRANSCO',  long: 'Telangana State Transmission Corporation',     url: 'https://www.tstransco.in/' },
+const KIND_META: Record<GridKind, { label: string; accent: string }> = {
+  transco:  { label: 'STATE TRANSCO', accent: '#ff8a1f' },
+  national: { label: 'NATIONAL',      accent: '#7bc4e2' },
 };
 
-// Common (national) grid authorities — same for every state.
-const NATIONAL_GRID_SOURCES = [
-  { title: 'CEA — Transmission Planning',           description: 'Central Electricity Authority — long-term inter-state transmission planning.',                 url: 'https://cea.nic.in/transmission-planning-wing/' },
-  { title: 'CEA — Transmission GIS / National Map', description: 'GIS-based national transmission infrastructure map.',                                            url: 'https://cea.nic.in/' },
-  { title: 'Power Grid Corp. of India (PGCIL)',     description: 'Inter-state grid owner & RE bid coordinator.',                                                   url: 'https://www.powergrid.in/' },
-  { title: 'Grid Controller of India (Grid-India)', description: 'National real-time grid operations (formerly POSOCO).',                                          url: 'https://grid-india.in/' },
+const STATE_GRID_SOURCES: Record<string, GridSource[]> = {
+  'Andhra Pradesh': [
+    { kind: 'transco', title: 'Transmission Corp. of Andhra Pradesh (APTRANSCO)', description: 'State transmission utility (authoritative).', url: 'https://www.aptransco.gov.in/' },
+  ],
+  'Gujarat': [
+    { kind: 'transco', title: 'Gujarat Energy Transmission Corp. (GETCO)',        description: 'State transmission utility (authoritative).', url: 'https://www.getcogujarat.com/' },
+  ],
+  'Karnataka': [
+    { kind: 'transco', title: 'Karnataka Power Transmission Corp. (KPTCL)',       description: 'State transmission utility (authoritative).', url: 'https://kptcl.karnataka.gov.in/' },
+  ],
+  'Kerala': [
+    { kind: 'transco', title: 'Kerala State Electricity Board (KSEB)',            description: 'State transmission utility (authoritative).', url: 'https://www.kseb.in/' },
+  ],
+  'Madhya Pradesh': [
+    { kind: 'transco', title: 'MP Power Transmission Co. (MPPTCL)',               description: 'State transmission utility (authoritative).', url: 'https://www.mpptcl.com/' },
+  ],
+  'Maharashtra': [
+    { kind: 'transco', title: 'Maharashtra State Electricity Transmission Co. (MSETCL)', description: 'State transmission utility (authoritative).', url: 'https://www.mahatransco.in/' },
+  ],
+  'Rajasthan': [
+    { kind: 'transco', title: 'Rajasthan Rajya Vidyut Prasaran Nigam (RVPN)',     description: 'State transmission utility (authoritative).', url: 'https://energy.rajasthan.gov.in/rvpn' },
+  ],
+  'Tamil Nadu': [
+    { kind: 'transco', title: 'Tamil Nadu Transmission Corp. (TANTRANSCO)',       description: 'State transmission utility (authoritative).', url: 'https://www.tantransco.tn.gov.in/' },
+  ],
+};
+
+// Common (national) grid authorities — always shown.
+const NATIONAL_GRID_SOURCES: GridSource[] = [
+  { kind: 'national', title: 'CEA — Transmission Planning',           description: 'Central Electricity Authority — long-term inter-state transmission planning.', url: 'https://cea.nic.in/transmission-planning-wing/' },
+  { kind: 'national', title: 'CEA — Transmission GIS / National Map', description: 'GIS-based national transmission infrastructure map.',                            url: 'https://cea.nic.in/' },
+  { kind: 'national', title: 'Power Grid Corp. of India (PGCIL)',     description: 'Inter-state grid owner & RE bid coordinator.',                                   url: 'https://www.powergrid.in/' },
+  { kind: 'national', title: 'Grid Controller of India (Grid-India)', description: 'National real-time grid operations (formerly POSOCO).',                          url: 'https://grid-india.in/' },
 ];
 
-export default function GridSection({ bundle, selectedState }: Props) {
-  const grid = bundle?.grid;
-  const dailyMu      = grid?.daily_wind_gen_mu       ?? 305;
-  const sharePct     = grid?.wind_grid_share_pct     ?? 5.4;
-  const curtailPct   = grid?.curtailment_pct         ?? 1.8;
-  const dateLabel    = grid?.date
-    ? new Date(grid.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    : 'Indicative';
-
-  const profile = selectedState ? STATE_PROFILES[selectedState] ?? null : null;
+export default function GridSection({ selectedState }: Props) {
+  const stateSources = selectedState ? STATE_GRID_SOURCES[selectedState] ?? [] : [];
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div className="flex flex-col gap-4">
       <SectionHeader
         eyebrow={selectedState ? `${selectedState} · Transmission` : 'Grid Integration'}
-        title={selectedState ? `Grid — ${selectedState}` : `Grid — Wind in the System (${dateLabel})`}
+        title={selectedState ? `${selectedState} — Grid & Evacuation` : 'National — Grid & Evacuation'}
         delay={0}
       />
 
-      {/* State-specific transmission & evacuation context */}
-      {profile && (
-        <InfoCard
-          title={`${selectedState} — transmission & evacuation`}
-          delay={30}
-          defaultOpen
-          icon={<WaveIcon />}
-          accent="#7bc4e2"
-        >
-          <Prose>{profile.gridTransmission}</Prose>
-        </InfoCard>
-      )}
-
-      {/* State-specific grid sources — Transco + CEA / PGCIL / Grid-India */}
-      {selectedState && (
-        <InfoCard
-          title={`${selectedState} — Grid & Evacuation`}
-          delay={60}
-          defaultOpen
-          icon={<BookIcon />}
-          accent="#a5b4fc"
-        >
-          <Prose>
-            The portal links directly to the relevant transmission utility and
-            CEA / PGCIL / Grid-India sources for authentic grid information.
-          </Prose>
-
-          <div className="text-[9.5px] uppercase tracking-[0.14em] font-bold text-muted/55 mt-2 mb-0.5">
-            Authoritative public sources for this tab
-          </div>
-
-          <div className="flex flex-col gap-2 mt-1">
-            {STATE_TRANSCO[selectedState] && (
-              <GridSourceRow
-                title={`${STATE_TRANSCO[selectedState].long} (${STATE_TRANSCO[selectedState].short})`}
-                description="State transmission utility (authoritative)."
-                url={STATE_TRANSCO[selectedState].url}
-                accent="#ff8a1f"
-              />
-            )}
-            {NATIONAL_GRID_SOURCES.map(s => (
-              <GridSourceRow
-                key={s.title}
-                title={s.title}
-                description={s.description}
-                url={s.url}
-              />
-            ))}
-          </div>
-        </InfoCard>
-      )}
-
-      {/* Headline metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <HeadlineMetric
-          delay={60} emphasis accent="#7bc4e2"
-          label="Daily Wind Gen"
-          value={`${dailyMu} MU`}
-          caption={`Pan-India · ${dateLabel}`}
-        />
-        <HeadlineMetric
-          delay={120} emphasis accent="#4cc87a"
-          label="Wind Grid Share"
-          value={`${sharePct}%`}
-          caption="Of total generation, daily basis"
-        />
-        <HeadlineMetric
-          delay={180} emphasis
-          accent={curtailPct > 5 ? '#f87171' : curtailPct > 2 ? '#ffb066' : '#4cc87a'}
-          label="Curtailment"
-          value={`${curtailPct}%`}
-          caption={curtailPct > 5
-            ? 'Elevated — congestion in TN/AP corridors'
-            : curtailPct > 2
-              ? 'Moderate — local pockets only'
-              : 'Within normal operating envelope'}
-        />
-      </div>
-
-      {/* Seasonal share chips */}
+      {/* Lead-in card with intent */}
       <div
-        className="wpi-card-in bg-[#0a0f1c]/40 border border-[#1f2c44] rounded-xl p-3.5"
-        style={{ ['--wpi-delay' as string]: '240ms' }}
+        className="wpi-card-in relative overflow-hidden rounded-2xl border border-[#1f2c44]
+                   bg-gradient-to-br from-[#0f1424] via-[#0a0f1c] to-[#0a0f1c] p-5"
+        style={{ ['--wpi-delay' as string]: '60ms' }}
       >
-        <span className="text-[9.5px] text-muted/55 uppercase tracking-[0.12em] font-bold">
-          Seasonal grid share
-        </span>
-        <ChipRow chips={[
-          { label: 'Monsoon Peak (Jul)', value: '12 – 14%', accent: '#7bc4e2' },
-          { label: 'Pre-Monsoon (Apr)',  value: '6 – 8%',   accent: '#4cc87a' },
-          { label: 'Winter Trough (Dec)',value: '2 – 3%',   accent: '#a5b4fc' },
-          { label: 'Annual Avg',         value: '~5.4%' },
-        ]} />
+        <div
+          className="pointer-events-none absolute -top-12 -right-12 h-48 w-48 rounded-full
+                     bg-[#a5b4fc]/10 blur-3xl"
+        />
+        <div className="relative flex items-start gap-3">
+          <div
+            className="flex-shrink-0 grid place-items-center h-9 w-9 rounded-lg
+                       bg-[#a5b4fc]/12 border border-[#a5b4fc]/25 text-[#a5b4fc]"
+          >
+            <BookIcon />
+          </div>
+          <div>
+            <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#a5b4fc]/85">
+              Grid &amp; Evacuation
+            </div>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-text/80">
+              The portal links directly to the relevant transmission utility
+              and CEA&nbsp;/ PGCIL&nbsp;/ Grid-India sources for authentic grid
+              information.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Generation profile */}
-      <InfoCard
-        title="Generation profile & dispatch"
-        delay={300}
-        defaultOpen
-        icon={<WaveIcon />}
-        accent="#7bc4e2"
-      >
-        <Prose>
-          Wind generation in India follows a strongly bimodal pattern —
-          peaking during the south-west monsoon (Jun–Sep), troughing in
-          November–February. On peak monsoon days the wind fleet has
-          delivered up to <b className="text-[#7bc4e2]">14% of all-India
-          generation</b>, with peninsular states (TN, KA) hitting 35–45% of
-          their own state load.
-        </Prose>
-        <Prose>
-          Wind is treated as <b className="text-[#ffd0a0]">must-run</b>
-          under MoP&apos;s 2022 dispatch rules; thermal flexes down on high-wind
-          intervals. Forecasting deviation settlement (FOR/DSM) penalises
-          schedule mismatches, incentivising 96-block forecasts coordinated
-          via QCAs (Qualified Coordinating Agencies).
-        </Prose>
-        <ChipRow chips={[
-          { label: 'Must-run',       value: 'Yes (MoP 2022)',  accent: '#4cc87a' },
-          { label: 'Forecast Block', value: '15-min · 96/day' },
-          { label: 'DSM Tolerance',  value: '±10%' },
-          { label: 'QCA Coverage',   value: 'GUVNL · TN · KA' },
-        ]} />
-        <div className="flex flex-wrap gap-3">
-          <ViewSource href="https://posoco.in/reports/daily-reports/" label="POSOCO Daily Reports" accent="#7bc4e2" />
-          <ViewSource href="https://www.nldc.in/" label="NLDC Dashboard" accent="#7bc4e2" />
-        </div>
-      </InfoCard>
-
-      {/* Curtailment & congestion */}
-      <InfoCard
-        title="Curtailment & congestion hotspots"
-        delay={360}
-        icon={<AlertIcon />}
-        accent="#ffb066"
-      >
-        <Prose>
-          Wind curtailment is concentrated in three corridors —
-          <b className="text-[#ffb066]"> Tirunelveli–Theni</b> (TN),
-          <b className="text-[#ffb066]"> Anantapur–Kurnool</b> (AP), and
-          <b className="text-[#ffb066]"> Jaisalmer–Bhadla</b> (RJ). Cause is
-          mid-day solar + wind co-incidence on a finite ISTS evacuation
-          envelope. PGCIL&apos;s Green Energy Corridor Phase-II (GEC-II)
-          adds 8,500 ckm of 765 kV / 400 kV lines targeting these
-          bottlenecks, COD-staggered through FY27.
-        </Prose>
-        <ChipRow chips={[
-          { label: 'TN Corridor',    value: 'Tirunelveli–Theni',    accent: '#ffb066' },
-          { label: 'AP Corridor',    value: 'Anantapur–Kurnool',    accent: '#ffb066' },
-          { label: 'RJ Corridor',    value: 'Jaisalmer–Bhadla',     accent: '#ffb066' },
-          { label: 'GEC-II',         value: '8,500 ckm by FY27',    accent: '#4cc87a' },
-        ]} />
-        <div className="flex flex-wrap gap-3">
-          <ViewSource href="https://grid-india.in/" label="Grid India" accent="#ffb066" />
-          <ViewSource href="https://cea.nic.in/dailyreports/" label="CEA Daily Reports" accent="#ffb066" />
-        </div>
-      </InfoCard>
-
-      {/* Storage & FDRE */}
-      <InfoCard
-        title="Storage & firming"
-        delay={420}
-        icon={<BatteryIcon />}
-        accent="#a5b4fc"
-      >
-        <Prose>
-          FDRE tenders since 2023 explicitly require wind to be paired with
-          BESS or pumped-hydro for evening peak coverage. SECI Tranche XII–XV
-          set the benchmark — typically 4-hr BESS at ~20% of nameplate. The
-          first FDRE plant (1,000 MW MSEDCL) is scheduled for COD in FY26.
-        </Prose>
-        <ChipRow chips={[
-          { label: 'BESS Sizing',    value: '~20% nameplate · 4 hr', accent: '#a5b4fc' },
-          { label: 'PHS Pipeline',   value: '~15 GW (PGCIL track)' },
-          { label: 'First FDRE COD', value: 'FY26 (MSEDCL 1 GW)',    accent: '#4cc87a' },
-        ]} />
-        <div className="flex flex-wrap gap-3">
-          <ViewSource href="https://www.seci.co.in/" label="SECI FDRE Tenders" accent="#a5b4fc" />
-          <ViewSource href="https://www.pgcil.co.in/" label="PGCIL GEC-II" accent="#a5b4fc" />
-        </div>
-      </InfoCard>
-
-      {!grid && (
-        <EmptyState
-          delay={480}
-          message="No live POSOCO grid data in bundle — values shown are last-known indicative figures."
+      {/* State authorities (only when a state is picked) */}
+      {selectedState && stateSources.length > 0 && (
+        <SourceCluster
+          delay={120}
+          eyebrow={`${selectedState} · state authorities`}
+          sources={stateSources}
         />
       )}
 
-      <SourceLinks sources={SOURCES} delay={540} />
+      {/* National authorities — always shown */}
+      <SourceCluster
+        delay={selectedState ? 240 : 120}
+        eyebrow="National authorities"
+        sources={NATIONAL_GRID_SOURCES}
+      />
+
+      {selectedState && stateSources.length === 0 && (
+        <div
+          className="wpi-card-in rounded-xl border border-dashed border-[#1f2c44]
+                     bg-[#0a0f1c]/60 p-4 text-[11.5px] text-muted/70"
+          style={{ ['--wpi-delay' as string]: '180ms' }}
+        >
+          State-specific transmission authority for <b>{selectedState}</b> is
+          not yet curated — refer to the national authorities above.
+        </div>
+      )}
+
+      {/* "Sources:" footer — matches the requested copy exactly:
+          State view → "<State Transco> · CEA · PGCIL"
+          India view → "CEA · PGCIL · Grid-India". */}
+      <div
+        className="wpi-card-in text-[10.5px] text-muted/70 leading-relaxed pt-1"
+        style={{ ['--wpi-delay' as string]: '360ms' }}
+      >
+        <span className="font-bold text-muted/85">Sources:&nbsp;</span>
+        {stateSources.length > 0
+          ? `${stateSources[0]!.title} · CEA · PGCIL`
+          : 'CEA · PGCIL · Grid-India (Grid Controller of India)'}
+      </div>
     </div>
   );
 }
 
-// ── Shared helpers ─────────────────────────────────────────────────────────
+// ── Visual cluster of source cards under a labeled eyebrow ─────────────────
+function SourceCluster({
+  eyebrow, sources, delay,
+}: {
+  eyebrow: string; sources: GridSource[]; delay: number;
+}) {
+  return (
+    <div
+      className="wpi-card-in"
+      style={{ ['--wpi-delay' as string]: `${delay}ms` }}
+    >
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#1f2c44] to-transparent" />
+        <span className="text-[9.5px] uppercase tracking-[0.16em] font-bold text-muted/60">
+          {eyebrow}
+        </span>
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#1f2c44] to-transparent" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {sources.map((s, i) => (
+          <GridSourceCard key={s.title} source={s} delay={i * 40} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Single source card — title, category badge, description, external link ─
+function GridSourceCard({ source, delay }: { source: GridSource; delay: number }) {
+  const meta = KIND_META[source.kind];
+  return (
+    <a
+      href={source.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group wpi-card-in relative flex flex-col gap-1.5 rounded-xl
+                 border border-[#1f2c44] bg-[#0a0f1c]/70 p-3.5
+                 hover:bg-[#0f1424] hover:-translate-y-px
+                 transition-all duration-200"
+      style={{
+        ['--wpi-delay' as string]: `${delay}ms`,
+        borderColor: undefined,
+      }}
+    >
+      <span
+        aria-hidden
+        className="absolute left-0 top-3 bottom-3 w-[2px] rounded-r-full opacity-70
+                   group-hover:opacity-100 transition-opacity"
+        style={{ backgroundColor: meta.accent }}
+      />
+
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1 min-w-0">
+          <span
+            className="text-[9px] font-bold uppercase tracking-[0.14em]
+                       px-1.5 py-0.5 rounded self-start"
+            style={{
+              color: meta.accent,
+              backgroundColor: `${meta.accent}15`,
+              border: `1px solid ${meta.accent}33`,
+            }}
+          >
+            {meta.label}
+          </span>
+          <span className="text-[12.5px] font-bold text-text/95 leading-snug truncate">
+            {source.title}
+          </span>
+        </div>
+        <span className="flex-shrink-0 text-muted/55 group-hover:text-text/85 transition-colors mt-0.5">
+          <ExternalLinkIcon />
+        </span>
+      </div>
+
+      <p className="text-[10.5px] leading-relaxed text-muted/75">
+        {source.description}
+      </p>
+    </a>
+  );
+}
+
+// ── Inline icons ───────────────────────────────────────────────────────────
 const ExternalLinkIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
     <polyline points="15 3 21 3 21 9" />
     <line x1="10" y1="14" x2="21" y2="3" />
   </svg>
 );
 
-// ── Single grid-source row ─────────────────────────────────────────────────
-// Mirrors the format used by the Technology tab so authoritative sources
-// across the app feel consistent.
-function GridSourceRow({
-  title, description, url, accent = '#7bc4e2',
-}: {
-  title: string; description: string; url: string; accent?: string;
-}) {
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group bg-[#0a0f1c]/60 border border-[#1f2c44] rounded-lg p-3
-                 hover:border-opacity-60 transition-colors"
-      style={{ borderColor: undefined }}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <span
-          className="text-[12px] font-bold leading-snug transition-colors"
-          style={{ color: 'rgba(232,237,247,0.92)' }}
-        >
-          <span style={{ color: accent }} className="mr-1">▸</span>
-          {title}
-        </span>
-        <ExternalLinkIcon />
-      </div>
-      <p className="text-[10.5px] text-muted/70 leading-relaxed mt-1 pl-3.5">
-        {description}
-      </p>
-    </a>
-  );
-}
-
-function ViewSource({ href, label, accent = '#7bc4e2' }: { href: string; label: string; accent?: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 mt-2 text-[10px] font-semibold uppercase tracking-wider hover:opacity-80 transition-opacity"
-      style={{ color: accent }}
-    >
-      {label}
-      <ExternalLinkIcon />
-    </a>
-  );
-}
-
-// ── Inline icons ───────────────────────────────────────────────────────────
-const WaveIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M2 12c2 0 2-3 4-3s2 6 4 6 2-9 4-9 2 6 4 6 2-3 4-3" />
-  </svg>
-);
-const AlertIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 9v4M12 17h.01M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0z" />
-  </svg>
-);
-const BatteryIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="7" width="18" height="10" rx="2" />
-    <line x1="22" y1="11" x2="22" y2="13" />
-    <line x1="6" y1="10" x2="6" y2="14" />
-    <line x1="10" y1="10" x2="10" y2="14" />
-  </svg>
-);
 const BookIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
   </svg>

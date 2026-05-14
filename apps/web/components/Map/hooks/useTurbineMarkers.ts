@@ -5,6 +5,13 @@ import { createWindFarmEl } from '../utils/windmill';
 import type { WpiBundle } from '@/lib/types';
 import type { TooltipState } from '../types';
 
+// Visual-size overrides for states whose true installed MW is so small the
+// scale formula collapses to the floor and the marker reads as a speck on
+// the basemap. The tooltip continues to show the real MW.
+const SIZING_MW_OVERRIDE: Record<string, number> = {
+  Kerala: 3500,
+};
+
 interface Args {
   bundleRef: MutableRefObject<WpiBundle | undefined>;
   stateRef: MutableRefObject<string | null | undefined>;
@@ -30,8 +37,9 @@ export function useTurbineMarkers({ bundleRef, stateRef, selectRef, setTooltip }
     Object.entries(STATE_DATA).forEach(([state, d]) => {
       const liveRow = bundle?.stateCapacity?.find(s => s.state === state);
       const mw = liveRow?.installed_mw ?? d.mw;
+      const sizingMw = SIZING_MW_OVERRIDE[state] ?? mw;
 
-      const { el, inner, overlay, scale } = createWindFarmEl(mw);
+      const { el, inner, overlay, scale } = createWindFarmEl(sizingMw);
 
       overlay.addEventListener('mouseenter', () => {
         const p = m.project([d.lon, d.lat]);

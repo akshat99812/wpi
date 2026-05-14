@@ -167,7 +167,7 @@ export function InfoCard({
       <div
         className="overflow-hidden transition-[max-height,opacity] duration-300 ease-out"
         style={{
-          maxHeight: open ? 1200 : 0,
+          maxHeight: open ? 2400 : 0,
           opacity:   open ? 1 : 0,
         }}
       >

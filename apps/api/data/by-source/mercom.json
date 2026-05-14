@@ -1,78 +1,230 @@
 {
   "source": "mercom",
-  "fetchedAt": "2026-05-09T16:10:09.322Z",
+  "fetchedAt": "2026-05-13T23:47:20.291Z",
   "ok": true,
   "payload": {
     "news": [
       {
-        "headline": "Solar Landscape Secures $600 Million for Distributed Solar Deployment",
-        "url": "https://www.mercomindia.com/solar-landscape-secures-600-million-for-distributed-solar-deployment",
-        "publishedAt": "2026-05-08T20:04:16.000Z",
+        "headline": "Tamil Nadu Proposes New Multi-Year Tariff Framework Until FY 2032",
+        "url": "https://www.mercomindia.com/tamil-nadu-proposes-new-multi-year-tariff-framework-until-fy-2032",
+        "publishedAt": "2026-05-13T19:06:48.000Z",
         "source": "Mercom India",
-        "summary": "<p>Listen to this article Solar Landscape, a U.S.-based commercial rooftop solar developer, has secured a $600 million green-labeled senior debt warehouse facility to support its</p>"
+        "summary": "<p>The Tamil Nadu Electricity Regulatory Commission (TNERC) has released draft multi-year tariff (MYT) regulations for distribution licensees (DISCOMs) covering financial years (FYs) 2027-28 to 2031-32.</p>"
       },
       {
-        "headline": "MNRE Mandates 10-Year Warranty, 25-Year Performance Cover for Solar Modules",
-        "url": "https://www.mercomindia.com/mnre-mandates-10-year-warranty-25-year-performance-cover-for-solar-modules",
-        "publishedAt": "2026-05-08T19:18:36.000Z",
+        "headline": "HPERC Issues Draft Rules Defining Useful Life for Solar, Wind, Biomass Projects",
+        "url": "https://www.mercomindia.com/hperc-issues-draft-rules-defining-useful-life-for-solar-wind-biomass-projects",
+        "publishedAt": "2026-05-13T18:26:07.000Z",
         "source": "Mercom India",
-        "summary": "<p>The Ministry of New and Renewable Energy (MNRE) has issued a standard procedure for warranty management and claims settlement for solar modules installed under distributed renewable energy programs, mandating a 10-year product warranty and a 25-year power output warranty.</p>"
+        "summary": "<p>The Himachal Pradesh Electricity Regulatory Commission (HPERC) has issued the draft Promotion of Generation from the Renewable Energy Sources and Terms and Conditions for Tariff Determination (Eighth Amendment) Regulations, 2026, which seeks to add definitions of biomass and introduce new timefra"
       },
       {
-        "headline": "Ballard’s Revenue Up 26% in Q1 2026 on Higher Fuel Cell Shipments",
-        "url": "https://www.mercomindia.com/ballards-revenue-up-26-in-q1-2026-on-higher-fuel-cell-shipments",
-        "publishedAt": "2026-05-08T19:04:33.000Z",
+        "headline": "Nextpower to Acquire Zigor’s Power Conversion Assets and Apex Power",
+        "url": "https://www.mercomindia.com/nextpower-acquire-zigors-power-conversion-assets-and-apex-power",
+        "publishedAt": "2026-05-13T18:18:09.000Z",
         "source": "Mercom India",
-        "summary": "<p>Fuel cell manufacturer Ballard Power Systems’ revenue surged 26% year-over-year (YoY) to $19.4 million in the first quarter (Q1) of 2026, from $15.4 million on the back of higher deliveries to its rail and bus verticals. Marty Neese, Ballard’s President and CEO, said that increased engine shipmen"
+        "summary": "<p>Nextpower (previously known as Nextracker), a solar PV solutions provider, has entered into a definitive agreement to acquire&#8230;</p>"
       },
       {
-        "headline": "SolarEdge’s Q1 Revenue Rises 41.5% YoY on Higher Inverter and Battery Shipments",
-        "url": "https://www.mercomindia.com/solaredges-q1-revenue-rises-41-5-yoy-on-higher-inverter-and-battery-shipments",
-        "publishedAt": "2026-05-08T18:40:52.000Z",
+        "headline": "Tamil Nadu Approves Procurement of 12 MW of Solar Power Under PM KUSUM",
+        "url": "https://www.mercomindia.com/tamil-nadu-approves-procurement-of-12-mw-of-solar-power-under-pm-kusum",
+        "publishedAt": "2026-05-13T15:05:52.000Z",
         "source": "Mercom India",
-        "summary": "<p>Israel-based solar inverter manufacturer SolarEdge reported revenues of $310.5 million in the first quarter (Q1) of 2026, a 41.5% year-over-year (YoY) jump from $219.5 million and beating analysts&#8217; expectations by $5.03 million. The company expects to achieve break-even operating profit in "
+        "summary": "<p>The Tamil Nadu Electricity Regulatory Commission (TNERC) has approved tariffs in the range of ₹3.02 (~$0.0315)/kWh to ₹3.09 (~$0.0323)/kWh for the procurement of 12 MW of solar power under Component-A of the Pradhan Mantri Kisan Urja Suraksha evam Utthaan Mahabhiyan (PM-KUSUM) program.</p>"
       },
       {
-        "headline": "Fluence Energy’s Revenue Rises 8% YoY to $465 Million in Q2 2026",
-        "url": "https://www.mercomindia.com/fluence-energys-revenue-rises-8-yoy-to-465-million-in-q2-2026",
-        "publishedAt": "2026-05-08T18:38:26.000Z",
+        "headline": "NTPC Invites Bids for Repowering 5 MW Solar Project in Andaman",
+        "url": "https://www.mercomindia.com/ntpc-invites-bids-for-repowering-5-mw-solar-project-in-andaman",
+        "publishedAt": "2026-05-13T13:07:53.000Z",
         "source": "Mercom India",
-        "summary": "<p>Listen to this article Utility-scale energy storage firm Fluence Energy reported revenue of $464.9 million for the second quarter (Q2) of fiscal year 2026, a 7.7%</p>"
+        "summary": "<p>NTPC has invited bids for an engineering, procurement, and construction (EPC) package to repower its 5 MW NTPC Andaman solar project at Garacharma in Port Blair. The scope includes the supply, erection, testing, and inspection of equipment and materials at the manufacturer’s works; packing, suppl"
       },
       {
-        "headline": "REC Silicon Posts Lower Q1 Revenue as Oversupply Pressures Persist",
-        "url": "https://www.mercomindia.com/rec-silicon-posts-lower-q1-revenue-as-oversupply-pressures-persist",
-        "publishedAt": "2026-05-08T18:01:11.000Z",
+        "headline": "CleanMax’s Q4 Revenue Up 29% on Higher Renewable Energy Sales",
+        "url": "https://www.mercomindia.com/cleanmaxs-q4-revenue-up-29-on-higher-renewable-energy-sales",
+        "publishedAt": "2026-05-13T13:03:10.000Z",
         "source": "Mercom India",
-        "summary": "<p>Norway-based silicon material manufacturer REC Silicon reported revenue of $19.5 million in the first quarter (Q1) of 2026, down 8.9% from $21.4 million in the same period last year.</p>"
+        "summary": "<p>Clean energy solutions provider Clean Max Enviro Energy Solutions’ income for the fourth quarter (Q4) of the financial year (FY) 2026 rose 29.2% year-over-year (YoY) to ₹6.40 billion (~$66.90 million) from ₹4.95 billion (~$51.79 million).</p>"
       },
       {
-        "headline": "Pricing Pressure Pushes Flux Power’s Revenue Down 61% YoY in Q3 FY 2026",
-        "url": "https://www.mercomindia.com/pricing-pressure-pushes-flux-powers-revenue-down-61-yoy-in-q3-fy-2026",
-        "publishedAt": "2026-05-08T17:26:51.000Z",
+        "headline": "Fabric Manufacturer G.M. Syntex Saves ₹40 Million Annually by Going Solar",
+        "url": "https://www.mercomindia.com/fabric-manufacturer-g-m-syntex-saves-₹40-million-annually-by-going-solar",
+        "publishedAt": "2026-05-13T12:32:15.000Z",
         "source": "Mercom India",
-        "summary": "<p>Lithium-ion storage solutions provider Flux Power has reported revenue of $6.59 million in the third quarter (Q3) of the fiscal year (FY) 2026, down 60.7% year-over-year (YoY) from $16.7 million. The revenue fell short of analyst expectations of $10.1 million.</p>"
+        "summary": "<p>Large commercial and industrial (C&#038;I) consumers are increasingly turning to solar power to meet sustainability goals and reduce their electricity expenditure. Businesses with continuous power demand can achieve significant savings by utilizing unused rooftop space for solar installations. Ma"
       },
       {
-        "headline": "Apple to Invest ₹1 Billion in CleanMax for 150 MW Renewable Energy Projects",
-        "url": "https://www.mercomindia.com/apple-to-invest-₹1-billion-in-cleanmax-for-150-mw-renewable-energy-projects",
-        "publishedAt": "2026-05-08T17:06:46.000Z",
+        "headline": "GRID India Suggests Stability Safeguards for Battery Storage Projects",
+        "url": "https://www.mercomindia.com/grid-india-suggests-stability-safeguards-for-battery-storage-projects",
+        "publishedAt": "2026-05-13T12:08:54.000Z",
         "source": "Mercom India",
-        "summary": "<p>Listen to this article Multinational technology company Apple has committed an initial investment of ₹1 billion (~$10.6 million) in Clean Max Enviro Energy Solutions (CleanMax)</p>"
+        "summary": "<p>Listen to this article The Grid Controller of India (GRID India) has suggested to the Central Transmission Utility (CTUIL) that all new battery energy storage</p>"
       },
       {
-        "headline": "ACME Solar’s Q4 Revenue Rises 12.5% on Capacity Additions, Higher CUF",
-        "url": "https://www.mercomindia.com/acme-solars-q4-revenue-rises-12-5-capacity-additions-higher-cuf",
-        "publishedAt": "2026-05-08T16:40:19.000Z",
+        "headline": "Daily News Wrap-Up: Solar Tenders and Auctions Drop in Q1 2026",
+        "url": "https://www.mercomindia.com/daily-news-wrap-up-solar-tenders-and-auctions-drop-in-q1-2026",
+        "publishedAt": "2026-05-13T11:56:10.000Z",
         "source": "Mercom India",
-        "summary": "<p>Gurgaon-based independent power producer ACME Solar Holdings has reported a revenue of ₹5.48 billion (~$58.05 million) in the fourth quarter of the financial year (FY) 2026, a 12.5% year-over-year (YoY) jump from ₹4.87 billion (~$51.59 million). The company attributed the quarter&#8217;s revenue "
+        "summary": "<p>In the first quarter (Q1) of 2026, government agencies issued nearly 6 GW of solar tenders, a 68% year-over-year (YoY) decrease from 17 GW but almost double the capacity issued in Q4 2025. Although individual agency targets for FY 2025-26 have not yet been specified, the Ministry of New and Renew"
       },
       {
-        "headline": "SEG Solar to Build 4 GW Solar Module Manufacturing Facility in Houston",
-        "url": "https://www.mercomindia.com/seg-solar-to-build-4-gw-solar-module-manufacturing-facility-in-houston",
-        "publishedAt": "2026-05-08T15:57:18.000Z",
+        "headline": "Sunrun Q1 2026 Revenue Rises 43%, Beats Analyst Estimates of $688 Million",
+        "url": "https://www.mercomindia.com/sunrun-q1-2026-revenue-rises-43-beats-analyst-estimates-of-688-million",
+        "publishedAt": "2026-05-13T11:49:03.000Z",
         "source": "Mercom India",
-        "summary": "<p>SEG Solar, a California-based solar module manufacturer, has announced plans to establish a 4 GW solar module manufacturing facility in Houston, Texas.</p>"
+        "summary": "<p>Listen to this article U.S.-based residential solar and battery storage provider Sunrun reported a revenue of $722.2 million in Q1 2026, increasing 43% year-over-year (YoY) from $504.3 million.</p>"
+      }
+    ],
+    "tariffOrders": [
+      {
+        "state": "Rajasthan",
+        "regulator": "Mercom India",
+        "dateLabel": "Sep 2023",
+        "effectiveDate": "2023-09-01",
+        "title": "SECI Tranche-XIII ISTS Wind (1,200 MW)",
+        "tariff_inr": 3.18,
+        "tariffLabel": "₹3.18/kWh",
+        "meta": "Serentica Renewables, JSW Energy · 1,200 MW",
+        "category": "Auction L1",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Andhra Pradesh",
+        "regulator": "Mercom India",
+        "dateLabel": "Mar 2026",
+        "effectiveDate": "2026-03-01",
+        "title": "NTPC REL 900 MW ISTS Wind (Anantapur)",
+        "tariffLabel": "Tariff TBD (bid under evaluation)",
+        "meta": "BoS bids invited · 900 MW",
+        "category": "Auction",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Andhra Pradesh",
+        "regulator": "Mercom India",
+        "dateLabel": "Mar 2026",
+        "effectiveDate": "2026-03-15",
+        "title": "NTPC–Indian Oil JV 215 MW Wind (AP)",
+        "tariffLabel": "Tariff TBD",
+        "meta": "Bid under evaluation · 215 MW",
+        "category": "Auction",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Tamil Nadu",
+        "regulator": "Mercom India",
+        "dateLabel": "Jun 2025",
+        "effectiveDate": "2025-06-01",
+        "title": "TNGECL 500 MW / 1,000 MWh BESS (wind-firming)",
+        "tariffLabel": "₹4.52–4.80 lakh/MW/month (BESS capacity charge)",
+        "meta": "NLC India, Bondada, Oriana · 500 MW",
+        "category": "BESS / Wind-firming",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Madhya Pradesh",
+        "regulator": "Mercom India",
+        "dateLabel": "Jun 2025",
+        "effectiveDate": "2025-06-15",
+        "title": "MPPMCL 800 MW Wind (+800 MW greenshoe)",
+        "tariff_inr": 3.52,
+        "tariffLabel": "₹3.52/kWh (L1)",
+        "meta": "JSW, ReNew, Serentica (L1 cluster) · 1,600 MW",
+        "category": "Auction L1",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Rajasthan",
+        "regulator": "Mercom India",
+        "dateLabel": "Jul 2022",
+        "effectiveDate": "2022-07-01",
+        "title": "SECI Tranche-XII ISTS Wind (1,200 MW)",
+        "tariff_inr": 2.94,
+        "tariffLabel": "₹2.94/kWh",
+        "meta": "NTPC / JSW / Ayana / others · 1,200 MW",
+        "category": "Auction L1",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Gujarat",
+        "regulator": "Mercom India",
+        "dateLabel": "Feb 2023",
+        "effectiveDate": "2023-02-01",
+        "title": "GUVNL Phase-IV Wind (500 MW)",
+        "tariff_inr": 2.83,
+        "tariffLabel": "₹2.83/kWh",
+        "meta": "Ayana Renewables (L1), Juniper, KPI Green · 500 MW",
+        "category": "Auction L1",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Rajasthan",
+        "regulator": "Mercom India",
+        "dateLabel": "Dec 2023",
+        "effectiveDate": "2023-12-01",
+        "title": "SECI Tranche-XIV ISTS Wind (1,200 MW)",
+        "tariff_inr": 3.24,
+        "tariffLabel": "₹3.24/kWh",
+        "meta": "Serentica, NTPC REL, JSW · 1,200 MW",
+        "category": "Auction L1",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Madhya Pradesh",
+        "regulator": "Mercom India",
+        "dateLabel": "Aug 2025",
+        "effectiveDate": "2025-08-01",
+        "title": "MP Jal Nigam 60 MW Captive Wind",
+        "tariffLabel": "Tariff TBD (captive)",
+        "meta": "Bid under evaluation · 60 MW",
+        "category": "Captive",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Gujarat",
+        "regulator": "Mercom India",
+        "dateLabel": "Aug 2024",
+        "effectiveDate": "2024-08-01",
+        "title": "GUVNL Phase-V Wind (1,000 MW)",
+        "tariff_inr": 3.14,
+        "tariffLabel": "₹3.14–3.18/kWh (ceiling ₹3.14)",
+        "meta": "ReNew, Juniper, Serentica · 1,000 MW",
+        "category": "Auction L1",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Gujarat",
+        "regulator": "Mercom India",
+        "dateLabel": "2025",
+        "effectiveDate": "2025-01-01",
+        "title": "PGCIL undersea cable tender — Offshore Wind Zone, Gujarat",
+        "tariffLabel": "Transmission tariff — CERC regulated",
+        "meta": "Under evaluation · —",
+        "category": "Transmission",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Karnataka",
+        "regulator": "Mercom India",
+        "dateLabel": "2025",
+        "effectiveDate": "2025-02-01",
+        "title": "INOX Wind manufacturing MoU (Karnataka)",
+        "tariffLabel": "Supply-chain investment — no PPA",
+        "meta": "INOX Wind (OEM base) · —",
+        "category": "Manufacturing",
+        "url": "https://www.mercomindia.com/"
+      },
+      {
+        "state": "Rajasthan",
+        "regulator": "Mercom India",
+        "dateLabel": "2024",
+        "effectiveDate": "2024-06-01",
+        "title": "SECI Tranche-XV ISTS Wind",
+        "tariff_inr": 3.28,
+        "tariffLabel": "₹3.28/kWh",
+        "meta": "Multiple (Serentica, JSW, ReNew) · 1,200 MW",
+        "category": "Auction L1",
+        "url": "https://www.mercomindia.com/"
       }
     ]
   }

@@ -19,10 +19,14 @@ export interface WpiBundle {
   }>;
   tariffOrders: Array<{
     state?: string;
-    regulator: string;
-    tariff_inr?: number;
-    effectiveDate?: string;
+    regulator: string;        // Source publication / issuing body label
+    tariff_inr?: number;      // Optional numeric tariff
+    tariffLabel?: string;     // Display string when tariff isn't a single number
+    effectiveDate?: string;   // ISO date — used for the date label
+    dateLabel?: string;       // Pre-formatted human date ("Mar 2026", "2025")
     title?: string;
+    meta?: string;            // Party list / capacity / stage line
+    url?: string;             // "open source" link
     category?: string;
   }>;
   lendingRates: Array<{

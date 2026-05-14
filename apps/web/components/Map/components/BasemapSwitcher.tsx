@@ -19,20 +19,15 @@ const ACTIVE_GLOW: Partial<Record<BasemapId, { from: string; to: string; text: s
 };
 
 export function BasemapSwitcher({ mode, onChange }: Props) {
-  const isLightMap = mode === 'street' || mode === 'terrain';
-
   return (
     <motion.div
       initial={{ opacity: 0, y: -8, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative flex flex-wrap gap-1 rounded-2xl px-1.5 py-1.5
-                  backdrop-blur-2xl backdrop-saturate-150 overflow-hidden
-                  transition-colors duration-300
-                  ${isLightMap
-                    ? 'bg-white/55 border border-black/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(0,0,0,0.08)]'
-                    : 'bg-white/[0.06] border border-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(0,0,0,0.25)]'
-                  }`}
+      className="relative flex flex-wrap gap-1 rounded-2xl px-1.5 py-1.5
+                 backdrop-blur-2xl backdrop-saturate-150 overflow-hidden
+                 bg-[#0a0e18]/85 border border-white/15
+                 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.10),inset_0_-1px_0_rgba(0,0,0,0.3)]"
     >
       {/* Specular highlight — subtle diagonal sheen */}
       <span
@@ -65,16 +60,13 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
               key={id}
               title="Pro mode is coming soon"
               aria-disabled
-              className={`relative z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold
-                          cursor-not-allowed select-none transition-colors duration-300
-                          ${isLightMap
-                            ? 'text-black/35 border border-black/[0.06]'
-                            : 'text-white/25 border border-white/[0.06]'}`}
+              className="relative z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold
+                         cursor-not-allowed select-none
+                         text-white/25 border border-white/[0.06]"
             >
               <Icon />
               <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
-              <span className={`hidden sm:inline text-[8px] uppercase tracking-wider ml-0.5 transition-colors duration-300
-                                ${isLightMap ? 'text-black/40' : 'text-white/30'}`}>
+              <span className="hidden sm:inline text-[8px] uppercase tracking-wider ml-0.5 text-white/30">
                 Locked
               </span>
             </div>
@@ -91,11 +83,7 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
             className={`group relative z-10 flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 rounded-xl
                         text-[10px] font-bold whitespace-nowrap outline-none
                         transition-colors duration-200
-                        ${isActive
-                          ? ''
-                          : isLightMap
-                            ? 'text-black/75 hover:text-black'
-                            : 'text-white/65 hover:text-white'}`}
+                        ${isActive ? '' : 'text-white/65 hover:text-white'}`}
             style={isActive && glow ? { color: glow.text } : undefined}
           >
             {/* Animated active background — slides between buttons via shared layoutId */}
@@ -115,10 +103,8 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
             {!isActive && (
               <span
                 aria-hidden
-                className={`absolute inset-0 rounded-xl transition-colors duration-200
-                            ${isLightMap
-                              ? 'bg-black/0 group-hover:bg-black/[0.06]'
-                              : 'bg-white/0 group-hover:bg-white/[0.08]'}`}
+                className="absolute inset-0 rounded-xl transition-colors duration-200
+                           bg-white/0 group-hover:bg-white/[0.08]"
               />
             )}
 

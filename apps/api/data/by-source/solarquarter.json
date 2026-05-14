@@ -1,0 +1,21 @@
+{
+  "source": "solarquarter",
+  "fetchedAt": "2026-05-13T23:47:23.150Z",
+  "ok": true,
+  "payload": {
+    "news": [],
+    "tariffOrders": [
+      {
+        "state": "Tamil Nadu",
+        "regulator": "SolarQuarter",
+        "dateLabel": "Nov 2025",
+        "effectiveDate": "2025-11-01",
+        "title": "TNGECL 34.75 MW Wind-Solar Hybrid (Kayathar, Muppandal, Puliyankulam)",
+        "tariffLabel": "Tariff TBD",
+        "meta": "Bid under evaluation · 34.75 MW",
+        "category": "Hybrid",
+        "url": "https://solarquarter.com/"
+      }
+    ]
+  }
+}

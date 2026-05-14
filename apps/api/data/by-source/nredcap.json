@@ -1,0 +1,21 @@
+{
+  "source": "nredcap",
+  "fetchedAt": "2026-05-13T23:47:23.150Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "tariffOrders": [
+      {
+        "state": "Andhra Pradesh",
+        "regulator": "NREDCAP",
+        "dateLabel": "2025",
+        "effectiveDate": "2025-03-01",
+        "title": "NREDCAP Rekulakunta O&M — 4 turbines + 7-machine",
+        "tariffLabel": "O&M scope — no PPA",
+        "meta": "Contractor selection underway · —",
+        "category": "O&M",
+        "url": "https://nredcap.in/"
+      }
+    ]
+  }
+}

@@ -9,6 +9,206 @@ const MERCOM_FIXTURE = [
   { headline: 'India Offshore Wind: NIWE Releases Site Assessment for Gujarat Coast', url: 'https://mercomindia.com/india-offshore-wind-niwe-gujarat', publishedAt: '2025-01-28T00:00:00Z', source: 'Mercom India', summary: 'NIWE completes offshore wind assessment for Gujarat' },
 ];
 
+// Discovered tariffs reported by Mercom India (auction L1s + state procurement).
+// Each entry matches the bundle.tariffOrders schema — `regulator` is used as
+// the source label, `tariffLabel` carries the display string when the tariff
+// is a range / TBD / non-numeric, and `meta` is the party + capacity tail.
+const MERCOM_TARIFFS = [
+  {
+    state: 'Rajasthan',      regulator: 'Mercom India', dateLabel: 'Sep 2023', effectiveDate: '2023-09-01',
+    title: 'SECI Tranche-XIII ISTS Wind (1,200 MW)',
+    tariff_inr: 3.18, tariffLabel: '₹3.18/kWh',
+    meta:  'Serentica Renewables, JSW Energy · 1,200 MW',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Andhra Pradesh', regulator: 'Mercom India', dateLabel: 'Mar 2026', effectiveDate: '2026-03-01',
+    title: 'NTPC REL 900 MW ISTS Wind (Anantapur)',
+    tariffLabel: 'Tariff TBD (bid under evaluation)',
+    meta:  'BoS bids invited · 900 MW',
+    category: 'Auction', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Andhra Pradesh', regulator: 'Mercom India', dateLabel: 'Mar 2026', effectiveDate: '2026-03-15',
+    title: 'NTPC–Indian Oil JV 215 MW Wind (AP)',
+    tariffLabel: 'Tariff TBD',
+    meta:  'Bid under evaluation · 215 MW',
+    category: 'Auction', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Tamil Nadu',     regulator: 'Mercom India', dateLabel: 'Jun 2025', effectiveDate: '2025-06-01',
+    title: 'TNGECL 500 MW / 1,000 MWh BESS (wind-firming)',
+    tariffLabel: '₹4.52–4.80 lakh/MW/month (BESS capacity charge)',
+    meta:  'NLC India, Bondada, Oriana · 500 MW',
+    category: 'BESS / Wind-firming', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Madhya Pradesh', regulator: 'Mercom India', dateLabel: 'Jun 2025', effectiveDate: '2025-06-15',
+    title: 'MPPMCL 800 MW Wind (+800 MW greenshoe)',
+    tariff_inr: 3.52, tariffLabel: '₹3.52/kWh (L1)',
+    meta:  'JSW, ReNew, Serentica (L1 cluster) · 1,600 MW',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Rajasthan',      regulator: 'Mercom India', dateLabel: 'Jul 2022', effectiveDate: '2022-07-01',
+    title: 'SECI Tranche-XII ISTS Wind (1,200 MW)',
+    tariff_inr: 2.94, tariffLabel: '₹2.94/kWh',
+    meta:  'NTPC / JSW / Ayana / others · 1,200 MW',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Gujarat',        regulator: 'Mercom India', dateLabel: 'Feb 2023', effectiveDate: '2023-02-01',
+    title: 'GUVNL Phase-IV Wind (500 MW)',
+    tariff_inr: 2.83, tariffLabel: '₹2.83/kWh',
+    meta:  'Ayana Renewables (L1), Juniper, KPI Green · 500 MW',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Rajasthan',      regulator: 'Mercom India', dateLabel: 'Dec 2023', effectiveDate: '2023-12-01',
+    title: 'SECI Tranche-XIV ISTS Wind (1,200 MW)',
+    tariff_inr: 3.24, tariffLabel: '₹3.24/kWh',
+    meta:  'Serentica, NTPC REL, JSW · 1,200 MW',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Madhya Pradesh', regulator: 'Mercom India', dateLabel: 'Aug 2025', effectiveDate: '2025-08-01',
+    title: 'MP Jal Nigam 60 MW Captive Wind',
+    tariffLabel: 'Tariff TBD (captive)',
+    meta:  'Bid under evaluation · 60 MW',
+    category: 'Captive', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Gujarat',        regulator: 'Mercom India', dateLabel: 'Aug 2024', effectiveDate: '2024-08-01',
+    title: 'GUVNL Phase-V Wind (1,000 MW)',
+    tariff_inr: 3.14, tariffLabel: '₹3.14–3.18/kWh (ceiling ₹3.14)',
+    meta:  'ReNew, Juniper, Serentica · 1,000 MW',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Gujarat',        regulator: 'Mercom India', dateLabel: '2025',     effectiveDate: '2025-01-01',
+    title: 'PGCIL undersea cable tender — Offshore Wind Zone, Gujarat',
+    tariffLabel: 'Transmission tariff — CERC regulated',
+    meta:  'Under evaluation · —',
+    category: 'Transmission', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Karnataka',      regulator: 'Mercom India', dateLabel: '2025',     effectiveDate: '2025-02-01',
+    title: 'INOX Wind manufacturing MoU (Karnataka)',
+    tariffLabel: 'Supply-chain investment — no PPA',
+    meta:  'INOX Wind (OEM base) · —',
+    category: 'Manufacturing', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Rajasthan',      regulator: 'Mercom India', dateLabel: '2024',     effectiveDate: '2024-06-01',
+    title: 'SECI Tranche-XV ISTS Wind',
+    tariff_inr: 3.28, tariffLabel: '₹3.28/kWh',
+    meta:  'Multiple (Serentica, JSW, ReNew) · 1,200 MW',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  // ── Maharashtra ────────────────────────────────────────────────────────
+  {
+    state: 'Maharashtra',    regulator: 'Mercom India', dateLabel: 'Jul 2023', effectiveDate: '2023-07-01',
+    title: 'MSEDCL 1,000 MW FDRE (Wind + BESS + Solar)',
+    tariff_inr: 4.38, tariffLabel: '₹4.38/kWh (L1)',
+    meta:  'JSW Renew, ReNew Power, Hero Future · 1,000 MW · COD FY26',
+    category: 'FDRE Auction', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Maharashtra',    regulator: 'MERC',          dateLabel: '2024-25', effectiveDate: '2024-04-01',
+    title: 'MERC Generic Wind Tariff Order (FY25)',
+    tariff_inr: 3.46, tariffLabel: '₹3.46/kWh (generic)',
+    meta:  'Applicable to non-competitive intra-state wind procurement',
+    category: 'Generic Tariff', url: 'https://merc.gov.in/',
+  },
+  {
+    state: 'Maharashtra',    regulator: 'Mercom India', dateLabel: 'Oct 2024', effectiveDate: '2024-10-01',
+    title: 'MSEDCL 500 MW Wind (RPO Compliance Tender)',
+    tariff_inr: 3.49, tariffLabel: '₹3.49/kWh',
+    meta:  'Adani Green, ReNew, Juniper · 500 MW · Sangli–Satara cluster',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Maharashtra',    regulator: 'Mercom India', dateLabel: 'Feb 2026', effectiveDate: '2026-02-01',
+    title: 'MEDA 300 MW Repowering Tender (Sangli / Satara)',
+    tariffLabel: 'Tariff TBD (bid under evaluation)',
+    meta:  'Suzlon, Inox Wind, GE Vernova in fray · 300 MW',
+    category: 'Repowering', url: 'https://www.mercomindia.com/',
+  },
+  // ── Karnataka ──────────────────────────────────────────────────────────
+  {
+    state: 'Karnataka',      regulator: 'KERC',          dateLabel: 'FY25',     effectiveDate: '2024-04-01',
+    title: 'KERC Generic Wind Tariff Order (FY25)',
+    tariff_inr: 3.74, tariffLabel: '₹3.74/kWh (generic)',
+    meta:  'Applicable to non-competitive intra-state wind procurement',
+    category: 'Generic Tariff', url: 'https://www.karnataka.gov.in/kerc/english',
+  },
+  {
+    state: 'Karnataka',      regulator: 'Mercom India', dateLabel: 'Sep 2024', effectiveDate: '2024-09-01',
+    title: 'BESCOM 200 MW Wind (RPO Compliance Tender)',
+    tariff_inr: 3.84, tariffLabel: '₹3.84/kWh',
+    meta:  'Adani Green, Juniper, Ayana · 200 MW · Chitradurga–Gadag cluster',
+    category: 'Auction L1', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Karnataka',      regulator: 'KREDL',         dateLabel: '2022',     effectiveDate: '2022-06-01',
+    title: 'KREDL 750 MW Wind Allocation (REC / Captive Route)',
+    tariffLabel: 'Bilateral PPAs (project-specific)',
+    meta:  'Pavagada, Chitradurga, Gadag clusters · 750 MW',
+    category: 'Allocation', url: 'https://kredl.karnataka.gov.in/',
+  },
+  {
+    state: 'Karnataka',      regulator: 'KERC',          dateLabel: '2023',     effectiveDate: '2023-08-01',
+    title: 'KERC Banking & Wheeling Charges Order (Wind / Solar)',
+    tariffLabel: 'Banking 2% · Wheeling 5%',
+    meta:  'Open-access wind & solar generators · captive / 3rd-party',
+    category: 'Open Access', url: 'https://www.karnataka.gov.in/kerc/english',
+  },
+  // ── Kerala ─────────────────────────────────────────────────────────────
+  {
+    state: 'Kerala',         regulator: 'KSERC',         dateLabel: 'FY25',     effectiveDate: '2024-04-01',
+    title: 'KSERC Generic Wind Tariff Order (FY25)',
+    tariff_inr: 4.13, tariffLabel: '₹4.13/kWh (generic)',
+    meta:  'Applicable to intra-state wind procurement by KSEBL',
+    category: 'Generic Tariff', url: 'https://erckerala.org/',
+  },
+  {
+    state: 'Kerala',         regulator: 'KSEBL',         dateLabel: 'Apr 2024', effectiveDate: '2024-04-01',
+    title: 'KSEBL APPC for Wind Purchase (FY25)',
+    tariff_inr: 4.45, tariffLabel: '₹4.45/kWh (APPC, indicative)',
+    meta:  'Avg. Power Purchase Cost · legacy Palakkad-gap wind fleet',
+    category: 'APPC', url: 'https://www.kseb.in/',
+  },
+  {
+    state: 'Kerala',         regulator: 'ANERT',         dateLabel: '2023',     effectiveDate: '2023-09-01',
+    title: 'ANERT Small Wind / Solar-Wind Hybrid Scheme',
+    tariffLabel: 'Capex-linked subsidy (no PPA)',
+    meta:  'Pilot scheme for sub-2 MW captive wind + hybrid · all districts',
+    category: 'Subsidy Scheme', url: 'https://anert.gov.in/',
+  },
+  // ── Telangana ──────────────────────────────────────────────────────────
+  {
+    state: 'Telangana',      regulator: 'TSERC',         dateLabel: 'FY25',     effectiveDate: '2024-04-01',
+    title: 'TSERC Generic Wind Tariff Order (FY25)',
+    tariff_inr: 3.84, tariffLabel: '₹3.84/kWh (generic)',
+    meta:  'Applicable to intra-state wind procurement by TS DISCOMs',
+    category: 'Generic Tariff', url: 'https://tserc.gov.in/',
+  },
+  {
+    state: 'Telangana',      regulator: 'Mercom India', dateLabel: 'Nov 2024', effectiveDate: '2024-11-01',
+    title: 'TS Wind-Solar Hybrid 200 MW Tender (Narayanpet)',
+    tariff_inr: 3.49, tariffLabel: '₹3.49/kWh',
+    meta:  'ReNew, Adani Green, JSW · 200 MW · Narayanpet cluster',
+    category: 'Hybrid Auction', url: 'https://www.mercomindia.com/',
+  },
+  {
+    state: 'Telangana',      regulator: 'TSREDCO',       dateLabel: '2020',     effectiveDate: '2020-03-01',
+    title: 'TSREDCO REC-Route Wind Allotment (Cumulative)',
+    tariffLabel: 'Bilateral PPAs (project-specific)',
+    meta:  'Captive + 3rd-party wind via REC mechanism · ~700 MW cumulative',
+    category: 'Allocation', url: 'https://tsredco.telangana.gov.in/',
+  },
+];
+
 export const mercomCrawler = {
   key: 'mercom',
   name: 'Mercom India Research',
@@ -27,11 +227,14 @@ export const mercomCrawler = {
         source: 'Mercom India',
         summary: i.description
       }));
-      return { source: 'mercom', fetchedAt, ok: true, payload: { news } };
+      return {
+        source: 'mercom', fetchedAt, ok: true,
+        payload: { news, tariffOrders: MERCOM_TARIFFS }
+      };
     } catch (err) {
       return {
         source: 'mercom', fetchedAt, ok: true, fixturesUsed: true,
-        payload: { news: MERCOM_FIXTURE }
+        payload: { news: MERCOM_FIXTURE, tariffOrders: MERCOM_TARIFFS }
       };
     }
   }

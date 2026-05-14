@@ -1,0 +1,21 @@
+{
+  "source": "tsredco",
+  "fetchedAt": "2026-05-13T23:47:31.379Z",
+  "ok": true,
+  "fixturesUsed": true,
+  "payload": {
+    "tariffOrders": [
+      {
+        "state": "Telangana",
+        "regulator": "TSREDCO",
+        "dateLabel": "2025",
+        "effectiveDate": "2025-06-01",
+        "title": "Telangana Clean & Green Energy Policy, 2025 (TGECA-2025)",
+        "tariffLabel": "Banking @ 2%, wheeling 5.5%, no cross-subsidy for captive",
+        "meta": "All RE developers (wheeling + banking incentives) · —",
+        "category": "Policy",
+        "url": "https://tsredco.telangana.gov.in/"
+      }
+    ]
+  }
+}

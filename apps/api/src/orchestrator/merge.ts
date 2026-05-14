@@ -70,22 +70,57 @@ export const merge = (results: SourceResult[]): Bundle => {
   const seciData = getPayload('seci');
   bundle.auctions = (seciData?.auctions as Record<string, unknown>[]) ?? [];
 
-  // === Tariff Orders: from cerc + state_serc ===
-  const cercData = getPayload('cerc');
-  const stateSercData = getPayload('state_serc');
-  bundle.tariffOrders = [
-    ...((cercData?.tariffOrders as Record<string, unknown>[]) ?? []),
-    ...((stateSercData?.tariffOrders as Record<string, unknown>[]) ?? [])
+  // === Tariff Orders: combine industry trackers + state nodal agencies ===
+  // Pulls in tariff data from Mercom, SolarQuarter, SECI auctions, Renewable
+  // Watch, NREDCAP (AP) and TSREDCO (Telangana) so the Tariffs tab reflects
+  // the full discovered-price market — auction L1s, generic tariffs, FDRE
+  // and state-procurement events — not just CERC/SERC generic orders.
+  const tariffSourceKeys = [
+    'mercom',
+    'solarquarter',
+    'seci',
+    'renewable_watch',
+    'nredcap',
+    'tsredco',
   ];
+  const seenTariffKeys = new Set<string>();
+  const mergedTariffs: Record<string, unknown>[] = [];
+  for (const key of tariffSourceKeys) {
+    const payload = getPayload(key);
+    const orders = (payload?.tariffOrders as Record<string, unknown>[]) ?? [];
+    for (const t of orders) {
+      // Dedupe by (title, effectiveDate) so the same auction reported by two
+      // trackers (e.g. Mercom + SolarQuarter both citing SECI XVII) doesn't
+      // double-count on the page.
+      const dedupeKey = `${(t.title as string) ?? ''}|${(t.effectiveDate as string) ?? ''}`;
+      if (seenTariffKeys.has(dedupeKey)) continue;
+      seenTariffKeys.add(dedupeKey);
+      mergedTariffs.push(t);
+    }
+  }
+  bundle.tariffOrders = mergedTariffs;
 
   // === Lending Rates: from lenders ===
   const lendersData = getPayload('lenders');
   bundle.lendingRates = (lendersData?.lendingRates as Record<string, unknown>[]) ?? [];
 
-  // === News: from mercom + renewable_watch + pib — deduplicate by url ===
+  // === News: combine industry trackers + RE news outlets + PIB. Each
+  // crawler returns wind-relevant items only (filtered upstream against
+  // turbine / offshore / repowering / OEM keywords). Deduplicate by URL so
+  // the same headline reported by two outlets doesn't double-count.
+  const newsSourceKeys = [
+    'mercom',
+    'renewable_watch',
+    'pib',
+    'saur_energy',
+    'et_energyworld',
+    'pv_magazine',
+    'eq_magazine',
+    'business_standard',
+  ];
   const seenUrls = new Set<string>();
   const allNews: Record<string, unknown>[] = [];
-  for (const sourceKey of ['mercom', 'renewable_watch', 'pib']) {
+  for (const sourceKey of newsSourceKeys) {
     const data = getPayload(sourceKey);
     const newsItems = (data?.news as Record<string, unknown>[]) ?? [];
     for (const item of newsItems) {

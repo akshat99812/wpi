@@ -73,8 +73,11 @@ export const STATE_DATA: Record<string, StateMeta> = {
   'Karnataka':        { lon: 75.71, lat: 15.32, mw: 6100,  plf: 30, windMs: 6.8, potential: 55  },
   'Andhra Pradesh':   { lon: 79.74, lat: 15.91, mw: 4200,  plf: 28, windMs: 7.0, potential: 44  },
   'Maharashtra':      { lon: 75.71, lat: 19.75, mw: 3800,  plf: 26, windMs: 6.2, potential: 62  },
-  'Madhya Pradesh':   { lon: 78.66, lat: 22.97, mw: 2700,  plf: 24, windMs: 5.8, potential: 38  },
+  'Madhya Pradesh':   { lon: 78.66, lat: 22.97, mw: 3560,  plf: 26, windMs: 5.8, potential: 23  },
   'Telangana':        { lon: 79.02, lat: 18.11, mw: 920,   plf: 22, windMs: 6.5, potential: 18  },
+  // Kerala — Palakkad gap (Agali / Ramakkalmedu cluster). Small installed
+  // base, modest PLF; NIWE pegs the @100 m potential at ~1.7 GW.
+  'Kerala':           { lon: 76.70, lat: 10.85, mw: 63,    plf: 20, windMs: 5.5, potential: 2   },
 };
 
 // GeoJSON NAME_1 → STATE_DATA key
@@ -87,6 +90,7 @@ export const GEOJSON_NAME_MAP: Record<string, string> = {
   'Maharashtra':    'Maharashtra',
   'Madhya Pradesh': 'Madhya Pradesh',
   'Telangana':      'Telangana',
+  'Kerala':         'Kerala',
 };
 
 // Capacity legend colour (also used for the SE corner badge)

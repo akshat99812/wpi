@@ -153,9 +153,9 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
 
   // ── Madhya Pradesh ────────────────────────────────────────────────────────
   'Madhya Pradesh': {
-    installed_mw:      2_844,
+    installed_mw:      3_560,
     installed_caption: 'April 2025 (MPUVNL / MPPMCL)',
-    potential_gw:      15.4,
+    potential_gw:      22.76,
 
     plf:            '~26%',
     primeDistricts: 'Dhar, Khargone, Ratlam',
@@ -165,8 +165,8 @@ export const STATE_PROFILES: Record<string, StateWindProfile> = {
     intro: "Malwa plateau ridge lines and the western MP–Gujarat border pick up reasonable monsoon winds. Material repowering potential from first-generation fleet (1,562 MW identified by MPUVNL/NIWE).\n\nWind zones: Dhar, Ujjain, Ratlam, Shajapur, Khargone.",
 
     resourceGeography: [
-      "Madhya Pradesh's wind resource is on the Malwa plateau ridges — Dhar, Ujjain, Ratlam, Shajapur and Khargone. The state's 150 m potential is 15.4 GW (NIWE 2021), materially smaller than the peninsular leaders, but sites are consistent and well-characterised.",
-      "Installed base is ~2.84 GW (Apr 2025); realisation is ~18%, one of the higher ratios in the country.",
+      "Madhya Pradesh's wind resource is on the Malwa plateau ridges — Dhar, Ujjain, Ratlam, Shajapur and Khargone. The state's 150 m potential is 22.76 GW (NIWE 2021), materially smaller than the peninsular leaders, but sites are consistent and well-characterised.",
+      "Installed base is ~3.56 GW (Apr 2025); realisation is ~15%, one of the higher ratios in the country.",
     ],
     windRegime: "The regime is monsoon-driven with ridge-line terrain acceleration; PLFs at 150 m typically span 22–30%. MP's wind-solar complementarity is moderate, and FDRE / hybrid rounds have been the primary commissioning pathway since 2023.",
     sectorProfile: [

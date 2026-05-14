@@ -36,20 +36,32 @@ interface Props {
 export default function TabPanel({ bundle, selectedState, onClearState }: Props) {
   const [active, setActive] = useState<TabId>('wind');
 
-  // Reset to Wind whenever the state selection changes — both when entering
-  // a state (e.g. from the India News tab) and when leaving one (back to the
-  // India overview), so the user always lands on the primary tab.
+  // Preserve the active tab across state changes — if a user is on Grid or
+  // Tariffs and clicks a different state on the map, they should stay on
+  // Grid / Tariffs (just re-scoped to the new state). The only exception is
+  // entering a state while on an India-only tab (Land / Technology), since
+  // those tabs are hidden in state view — fall back to Wind in that case.
   useEffect(() => {
-    setActive('wind');
-  }, [selectedState]);
+    if (!selectedState) return;
+    const activeTab = TABS.find(t => t.id === active);
+    if (activeTab?.indiaOnly) {
+      setActive('wind');
+    }
+  }, [selectedState, active]);
 
   const ActiveComponent = TABS.find(t => t.id === active)?.Component ?? WindSection;
   const profile = selectedState ? STATE_PROFILES[selectedState] ?? null : null;
 
   // ── State detail layout ─────────────────────────────────────────────────
   if (selectedState) {
+    // Prefer the live bundle's installed_mw (refreshed from MNRE / state
+    // nodal crawlers) over the static profile fallback. Potential is left
+    // on the static profile per product spec.
+    const liveRow      = bundle?.stateCapacity?.find(s => s.state === selectedState);
+    const installedMw  = liveRow?.installed_mw ?? profile?.installed_mw ?? 0;
+    const installedSrc = liveRow?.installed_mw != null;
     const realisationPct = profile
-      ? ((profile.installed_mw / 1000) / profile.potential_gw * 100).toFixed(2)
+      ? ((installedMw / 1000) / profile.potential_gw * 100).toFixed(2)
       : null;
 
     return (
@@ -81,8 +93,8 @@ export default function TabPanel({ bundle, selectedState, onClearState }: Props)
             <div className="grid grid-cols-3 gap-2 px-4 pb-3">
               <StatMetricCard
                 label="Installed Capacity"
-                value={`${profile.installed_mw.toLocaleString()} MW`}
-                caption={profile.installed_caption}
+                value={`${installedMw.toLocaleString('en-IN')} MW`}
+                caption={installedSrc ? 'Live · MNRE / state nodal crawl' : profile.installed_caption}
                 accent="#ff8a1f"
               />
               <StatMetricCard

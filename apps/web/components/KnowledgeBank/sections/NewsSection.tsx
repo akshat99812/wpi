@@ -43,13 +43,24 @@ export default function NewsSection({ bundle, selectedState }: Props) {
   // fires when a state is selected. Re-runs whenever the state changes.
   const stateNewsApi = useStateNews(selectedState ?? null);
 
+  // Wind-only keyword filter for the India overview. The bundle's national
+  // feed mixes general renewables stories (solar, BESS, hybrid auctions)
+  // because the upstream RSS sources cover all of RE. On the India overview
+  // we want strictly wind-relevant headlines.
+  const isWindRelevant = (n: WpiBundle['news'][0]): boolean => {
+    const hay = `${n.headline} ${n.summary ?? ''} ${n.source ?? ''}`.toLowerCase();
+    return /\bwind\b|turbine|\bwtg\b|offshore|repowering|niwe|fdre|suzlon|inox\s*wind|gamesa|vestas|envision|nordex|senvion|gwec|gulf of kutch|gulf of mannar|dhanushkodi|muppandal/.test(hay);
+  };
+
   // Filter to state-relevant news when a state is selected. Match against
   // headline + summary + source (case-insensitive) using an alias list that
   // includes the state name, common short forms, prime districts, the state
   // transco/utility, and notable wind-corridor cities — most wind headlines
   // mention a district or utility rather than the state name itself.
   const { stateScopedNews, isStateFallback } = useMemo(() => {
-    if (!selectedState) return { stateScopedNews: news, isStateFallback: false };
+    if (!selectedState) {
+      return { stateScopedNews: news.filter(isWindRelevant), isStateFallback: false };
+    }
 
     // Prefer the live state-news endpoint when it returned results.
     const liveStateNews = stateNewsApi.data?.news ?? [];

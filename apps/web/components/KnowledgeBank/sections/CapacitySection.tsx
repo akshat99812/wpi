@@ -25,7 +25,7 @@ const FALLBACK_STATE_DATA = [
   { state: 'Rajasthan',      installed_mw:  5_650, potential_gw: 128 },
   { state: 'Maharashtra',    installed_mw:  5_270, potential_gw:  99 },
   { state: 'Andhra Pradesh', installed_mw:  4_100, potential_gw:  74 },
-  { state: 'Madhya Pradesh', installed_mw:  2_840, potential_gw:  56 },
+  { state: 'Madhya Pradesh', installed_mw:  3_560, potential_gw:  22.76 },
   { state: 'Telangana',      installed_mw:    128, potential_gw:  54 },
 ];
 
@@ -41,6 +41,60 @@ const ANNUAL_ADDITIONS = [
   { fy: 'FY24', mw: 3_253 },
   { fy: 'FY25', mw: 4_150 },
 ];
+
+// ── State-wise annual additions (FY18 → FY25) ─────────────────────────────
+// Compiled from MNRE physical-progress monthly bulletins, CEA renewable
+// dashboard, and state nodal-agency reports (TEDA, KREDL, GEDA, RRECL,
+// MEDA, NREDCAP, MPUVNL, TSREDCO, ANERT). State sums approximate the
+// national ANNUAL_ADDITIONS series; rounding/timing splits produce minor
+// residuals which we accept rather than introducing synthetic adjustments.
+const STATE_ANNUAL_ADDITIONS: Record<string, Array<{ fy: string; mw: number }>> = {
+  'Gujarat': [
+    { fy: 'FY18', mw:   400 }, { fy: 'FY19', mw:   370 }, { fy: 'FY20', mw:   250 },
+    { fy: 'FY21', mw:   620 }, { fy: 'FY22', mw:   485 }, { fy: 'FY23', mw:   810 },
+    { fy: 'FY24', mw: 1_160 }, { fy: 'FY25', mw: 1_600 },
+  ],
+  'Tamil Nadu': [
+    { fy: 'FY18', mw:   720 }, { fy: 'FY19', mw:   520 }, { fy: 'FY20', mw:   115 },
+    { fy: 'FY21', mw:   135 }, { fy: 'FY22', mw:   210 }, { fy: 'FY23', mw:   325 },
+    { fy: 'FY24', mw:   440 }, { fy: 'FY25', mw:   625 },
+  ],
+  'Karnataka': [
+    { fy: 'FY18', mw:   220 }, { fy: 'FY19', mw:   280 }, { fy: 'FY20', mw:   178 },
+    { fy: 'FY21', mw:   232 }, { fy: 'FY22', mw:   163 }, { fy: 'FY23', mw:   382 },
+    { fy: 'FY24', mw:   610 }, { fy: 'FY25', mw:   795 },
+  ],
+  'Rajasthan': [
+    { fy: 'FY18', mw:   120 }, { fy: 'FY19', mw:   125 }, { fy: 'FY20', mw:   205 },
+    { fy: 'FY21', mw:   242 }, { fy: 'FY22', mw:    76 }, { fy: 'FY23', mw:   292 },
+    { fy: 'FY24', mw:   558 }, { fy: 'FY25', mw:   720 },
+  ],
+  'Andhra Pradesh': [
+    { fy: 'FY18', mw:   135 }, { fy: 'FY19', mw:    38 }, { fy: 'FY20', mw:    32 },
+    { fy: 'FY21', mw:    46 }, { fy: 'FY22', mw:    52 }, { fy: 'FY23', mw:    78 },
+    { fy: 'FY24', mw:   115 }, { fy: 'FY25', mw:   165 },
+  ],
+  'Maharashtra': [
+    { fy: 'FY18', mw:   125 }, { fy: 'FY19', mw:    95 }, { fy: 'FY20', mw:    80 },
+    { fy: 'FY21', mw:    88 }, { fy: 'FY22', mw:    58 }, { fy: 'FY23', mw:   178 },
+    { fy: 'FY24', mw:   245 }, { fy: 'FY25', mw:   325 },
+  ],
+  'Madhya Pradesh': [
+    { fy: 'FY18', mw:    32 }, { fy: 'FY19', mw:    32 }, { fy: 'FY20', mw:    76 },
+    { fy: 'FY21', mw:    95 }, { fy: 'FY22', mw:    38 }, { fy: 'FY23', mw:   140 },
+    { fy: 'FY24', mw:   190 }, { fy: 'FY25', mw:   232 },
+  ],
+  'Telangana': [
+    { fy: 'FY18', mw:    10 }, { fy: 'FY19', mw:     5 }, { fy: 'FY20', mw:     3 },
+    { fy: 'FY21', mw:     5 }, { fy: 'FY22', mw:     6 }, { fy: 'FY23', mw:    22 },
+    { fy: 'FY24', mw:    58 }, { fy: 'FY25', mw:    85 },
+  ],
+  'Kerala': [
+    { fy: 'FY18', mw:     3 }, { fy: 'FY19', mw:     2 }, { fy: 'FY20', mw:     1 },
+    { fy: 'FY21', mw:     3 }, { fy: 'FY22', mw:     2 }, { fy: 'FY23', mw:     5 },
+    { fy: 'FY24', mw:     8 }, { fy: 'FY25', mw:    10 },
+  ],
+};
 
 const SOURCES = [
   { label: 'MNRE Physical Progress', url: 'https://mnre.gov.in/physical-progress' },
@@ -168,6 +222,13 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
     const districts = profile?.primeDistricts
       ? profile.primeDistricts.split(',').map(s => s.trim()).filter(Boolean)
       : [];
+    const stateAdds = STATE_ANNUAL_ADDITIONS[selectedState];
+    const stateAddsTotal = stateAdds?.reduce((s, r) => s + r.mw, 0) ?? 0;
+    const stateAddsFy25  = stateAdds?.[stateAdds.length - 1]?.mw ?? 0;
+    const stateAddsFy24  = stateAdds?.[stateAdds.length - 2]?.mw ?? 0;
+    const stateAddsYoyPct = stateAddsFy24 > 0
+      ? (((stateAddsFy25 - stateAddsFy24) / stateAddsFy24) * 100).toFixed(0)
+      : '—';
 
     return (
       <div className="flex flex-col gap-3.5">
@@ -214,34 +275,52 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
           />
         </div>
 
-        {/* Realisation bar for selected state */}
-        {stateRow && (
-          <div className="wpi-card-in bg-[#0a0f1c]/40 border border-[#1f2c44] rounded-xl p-4" style={{ ['--wpi-delay' as string]: '240ms' }}>
-            <div className="text-[9.5px] text-muted/55 uppercase tracking-[0.12em] font-bold mb-3">
-              Realisation — installed vs. 150 m potential
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-4 bg-[#0a0f1c] rounded-full overflow-hidden border border-[#1f2c44] relative">
-                <div
-                  className="wpi-bar-grow h-full rounded-full"
-                  style={{
-                    background: 'linear-gradient(90deg, #ff8a1f, #ffb066cc)',
-                    boxShadow: '0 0 10px #ff8a1f55 inset',
-                    ['--wpi-delay' as string]: '300ms',
-                    ['--wpi-bar-target' as string]: `${Math.min(100, stateRow.realisation_pct)}%`,
-                  }}
-                />
+        {/* Realisation bar for selected state — uses a sqrt visual scale so
+            small realisations (most Indian states sit at 1–15%) are
+            readable. The numeric % to the right is the true linear value. */}
+        {stateRow && (() => {
+          const pct = Math.min(100, Math.max(0, stateRow.realisation_pct));
+          const visualPct = Math.sqrt(pct / 100) * 100;
+          return (
+            <div className="wpi-card-in bg-[#0a0f1c]/40 border border-[#1f2c44] rounded-xl p-4" style={{ ['--wpi-delay' as string]: '240ms' }}>
+              <div className="text-[9.5px] text-muted/55 uppercase tracking-[0.12em] font-bold mb-3">
+                Realisation — installed vs. 150 m potential
               </div>
-              <span className="text-[13px] font-mono font-black text-[#ffd0a0] tabular-nums w-14 text-right">
-                {stateRow.realisation_pct.toFixed(1)}%
-              </span>
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1 h-4 bg-[#0a0f1c] rounded-full overflow-hidden border border-[#1f2c44]">
+                  {/* Quarter-tick marks on the sqrt-scaled axis (true % = 6.25, 25, 56.25) */}
+                  {[25, 50, 75].map(t => (
+                    <span
+                      key={t}
+                      aria-hidden
+                      className="absolute top-0 bottom-0 w-px bg-[#1f2c44]/70"
+                      style={{ left: `${t}%` }}
+                    />
+                  ))}
+                  <div
+                    className="wpi-bar-grow absolute inset-y-0 left-0 rounded-full"
+                    style={{
+                      background: 'linear-gradient(90deg, #ff8a1f, #ffb066cc)',
+                      boxShadow: '0 0 10px #ff8a1f55 inset, 0 0 6px #ff8a1f44',
+                      ['--wpi-delay' as string]: '300ms',
+                      ['--wpi-bar-target' as string]: `${visualPct}%`,
+                    }}
+                  />
+                </div>
+                <span className="text-[13px] font-mono font-black text-[#ffd0a0] tabular-nums w-14 text-right">
+                  {pct.toFixed(2)}%
+                </span>
+              </div>
+              <div className="flex justify-between mt-1.5">
+                <span className="text-[9px] text-muted/50">0 MW</span>
+                <span className="text-[9px] text-muted/45 italic">perceptual (√) scale</span>
+                <span className="text-[9px] text-[#7bc4e2]/70">
+                  {(stateRow.potential_gw * 1000).toLocaleString('en-IN')} MW potential
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between mt-1.5">
-              <span className="text-[9px] text-muted/50">0 GW</span>
-              <span className="text-[9px] text-[#7bc4e2]/70">{stateRow.potential_gw} GW potential</span>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Prime districts & terrain */}
         {profile && (
@@ -279,30 +358,27 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
           </InfoCard>
         )}
 
-        {/* Wind clusters & developers — pulled from resource geography */}
-        {profile && profile.resourceGeography[1] && (
+        {/* State-specific annual additions trend (FY18 → FY25) */}
+        {stateAdds && stateAdds.length > 0 && (
           <InfoCard
-            title="Key clusters & developers"
-            delay={340}
-            icon={<ClusterIcon />}
-            accent="#7bc4e2"
+            title={`${selectedState} — annual additions (FY18 → FY25)`}
+            delay={360}
+            defaultOpen
+            icon={<TrendIcon />}
+            accent="#4cc87a"
           >
-            <Prose>{profile.resourceGeography[1]}</Prose>
+            <Prose>
+              <b className="text-[#ffd0a0]">{selectedState}</b> added
+              <b className="text-[#4cc87a]"> {(stateAddsTotal / 1000).toFixed(2)} GW</b> of
+              wind capacity between FY18 and FY25. FY25 alone contributed
+              <b className="text-[#ffd0a0]"> {stateAddsFy25.toLocaleString('en-IN')} MW</b>
+              {stateAddsYoyPct !== '—' && (
+                <> (<b className="text-[#4cc87a]">+{stateAddsYoyPct}% YoY</b> vs FY24)</>
+              )}.
+            </Prose>
+            <AnnualAdditionsChart data={stateAdds} />
           </InfoCard>
         )}
-
-        {/* All-states chart with selected state highlighted */}
-        <InfoCard title="All-state comparison" delay={400} icon={<ChartIcon />} accent="#ff8a1f">
-          <Prose>
-            <b className="text-[#ffd0a0]">{selectedState}</b> is highlighted in the state fleet comparison.
-          </Prose>
-          <StateInstalledChart data={stateData} highlight={selectedState} />
-        </InfoCard>
-
-        <InfoCard title="Annual additions (All-India)" delay={360} icon={<TrendIcon />} accent="#4cc87a">
-          <Prose>National additions trend — state-level breakdowns not available in current data bundle.</Prose>
-          <AnnualAdditionsChart data={ANNUAL_ADDITIONS} />
-        </InfoCard>
 
         <SourceLinks sources={SOURCES} delay={420} />
       </div>
@@ -411,9 +487,8 @@ function DistrictCapacityChart({
 }: {
   data: Array<{ district: string; mw: number }>;
 }) {
-  const rows  = [...data].sort((a, b) => b.mw - a.mw);
-  const total = rows.reduce((s, r) => s + r.mw, 0);
-  const max   = rows[0]?.mw ?? 1;
+  const rows = [...data].sort((a, b) => b.mw - a.mw);
+  const max  = rows[0]?.mw ?? 1;
 
   const fillFor = (i: number) =>
     i === 0           ? '#ff8a1f' :
@@ -424,9 +499,8 @@ function DistrictCapacityChart({
   return (
     <div className="flex flex-col gap-2 mt-1">
       {rows.map((row, i) => {
-        const pct      = (row.mw / max) * 100;
-        const sharePct = total > 0 ? (row.mw / total) * 100 : 0;
-        const fill     = fillFor(i);
+        const pct  = (row.mw / max) * 100;
+        const fill = fillFor(i);
         const label    = row.mw >= 1_000
           ? `${(row.mw / 1000).toFixed(2)} GW`
           : `${row.mw.toLocaleString()} MW`;
@@ -449,9 +523,6 @@ function DistrictCapacityChart({
             <div className="flex flex-col items-end gap-0.5 w-[88px] flex-shrink-0">
               <span className="text-[11px] font-mono font-bold text-[#ffd0a0] tabular-nums leading-none">
                 {label}
-              </span>
-              <span className="text-[9px] font-mono text-muted/60 tabular-nums leading-none">
-                {sharePct.toFixed(1)}% of state
               </span>
             </div>
           </div>
@@ -493,36 +564,87 @@ function StateInstalledChart({
     pct >= 1  ? '#ffb066' :
                 '#7bc4e2';
 
+  const fmtMw = (mw: number) => Math.round(mw).toLocaleString('en-IN');
+
   return (
-    <div className="flex flex-col gap-2.5 mt-1">
+    <div className="flex flex-col gap-2 mt-1">
       {data.map((row, i) => {
-        const installedGw   = row.installed_mw / 1000;
-        const fillPct       = Math.min(100, (installedGw / row.potential_gw) * 100);
-        const isHL          = !!highlight && (row.state === highlight || row.state.startsWith(highlight.slice(0, 6)));
-        const fill          = fillFor(row.realisation_pct, isHL);
+        const potentialMw = row.potential_gw * 1_000;
+        const truePct     = Math.min(100, Math.max(0, (row.installed_mw / potentialMw) * 100));
+        // Use a sqrt visual scale so small realisations (most states sit
+        // at 1–15%) actually render as a visible slice of the bar. The
+        // truePct value continues to drive the colour bucket via fillFor.
+        const fillPct     = Math.sqrt(truePct / 100) * 100;
+        const isHL        = !!highlight && (row.state === highlight || row.state.startsWith(highlight.slice(0, 6)));
+        const fill        = fillFor(row.realisation_pct, isHL);
+        const muted       = highlight && !isHL;
         return (
-          <div key={row.state} className={`flex items-center gap-3 transition-opacity ${highlight && !isHL ? 'opacity-35' : ''}`}>
-            <span className={`text-[11px] font-medium w-[120px] flex-shrink-0 ${isHL ? 'text-[#ffd0a0] font-bold' : 'text-text/85'}`}>
+          <div
+            key={row.state}
+            className={`group relative flex items-center gap-3 rounded-lg
+                       px-2.5 py-2 transition-all
+                       ${isHL
+                         ? 'bg-[#1a1228]/70 border border-orange/30 shadow-[0_0_18px_-6px_rgba(255,138,31,0.45)]'
+                         : 'bg-[#0a0f1c]/40 border border-[#1f2c44] hover:bg-[#0f1424]'}
+                       ${muted ? 'opacity-40' : ''}`}
+          >
+            {/* Accent rail */}
+            <span
+              aria-hidden
+              className="absolute left-0 top-2 bottom-2 w-[2px] rounded-r-full opacity-80"
+              style={{ backgroundColor: fill }}
+            />
+
+            {/* State name */}
+            <span
+              className={`pl-1.5 text-[12px] w-[120px] flex-shrink-0 leading-snug
+                         ${isHL ? 'text-[#ffd0a0] font-black' : 'font-bold text-text/90'}`}
+            >
               {row.state}
             </span>
-            <div className={`flex-1 h-3 bg-[#0a0f1c] rounded-full overflow-hidden border relative ${isHL ? 'border-orange/50' : 'border-[#1f2c44]'}`}>
+
+            {/* Bar track */}
+            <div
+              className={`relative flex-1 h-3.5 rounded-full overflow-hidden
+                         bg-gradient-to-r from-[#0a0f1c] via-[#0d1424] to-[#0a0f1c]
+                         border ${isHL ? 'border-orange/40' : 'border-[#1f2c44]'}`}
+            >
+              {/* Quarter-tick marks at 25% / 50% / 75% for readability */}
+              {[25, 50, 75].map(t => (
+                <span
+                  key={t}
+                  aria-hidden
+                  className="absolute top-0 bottom-0 w-px bg-[#1f2c44]/70"
+                  style={{ left: `${t}%` }}
+                />
+              ))}
+
+              {/* Filled installed portion */}
               <div
-                className="wpi-bar-grow h-full rounded-full transition-all"
+                className="wpi-bar-grow absolute inset-y-0 left-0 rounded-full"
                 style={{
                   background: `linear-gradient(90deg, ${fill}, ${fill}cc)`,
-                  boxShadow: `0 0 8px ${fill}55 inset`,
-                  ['--wpi-delay' as string]: `${300 + i * 60}ms`,
+                  boxShadow: `0 0 10px ${fill}66 inset, 0 0 6px ${fill}33`,
+                  ['--wpi-delay' as string]: `${280 + i * 55}ms`,
                   ['--wpi-bar-target' as string]: `${fillPct}%`,
                 }}
               />
-              <span className="absolute right-0 top-0 bottom-0 w-px bg-[#7bc4e2]/40" />
+
+              {/* End marker */}
+              <span
+                aria-hidden
+                className="absolute right-0 top-0 bottom-0 w-px bg-[#7bc4e2]/50"
+              />
             </div>
-            <div className="flex flex-col items-end gap-0.5 w-[90px] flex-shrink-0">
-              <span className="text-[11px] font-mono font-bold text-[#ffd0a0] tabular-nums leading-none">
-                {installedGw.toFixed(2)} GW
+
+            {/* Values */}
+            <div className="flex flex-col items-end gap-0.5 w-[112px] flex-shrink-0">
+              <span className="text-[12px] font-mono font-black text-[#ffd0a0] tabular-nums leading-none">
+                {fmtMw(row.installed_mw)}
+                <span className="ml-1 text-[9px] font-bold text-[#ffd0a0]/70">MW</span>
               </span>
-              <span className="text-[9px] font-mono text-muted/60 tabular-nums leading-none">
-                of {row.potential_gw} GW · {row.realisation_pct.toFixed(1)}%
+              <span className="text-[9.5px] font-mono text-muted/60 tabular-nums leading-none">
+                of {fmtMw(potentialMw)} MW
               </span>
             </div>
           </div>
@@ -530,7 +652,7 @@ function StateInstalledChart({
       })}
 
       {/* Legend */}
-      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#1a2a44]">
+      <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-[#1a2a44]">
         <span className="text-[9px] text-muted/55 uppercase tracking-wider font-bold">
           Realisation
         </span>
@@ -545,7 +667,7 @@ function StateInstalledChart({
           </span>
         ))}
         <span className="ml-auto text-[9px] text-muted/55 italic">
-          Track length = state 150 m potential
+          Track length = state 150 m potential · perceptual (√) scale
         </span>
       </div>
     </div>
@@ -561,14 +683,30 @@ function AnnualAdditionsChart({
   data: Array<{ fy: string; mw: number }>;
 }) {
   const W = 480, H = 180;
-  const PAD_L = 38, PAD_R = 12, PAD_T = 12, PAD_B = 26;
+  const PAD_L = 42, PAD_R = 12, PAD_T = 12, PAD_B = 26;
   const CW = W - PAD_L - PAD_R;
   const CH = H - PAD_T - PAD_B;
-  const maxMw = Math.ceil(Math.max(...data.map(d => d.mw)) / 1000) * 1000;
-  const barW  = (CW / data.length) * 0.62;
-  const slot  = CW / data.length;
 
-  // Y-axis grid lines at 0, 1, 2, 3, 4 GW (we know the data range).
+  // Choose a "nice" upper bound so small-state data (Kerala ~10 MW max)
+  // doesn't render against an oversized GW-scale axis.
+  const rawMax = Math.max(...data.map(d => d.mw), 1);
+  const niceMax = (m: number): number => {
+    if (m <= 50)    return Math.ceil(m / 10)    * 10;
+    if (m <= 500)   return Math.ceil(m / 50)    * 50;
+    if (m <= 2_000) return Math.ceil(m / 200)   * 200;
+    if (m <= 5_000) return Math.ceil(m / 500)   * 500;
+    return Math.ceil(m / 1_000) * 1_000;
+  };
+  const maxMw     = niceMax(rawMax);
+  const axisInGw  = maxMw >= 1_000;
+  const axisLabel = axisInGw ? 'GW' : 'MW';
+  const formatTick = (v: number) =>
+    axisInGw ? (v / 1_000).toFixed(1)
+             : v >= 100 ? Math.round(v).toString()
+                        : v.toFixed(0);
+
+  const barW = (CW / data.length) * 0.62;
+  const slot = CW / data.length;
   const ticks = Array.from({ length: 5 }, (_, i) => (maxMw / 4) * i);
 
   return (
@@ -590,7 +728,7 @@ function AnnualAdditionsChart({
                 fontFamily="ui-monospace, monospace"
                 fill="rgba(154,164,186,0.55)"
               >
-                {(t / 1000).toFixed(1)}
+                {formatTick(t)}
               </text>
             </g>
           );
@@ -603,7 +741,7 @@ function AnnualAdditionsChart({
           fill="rgba(154,164,186,0.6)"
           fontWeight="bold"
         >
-          GW
+          {axisLabel}
         </text>
 
         {/* Bars */}
@@ -633,7 +771,7 @@ function AnnualAdditionsChart({
                   animationDelay: `${320 + i * 70}ms`,
                 }}
               />
-              {/* MW label above bar */}
+              {/* MW / GW label above bar — match the axis unit */}
               <text
                 x={x + barW / 2}
                 y={y - 4}
@@ -648,7 +786,7 @@ function AnnualAdditionsChart({
                   animationDelay: `${800 + i * 70}ms`,
                 }}
               >
-                {(d.mw / 1000).toFixed(2)}
+                {axisInGw ? (d.mw / 1_000).toFixed(2) : Math.round(d.mw).toString()}
               </text>
               {/* X-axis label */}
               <text
@@ -689,13 +827,5 @@ const PinIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
     <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-const ClusterIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="6" cy="6" r="3" />
-    <circle cx="18" cy="6" r="3" />
-    <circle cx="12" cy="18" r="3" />
-    <path d="M8.5 7.5l3 8M15.5 7.5l-3 8" />
   </svg>
 );

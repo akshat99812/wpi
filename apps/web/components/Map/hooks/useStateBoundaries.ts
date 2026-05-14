@@ -170,6 +170,12 @@ export function useStateBoundaries({ mapRef: _mapRef, modeRef, stateRef, selectR
   const cleanupRef   = useRef<(() => void) | null>(null);
 
   const install = useCallback(async (m: maplibregl.Map) => {
+    // Tear down any previous install before adding new handlers — otherwise
+    // each basemap switch stacks another mousemove listener with its own
+    // hoveredId closure, and the first one to fire wins the tooltip update.
+    cleanupRef.current?.();
+    cleanupRef.current = null;
+
     const data = await loadIndiaGeoJSON();
     if (!data) return;
     // The map could have been torn down or restyled mid-fetch.
@@ -339,12 +345,16 @@ export function useStateBoundaries({ mapRef: _mapRef, modeRef, stateRef, selectR
       selectRef.current?.(cur === key ? null : key);
     };
 
-    m.on('mousemove',  LAYER_IDS.indiaFill, onMouseMove);
+    // Use map-wide mousemove (not layer-specific) so the handler fires on
+    // every cursor movement and we can recompute the hovered state from
+    // queryRenderedFeatures. Layer-specific mousemove can miss transitions
+    // between adjacent features in some MapLibre versions.
+    m.on('mousemove',  onMouseMove);
     m.on('mouseleave', LAYER_IDS.indiaFill, onMouseLeave);
     m.on('click',      LAYER_IDS.indiaFill, onClick);
 
     cleanupRef.current = () => {
-      m.off('mousemove',  LAYER_IDS.indiaFill, onMouseMove);
+      m.off('mousemove',  onMouseMove);
       m.off('mouseleave', LAYER_IDS.indiaFill, onMouseLeave);
       m.off('click',      LAYER_IDS.indiaFill, onClick);
     };

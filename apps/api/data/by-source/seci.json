@@ -1,6 +1,6 @@
 {
   "source": "seci",
-  "fetchedAt": "2026-05-09T16:10:08.072Z",
+  "fetchedAt": "2026-05-14T09:14:21.785Z",
   "ok": true,
   "payload": {
     "auctions": [
@@ -9,84 +9,359 @@
         "tranche": "RfS for Setting up of 1200 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XIX)",
         "capacityMw": 1200,
         "tariffL1Inr": null,
-        "resultDate": "2025-10-15T00:00:00.000Z"
+        "resultDate": "2025-12-15T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for assured Peak supply of 4800 MWh (1200 MW x 4 Hrs.) from ISTS-Connected RE Power Projects in India (SECI-FDRE-VII)",
+        "capacityMw": 4800,
+        "tariffL1Inr": null,
+        "resultDate": "2026-01-07T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for 1200 MW RTC Power from ISTS-Connected RE Power Projects in India (SECI-RTC-IV)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2025-03-24T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for assured Peak supply of 8000 MWh (2000 MW x 4 Hrs.) from ISTS-Connected RE Projects (SECI-FDRE-VI)",
+        "capacityMw": 8000,
+        "tariffL1Inr": null,
+        "resultDate": "2024-11-14T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for Selection of Hybrid Power Developers for Setting up of 400 MW ISTS-connected Wind-Solar Hybrid Power Projects in India (SECI-Tranche-IX)",
+        "capacityMw": 400,
+        "tariffL1Inr": null,
+        "resultDate": "2024-08-06T00:00:00Z"
       },
       {
         "issuer": "SECI",
         "tranche": "RfS for 500 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XVII)",
         "capacityMw": 500,
         "tariffL1Inr": null,
-        "resultDate": "2024-05-29T00:00:00.000Z"
+        "resultDate": "2024-08-05T00:00:00Z"
       },
       {
         "issuer": "SECI",
-        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1350 MW ISTS-connected Wind Power Projects (SECI-Tranche-XV",
+        "tranche": "RfS for Selection of Hybrid Power Developers for Setting up of 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects in India under Tariff-Based Competitive Bidding (SECI-Tranche-VIII)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2024-05-20T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1350 MW ISTS-connected Wind Power Projects (SECI-Tranche-XVI)",
         "capacityMw": 1350,
         "tariffL1Inr": null,
-        "resultDate": "2023-11-30T00:00:00.000Z"
+        "resultDate": "2024-01-10T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for Selection of Hybrid Power Developers for Setting up of 2000 MW ISTS-connected Wind-Solar Hybrid Power Projects in India under Tariff-Based Competitive Bidding (SECI-Tranche-VII)",
+        "capacityMw": 2000,
+        "tariffL1Inr": null,
+        "resultDate": "2023-12-08T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for 1260 MW Firm and Dispatchable Power from ISTS-connected Renewable Energy (RE) Power Projects (SECI-FDRE-IV)",
+        "capacityMw": 1260,
+        "tariffL1Inr": null,
+        "resultDate": "2024-07-03T00:00:00Z"
       },
       {
         "issuer": "SECI",
         "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIV)",
         "capacityMw": 1200,
         "tariffL1Inr": null,
-        "resultDate": "2023-02-20T00:00:00.000Z"
+        "resultDate": "2023-04-17T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for 1200 MW ISTS-Connected Wind-Solar Hybrid Power Projects with assured Peak Power supply in India (Tranche-VI)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2023-03-10T00:00:00Z"
       },
       {
         "issuer": "SECI",
         "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIII)",
         "capacityMw": 1200,
         "tariffL1Inr": null,
-        "resultDate": "2022-01-12T00:00:00.000Z"
+        "resultDate": "2022-07-04T00:00:00Z"
       },
       {
         "issuer": "SECI",
-        "tranche": "Tranche XIX – Wind (1200 MW)",
+        "tranche": "RfS for Selection of Hybrid Power Developers for Setting up of 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects (Tranche-V)",
         "capacityMw": 1200,
         "tariffL1Inr": null,
-        "resultDate": "2025-12-15T00:00:00Z"
+        "resultDate": "2022-01-04T00:00:00Z"
       },
       {
         "issuer": "SECI",
-        "tranche": "Tranche XVII – Wind (500 MW)",
-        "capacityMw": 500,
-        "tariffL1Inr": 3.08,
-        "resultDate": "2024-08-05T00:00:00Z"
-      },
-      {
-        "issuer": "SECI",
-        "tranche": "Wind-Solar Hybrid Tranche IX (400 MW)",
-        "capacityMw": 400,
-        "tariffL1Inr": 3.72,
-        "resultDate": "2024-08-06T00:00:00Z"
-      },
-      {
-        "issuer": "SECI",
-        "tranche": "Wind-Solar Hybrid Tranche VIII (1200 MW)",
+        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XII)",
         "capacityMw": 1200,
-        "tariffL1Inr": 3.87,
-        "resultDate": "2024-05-20T00:00:00Z"
+        "tariffL1Inr": null,
+        "resultDate": "2021-12-02T00:00:00Z"
       },
       {
         "issuer": "SECI",
-        "tranche": "Tranche XIV – Wind (1200 MW)",
+        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XI)",
         "capacityMw": 1200,
-        "tariffL1Inr": 3.15,
-        "resultDate": "2023-04-17T00:00:00Z"
+        "tariffL1Inr": null,
+        "resultDate": "2021-07-06T00:00:00Z"
       },
       {
         "issuer": "SECI",
-        "tranche": "Tranche XV – Wind (1350 MW)",
-        "capacityMw": 1350,
-        "tariffL1Inr": 3.21,
-        "resultDate": "2024-01-10T00:00:00Z"
+        "tranche": "RfS for setting up of 1200 MW ISTS-Connected Wind-Solar Hybrid Power Projects (Tranche-IV)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2021-07-16T00:00:00Z"
       },
       {
-        "issuer": "NTPC",
-        "tranche": "Wind IPP 1200 MW (Tranche I)",
+        "issuer": "SECI",
+        "tranche": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-X)",
         "capacityMw": 1200,
-        "tariffL1Inr": 3.28,
-        "resultDate": "2024-11-05T00:00:00Z"
+        "tariffL1Inr": null,
+        "resultDate": "2021-02-19T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for Supply of 5000 MW RTC Power from ISTS-connected RE Power Projects, complemented with Coal based Thermal Power in India (RTC-II)",
+        "capacityMw": 5000,
+        "tariffL1Inr": null,
+        "resultDate": "2021-09-03T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for 2000 MW ISTS-connected Wind Power Projects in India (Tranche-IX)",
+        "capacityMw": 2000,
+        "tariffL1Inr": null,
+        "resultDate": "2020-07-28T00:00:00Z"
+      },
+      {
+        "issuer": "SECI",
+        "tranche": "RfS for 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects in India (Tranche-III)",
+        "capacityMw": 1200,
+        "tariffL1Inr": null,
+        "resultDate": "2020-12-07T00:00:00Z"
+      }
+    ],
+    "tariffOrders": [
+      {
+        "regulator": "SECI",
+        "dateLabel": "Dec 2025",
+        "effectiveDate": "2025-12-15",
+        "title": "RfS for Setting up of 1200 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XIX)",
+        "tariffLabel": "Tariff TBD (bid due Dec 2025)",
+        "meta": "Bid due Dec 2025 · 1,200 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/YmB1"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jan 2026",
+        "effectiveDate": "2026-01-07",
+        "title": "RfS for assured Peak supply of 4800 MWh (1200 MW x 4 Hrs.) from ISTS-Connected RE Power Projects in India (SECI-FDRE-VII)",
+        "tariffLabel": "Tariff TBD (bid due Jan 2026)",
+        "meta": "Bid due Jan 2026 · 4,800 MW",
+        "category": "FDRE",
+        "url": "https://www.seci.co.in/tender-details/YmB2"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Mar 2025",
+        "effectiveDate": "2025-03-24",
+        "title": "RfS for 1200 MW RTC Power from ISTS-Connected RE Power Projects in India (SECI-RTC-IV)",
+        "tariffLabel": "Tariff TBD (bid due Mar 2025)",
+        "meta": "Bid due Mar 2025 · 1,200 MW",
+        "category": "RTC",
+        "url": "https://www.seci.co.in/tender-details/YWVx"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Nov 2024",
+        "effectiveDate": "2024-11-14",
+        "title": "RfS for assured Peak supply of 8000 MWh (2000 MW x 4 Hrs.) from ISTS-Connected RE Projects (SECI-FDRE-VI)",
+        "tariffLabel": "Tariff TBD (bid due Nov 2024)",
+        "meta": "Bid due Nov 2024 · 8,000 MW",
+        "category": "FDRE",
+        "url": "https://www.seci.co.in/tender-details/YWV3"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Aug 2024",
+        "effectiveDate": "2024-08-06",
+        "title": "RfS for Selection of Hybrid Power Developers for Setting up of 400 MW ISTS-connected Wind-Solar Hybrid Power Projects in India (SECI-Tranche-IX)",
+        "tariffLabel": "Tariff TBD (bid due Aug 2024)",
+        "meta": "Bid due Aug 2024 · 400 MW",
+        "category": "Wind-Solar Hybrid",
+        "url": "https://www.seci.co.in/tender-details/YWZx"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Aug 2024",
+        "effectiveDate": "2024-08-05",
+        "title": "RfS for 500 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XVII)",
+        "tariffLabel": "Tariff TBD (bid due Aug 2024)",
+        "meta": "Bid due Aug 2024 · 500 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/YWZ3"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "May 2024",
+        "effectiveDate": "2024-05-20",
+        "title": "RfS for Selection of Hybrid Power Developers for Setting up of 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects in India under Tariff-Based Competitive Bidding (SECI-Tranche-VIII)",
+        "tariffLabel": "Tariff TBD (bid due May 2024)",
+        "meta": "Bid due May 2024 · 1,200 MW",
+        "category": "Wind-Solar Hybrid",
+        "url": "https://www.seci.co.in/tender-details/YWB0"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jan 2024",
+        "effectiveDate": "2024-01-10",
+        "title": "RfS for Selection of Wind Power Developers for Setting up of 1350 MW ISTS-connected Wind Power Projects (SECI-Tranche-XVI)",
+        "tariffLabel": "Tariff TBD (bid due Jan 2024)",
+        "meta": "Bid due Jan 2024 · 1,350 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/YWN1"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Dec 2023",
+        "effectiveDate": "2023-12-08",
+        "title": "RfS for Selection of Hybrid Power Developers for Setting up of 2000 MW ISTS-connected Wind-Solar Hybrid Power Projects in India under Tariff-Based Competitive Bidding (SECI-Tranche-VII)",
+        "tariffLabel": "Tariff TBD (bid due Dec 2023)",
+        "meta": "Bid due Dec 2023 · 2,000 MW",
+        "category": "Wind-Solar Hybrid",
+        "url": "https://www.seci.co.in/tender-details/YWJ_"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jul 2024",
+        "effectiveDate": "2024-07-03",
+        "title": "RfS for 1260 MW Firm and Dispatchable Power from ISTS-connected Renewable Energy (RE) Power Projects (SECI-FDRE-IV)",
+        "tariffLabel": "Tariff TBD (bid due Jul 2024)",
+        "meta": "Bid due Jul 2024 · 1,260 MW",
+        "category": "FDRE",
+        "url": "https://www.seci.co.in/tender-details/YWJy"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Apr 2023",
+        "effectiveDate": "2023-04-17",
+        "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIV)",
+        "tariffLabel": "Tariff TBD (bid due Apr 2023)",
+        "meta": "Bid due Apr 2023 · 1,200 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/aGM"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Mar 2023",
+        "effectiveDate": "2023-03-10",
+        "title": "RfS for 1200 MW ISTS-Connected Wind-Solar Hybrid Power Projects with assured Peak Power supply in India (Tranche-VI)",
+        "tariffLabel": "Tariff TBD (bid due Mar 2023)",
+        "meta": "Bid due Mar 2023 · 1,200 MW",
+        "category": "Wind-Solar Hybrid",
+        "url": "https://www.seci.co.in/tender-details/Z2c"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jul 2022",
+        "effectiveDate": "2022-07-04",
+        "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIII)",
+        "tariffLabel": "Tariff TBD (bid due Jul 2022)",
+        "meta": "Bid due Jul 2022 · 1,200 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/ZGU"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jan 2022",
+        "effectiveDate": "2022-01-04",
+        "title": "RfS for Selection of Hybrid Power Developers for Setting up of 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects (Tranche-V)",
+        "tariffLabel": "Tariff TBD (bid due Jan 2022)",
+        "meta": "Bid due Jan 2022 · 1,200 MW",
+        "category": "Wind-Solar Hybrid",
+        "url": "https://www.seci.co.in/tender-details/ZGE"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Dec 2021",
+        "effectiveDate": "2021-12-02",
+        "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XII)",
+        "tariffLabel": "Tariff TBD (bid due Dec 2021)",
+        "meta": "Bid due Dec 2021 · 1,200 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/ZGA"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jul 2021",
+        "effectiveDate": "2021-07-06",
+        "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XI)",
+        "tariffLabel": "Tariff TBD (bid due Jul 2021)",
+        "meta": "Bid due Jul 2021 · 1,200 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/Y2E"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jul 2021",
+        "effectiveDate": "2021-07-16",
+        "title": "RfS for setting up of 1200 MW ISTS-Connected Wind-Solar Hybrid Power Projects (Tranche-IV)",
+        "tariffLabel": "Tariff TBD (bid due Jul 2021)",
+        "meta": "Bid due Jul 2021 · 1,200 MW",
+        "category": "Wind-Solar Hybrid",
+        "url": "https://www.seci.co.in/tender-details/Y2A"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Feb 2021",
+        "effectiveDate": "2021-02-19",
+        "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-X)",
+        "tariffLabel": "Tariff TBD (bid due Feb 2021)",
+        "meta": "Bid due Feb 2021 · 1,200 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/Ymc"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Sep 2021",
+        "effectiveDate": "2021-09-03",
+        "title": "RfS for Supply of 5000 MW RTC Power from ISTS-connected RE Power Projects, complemented with Coal based Thermal Power in India (RTC-II)",
+        "tariffLabel": "Tariff TBD (bid due Sep 2021)",
+        "meta": "Bid due Sep 2021 · 5,000 MW",
+        "category": "RTC",
+        "url": "https://www.seci.co.in/tender-details/Zw"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Jul 2020",
+        "effectiveDate": "2020-07-28",
+        "title": "RfS for 2000 MW ISTS-connected Wind Power Projects in India (Tranche-IX)",
+        "tariffLabel": "Tariff TBD (bid due Jul 2020)",
+        "meta": "Bid due Jul 2020 · 2,000 MW",
+        "category": "Wind Auction",
+        "url": "https://www.seci.co.in/tender-details/ZQ"
+      },
+      {
+        "regulator": "SECI",
+        "dateLabel": "Dec 2020",
+        "effectiveDate": "2020-12-07",
+        "title": "RfS for 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects in India (Tranche-III)",
+        "tariffLabel": "Tariff TBD (bid due Dec 2020)",
+        "meta": "Bid due Dec 2020 · 1,200 MW",
+        "category": "Wind-Solar Hybrid",
+        "url": "https://www.seci.co.in/tender-details/YQ"
       }
     ]
   }

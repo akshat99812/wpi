@@ -9,8 +9,18 @@ import { mnreCrawler } from './crawlers/mnre';
 import { seciCrawler } from './crawlers/seci';
 import { mercomCrawler } from './crawlers/mercom';
 import { renewableWatchCrawler } from './crawlers/renewable_watch';
+import { solarQuarterCrawler } from './crawlers/solarquarter';
+import { nredcapCrawler } from './crawlers/nredcap';
+import { tsredcoCrawler } from './crawlers/tsredco';
 import { pibCrawler } from './crawlers/pib';
 import { globalWindAtlasCrawler } from './crawlers/global_wind_atlas';
+import {
+  saurEnergyCrawler,
+  etEnergyWorldCrawler,
+  pvMagazineCrawler,
+  eqMagazineCrawler,
+  businessStandardCrawler,
+} from './crawlers/wind_news';
 import {
   ceaCrawler,
   niweCrawler,
@@ -34,11 +44,19 @@ const crawlers = [
   stateNodalCrawler,
   mercomCrawler,
   renewableWatchCrawler,
+  solarQuarterCrawler,
+  nredcapCrawler,
+  tsredcoCrawler,
   pibCrawler,
   gridCrawler,
   globalWindAtlasCrawler,
   oemReportsCrawler,
-  analystNotesCrawler
+  analystNotesCrawler,
+  saurEnergyCrawler,
+  etEnergyWorldCrawler,
+  pvMagazineCrawler,
+  eqMagazineCrawler,
+  businessStandardCrawler,
 ];
 
 const dataDir = path.resolve(__dirname, '../../data');

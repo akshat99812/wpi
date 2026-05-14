@@ -226,11 +226,95 @@ export default function BankabilityCalc() {
         </div>
       </div>
 
-      {/* ── Methodology disclosure ── */}
-       {/* ── Methodology ── */}
-        <div className="mt-8">
-          <MethodologyPanel />
+      {/* ── Contact CECL for Bankable Reports ────────────────────────── */}
+      <div className="mt-8 rounded-xl border border-orange/30 overflow-hidden
+                      bg-gradient-to-br from-[#1a140a] via-[#0e1422] to-[#090d18]
+                      relative">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-12 -right-12 h-44 w-44 rounded-full
+                     bg-orange/15 blur-3xl"
+        />
+        <div className="relative p-5 flex flex-col gap-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 grid place-items-center h-11 w-11 rounded-xl
+                            bg-gradient-to-br from-orange/30 to-orange/10
+                            border border-orange/45 text-orange">
+              <BriefcaseIcon />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-orange/90">
+                CECL Advisory
+              </div>
+              <h3 className="mt-1 text-[15px] font-black text-text leading-tight">
+                Contact CECL for bankable reports
+              </h3>
+              <div className="mt-1 text-[10px] uppercase tracking-[0.1em] font-bold text-muted/80">
+                Consolidated Energy Consultants Limited
+              </div>
+              <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted">
+                Bankability-grade reports prepared for lenders, IPP sponsors,
+                and offtakers — covering <b className="text-[#ffd0a0]">resource
+                P50/P75/P90, evacuation feasibility, PPA term review, DSCR
+                stress tests, and ESG due diligence</b>. Includes site visits
+                and a signed engineering certificate.
+              </p>
+            </div>
+          </div>
+
+          {/* Contact grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <ContactRow
+              icon={<MailIcon />}
+              label="Email"
+              value="info@cecl.in"
+              href="mailto:info@cecl.in?subject=Bankable%20Report%20Enquiry"
+            />
+            <ContactRow
+              icon={<MailIcon />}
+              label="Alt. Email"
+              value="conenergy@gmail.com"
+              href="mailto:conenergy@gmail.com?subject=Bankable%20Report%20Enquiry"
+            />
+            <ContactRow
+              icon={<PhoneIcon />}
+              label="Phone"
+              value="+91-0755-2600241"
+              href="tel:+9107552600241"
+            />
+            <ContactRow
+              icon={<PhoneIcon />}
+              label="Phone"
+              value="+91-0755-4058931"
+              href="tel:+9107554058931"
+            />
+            <ContactRow
+              icon={<PinIcon />}
+              label="Registered Office"
+              value="‘Energy Tower’, 64-B Sector, Kasturba Nagar, Bhopal 462023, Madhya Pradesh, India"
+              wide
+            />
+          </div>
+
+          {/* CTA */}
+          <a
+            href="mailto:info@cecl.in?cc=conenergy@gmail.com&subject=Bankable%20Report%20Enquiry&body=Project%20name%3A%0ACapacity%20%28MW%29%3A%0AState%20%2F%20site%3A%0AStage%20%28pre-FID%20%2F%20FID%20%2F%20construction%29%3A%0AOfftake%20type%3A%0A"
+            className="self-start inline-flex items-center gap-2
+                       rounded-lg bg-gradient-to-r from-orange to-[#ffb066]
+                       text-[#0a0e18] px-4 py-2.5
+                       text-[11.5px] font-black uppercase tracking-[0.6px]
+                       hover:opacity-95 transition-opacity"
+          >
+            Request bankability study
+            <span className="text-[14px] leading-none">→</span>
+          </a>
         </div>
+      </div>
+
+      {/* ── Methodology ── */}
+      <div className="mt-8">
+        <MethodologyPanel />
+      </div>
       
 
       {/* ── Disclaimer ── */}
@@ -241,5 +325,87 @@ export default function BankabilityCalc() {
         Always commission a bankability study before project finance.
       </div>
     </div>
+  );
+}
+
+// ── Contact row used in the CECL Advisory CTA card ────────────────────────
+function ContactRow({
+  icon, label, value, href, wide,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  href?: string;
+  wide?: boolean;
+}) {
+  const inner = (
+    <div className="flex items-start gap-2.5 rounded-lg
+                    border border-[#1f2740] bg-[#0a0e18]/70 px-3 py-2
+                    group-hover:border-orange/40 transition-colors h-full">
+      <span className="text-orange/85 flex-shrink-0 mt-0.5">{icon}</span>
+      <div className="flex flex-col leading-tight min-w-0">
+        <span className="text-[8.5px] font-bold uppercase tracking-[0.12em] text-muted/65">
+          {label}
+        </span>
+        <span className={`text-[11.5px] font-bold text-text/95 ${wide ? 'leading-snug' : 'truncate'}`}>
+          {value}
+        </span>
+      </div>
+    </div>
+  );
+  const wrapClass = `group ${wide ? 'sm:col-span-2' : ''}`;
+  return href ? (
+    <a
+      href={href}
+      target={href.startsWith('http') ? '_blank' : undefined}
+      rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+      className={wrapClass}
+    >
+      {inner}
+    </a>
+  ) : (
+    <div className={wrapClass}>{inner}</div>
+  );
+}
+
+// ── Icons ──────────────────────────────────────────────────────────────────
+function BriefcaseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+      <path d="M2 13h20" />
+    </svg>
+  );
+}
+function MailIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </svg>
+  );
+}
+function PhoneIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92V20a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3.08a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.35a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  );
+}
+function GlobeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a13.5 13.5 0 0 1 0 18M12 3a13.5 13.5 0 0 0 0 18" />
+    </svg>
+  );
+}
+function PinIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
   );
 }

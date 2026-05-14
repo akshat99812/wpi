@@ -172,7 +172,7 @@ export default function MapCanvas({
       {/* Selected-state badge */}
       {selectedState && (
         <div className="absolute bottom-14 left-1/2 -translate-x-1/2 z-20">
-          <SelectedBadge state={selectedState} onClear={() => onStateSelect?.(null)} />
+          <SelectedBadge state={selectedState} />
         </div>
       )}
 
