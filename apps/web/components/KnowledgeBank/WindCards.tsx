@@ -77,7 +77,13 @@ export function HeadlineMetric({
   return (
     <div
       className="wpi-card-in wpi-hover-lift relative bg-gradient-to-b from-[#0f1424] to-[#0d1220] border border-[#2a3a54] rounded-xl p-4 overflow-hidden"
-      style={{ ['--wpi-delay' as string]: `${delay}ms` }}
+      style={{
+        ['--wpi-delay' as string]: `${delay}ms`,
+        // Establish a container query context so the value font can scale
+        // off the card's own inline size, not the viewport. Side panels at
+        // various widths all get a value that fits in one line.
+        containerType: 'inline-size',
+      }}
     >
       {/* left accent bar */}
       <span
@@ -97,13 +103,14 @@ export function HeadlineMetric({
           style={{
             color: accent,
             textShadow: `0 0 18px ${accent}40`,
-            // Fluid font size so values like "1,163.86 GW" stay on a single
-            // line whether the card is rendered in a 320 px sidebar or a
-            // full-width hero. clamp(min, preferred, max) lets it scale with
-            // viewport without ever overflowing the card.
+            // Container-relative font size — `cqi` = 1% of container's
+            // inline size. 13–14 cqi keeps an 11-char value like
+            // "1,163.86 GW" inside the card's content area (~84% after the
+            // p-4 + pl-2 paddings) at any width. Clamped so it never goes
+            // tiny on mobile or absurd on ultrawide.
             fontSize: emphasis
-              ? 'clamp(16px, 2.2vw, 26px)'
-              : 'clamp(13px, 1.7vw, 20px)',
+              ? 'clamp(14px, 13cqi, 26px)'
+              : 'clamp(12px, 10cqi, 20px)',
           }}
         >
           {value}
