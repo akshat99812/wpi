@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, ReactNode } from 'react';
+import React, { useState, useLayoutEffect, useRef, ReactNode } from 'react';
 
 // ── Hairline divider ────────────────────────────────────────────────────────
 export function Hairline() {
@@ -77,13 +77,7 @@ export function HeadlineMetric({
   return (
     <div
       className="wpi-card-in wpi-hover-lift relative bg-gradient-to-b from-[#0f1424] to-[#0d1220] border border-[#2a3a54] rounded-xl p-4 overflow-hidden"
-      style={{
-        ['--wpi-delay' as string]: `${delay}ms`,
-        // Establish a container query context so the value font can scale
-        // off the card's own inline size, not the viewport. Side panels at
-        // various widths all get a value that fits in one line.
-        containerType: 'inline-size',
-      }}
+      style={{ ['--wpi-delay' as string]: `${delay}ms` }}
     >
       {/* left accent bar */}
       <span
@@ -93,28 +87,18 @@ export function HeadlineMetric({
           boxShadow: `0 0 10px ${accent}55`,
         }}
       />
-      <div className="pl-2 flex flex-col gap-1.5">
+      <div className="pl-2 flex flex-col items-center gap-1.5 text-center">
         <span className="text-[10px] text-muted/60 uppercase tracking-[0.1em] font-bold leading-none">
           {label}
         </span>
-        <span
-          className="font-black font-mono leading-none tabular-nums tracking-tight
-                     whitespace-nowrap block w-full"
-          style={{
-            color: accent,
-            textShadow: `0 0 18px ${accent}40`,
-            // Container-relative font size — `cqi` = 1% of container's
-            // inline size. 13–14 cqi keeps an 11-char value like
-            // "1,163.86 GW" inside the card's content area (~84% after the
-            // p-4 + pl-2 paddings) at any width. Clamped so it never goes
-            // tiny on mobile or absurd on ultrawide.
-            fontSize: emphasis
-              ? 'clamp(14px, 13cqi, 26px)'
-              : 'clamp(12px, 10cqi, 20px)',
-          }}
+        <FitText
+          maxPx={emphasis ? 26 : 20}
+          minPx={emphasis ? 11 : 10}
+          className="font-black font-mono leading-none tabular-nums tracking-tight"
+          style={{ color: accent, textShadow: `0 0 18px ${accent}40` }}
         >
           {value}
-        </span>
+        </FitText>
         {caption && (
           <span className="text-[10px] text-muted/55 leading-snug font-medium mt-0.5">
             {caption}
@@ -122,6 +106,80 @@ export function HeadlineMetric({
         )}
       </div>
     </div>
+  );
+}
+
+// ── FitText ─────────────────────────────────────────────────────────────────
+// Measures the rendered width of the text against the available width of its
+// parent and shrinks the font (binary search) until the text fits on a single
+// line without overflowing. Recomputes on container resize via ResizeObserver,
+// so a sidebar can be dragged narrower / wider and the value stays readable.
+function FitText({
+  children,
+  maxPx,
+  minPx,
+  className,
+  style,
+}: {
+  children: React.ReactNode;
+  maxPx: number;
+  minPx: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const [fontPx, setFontPx] = useState(maxPx);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+
+    const fit = () => {
+      // Available width = parent's content-box width (so card padding /
+      // siblings count). Subtract a 2 px safety margin to avoid sub-pixel
+      // rounding clipping the last glyph.
+      const target = parent.clientWidth - 2;
+      if (target <= 0) return;
+
+      // Binary-search for the largest size in [minPx, maxPx] whose
+      // scrollWidth fits the target. scrollWidth is set by the rendered
+      // text since the span has whitespace-nowrap.
+      let lo = minPx, hi = maxPx, best = minPx;
+      // Bail-out: if max already fits, we're done.
+      el.style.fontSize = `${hi}px`;
+      if (el.scrollWidth <= target) {
+        setFontPx(hi);
+        return;
+      }
+      while (hi - lo > 0.5) {
+        const mid = (lo + hi) / 2;
+        el.style.fontSize = `${mid}px`;
+        if (el.scrollWidth <= target) {
+          best = mid;
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      setFontPx(best);
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(parent);
+    return () => ro.disconnect();
+  }, [children, maxPx, minPx]);
+
+  return (
+    <span
+      ref={ref}
+      className={`${className ?? ''} whitespace-nowrap block`}
+      style={{ ...style, fontSize: `${fontPx}px` }}
+    >
+      {children}
+    </span>
   );
 }
 
