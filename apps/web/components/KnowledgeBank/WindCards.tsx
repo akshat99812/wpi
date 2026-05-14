@@ -92,10 +92,19 @@ export function HeadlineMetric({
           {label}
         </span>
         <span
-          className={`font-black font-mono leading-none tabular-nums tracking-tight ${
-            emphasis ? 'text-[26px]' : 'text-[20px]'
-          }`}
-          style={{ color: accent, textShadow: `0 0 18px ${accent}40` }}
+          className="font-black font-mono leading-none tabular-nums tracking-tight
+                     whitespace-nowrap block w-full"
+          style={{
+            color: accent,
+            textShadow: `0 0 18px ${accent}40`,
+            // Fluid font size so values like "1,163.86 GW" stay on a single
+            // line whether the card is rendered in a 320 px sidebar or a
+            // full-width hero. clamp(min, preferred, max) lets it scale with
+            // viewport without ever overflowing the card.
+            fontSize: emphasis
+              ? 'clamp(16px, 2.2vw, 26px)'
+              : 'clamp(13px, 1.7vw, 20px)',
+          }}
         >
           {value}
         </span>
