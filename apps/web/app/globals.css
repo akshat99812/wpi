@@ -24,12 +24,9 @@ body {
   padding: 0;
 }
 
-@media (min-width: 1024px) {
-  body {
-    height: 100vh;
-    overflow: hidden;
-  }
-}
+/* Per-page scroll lock: the dashboard wrapper sets `lg:h-screen
+   lg:overflow-hidden` itself; landing/marketing routes need normal page
+   scroll, so we don't lock <body> globally. */
 
 /* Glassmorphism utility */
 .glass-panel {
