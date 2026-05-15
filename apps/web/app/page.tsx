@@ -93,7 +93,7 @@ export default function Landing() {
           <div className="mt-4 lg:mt-5 flex items-baseline justify-center gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
             <span className="text-orange/85">›</span>
             <TypingAnimation
-              words={["Map 🗺️", "Analyse 📊", "Tender 📑", "Finance 💼", "Research 🔬"]}
+              words={["Map", "Analyse", "Tender", "Finance", "Research"]}
               loop
               cursorClassName="text-orange/80"
               className="text-text"
@@ -128,7 +128,7 @@ export default function Landing() {
             <Marquee
               pauseOnHover
               repeat={4}
-              className="[--duration:46s] [--gap:14px] py-2"
+              className="[--duration:22s] [--gap:14px] py-2"
             >
               {HERO_STATS.map(s => <HeroStatCard key={s.label} stat={s} />)}
             </Marquee>

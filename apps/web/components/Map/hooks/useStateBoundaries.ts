@@ -181,16 +181,19 @@ export function useStateBoundaries({ mapRef: _mapRef, modeRef, stateRef, selectR
     // The map could have been torn down or restyled mid-fetch.
     if (!m.getCanvas()) return;
 
-    const isStreet = modeRef.current === 'street';
-    const isLight  = isStreet || modeRef.current === 'terrain';
+    const isStreet  = modeRef.current === 'street';
+    const isTerrain = modeRef.current === 'terrain';
+    const isLight   = isStreet || isTerrain;
     // OSM tiles are colourful and busy — drop the boundary alpha so the
     // state lines read as a quiet divider rather than a heavy outline.
-    const lineColor      = isStreet ? 'rgba(40,55,80,0.32)'
-                          : isLight ? 'rgba(0,0,0,0.75)'
-                                    : 'rgba(255,255,255,0.7)';
+    // OpenTopoMap is similarly busy; soften the terrain outline too.
+    const lineColor      = isStreet  ? 'rgba(40,55,80,0.32)'
+                          : isTerrain ? 'rgba(0,0,0,0.38)'
+                          : isLight   ? 'rgba(0,0,0,0.75)'
+                                      : 'rgba(255,255,255,0.7)';
     const lineColorHover = isLight  ? 'rgba(0,0,0,0.95)'    : '#ffb366';
     const fillColorHover = isLight  ? 'rgba(0,0,0,0.08)'    : 'rgba(255,180,80,0.18)';
-    const lineWidthBase  = isStreet ? 0.6 : 1.0;
+    const lineWidthBase  = isStreet || isTerrain ? 0.7 : 1.0;
 
     // Source — polygons (boundary + hover hit-testing)
     if (!m.getSource(SOURCE_IDS.india)) {

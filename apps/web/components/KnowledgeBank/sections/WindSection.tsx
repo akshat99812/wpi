@@ -173,8 +173,9 @@ export default function WindSection({ bundle, selectedState }: Props) {
   // Default falls back to MNRE FY26 close national wind total
   // (56,090 MW, 31 Mar 2026) when the live bundle is unavailable.
   const installedMw  = bundle?.capacity?.installed_mw ?? 56_090;
-  const installedGw  = (installedMw / 1000).toFixed(2);
+  const installedGw  = Math.round(installedMw / 1000).toString();
   const potentialGw  = 1163.86;
+  const potentialGwDisplay = Math.round(potentialGw).toLocaleString();
   const realisation  = ((installedMw / 1000) / potentialGw * 100).toFixed(2);
   const maxStateGw   = Math.max(...STATE_POTENTIAL_150M.map(s => s.gw));
 
@@ -206,11 +207,11 @@ export default function WindSection({ bundle, selectedState }: Props) {
         <HeadlineMetric delay={60} emphasis accent="#ff8a1f"
           label="Installed (All-India)"
           value={`${installedGw} GW`}
-          caption="MNRE physical progress · FY26 close (31 Mar 2026) · +6.05 GW added"
+          caption="MNRE physical progress · FY26 close (31 Mar 2026) · +6 GW added"
         />
         <HeadlineMetric delay={120} emphasis accent="#7bc4e2"
           label="Onshore 150 m Potential"
-          value={`${potentialGw.toLocaleString()} GW`}
+          value={`${potentialGwDisplay} GW`}
           caption="NIWE 150 m Wind Potential Atlas"
         />
         <HeadlineMetric delay={180} emphasis accent="#4cc87a"

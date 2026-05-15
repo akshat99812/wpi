@@ -10,7 +10,7 @@ export const BASEMAP_LABELS: Record<BasemapId, string> = {
 };
 
 // 'pro' is currently locked — only these are selectable.
-export const ENABLED_BASEMAPS: BasemapId[] = ['satellite', 'terrain', 'wind', 'street', 'pro'];
+export const ENABLED_BASEMAPS: BasemapId[] = ['satellite', 'terrain', 'street', 'wind', 'pro'];
 export const LOCKED_BASEMAPS: BasemapId[]  = ['pro'];
 
 // ── Tile styles ────────────────────────────────────────────────────────────
