@@ -57,11 +57,11 @@ const HERO_STATS: HeroStat[] = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen w-full bg-[#090d18] text-text">
+    <div className="min-h-screen w-full bg-[#090d18] text-text flex flex-col">
       <TopBar showEngines={false} />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-[#1a2540]">
+      <section className="flex-1 relative overflow-hidden border-b border-[#1a2540]">
         {/* Soft orange wash + faint grid pattern for depth */}
         <div
           aria-hidden
@@ -80,17 +80,17 @@ export default function Landing() {
           }}
         />
 
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-28 pb-32 lg:pt-40 lg:pb-44 flex flex-col items-center text-center">
+        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-10 pb-10 lg:pt-14 lg:pb-14 flex flex-col items-center text-center">
           {/* Headline + typewriter rotator below — single-line via fluid clamp */}
           <h1 className="whitespace-nowrap text-[clamp(22px,5vw,46px)] font-bold leading-[1.05] tracking-tight text-text">
-            Geospatial Wind{' '}
+            Geospatial Wind,{' '}
             <span className="bg-gradient-to-r from-orange to-[#ffd0a0] bg-clip-text text-transparent">
               Intelligence
             </span>{' '}
             Terminal.
           </h1>
 
-          <div className="mt-8 lg:mt-10 flex items-baseline justify-center gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
+          <div className="mt-4 lg:mt-5 flex items-baseline justify-center gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
             <span className="text-orange/85">›</span>
             <TypingAnimation
               words={["Map 🗺️", "Analyse 📊", "Tender 📑", "Finance 💼", "Research 🔬"]}
@@ -100,35 +100,35 @@ export default function Landing() {
             />
           </div>
 
-          <p className="mt-10 lg:mt-12 max-w-[60ch] text-[15px] lg:text-[16px] leading-relaxed text-muted/95">
+          <p className="mt-5 lg:mt-6 max-w-[60ch] text-[14px] lg:text-[15px] leading-relaxed text-muted/95">
             Open intelligence portal for India&apos;s wind sector built on four decades of
             capacity, tariffs, policy, grid, and resource data.
           </p>
 
-          <p className="mt-3 text-[12px] lg:text-[13px] font-medium tracking-tight text-muted/70">
+          <p className="mt-2 text-[11.5px] lg:text-[12.5px] font-medium tracking-tight text-muted/70">
             Built by <span className="text-orange/90">Consolidated Energy Consultants Ltd.</span>
             <span className="text-muted/45"> · </span>
             <span className="tabular-nums">1986</span>
           </p>
 
           {/* Primary CTA — centred shiny pill */}
-          <div className="mt-16 lg:mt-20 flex justify-center">
+          <div className="mt-7 lg:mt-9 flex justify-center">
             <ShinyButton
               href="/dashboard"
-              className="px-7 lg:px-9 py-3.5 lg:py-4 text-[15px] lg:text-[17px]"
+              className="px-6 lg:px-8 py-3 lg:py-3.5 text-[14px] lg:text-[16px]"
             >
               Enter portal
-              <span className="text-[16px] lg:text-[18px]">→</span>
+              <span className="text-[15px] lg:text-[17px]">→</span>
             </ShinyButton>
           </div>
 
           {/* Hero stat ticker — premium cards in an auto-scrolling marquee,
               pauses on hover so the user can read individual tiles. */}
-          <div className="mt-20 lg:mt-28 relative">
+          <div className="mt-9 lg:mt-11 relative w-full">
             <Marquee
               pauseOnHover
               repeat={4}
-              className="[--duration:46s] [--gap:14px] py-4"
+              className="[--duration:46s] [--gap:14px] py-2"
             >
               {HERO_STATS.map(s => <HeroStatCard key={s.label} stat={s} />)}
             </Marquee>
