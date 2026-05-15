@@ -254,6 +254,59 @@ export default function ResearchDashboard() {
         ))}
       </div>
 
+      {/* Directory of Indian Windpower 2025 — purchase CTA */}
+      <a
+        href="https://www.amazon.in/Directory-Indian-Windpower-2025-Jubilee/dp/B0FVFY1ZHW"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group relative overflow-hidden mt-2 flex items-center justify-between gap-4
+                   rounded-xl border border-orange/30
+                   bg-gradient-to-br from-[#1a140a] via-[#0f1424] to-[#0a0e18]
+                   px-4 py-3.5
+                   hover:border-orange/55 transition-colors"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full
+                     bg-orange/15 blur-3xl"
+        />
+
+        <div className="flex items-center gap-3.5 relative">
+          {/* Book spine glyph — inline SVG so we don't pull an icon lib */}
+          <div className="shrink-0 w-9 h-11 rounded-[3px] bg-gradient-to-b from-orange to-[#c25e10]
+                          shadow-[0_4px_12px_-4px_rgba(255,138,31,0.55)] flex items-center justify-center
+                          border-l-[3px] border-l-[#7d3a08]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0a0e18" strokeWidth="2"
+                 strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden>
+              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5z" />
+              <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 18.5" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-[9.5px] uppercase tracking-[0.16em] text-orange/85 font-bold">
+              Reference · Print Edition
+            </div>
+            <div className="text-[13px] font-bold text-text leading-tight mt-0.5">
+              Directory of Indian Windpower 2025
+            </div>
+            <div className="text-[10.5px] text-muted leading-snug mt-0.5">
+              CECL Silver Jubilee edition · OEMs, IPPs, EPCs, consultants
+            </div>
+          </div>
+        </div>
+
+        <span className="relative inline-flex items-center gap-1.5 rounded-lg
+                         bg-gradient-to-r from-orange to-[#ffb066]
+                         text-[#0a0e18] px-3.5 py-2
+                         text-[11.5px] font-bold tracking-tight whitespace-nowrap
+                         shadow-[0_8px_20px_-8px_rgba(255,138,31,0.55)]
+                         group-hover:shadow-[0_12px_28px_-8px_rgba(255,138,31,0.70)]
+                         transition-shadow">
+          Buy on Amazon
+          <span className="transition-transform duration-200 group-hover:translate-x-0.5">↗</span>
+        </span>
+      </a>
+
       {/* CECL Pro teaser */}
       <div className="p-4 rounded-xl bg-gradient-to-br from-[#0f1a0d] to-[#0d0d0d] border border-[#2a4020] flex justify-between items-center mt-2">
         <div>

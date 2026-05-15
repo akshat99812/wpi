@@ -8,10 +8,70 @@ import EngineModal from './Engines/EngineModal';
 
 type EngineType = 'Finance' | 'Research' | 'Operators';
 
-const ENGINES: { id: EngineType; icon: string; desc: string }[] = [
-  { id: 'Finance',   icon: '📊', desc: 'DCF & Bankability' },
-  { id: 'Research',  icon: '🔬', desc: 'Resource Intelligence' },
-  { id: 'Operators', icon: '⚙️', desc: 'Fleet & O&M' },
+// Inline icons — line-style, currentColor, so they inherit the surrounding
+// text colour and tone with each engine's hover palette.
+const FinanceIcon = ({ className = '' }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden
+  >
+    <path d="M3.5 20h17" />
+    <path d="M7 20v-5" />
+    <path d="M12 20v-9" />
+    <path d="M17 20v-7" />
+    <path d="M4.5 9.5L9 6.5l4 2 6.5-4.5" />
+    <path d="M16 4h3.5V7.5" />
+  </svg>
+);
+
+const ResearchIcon = ({ className = '' }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden
+  >
+    <circle cx="10.5" cy="10.5" r="6.25" />
+    <path d="M10.5 7.5v6" />
+    <path d="M7.5 10.5h6" />
+    <path d="M15.25 15.25L20 20" />
+  </svg>
+);
+
+const OperatorsIcon = ({ className = '' }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden
+  >
+    <circle cx="12" cy="12" r="2.75" />
+    <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.1 5.1l2.1 2.1M16.8 16.8l2.1 2.1M5.1 18.9l2.1-2.1M16.8 7.2l2.1-2.1" />
+  </svg>
+);
+
+const ENGINES: {
+  id: EngineType;
+  Icon: React.ComponentType<{ className?: string }>;
+  desc: string;
+}[] = [
+  { id: 'Finance',   Icon: FinanceIcon,   desc: 'DCF & Bankability' },
+  { id: 'Research',  Icon: ResearchIcon,  desc: 'Resource Intelligence' },
+  { id: 'Operators', Icon: OperatorsIcon, desc: 'Fleet & O&M' },
 ];
 
 // Animation variants
@@ -123,12 +183,12 @@ export default function TopBar({
         {/* ── Brand ── */}
         <motion.div variants={itemVariants} className="flex items-center gap-2 lg:gap-4 z-10 min-w-0">
           {/* Logo */}
-          <div className="relative w-8 h-8 sm:w-12 sm:h-12 lg:w-20 lg:h-20 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="relative w-11 h-11 sm:w-16 sm:h-16 lg:w-28 lg:h-28 flex items-center justify-center overflow-hidden flex-shrink-0">
             <Image
               src="/logo.svg"
               alt="CECL Energy"
-              width={80}
-              height={80}
+              width={112}
+              height={112}
               className="object-contain w-full h-full"
               priority
             />
@@ -226,14 +286,16 @@ export default function TopBar({
                       : 'border-transparent hover:bg-white/5'
                   }`}
                 >
-                  <motion.span 
-                    className="text-[14px] lg:text-[18px] group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300 drop-shadow-md"
+                  <motion.span
+                    className={`inline-flex items-center justify-center w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300 ${
+                      hoveredEngine === engine.id ? textColors[idx] : 'text-white/65'
+                    }`}
                     animate={hoveredEngine === engine.id ? {
                       rotate: [0, 10, -10, 0],
                       transition: { duration: 0.5 }
                     } : {}}
                   >
-                    {engine.icon}
+                    <engine.Icon className="w-full h-full" />
                   </motion.span>
                   <div className="hidden sm:flex flex-col items-start">
                     <span className={`text-[12.5px] font-bold leading-tight transition-colors duration-300 ${

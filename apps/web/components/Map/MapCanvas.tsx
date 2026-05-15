@@ -21,7 +21,6 @@ import { useWindLayer }       from './hooks/useWindLayer';
 import { BasemapSwitcher }    from './components/BasemapSwitcher';
 import { WindLegend }         from './components/WindLegend';
 import { StateTooltip }       from './components/StateTooltip';
-import { SelectedBadge }      from './components/SelectedBadge';
 import { CursorReadoutBar }   from './components/CursorReadout';
 import { FullscreenButton }   from './components/FullscreenButton';
 
@@ -170,13 +169,6 @@ export default function MapCanvas({
           containerWidth={containerRef.current?.offsetWidth}
           containerHeight={containerRef.current?.offsetHeight}
         />
-      )}
-
-      {/* Selected-state badge */}
-      {selectedState && (
-        <div className="absolute bottom-14 left-1/2 -translate-x-1/2 z-20">
-          <SelectedBadge state={selectedState} />
-        </div>
       )}
 
       {/* Bottom-center: lat/lng/zoom readout. The km scale bar from

@@ -1,18 +1,57 @@
 import Link from "next/link";
 import TopBar from "@/components/TopBar";
+import { TypingAnimation } from "@/registry/magicui/typing-animation";
+import { Marquee } from "@/registry/magicui/marquee";
 
 export const metadata = {
   title: 'Wind Power India — Geospatial Intelligence Portal',
   description: 'Live wind energy intelligence for India: capacity, auctions, tariffs, policy, and grid data anchored to MNRE, NIWE, SECI, and state SERCs.',
 };
 
+type HeroStat = {
+  value: string;
+  label: string;
+  source: string;
+  asOf: string;
+  delta?: { value: string; trend: 'up' | 'down' | 'flat' };
+  glyph: 'turbine' | 'gauge' | 'map' | 'gavel';
+};
+
 // Hero stat tiles. Numbers sourced from MNRE RE-Statistics 2024-25
 // (31.03.2025 close) and NIWE @150 m atlas.
-const HERO_STATS = [
-  { value: '50,038 MW',  label: 'India wind fleet',     hint: '31 Mar 2025 · MNRE' },
-  { value: '1,163.86 GW', label: '@150 m potential',     hint: 'NIWE 2023' },
-  { value: '11',          label: 'wind states tracked',  hint: 'plus 25 UTs surfaced' },
-  { value: '21 live',     label: 'SECI tenders',         hint: 'scraped hourly' },
+const HERO_STATS: HeroStat[] = [
+  {
+    value: '50,038 MW',
+    label: 'India wind fleet',
+    source: 'MNRE',
+    asOf: '31 Mar 2025',
+    delta: { value: '+3.42 GW FY25', trend: 'up' },
+    glyph: 'turbine',
+  },
+  {
+    value: '1,163.86 GW',
+    label: '@150 m potential',
+    source: 'NIWE Atlas',
+    asOf: '2023',
+    delta: { value: '~7× installed', trend: 'up' },
+    glyph: 'gauge',
+  },
+  {
+    value: '11',
+    label: 'wind states tracked',
+    source: 'CECL · State SERCs',
+    asOf: 'live',
+    delta: { value: '+25 UTs surfaced', trend: 'flat' },
+    glyph: 'map',
+  },
+  {
+    value: '21 live',
+    label: 'SECI tenders',
+    source: 'SECI feed',
+    asOf: 'scraped hourly',
+    delta: { value: 'auctions · FDRE · RfS', trend: 'up' },
+    glyph: 'gavel',
+  },
 ];
 
 const FEATURES = [
@@ -49,7 +88,7 @@ export default function Landing() {
       <TopBar />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-white/[0.06]">
+      <section className="relative overflow-hidden border-b border-[#1a2540]">
         {/* Soft orange wash + faint grid pattern for depth */}
         <div
           aria-hidden
@@ -68,17 +107,9 @@ export default function Landing() {
           }}
         />
 
-        <div className="relative max-w-6xl mx-auto px-6 lg:px-8 pt-20 pb-24 lg:pt-28 lg:pb-32">
-          {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em]">
-            <span className="w-1.5 h-1.5 rounded-full bg-success shadow-[0_0_8px_rgba(76,200,122,0.7)]" />
-            <span className="text-orange">Wind Power India</span>
-            <span className="text-white/25">·</span>
-            <span className="text-white/55">v1.0</span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="mt-5 max-w-[20ch] text-[42px] sm:text-[56px] lg:text-[68px] font-bold leading-[1.02] tracking-tight text-white">
+        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-20 pb-24 lg:pt-28 lg:pb-32">
+          {/* Headline + typewriter rotator below */}
+          <h1 className="max-w-[20ch] text-[42px] sm:text-[56px] lg:text-[64px] font-bold leading-[1.02] tracking-tight text-text">
             Geospatial wind{' '}
             <span className="bg-gradient-to-r from-orange to-[#ffd0a0] bg-clip-text text-transparent">
               intelligence
@@ -86,7 +117,17 @@ export default function Landing() {
             terminal.
           </h1>
 
-          <p className="mt-5 max-w-[60ch] text-[15px] lg:text-[16px] leading-relaxed text-white/65">
+          <div className="mt-4 flex items-baseline gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
+            <span className="text-orange/85">›</span>
+            <TypingAnimation
+              words={["Map 🗺️", "Analyse 📊", "Tender 📑", "Bank 💼", "Ship 🚀"]}
+              loop
+              cursorClassName="text-orange/80"
+              className="text-text"
+            />
+          </div>
+
+          <p className="mt-6 max-w-[60ch] text-[15px] lg:text-[16px] leading-relaxed text-muted/95">
             Open intelligence portal for India&apos;s wind sector — capacity, tariffs,
             policy, grid, and resource data, anchored to authoritative public sources.
             Built for developers, IPPs, OEMs, lenders, regulators, and researchers.
@@ -112,43 +153,41 @@ export default function Landing() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg
-                         border border-white/15 bg-white/[0.04]
-                         text-white px-5 py-3
+                         border border-[#2a3a54] bg-[#0d1424]
+                         text-text px-5 py-3
                          text-[13.5px] font-medium tracking-tight
-                         hover:bg-white/[0.08] hover:border-white/25
+                         hover:bg-[#131826] hover:border-orange/40
                          transition-colors"
             >
               About CECL ↗
             </a>
           </div>
 
-          {/* Hero stat strip */}
-          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-px rounded-xl overflow-hidden bg-white/[0.06] border border-white/[0.08]">
-            {HERO_STATS.map(s => (
-              <div key={s.label} className="bg-[#0b0e14] px-4 py-4">
-                <div className="text-[18px] lg:text-[22px] font-semibold tabular-nums leading-none tracking-tight text-white">
-                  {s.value}
-                </div>
-                <div className="text-[10.5px] text-white/55 mt-1.5 leading-tight">
-                  {s.label}
-                </div>
-                <div className="text-[9.5px] text-white/30 mt-0.5">
-                  {s.hint}
-                </div>
-              </div>
-            ))}
+          {/* Hero stat ticker — premium cards in an auto-scrolling marquee,
+              pauses on hover so the user can read individual tiles. */}
+          <div className="mt-12 relative">
+            <Marquee
+              pauseOnHover
+              repeat={4}
+              className="[--duration:46s] [--gap:14px] py-2"
+            >
+              {HERO_STATS.map(s => <HeroStatCard key={s.label} stat={s} />)}
+            </Marquee>
+            {/* Edge fades so cards bleed in/out softly instead of clipping */}
+            <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#090d18] to-transparent" />
+            <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#090d18] to-transparent" />
           </div>
         </div>
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────── */}
-      <section className="border-b border-white/[0.06]">
+      <section className="border-b border-[#1a2540]">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 py-20 lg:py-24">
           <div className="max-w-[60ch]">
             <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-orange/85">
               Modules
             </div>
-            <h2 className="mt-2 text-[28px] lg:text-[34px] font-semibold tracking-tight text-white leading-tight">
+            <h2 className="mt-2 text-[28px] lg:text-[34px] font-semibold tracking-tight text-text leading-tight">
               Everything you need to track India&apos;s wind sector,
               in one terminal.
             </h2>
@@ -158,19 +197,19 @@ export default function Landing() {
             {FEATURES.map(f => (
               <div
                 key={f.n}
-                className="group relative rounded-xl border border-white/[0.08] bg-white/[0.015] px-5 py-5
-                           hover:bg-white/[0.035] hover:border-white/15 transition-colors"
+                className="group relative rounded-xl border border-[#1f2c44] bg-[#0a0f1c]/60 px-5 py-5
+                           hover:bg-[#0f1424] hover:border-orange/30 transition-colors"
               >
                 <div className="flex items-baseline gap-3 mb-2.5">
                   <span className="text-[11px] font-mono font-medium tabular-nums tracking-wider
                                    text-orange/60 group-hover:text-orange transition-colors">
                     {f.n}
                   </span>
-                  <h3 className="text-[15px] font-semibold text-white leading-tight">
+                  <h3 className="text-[15px] font-semibold text-text leading-tight">
                     {f.title}
                   </h3>
                 </div>
-                <p className="text-[12.5px] text-white/60 leading-relaxed pl-[34px]">
+                <p className="text-[12.5px] text-muted leading-relaxed pl-[34px]">
                   {f.body}
                 </p>
               </div>
@@ -180,18 +219,18 @@ export default function Landing() {
       </section>
 
       {/* ── Sources strip ────────────────────────────────────────────── */}
-      <section className="border-b border-white/[0.06]">
+      <section className="border-b border-[#1a2540]">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 py-12 lg:py-14">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted/65">
               Anchored to
             </span>
             {PILLARS.map(p => (
               <span
                 key={p}
-                className="text-[12px] text-white/75 font-medium
+                className="text-[12px] text-text/85 font-medium
                            px-3 py-1.5 rounded-md
-                           border border-white/[0.10] bg-white/[0.025]"
+                           border border-[#1f2c44] bg-[#0a0f1c]/70"
               >
                 {p}
               </span>
@@ -201,7 +240,7 @@ export default function Landing() {
       </section>
 
       {/* ── Engine teaser ────────────────────────────────────────────── */}
-      <section className="border-b border-white/[0.06]">
+      <section className="border-b border-[#1a2540]">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 py-20 lg:py-24
                         grid grid-cols-1 lg:grid-cols-3 gap-3">
           <EngineCard
@@ -225,7 +264,7 @@ export default function Landing() {
       </section>
 
       {/* ── CTA banner ────────────────────────────────────────────────── */}
-      <section className="border-b border-white/[0.06]">
+      <section className="border-b border-[#1a2540]">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
           <div
             className="relative overflow-hidden rounded-2xl border border-orange/30
@@ -239,10 +278,10 @@ export default function Landing() {
                          bg-orange/15 blur-3xl"
             />
             <div className="relative">
-              <h3 className="text-[22px] lg:text-[28px] font-semibold text-white tracking-tight leading-tight">
+              <h3 className="text-[22px] lg:text-[28px] font-semibold text-text tracking-tight leading-tight">
                 Ready to dive in?
               </h3>
-              <p className="mt-2 text-[13px] lg:text-[14px] text-white/65 max-w-[58ch] leading-relaxed">
+              <p className="mt-2 text-[13px] lg:text-[14px] text-muted/95 max-w-[58ch] leading-relaxed">
                 The dashboard is free, no login required. Premium modules
                 — DCF bankability, fleet O&amp;M diagnostics, and CECL&apos;s
                 40-year proprietary dataset — sit behind the engine buttons.
@@ -268,18 +307,18 @@ export default function Landing() {
       {/* ── Footer ───────────────────────────────────────────────────── */}
       <footer className="bg-[#080b10]">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 py-8 flex flex-wrap items-center justify-between gap-3 text-[11px]">
-          <div className="flex items-center gap-2 text-white/45">
+          <div className="flex items-center gap-2 text-muted/75">
             <span className="text-orange/85 font-medium">Wind Power India</span>
-            <span className="text-white/20">·</span>
+            <span className="text-muted/35">·</span>
             <span>Built by Consolidated Energy Consultants Ltd. (CECL)</span>
           </div>
-          <div className="flex items-center gap-4 text-white/45">
-            <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+          <div className="flex items-center gap-4 text-muted/75">
+            <Link href="/dashboard" className="hover:text-text transition-colors">Dashboard</Link>
             <a
               href="https://cecl.in"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
+              className="hover:text-text transition-colors"
             >
               cecl.in ↗
             </a>
@@ -290,14 +329,125 @@ export default function Landing() {
   );
 }
 
+// ── Hero stat card ────────────────────────────────────────────────────────
+// Premium fixed-width tile used inside the marquee. Each card carries a
+// numeric headline, a contextual label, a small glyph, a source pill, and
+// a delta chip for the "is this trending up?" signal.
+
+const GLYPHS: Record<HeroStat['glyph'], (p: { className?: string }) => JSX.Element> = {
+  turbine: ({ className = '' }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
+         strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M12 13.5V21" />
+      <path d="M9 21h6" />
+      <circle cx="12" cy="12" r="1.4" />
+      <path d="M12 10.6c-.6-2.7-2-5.5-4.6-7.2-.5-.3-1.2 0-1.2.6.2 3 1.7 5.6 4.4 7" />
+      <path d="M13.3 12.7c2.6 1 5.7 1 8.2-.5.5-.3.5-1 0-1.4-2.4-1.7-5.3-2-7.9-1" />
+      <path d="M11.2 13c-1.8 2.2-3 5-3 8.0 0 .55.6.95 1.1.6 2.5-1.6 4.1-4.0 4.4-6.8" />
+    </svg>
+  ),
+  gauge: ({ className = '' }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
+         strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M4 14a8 8 0 0 1 16 0" />
+      <path d="M4 14h2M18 14h2M12 6v2" />
+      <path d="M12 14L15.5 9.5" />
+      <circle cx="12" cy="14" r="1.2" />
+    </svg>
+  ),
+  map: ({ className = '' }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
+         strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M3 6.5l6-2 6 2 6-2v13l-6 2-6-2-6 2v-13z" />
+      <path d="M9 4.5v13M15 6.5v13" />
+    </svg>
+  ),
+  gavel: ({ className = '' }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
+         strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M14 4l6 6" />
+      <path d="M16.5 1.5l6 6" />
+      <path d="M9.5 8.5l6 6" />
+      <path d="M11 11l-7 7 2 2 7-7" />
+      <path d="M3 21h8" />
+    </svg>
+  ),
+};
+
+function HeroStatCard({ stat }: { stat: HeroStat }) {
+  const Glyph = GLYPHS[stat.glyph];
+  const trendColor =
+    stat.delta?.trend === 'up'   ? 'text-success'
+  : stat.delta?.trend === 'down' ? 'text-[#ff7a7a]'
+  :                                'text-muted/85';
+  const trendArrow =
+    stat.delta?.trend === 'up'   ? '↗'
+  : stat.delta?.trend === 'down' ? '↘'
+  :                                '→';
+
+  return (
+    <div className="group/card relative w-[280px] sm:w-[300px] shrink-0
+                    rounded-2xl border border-[#1f2c44]
+                    bg-gradient-to-b from-[#0f1424] to-[#0a0f1c]
+                    px-5 py-4
+                    shadow-[0_8px_28px_-12px_rgba(0,0,0,0.6)]
+                    hover:border-orange/40 hover:-translate-y-0.5
+                    transition-all duration-200">
+      {/* Soft top-right accent glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full
+                   bg-orange/10 blur-2xl opacity-0 group-hover/card:opacity-100 transition-opacity"
+      />
+
+      {/* Header row: glyph + label */}
+      <div className="relative flex items-center gap-2.5">
+        <div className="shrink-0 w-8 h-8 rounded-lg
+                        bg-[#131826] border border-[#1f2c44]
+                        text-orange/85 flex items-center justify-center">
+          <Glyph className="w-4 h-4" />
+        </div>
+        <div className="text-[10.5px] uppercase tracking-[0.14em] font-semibold text-muted/80 leading-tight">
+          {stat.label}
+        </div>
+      </div>
+
+      {/* Headline value */}
+      <div className="relative mt-3 text-[26px] sm:text-[28px] font-bold tabular-nums leading-none tracking-tight
+                      text-text">
+        {stat.value}
+      </div>
+
+      {/* Delta chip */}
+      {stat.delta && (
+        <div className={`relative mt-2.5 inline-flex items-center gap-1 text-[10.5px] font-medium ${trendColor}`}>
+          <span className="tabular-nums">{trendArrow}</span>
+          <span>{stat.delta.value}</span>
+        </div>
+      )}
+
+      {/* Source row */}
+      <div className="relative mt-3 pt-2.5 border-t border-[#1a2540]/80
+                      flex items-center justify-between gap-2 text-[9.5px]">
+        <span className="px-1.5 py-0.5 rounded
+                         border border-[#1f2c44] bg-[#0a0f1c]
+                         text-text/80 font-medium tracking-wide">
+          {stat.source}
+        </span>
+        <span className="text-muted/55 tabular-nums">{stat.asOf}</span>
+      </div>
+    </div>
+  );
+}
+
 function EngineCard({
   eyebrow, title, body, badge,
 }: {
   eyebrow: string; title: string; body: string; badge?: string;
 }) {
   return (
-    <div className="relative rounded-xl border border-white/[0.08] bg-white/[0.015] p-5
-                    hover:bg-white/[0.035] hover:border-white/15 transition-colors">
+    <div className="relative rounded-xl border border-[#1f2c44] bg-[#0a0f1c]/60 p-5
+                    hover:bg-[#0f1424] hover:border-orange/30 transition-colors">
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-orange/85">
           {eyebrow}
@@ -310,8 +460,8 @@ function EngineCard({
           </span>
         )}
       </div>
-      <h3 className="text-[16px] font-semibold text-white leading-tight">{title}</h3>
-      <p className="mt-1.5 text-[12px] text-white/60 leading-relaxed">{body}</p>
+      <h3 className="text-[16px] font-semibold text-text leading-tight">{title}</h3>
+      <p className="mt-1.5 text-[12px] text-muted leading-relaxed">{body}</p>
     </div>
   );
 }

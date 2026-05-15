@@ -68,3 +68,27 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Marquee (magicui registry/marquee) ───────────────────────────────────
+   --duration and --gap are set per-instance via inline arbitrary values
+   like `[--duration:30s]`. The track is rendered N times so we can scroll
+   by `calc(-100% - gap)` and have the next copy line up seamlessly. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--gap, 1rem))); }
+}
+@keyframes marquee-vertical {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - var(--gap, 1rem))); }
+}
+.animate-marquee {
+  animation: marquee var(--duration, 40s) linear infinite;
+}
+.animate-marquee-vertical {
+  animation: marquee-vertical var(--duration, 40s) linear infinite;
+}
+/* Pause every animated track inside a marquee that opts in via `.marquee-pause`. */
+.marquee-pause:hover .animate-marquee,
+.marquee-pause:hover .animate-marquee-vertical {
+  animation-play-state: paused;
+}

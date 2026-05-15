@@ -79,7 +79,26 @@ export function getStyle(mode: BasemapId): any {
     },
     layers: [{ id: 'ter', type: 'raster', source: 'ter' }],
   };
-  if (mode === 'street') return 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
+  if (mode === 'street') return {
+    // Standard OpenStreetMap raster tiles. ODbL — credited via attribution.
+    // Sub-domains a/b/c shard so tiles load in parallel.
+    version: 8,
+    sources: {
+      osm: {
+        type: 'raster',
+        tiles: [
+          'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution:
+          '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+      },
+    },
+    layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+  };
   return 'https://tiles.openfreemap.org/styles/liberty';
 }
 
@@ -88,17 +107,17 @@ export function getStyle(mode: BasemapId): any {
 // cumulative as on 31 Mar 2025). All numbers rounded to nearest MW.
 // Potential GW values are NIWE @150 m AGL.
 export const STATE_DATA: Record<string, StateMeta> = {
-  'Gujarat':          { lon: 71.57, lat: 22.26, mw: 12677, plf: 34, windMs: 7.2, potential: 142 },
-  'Tamil Nadu':       { lon: 78.66, lat: 11.13, mw: 11740, plf: 36, windMs: 7.8, potential: 103 },
-  'Karnataka':        { lon: 75.71, lat: 15.32, mw: 7351,  plf: 30, windMs: 6.8, potential: 55  },
-  'Maharashtra':      { lon: 75.71, lat: 19.75, mw: 5285,  plf: 26, windMs: 6.2, potential: 62  },
-  'Rajasthan':        { lon: 74.22, lat: 27.02, mw: 5209,  plf: 32, windMs: 7.5, potential: 128 },
-  'Andhra Pradesh':   { lon: 79.74, lat: 15.91, mw: 4377,  plf: 28, windMs: 7.0, potential: 44  },
-  'Madhya Pradesh':   { lon: 78.66, lat: 22.97, mw: 3195,  plf: 26, windMs: 5.8, potential: 23  },
-  'Telangana':        { lon: 79.02, lat: 18.11, mw: 128,   plf: 22, windMs: 6.5, potential: 18  },
+  'Gujarat':          { lon: 71.57, lat: 22.26, mw: 12677, plf: 34, windMs: 7.2, potential: 181 },
+  'Tamil Nadu':       { lon: 78.66, lat: 11.13, mw: 11740, plf: 36, windMs: 7.8, potential: 95 },
+  'Karnataka':        { lon: 75.71, lat: 15.32, mw: 7351,  plf: 30, windMs: 6.8, potential: 169  },
+  'Maharashtra':      { lon: 75.71, lat: 19.75, mw: 5285,  plf: 26, windMs: 6.2, potential: 174  },
+  'Rajasthan':        { lon: 74.22, lat: 27.02, mw: 5209,  plf: 32, windMs: 7.5, potential: 284 },
+  'Andhra Pradesh':   { lon: 79.74, lat: 15.91, mw: 4377,  plf: 28, windMs: 7.0, potential: 123  },
+  'Madhya Pradesh':   { lon: 78.66, lat: 22.97, mw: 3195,  plf: 26, windMs: 5.8, potential: 55  },
+  'Telangana':        { lon: 79.02, lat: 18.11, mw: 128,   plf: 22, windMs: 6.5, potential: 55  },
   // Kerala — Palakkad gap (Agali / Ramakkalmedu cluster). Small installed
   // base, modest PLF; NIWE pegs the @100 m potential at ~1.7 GW.
-  'Kerala':           { lon: 76.70, lat: 10.85, mw: 71,    plf: 20, windMs: 5.5, potential: 2   },
+  'Kerala':           { lon: 76.70, lat: 10.85, mw: 71,    plf: 20, windMs: 5.5, potential: 3   },
 };
 
 // GeoJSON NAME_1 → STATE_DATA key

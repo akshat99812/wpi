@@ -5,23 +5,22 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import type { WpiBundle } from '@/lib/types';
 import type { BasemapId } from './Map/types';
+import { NumberTicker } from '@/registry/magicui/number-ticker';
 
 const MODE_LABELS: Record<BasemapId, string> = {
-  satellite: '🛰 Satellite',
-  terrain:   '⛰ Terrain',
-  wind:      '💨 Wind',
-  street:    '🗺 Street',
-  pro:       '⚫ Pro',
+  satellite: 'Satellite',
+  terrain:   'Terrain',
+  wind:      'Wind',
+  street:    'Street',
+  pro:       'Pro',
 };
 
 interface Props {
   bundle?:        WpiBundle | null;
   basemap:        BasemapId;
-  selectedState:  string | null;
-  onStateClear:   () => void;
 }
 
-export default function ContextBar({ bundle, basemap, selectedState, onStateClear }: Props) {
+export default function ContextBar({ bundle, basemap }: Props) {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -51,22 +50,6 @@ export default function ContextBar({ bundle, basemap, selectedState, onStateClea
   return (
     <div className="flex-none px-4 py-1.5 bg-[#07090f]/90 backdrop-blur-sm border-b border-white/5 flex items-center gap-3 overflow-x-auto no-scrollbar">
 
-      {/* Scope */}
-      <div className="flex items-center gap-1.5 px-2.5 py-[5px] rounded-full border border-[#1e2c44] bg-[#0d1628]/80 text-[10px] font-bold text-text shrink-0">
-        <span>🌏</span><span>India</span>
-      </div>
-
-      {/* Selected state chip */}
-      {selectedState && (
-        <div className="flex items-center gap-1.5 px-2.5 py-[5px] rounded-full border border-orange/30 bg-orange/10 text-[10px] font-bold text-orange shrink-0">
-          <span>📍</span>
-          <span>{selectedState}</span>
-          <button onClick={onStateClear} className="opacity-60 hover:opacity-100 ml-0.5 leading-none font-bold">×</button>
-        </div>
-      )}
-
-      <div className="w-px h-4 bg-white/10 shrink-0" />
-
       {/* Source health */}
       <div className={`flex items-center gap-1.5 px-2.5 py-[5px] rounded-full border text-[10px] font-bold shrink-0 ${
         allOk ? 'bg-[#0d1c10]/80 border-[#1d3020]/60 text-[#4cc87a]'
@@ -74,7 +57,12 @@ export default function ContextBar({ bundle, basemap, selectedState, onStateClea
         : 'bg-[#1c0d0d]/80 border-[#3a1515]/60 text-[#e85c5c]'
       }`}>
         <div className={`w-1.5 h-1.5 rounded-full ${allOk ? 'bg-[#4cc87a]' : marginal ? 'bg-[#ffb066]' : 'bg-[#e85c5c]'}`} />
-        <span suppressHydrationWarning>{ok}/{total} sources</span>
+        <span suppressHydrationWarning className="flex items-center gap-0.5">
+          <NumberTicker value={ok} className="tabular-nums" />
+          <span className="opacity-70">/</span>
+          <NumberTicker value={total} className="tabular-nums" />
+          <span className="ml-1">sources</span>
+        </span>
       </div>
 
       {/* Data age */}
@@ -87,7 +75,7 @@ export default function ContextBar({ bundle, basemap, selectedState, onStateClea
 
       {/* Active basemap badge (read-only — switcher is on the map) */}
       <div className="flex items-center gap-1.5 px-2.5 py-[5px] rounded-full border border-[#1e2c44] bg-[#0d1628]/80 text-[10px] font-bold text-muted shrink-0">
-        <span>🗺</span>
+        <span className="text-[9px] uppercase tracking-[0.14em] text-muted/55">Basemap</span>
         <span>{MODE_LABELS[basemap]}</span>
       </div>
 

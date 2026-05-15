@@ -181,10 +181,16 @@ export function useStateBoundaries({ mapRef: _mapRef, modeRef, stateRef, selectR
     // The map could have been torn down or restyled mid-fetch.
     if (!m.getCanvas()) return;
 
-    const isLight = modeRef.current === 'street' || modeRef.current === 'terrain';
-    const lineColor      = isLight ? 'rgba(0,0,0,0.75)'    : 'rgba(255,255,255,0.7)';
-    const lineColorHover = isLight ? 'rgba(0,0,0,0.95)'    : '#ffb366';
-    const fillColorHover = isLight ? 'rgba(0,0,0,0.08)'    : 'rgba(255,180,80,0.18)';
+    const isStreet = modeRef.current === 'street';
+    const isLight  = isStreet || modeRef.current === 'terrain';
+    // OSM tiles are colourful and busy — drop the boundary alpha so the
+    // state lines read as a quiet divider rather than a heavy outline.
+    const lineColor      = isStreet ? 'rgba(40,55,80,0.32)'
+                          : isLight ? 'rgba(0,0,0,0.75)'
+                                    : 'rgba(255,255,255,0.7)';
+    const lineColorHover = isLight  ? 'rgba(0,0,0,0.95)'    : '#ffb366';
+    const fillColorHover = isLight  ? 'rgba(0,0,0,0.08)'    : 'rgba(255,180,80,0.18)';
+    const lineWidthBase  = isStreet ? 0.6 : 1.0;
 
     // Source — polygons (boundary + hover hit-testing)
     if (!m.getSource(SOURCE_IDS.india)) {
@@ -241,7 +247,7 @@ export function useStateBoundaries({ mapRef: _mapRef, modeRef, stateRef, selectR
             'case',
             ['boolean', ['feature-state', 'hover'], false],
             3.5,
-            1.0,
+            lineWidthBase,
           ],
         },
       });

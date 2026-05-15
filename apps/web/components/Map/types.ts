@@ -27,8 +27,8 @@ export interface CursorReadout {
   lng: number;
   lat: number;
   zoom: number;
-  /** Elevation in metres at the cursor position. Populated only in
-   *  terrain mode; null otherwise (or while a fresh sample is in flight). */
+  /** Elevation in metres at the cursor position. null while a fresh
+   *  sample is in flight or when outside the elevation grid. */
   elevation?: number | null;
 }
 

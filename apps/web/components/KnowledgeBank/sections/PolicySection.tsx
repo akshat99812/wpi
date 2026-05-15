@@ -388,6 +388,33 @@ function classifyLink(url: string): LinkKind {
   return 'policy';
 }
 
+// Show only links published / effective in 2023 or later. "Ongoing"
+// (regulator pages, live indexes) is always kept. For range labels like
+// "2017-22" we take the latest 4-digit year — both years < 2023 → drop;
+// "2022-2027" → 2027 ≥ 2023 → keep.
+const MIN_YEAR = 2023;
+function isCurrentYear(year: string): boolean {
+  if (/ongoing/i.test(year)) return true;
+  const ys = (year.match(/\b(19|20)\d{2}\b/g) ?? []).map(Number);
+  if (ys.length === 0) {
+    // Tokens like "FY25" / "2024-25" — pull the trailing 2-digit FY.
+    const fy = year.match(/\b(?:fy)?(\d{2})\b/i);
+    if (fy && fy[1]) {
+      const yyyy = 2000 + parseInt(fy[1], 10);
+      return yyyy >= MIN_YEAR;
+    }
+    return false;
+  }
+  return Math.max(...ys) >= MIN_YEAR;
+}
+
+// Drop links pre-2023, then drop groups that are left empty.
+function filterRecent(groups: PolicyGroup[]): PolicyGroup[] {
+  return groups
+    .map(g => ({ ...g, links: g.links.filter(l => isCurrentYear(l.year)) }))
+    .filter(g => g.links.length > 0);
+}
+
 export default function PolicySection({ bundle: _bundle, selectedState }: Props) {
   // ── India view (unchanged) ───────────────────────────────────────────
   if (!selectedState) {
@@ -407,7 +434,7 @@ export default function PolicySection({ bundle: _bundle, selectedState }: Props)
           accent="#ffd0a0"
         >
           <div className="flex flex-col gap-4">
-            {POLICY_LINKS_BY_ISSUER.map(group => (
+            {filterRecent(POLICY_LINKS_BY_ISSUER).map(group => (
               <div key={group.issuer} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <span
@@ -462,7 +489,8 @@ export default function PolicySection({ bundle: _bundle, selectedState }: Props)
   }
 
   // ── State view (redesigned) ──────────────────────────────────────────
-  const groups: PolicyGroup[] = STATE_POLICY_LINKS[selectedState] ?? [];
+  // Filter to 2023+ at render time. Source data is preserved verbatim.
+  const groups: PolicyGroup[] = filterRecent(STATE_POLICY_LINKS[selectedState] ?? []);
   const profile = STATE_PROFILES[selectedState] ?? null;
 
   if (groups.length === 0) {
