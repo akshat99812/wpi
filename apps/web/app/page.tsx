@@ -22,15 +22,15 @@ type HeroStat = {
 // (31.03.2025 close) and NIWE @150 m atlas.
 const HERO_STATS: HeroStat[] = [
   {
-    value: '50,038 MW',
+    value: '56,090 MW',
     label: 'India wind fleet',
     source: 'MNRE',
-    asOf: '31 Mar 2025',
-    delta: { value: '+3.42 GW FY25', trend: 'up' },
+    asOf: '31 Mar 2026',
+    delta: { value: '+6.05 GW FY26 (record)', trend: 'up' },
     glyph: 'turbine',
   },
   {
-    value: '1,163.86 GW',
+    value: '1,164 GW',
     label: '@150 m potential',
     source: 'NIWE Atlas',
     asOf: '2023',
@@ -102,8 +102,13 @@ export default function Landing() {
 
           <p className="mt-10 lg:mt-12 max-w-[60ch] text-[15px] lg:text-[16px] leading-relaxed text-muted/95">
             Open intelligence portal for India&apos;s wind sector built on four decades of
-            CECL research — capacity, tariffs, policy, grid, and resource data, anchored
-            to authoritative public sources.
+            capacity, tariffs, policy, grid, and resource data.
+          </p>
+
+          <p className="mt-3 text-[12px] lg:text-[13px] font-medium tracking-tight text-muted/70">
+            Built by <span className="text-orange/90">Consolidated Energy Consultants Ltd.</span>
+            <span className="text-muted/45"> · </span>
+            <span className="tabular-nums">1986</span>
           </p>
 
           {/* Primary CTA — centred shiny pill */}

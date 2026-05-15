@@ -170,9 +170,9 @@ export default function WindSection({ bundle, selectedState }: Props) {
   }
 
   // ── India-wide view ──────────────────────────────────────────────────────
-  // Default falls back to MNRE RE-Statistics 2024-25 national wind total
-  // (50,038 MW, 31 Mar 2025) when the live bundle is unavailable.
-  const installedMw  = bundle?.capacity?.installed_mw ?? 50_038;
+  // Default falls back to MNRE FY26 close national wind total
+  // (56,090 MW, 31 Mar 2026) when the live bundle is unavailable.
+  const installedMw  = bundle?.capacity?.installed_mw ?? 56_090;
   const installedGw  = (installedMw / 1000).toFixed(2);
   const potentialGw  = 1163.86;
   const realisation  = ((installedMw / 1000) / potentialGw * 100).toFixed(2);
@@ -206,7 +206,7 @@ export default function WindSection({ bundle, selectedState }: Props) {
         <HeadlineMetric delay={60} emphasis accent="#ff8a1f"
           label="Installed (All-India)"
           value={`${installedGw} GW`}
-          caption="State-sum MNRE (31 Mar 2025; AP 30 Jun 2025; MP Apr 2025)"
+          caption="MNRE physical progress · FY26 close (31 Mar 2026) · +6.05 GW added"
         />
         <HeadlineMetric delay={120} emphasis accent="#7bc4e2"
           label="Onshore 150 m Potential"
@@ -218,20 +218,6 @@ export default function WindSection({ bundle, selectedState }: Props) {
           value={`${realisation}%`}
           caption="Installed ÷ 150 m potential · computed live"
         />
-      </div>
-
-      <div
-        className="wpi-card-in bg-[#0a0f1c]/40 border border-[#1f2c44] rounded-xl p-3.5"
-        style={{ ['--wpi-delay' as string]: '240ms' }}
-      >
-        <span className="text-[9.5px] text-muted/55 uppercase tracking-[0.12em] font-bold">At a glance</span>
-        <ChipRow chips={[
-          { label: 'Hub Height',  value: '120–150 m (new builds)' },
-          { label: 'FY30 Target', value: '~100 GW (NEP-14)' },
-          { label: 'Top States',  value: 'GJ · TN · KA · RJ · MH',                  accent: '#ff8a1f' },
-          { label: 'Offshore',    value: 'Kutch · Dhanushkodi',                      accent: '#7bc4e2' },
-          { label: 'Fleet OEMs',  value: '5 (Suzlon · Envision · Vestas · SGRE · Inox)' },
-        ]} />
       </div>
 
       <InfoCard title="Wind-resource geography" delay={300} defaultOpen icon={<Globe />} accent="#ff8a1f">

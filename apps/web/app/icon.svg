@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background tile for visibility on light browser chrome -->
+  <rect width="64" height="64" rx="12" fill="#090d18"/>
+
+  <!-- Tower -->
+  <path d="M30 56 L32 32 L34 56 Z" fill="#e8ecf4"/>
+
+  <!-- Hub -->
+  <circle cx="32" cy="32" r="3" fill="#ff8a1f"/>
+
+  <!-- Three blades, 120° apart from the hub, gently swept -->
+  <!-- Top blade -->
+  <path d="M32 32 Q33.6 18 34 8 Q31.5 17 30.4 32 Z" fill="#ff8a1f"/>
+  <!-- Lower-right blade -->
+  <path d="M32 32 Q44 40 54 42 Q44 38 32.6 33.4 Z" fill="#ff8a1f"/>
+  <!-- Lower-left blade -->
+  <path d="M32 32 Q20 40 10 42 Q20 38 31.4 33.4 Z" fill="#ff8a1f"/>
+</svg>
