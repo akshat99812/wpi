@@ -2,6 +2,7 @@ import Link from "next/link";
 import TopBar from "@/components/TopBar";
 import { TypingAnimation } from "@/registry/magicui/typing-animation";
 import { Marquee } from "@/registry/magicui/marquee";
+import { ShinyButton } from "@/registry/magicui/shiny-button";
 
 export const metadata = {
   title: 'Wind Power India — Geospatial Intelligence Portal',
@@ -54,38 +55,10 @@ const HERO_STATS: HeroStat[] = [
   },
 ];
 
-const FEATURES = [
-  {
-    n: '01',
-    title: 'Interactive India map',
-    body: 'Click any state to dive into installed fleet, prime districts, tariffs, grid evacuation, and live news. Satellite, terrain (OpenTopoMap), street, and wind-resource basemaps.',
-  },
-  {
-    n: '02',
-    title: 'State-level deep dives',
-    body: 'District-wise capacity, utility procurement context, SERC tariff orders, Transco evacuation paths, and per-state FY18 → FY25 annual additions.',
-  },
-  {
-    n: '03',
-    title: 'Live tariff feed',
-    body: 'SECI tender-results page scraped on every refresh — auction L1s, FDRE / RTC / hybrid tenders, offshore RfS. Plus Mercom, SolarQuarter, Renewable Watch.',
-  },
-  {
-    n: '04',
-    title: 'Source-anchored data',
-    body: 'Every figure cites its primary source: MNRE physical-progress, NIWE 150 m atlas, CEA, SECI, CERC, state nodal agencies and SERCs.',
-  },
-];
-
-const PILLARS = [
-  'MNRE',  'NIWE',  'CEA',  'SECI',  'CERC',  'PGCIL',
-  'Grid-India', 'SERCs', 'State nodal', 'Mercom',
-];
-
 export default function Landing() {
   return (
     <div className="min-h-screen w-full bg-[#090d18] text-text">
-      <TopBar />
+      <TopBar showEngines={false} />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-[#1a2540]">
@@ -107,9 +80,9 @@ export default function Landing() {
           }}
         />
 
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-20 pb-24 lg:pt-28 lg:pb-32">
-          {/* Headline + typewriter rotator below */}
-          <h1 className="max-w-[20ch] text-[42px] sm:text-[56px] lg:text-[64px] font-bold leading-[1.02] tracking-tight text-text">
+        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-28 pb-32 lg:pt-40 lg:pb-44">
+          {/* Headline + typewriter rotator below — single-line via fluid clamp */}
+          <h1 className="whitespace-nowrap text-[clamp(22px,5vw,46px)] font-bold leading-[1.05] tracking-tight text-text">
             Geospatial wind{' '}
             <span className="bg-gradient-to-r from-orange to-[#ffd0a0] bg-clip-text text-transparent">
               intelligence
@@ -117,189 +90,45 @@ export default function Landing() {
             terminal.
           </h1>
 
-          <div className="mt-4 flex items-baseline gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
+          <div className="mt-8 lg:mt-10 flex items-baseline gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
             <span className="text-orange/85">›</span>
             <TypingAnimation
-              words={["Map 🗺️", "Analyse 📊", "Tender 📑", "Bank 💼", "Ship 🚀"]}
+              words={["Map 🗺️", "Analyse 📊", "Tender 📑", "Finance 💼", "Research 🔬"]}
               loop
               cursorClassName="text-orange/80"
               className="text-text"
             />
           </div>
 
-          <p className="mt-6 max-w-[60ch] text-[15px] lg:text-[16px] leading-relaxed text-muted/95">
-            Open intelligence portal for India&apos;s wind sector — capacity, tariffs,
-            policy, grid, and resource data, anchored to authoritative public sources.
-            Built for developers, IPPs, OEMs, lenders, regulators, and researchers.
+          <p className="mt-10 lg:mt-12 max-w-[60ch] text-[15px] lg:text-[16px] leading-relaxed text-muted/95">
+            Open intelligence portal for India&apos;s wind sector built on — capacity,
+            tariffs, policy, grid, and resource data, anchored to authoritative public sources.
           </p>
 
-          {/* Primary CTAs */}
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
+          {/* Primary CTA — centred shiny pill */}
+          <div className="mt-16 lg:mt-20 flex justify-center">
+            <ShinyButton
               href="/dashboard"
-              className="group inline-flex items-center gap-2 rounded-lg
-                         bg-gradient-to-r from-orange to-[#ffb066]
-                         text-[#0a0e18] px-5 py-3
-                         text-[13.5px] font-semibold tracking-tight
-                         shadow-[0_10px_28px_-8px_rgba(255,138,31,0.55)]
-                         hover:shadow-[0_14px_36px_-8px_rgba(255,138,31,0.70)]
-                         transition-shadow"
+              className="px-7 lg:px-9 py-3.5 lg:py-4 text-[15px] lg:text-[17px]"
             >
-              Open dashboard
-              <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
-            </Link>
-            <a
-              href="https://cecl.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg
-                         border border-[#2a3a54] bg-[#0d1424]
-                         text-text px-5 py-3
-                         text-[13.5px] font-medium tracking-tight
-                         hover:bg-[#131826] hover:border-orange/40
-                         transition-colors"
-            >
-              About CECL ↗
-            </a>
+              Open portal
+              <span className="text-[16px] lg:text-[18px]">→</span>
+            </ShinyButton>
           </div>
 
           {/* Hero stat ticker — premium cards in an auto-scrolling marquee,
               pauses on hover so the user can read individual tiles. */}
-          <div className="mt-12 relative">
+          <div className="mt-20 lg:mt-28 relative">
             <Marquee
               pauseOnHover
               repeat={4}
-              className="[--duration:46s] [--gap:14px] py-2"
+              className="[--duration:46s] [--gap:14px] py-4"
             >
               {HERO_STATS.map(s => <HeroStatCard key={s.label} stat={s} />)}
             </Marquee>
             {/* Edge fades so cards bleed in/out softly instead of clipping */}
             <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#090d18] to-transparent" />
             <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#090d18] to-transparent" />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features ─────────────────────────────────────────────────── */}
-      <section className="border-b border-[#1a2540]">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-20 lg:py-24">
-          <div className="max-w-[60ch]">
-            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-orange/85">
-              Modules
-            </div>
-            <h2 className="mt-2 text-[28px] lg:text-[34px] font-semibold tracking-tight text-text leading-tight">
-              Everything you need to track India&apos;s wind sector,
-              in one terminal.
-            </h2>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3">
-            {FEATURES.map(f => (
-              <div
-                key={f.n}
-                className="group relative rounded-xl border border-[#1f2c44] bg-[#0a0f1c]/60 px-5 py-5
-                           hover:bg-[#0f1424] hover:border-orange/30 transition-colors"
-              >
-                <div className="flex items-baseline gap-3 mb-2.5">
-                  <span className="text-[11px] font-mono font-medium tabular-nums tracking-wider
-                                   text-orange/60 group-hover:text-orange transition-colors">
-                    {f.n}
-                  </span>
-                  <h3 className="text-[15px] font-semibold text-text leading-tight">
-                    {f.title}
-                  </h3>
-                </div>
-                <p className="text-[12.5px] text-muted leading-relaxed pl-[34px]">
-                  {f.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Sources strip ────────────────────────────────────────────── */}
-      <section className="border-b border-[#1a2540]">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-12 lg:py-14">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted/65">
-              Anchored to
-            </span>
-            {PILLARS.map(p => (
-              <span
-                key={p}
-                className="text-[12px] text-text/85 font-medium
-                           px-3 py-1.5 rounded-md
-                           border border-[#1f2c44] bg-[#0a0f1c]/70"
-              >
-                {p}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Engine teaser ────────────────────────────────────────────── */}
-      <section className="border-b border-[#1a2540]">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-20 lg:py-24
-                        grid grid-cols-1 lg:grid-cols-3 gap-3">
-          <EngineCard
-            eyebrow="Finance"
-            title="DCF & Bankability"
-            body="Project-level IRR / DSCR / NPV model with capex sensitivities. Plus a contact card for CECL bankable reports."
-          />
-          <EngineCard
-            eyebrow="Research"
-            title="Resource Intelligence"
-            body="State / district resource summaries, NIWE 150 m potential, repowering pool, offshore zones, FDRE economics. Premium chatbot trained on CECL's 2001–2026 archive."
-            badge="PRO"
-          />
-          <EngineCard
-            eyebrow="Operators"
-            title="Fleet & O&M"
-            body="Fleet performance diagnostics, P50 vs. actual benchmarking, mast / SCADA / micrositing archive."
-            badge="Soon"
-          />
-        </div>
-      </section>
-
-      {/* ── CTA banner ────────────────────────────────────────────────── */}
-      <section className="border-b border-[#1a2540]">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
-          <div
-            className="relative overflow-hidden rounded-2xl border border-orange/30
-                       bg-gradient-to-br from-[#1a140a] via-[#0e1422] to-[#090d18]
-                       px-6 lg:px-10 py-10 lg:py-14
-                       flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5"
-          >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -top-16 -right-16 h-56 w-56 rounded-full
-                         bg-orange/15 blur-3xl"
-            />
-            <div className="relative">
-              <h3 className="text-[22px] lg:text-[28px] font-semibold text-text tracking-tight leading-tight">
-                Ready to dive in?
-              </h3>
-              <p className="mt-2 text-[13px] lg:text-[14px] text-muted/95 max-w-[58ch] leading-relaxed">
-                The dashboard is free, no login required. Premium modules
-                — DCF bankability, fleet O&amp;M diagnostics, and CECL&apos;s
-                40-year proprietary dataset — sit behind the engine buttons.
-              </p>
-            </div>
-            <Link
-              href="/dashboard"
-              className="group relative inline-flex items-center gap-2 rounded-lg
-                         bg-gradient-to-r from-orange to-[#ffb066]
-                         text-[#0a0e18] px-5 py-3
-                         text-[13px] font-semibold tracking-tight whitespace-nowrap
-                         shadow-[0_10px_28px_-8px_rgba(255,138,31,0.55)]
-                         hover:shadow-[0_14px_36px_-8px_rgba(255,138,31,0.70)]
-                         transition-shadow"
-            >
-              Open dashboard
-              <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
-            </Link>
           </div>
         </div>
       </section>
@@ -440,28 +269,3 @@ function HeroStatCard({ stat }: { stat: HeroStat }) {
   );
 }
 
-function EngineCard({
-  eyebrow, title, body, badge,
-}: {
-  eyebrow: string; title: string; body: string; badge?: string;
-}) {
-  return (
-    <div className="relative rounded-xl border border-[#1f2c44] bg-[#0a0f1c]/60 p-5
-                    hover:bg-[#0f1424] hover:border-orange/30 transition-colors">
-      <div className="flex items-center justify-between gap-2 mb-2.5">
-        <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-orange/85">
-          {eyebrow}
-        </span>
-        {badge && (
-          <span className="text-[9px] font-semibold uppercase tracking-[0.14em]
-                           px-1.5 py-0.5 rounded
-                           bg-orange/15 text-orange border border-orange/30">
-            {badge}
-          </span>
-        )}
-      </div>
-      <h3 className="text-[16px] font-semibold text-text leading-tight">{title}</h3>
-      <p className="mt-1.5 text-[12px] text-muted leading-relaxed">{body}</p>
-    </div>
-  );
-}

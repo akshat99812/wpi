@@ -97,14 +97,18 @@ const itemVariants: Variants = {
   }
 };
 
-export default function TopBar({ 
+export default function TopBar({
   generatedAt,
   onRefresh,
-  isRefreshing
-}: { 
+  isRefreshing,
+  showEngines = true,
+}: {
   generatedAt?: string;
   onRefresh?: () => void;
   isRefreshing?: boolean;
+  /** Hide the Finance / Research / Operators engine cluster (used on the
+   *  landing page, where these are previewed in the body of the page). */
+  showEngines?: boolean;
 }) {
   const [engineOpen, setEngineOpen] = useState<EngineType | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -242,15 +246,16 @@ export default function TopBar({
 
         {/* ── Engine buttons + About ── */}
         <motion.div variants={itemVariants} className="flex items-center gap-1.5 lg:gap-3 z-10 flex-shrink-0">
-          {/* Engine switcher pill */}
-          <motion.div 
+          {/* Engine switcher pill — hidden on landing via `showEngines={false}` */}
+          {showEngines && (
+          <motion.div
             whileHover={{ scale: 1.02 }}
             className="flex items-center gap-1 lg:gap-2 p-1 lg:p-1.5 rounded-[20px] border border-white/[0.08]"
-            style={{ 
-              background: 'rgba(20, 25, 40, 0.5)', 
+            style={{
+              background: 'rgba(20, 25, 40, 0.5)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.3)' 
+              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.3)'
             }}
           >
             {ENGINES.map((engine, idx) => {
@@ -329,14 +334,17 @@ export default function TopBar({
               );
             })}
           </motion.div>
+          )}
 
-          {/* Divider */}
-          <motion.div 
+          {/* Divider — only meaningful when the engine pill is visible */}
+          {showEngines && (
+          <motion.div
             initial={{ scaleY: 0 }}
             animate={{ scaleY: 1 }}
             transition={{ delay: 0.5 }}
             className="hidden sm:block w-px h-8 bg-white/10"
           />
+          )}
 
           {/* About button — clean SaaS: solid weight, restrained accent,
               one quiet hover sweep. Bigger and brighter than the prior
