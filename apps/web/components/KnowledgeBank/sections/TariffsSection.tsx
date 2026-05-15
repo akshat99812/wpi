@@ -177,9 +177,6 @@ const TimelineIcon = () => (
   </svg>
 );
 
-// ── Single state-tariff event row ─────────────────────────────────────────
-// Matches the requested layout: date · source · title (bold) · tariff
-// (highlighted) · meta · open-source link.
 function StateTariffEventRow({
   event, delay,
 }: {

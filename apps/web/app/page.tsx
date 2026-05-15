@@ -80,17 +80,17 @@ export default function Landing() {
           }}
         />
 
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-28 pb-32 lg:pt-40 lg:pb-44">
+        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-28 pb-32 lg:pt-40 lg:pb-44 flex flex-col items-center text-center">
           {/* Headline + typewriter rotator below — single-line via fluid clamp */}
           <h1 className="whitespace-nowrap text-[clamp(22px,5vw,46px)] font-bold leading-[1.05] tracking-tight text-text">
-            Geospatial wind{' '}
+            Geospatial Wind{' '}
             <span className="bg-gradient-to-r from-orange to-[#ffd0a0] bg-clip-text text-transparent">
-              intelligence
+              Intelligence
             </span>{' '}
-            terminal.
+            Terminal.
           </h1>
 
-          <div className="mt-8 lg:mt-10 flex items-baseline gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
+          <div className="mt-8 lg:mt-10 flex items-baseline justify-center gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
             <span className="text-orange/85">›</span>
             <TypingAnimation
               words={["Map 🗺️", "Analyse 📊", "Tender 📑", "Finance 💼", "Research 🔬"]}
@@ -101,8 +101,9 @@ export default function Landing() {
           </div>
 
           <p className="mt-10 lg:mt-12 max-w-[60ch] text-[15px] lg:text-[16px] leading-relaxed text-muted/95">
-            Open intelligence portal for India&apos;s wind sector built on — capacity,
-            tariffs, policy, grid, and resource data, anchored to authoritative public sources.
+            Open intelligence portal for India&apos;s wind sector built on four decades of
+            CECL research — capacity, tariffs, policy, grid, and resource data, anchored
+            to authoritative public sources.
           </p>
 
           {/* Primary CTA — centred shiny pill */}
@@ -111,7 +112,7 @@ export default function Landing() {
               href="/dashboard"
               className="px-7 lg:px-9 py-3.5 lg:py-4 text-[15px] lg:text-[17px]"
             >
-              Open portal
+              Enter portal
               <span className="text-[16px] lg:text-[18px]">→</span>
             </ShinyButton>
           </div>
