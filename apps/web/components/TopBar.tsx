@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import AboutModal from './AboutModal';
 import EngineModal from './Engines/EngineModal';
@@ -186,17 +187,21 @@ export default function TopBar({
 
         {/* ── Brand ── */}
         <motion.div variants={itemVariants} className="flex items-center gap-2 lg:gap-4 z-10 min-w-0">
-          {/* Logo */}
-          <div className="relative w-11 h-11 sm:w-16 sm:h-16 lg:w-28 lg:h-28 flex items-center justify-center overflow-hidden flex-shrink-0">
+          {/* Logo — clicks return to landing */}
+          <Link
+            href="/"
+            aria-label="Wind Power India — home"
+            className="relative w-[65px] h-[70px] flex items-center justify-center overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+          >
             <Image
-              src="/logo.svg"
-              alt="CECL Energy"
-              width={112}
-              height={112}
+              src="/logo.png"
+              alt="Wind Power India"
+              width={70}
+              height={60}
               className="object-contain w-full h-full"
               priority
             />
-          </div>
+          </Link>
 
           {/* Brand text */}
           <div className="flex flex-col gap-0.5">

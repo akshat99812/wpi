@@ -1,30 +1,22 @@
 {
   "source": "eq_magazine",
-  "fetchedAt": "2026-05-14T13:13:09.435Z",
+  "fetchedAt": "2026-05-16T07:57:42.274Z",
   "ok": true,
-  "fixturesUsed": true,
   "payload": {
     "news": [
       {
-        "headline": "India Wind Installed Capacity Touches 49.5 GW at FY25 Close",
-        "url": "https://www.eqmagpro.com/india-wind-49gw-fy25",
-        "publishedAt": "2025-04-05T00:00:00Z",
+        "headline": "Avaada Group Surpasses 17.7 GWp Renewable Portfolio; Over 7.2 GWp Operational and ~ 10.5 GWp Under Construction &#8211; EQ",
+        "url": "https://www.eqmagpro.com/avaada-group-surpasses-17-7-gwp-renewable-portfolio-over-7-2-gwp-operational-and-10-5-gwp-under-construction-eq/",
+        "publishedAt": "2026-05-08T12:21:51.000Z",
         "source": "EQ Magazine",
-        "summary": "India wind fleet reaches new high; Gujarat, TN, Karnataka lead additions"
+        "summary": "With over 7.2 GWp operational and ~ 10.5 GWp under construction, the company aims to accelerate the country’s green energy transition. The company strategically integrates Solar, Wind, Hybrid, FDRE, and Solar-plus-storage projects to provide clean, affordable and round-the-clock power Mumbai &#8211;"
       },
       {
-        "headline": "Vestas Reopens Chennai Nacelle Plant after 2-Year Pause",
-        "url": "https://www.eqmagpro.com/vestas-chennai-restart",
-        "publishedAt": "2025-03-12T00:00:00Z",
+        "headline": "KP Group Leads with India’s First Indigenous 4.2 MW Wind Turbine Installation &#8211; EQ",
+        "url": "https://www.eqmagpro.com/kp-group-leads-with-indias-first-indigenous-4-2-mw-wind-turbine-installation-eq/",
+        "publishedAt": "2026-05-06T10:59:37.000Z",
         "source": "EQ Magazine",
-        "summary": "Vestas resumes Indian wind nacelle manufacturing at Chennai facility"
-      },
-      {
-        "headline": "GWEC: India Tops APAC Wind Additions for Second Year",
-        "url": "https://www.eqmagpro.com/gwec-india-apac-wind-additions",
-        "publishedAt": "2025-02-28T00:00:00Z",
-        "source": "EQ Magazine",
-        "summary": "Global Wind Energy Council report ranks India #1 in APAC additions"
+        "summary": "In Short : KP Group has become the first Indian company to install an indigenous 4.2 MW wind turbine in Gujarat. Developed by Senvion India, the advanced turbine marks a major step in domestic wind technology, supporting higher efficiency, local manufacturing, and India’s push toward self-reliant re"
       }
     ]
   }

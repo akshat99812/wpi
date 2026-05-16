@@ -1,22 +1,29 @@
 {
   "source": "pv_magazine",
-  "fetchedAt": "2026-05-14T13:13:07.488Z",
+  "fetchedAt": "2026-05-16T07:57:41.731Z",
   "ok": true,
   "payload": {
     "news": [
+      {
+        "headline": "JSW Energy commissions 250 MW of renewable energy capacity, including hydro, since April 2026",
+        "url": "https://www.pv-magazine-india.com/2026/05/15/jsw-energy-commissions-250-mw-of-renewable-energy-capacity-including-hydro-since-april-2026/",
+        "publishedAt": "2026-05-15T10:09:28.000Z",
+        "source": "PV Magazine India",
+        "summary": "JSW Energy has commissioned 250 MW of renewable energy capacity since April 2026, comprising 130 MW of wind, 69.4 MW of solar, and the 50 MW Tidong Hydro Plant. With this addition, its total installed power generation capacity has reached 13.7 GW."
+      },
+      {
+        "headline": "Inox Clean buys US assets of Boviet Solar",
+        "url": "https://www.pv-magazine-india.com/2026/05/15/inox-clean-buys-us-assets-of-boviet-solar/",
+        "publishedAt": "2026-05-15T05:39:27.000Z",
+        "source": "PV Magazine India",
+        "summary": "Through this asset purchase, Inox Clean gains an operational capacity of 3 GW of TOPCon solar module manufacturing in the United States, positioning it in line with the “Make in America, For America” initiative."
+      },
       {
         "headline": "Hybrid energy systems: Combining solar, wind &#038; storage for maximum efficiency",
         "url": "https://www.pv-magazine-india.com/2026/05/12/hybrid-energy-systems-combining-solar-wind-storage-for-maximum-efficiency/",
         "publishedAt": "2026-05-12T10:59:01.000Z",
         "source": "PV Magazine India",
         "summary": "Hybrid energy systems are set to play a crucial role in shaping the future of energy infrastructure. With advancements in smart grid technologies, artificial intelligence, and predictive analytics, these systems will become even more efficient and adaptive. They offer a scalable and sustainable solu"
-      },
-      {
-        "headline": "Adani Green commissions 150 MW solar capacity at Khavda",
-        "url": "https://www.pv-magazine-india.com/2026/05/11/adani-green-commissions-150-mw-solar-capacity-at-khavda/",
-        "publishedAt": "2026-05-11T10:49:15.000Z",
-        "source": "PV Magazine India",
-        "summary": "Adani Green Energy Ltd (AGEL) has commissioned a 150 MW solar power project at Khavda, taking its total operational renewable energy generation capacity to 19,735.8 MW and its operational battery energy storage system (BESS) capacity to 1,376 MWh."
       }
     ]
   }

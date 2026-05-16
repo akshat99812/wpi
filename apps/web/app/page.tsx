@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Image from "next/image";
 import TopBar from "@/components/TopBar";
 import { TypingAnimation } from "@/registry/magicui/typing-animation";
 import { Marquee } from "@/registry/magicui/marquee";
@@ -22,19 +22,19 @@ type HeroStat = {
 // (31.03.2025 close) and NIWE @150 m atlas.
 const HERO_STATS: HeroStat[] = [
   {
-    value: '56,090 MW',
-    label: 'India wind fleet',
-    source: 'MNRE',
-    asOf: '31 Mar 2026',
-    delta: { value: '+6.05 GW FY26 (record)', trend: 'up' },
+    value: '56.44 GW',
+    label: 'Installed (All-India)',
+    source: 'MNRE physical progress',
+    asOf: '30 Apr 2026',
+    delta: { value: '+6.05 GW in FY26 · record', trend: 'up' },
     glyph: 'turbine',
   },
   {
-    value: '1,164 GW',
-    label: '@150 m potential',
-    source: 'NIWE Atlas',
+    value: '1,163.9 GW',
+    label: 'Onshore 150 m potential',
+    source: 'NIWE 150 m Wind Potential Atlas',
     asOf: '2023',
-    delta: { value: '~7× installed', trend: 'up' },
+    delta: { value: '~21× installed', trend: 'up' },
     glyph: 'gauge',
   },
   {
@@ -124,11 +124,11 @@ export default function Landing() {
 
           {/* Hero stat ticker — premium cards in an auto-scrolling marquee,
               pauses on hover so the user can read individual tiles. */}
-          <div className="mt-9 lg:mt-11 relative w-full">
+          <div className="mt-9 lg:mt-11 mb-10 lg:mb-16 relative w-full">
             <Marquee
               pauseOnHover
               repeat={4}
-              className="[--duration:22s] [--gap:14px] py-2"
+              className="[--duration:12s] [--gap:14px] py-2"
             >
               {HERO_STATS.map(s => <HeroStatCard key={s.label} stat={s} />)}
             </Marquee>
@@ -140,24 +140,54 @@ export default function Landing() {
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="bg-[#080b10]">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-8 flex flex-wrap items-center justify-between gap-3 text-[11px]">
-          <div className="flex items-center gap-2 text-muted/75">
-            <span className="text-orange/85 font-medium">Wind Power India</span>
-            <span className="text-muted/35">·</span>
-            <span>Built by Consolidated Energy Consultants Ltd. (CECL)</span>
+      <footer className="border-t border-[#1a2540] bg-[#080b10]">
+        <div className=" mx-auto px-6 lg:px-8 pt-3 pb-3">
+
+          {/* Brand */}
+          <div className="pb-3">
+            <div className="flex items-center ">
+              <Image
+                src="/logo.png"
+                alt="Wind Power India"
+                width={36}
+                height={36}
+                className="object-contain"
+              />
+              <span className="text-[15px] font-bold tracking-tight text-text">
+                Wind Power India
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-muted/75">
-            <Link href="/dashboard" className="hover:text-text transition-colors">Dashboard</Link>
-            <a
-              href="https://cecl.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-text transition-colors"
-            >
-              cecl.in ↗
-            </a>
+
+          {/* Bottom strip — © on the left, legal links on the right.
+              Stacks vertically on small viewports where the © line is too
+              long to share a row with the legal cluster. */}
+          <div className="pt-6 border-t border-[#1a2540] flex flex-col md:flex-row md:items-center md:justify-between gap-y-3 text-[10.5px] text-muted/65">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-left">
+              <span>© 2026 Wind Power India</span>
+              <span className="text-muted/30">·</span>
+              <span>
+                Built by{' '}
+                <a
+                  href="https://cecl.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-orange/85 hover:text-orange transition-colors"
+                >
+                  Consolidated Energy Consultants Ltd.
+                </a>
+              </span>
+              <span className="text-muted/30">·</span>
+              <span className="tabular-nums">est. 1986</span>
+            </div>
+
+            <div className="flex items-center gap-4 md:justify-end">
+              <a href="#" className="hover:text-text transition-colors">Privacy</a>
+              <a href="#" className="hover:text-text transition-colors">Terms</a>
+              <a href="#" className="hover:text-text transition-colors">Attribution</a>
+            </div>
           </div>
+
         </div>
       </footer>
     </div>

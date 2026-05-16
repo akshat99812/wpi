@@ -19,20 +19,22 @@ interface Props {
 // NIWE @150 m AGL. When the live bundle ships state capacity we prefer
 // that; this static set is the fallback so the chart never renders empty.
 const FALLBACK_STATE_DATA = [
-  { state: 'Gujarat',        installed_mw: 12_677, potential_gw: 180.79 },
-  { state: 'Tamil Nadu',     installed_mw: 11_740, potential_gw:  95.11 },
-  { state: 'Karnataka',      installed_mw:  7_351, potential_gw: 169.25 },
-  { state: 'Maharashtra',    installed_mw:  5_285, potential_gw:  173.87 },
-  { state: 'Rajasthan',      installed_mw:  5_209, potential_gw: 284.25 },
-  { state: 'Andhra Pradesh', installed_mw:  4_377, potential_gw:  123.34 },
-  { state: 'Madhya Pradesh', installed_mw:  3_195, potential_gw:  55.42 },
-  { state: 'Telangana',      installed_mw:    128, potential_gw:  54.72 },
+  { state: 'Gujarat',        installed_mw: 12_677, potential_gw: 180.8 },
+  { state: 'Tamil Nadu',     installed_mw: 11_740, potential_gw:  95.1 },
+  { state: 'Karnataka',      installed_mw:  7_351, potential_gw: 169.3 },
+  { state: 'Maharashtra',    installed_mw:  5_285, potential_gw: 173.9 },
+  { state: 'Rajasthan',      installed_mw:  5_209, potential_gw: 284.2 },
+  { state: 'Andhra Pradesh', installed_mw:  4_377, potential_gw: 123.3 },
+  { state: 'Madhya Pradesh', installed_mw:  3_195, potential_gw:  55.4 },
+  { state: 'Telangana',      installed_mw:    128, potential_gw:  54.7 },
   { state: 'Kerala',         installed_mw:     71, potential_gw:   2.62 },
 ];
 
-// ── Annual additions trend (FY16 → FY25, all-India) ───────────────────────
-// Derived from MNRE RE-Statistics 2024-25 Table 2.1 — wind cumulative
-// (GW) at fiscal-year close, differenced into annual additions (MW).
+// ── Annual additions trend (FY18 → FY26, all-India) ───────────────────────
+// FY18–FY25 from MNRE RE-Statistics 2024-25 Table 2.1 (cumulative wind GW
+// at fiscal-year close, differenced into annual additions). FY26 from MNRE
+// physical-progress monthly bulletin (31 Mar 2026 FY26 close — 56,090 MW
+// total; cumulative since 30 Apr 2026 stands at 56,437 MW).
 const ANNUAL_ADDITIONS = [
   { fy: 'FY18', mw: 1_870 },
   { fy: 'FY19', mw: 1_480 },
@@ -42,6 +44,7 @@ const ANNUAL_ADDITIONS = [
   { fy: 'FY23', mw: 2_270 },
   { fy: 'FY24', mw: 3_260 },
   { fy: 'FY25', mw: 4_150 },
+  { fy: 'FY26', mw: 6_050 },
 ];
 
 // ── State-wise annual additions (FY18 → FY25) ─────────────────────────────
@@ -212,12 +215,18 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
     }).sort((a, b) => b.installed_mw - a.installed_mw);
   }, [bundle]);
 
-  const totalInstalledGw = stateData.reduce((s, r) => s + r.installed_mw, 0) / 1000;
+  // Prefer the live MNRE physical-progress aggregate (refreshes monthly) over
+  // the state-sum, since the state-wise table lags by ~12 months while the
+  // headline figure tracks the latest fiscal-year close.
+  const stateSumGw       = stateData.reduce((s, r) => s + r.installed_mw, 0) / 1000;
+  const totalInstalledGw = bundle?.capacity?.installed_mw
+    ? bundle.capacity.installed_mw / 1000
+    : stateSumGw;
   const targetGw         = (bundle?.capacity?.target_fy_mw ?? 100_000) / 1000;
   const targetGap        = targetGw - totalInstalledGw;
-  const fy25Adds         = ANNUAL_ADDITIONS[ANNUAL_ADDITIONS.length - 1].mw;
-  const fy24Adds         = ANNUAL_ADDITIONS[ANNUAL_ADDITIONS.length - 2].mw;
-  const yoyPct           = ((fy25Adds - fy24Adds) / fy24Adds * 100).toFixed(0);
+  const lastFy           = ANNUAL_ADDITIONS[ANNUAL_ADDITIONS.length - 1];
+  const prevFy           = ANNUAL_ADDITIONS[ANNUAL_ADDITIONS.length - 2];
+  const yoyPct           = (((lastFy.mw - prevFy.mw) / prevFy.mw) * 100).toFixed(0);
 
   // ── State-specific view ──────────────────────────────────────────────────
   const stateRow = selectedState
@@ -360,20 +369,20 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
         <HeadlineMetric
           delay={60} emphasis accent="#ff8a1f"
           label="Total Installed"
-          value={`${totalInstalledGw.toFixed(2)} GW`}
-          caption="State-sum (MNRE physical progress)"
+          value={`${Math.round(totalInstalledGw)} GW`}
+          caption="MNRE physical progress · 30 Apr 2026"
         />
         <HeadlineMetric
           delay={120} emphasis accent="#7bc4e2"
           label="FY30 Target Gap"
-          value={`${targetGap.toFixed(1)} GW`}
-          caption={`At current ~${(fy25Adds / 1000).toFixed(1)} GW/yr addition rate`}
+          value={`${Math.round(targetGap)} GW`}
+          caption={`At current ~${Math.round(lastFy.mw / 1000)} GW/yr addition rate`}
         />
         <HeadlineMetric
           delay={180} emphasis accent="#4cc87a"
-          label="FY25 Additions"
-          value={`${(fy25Adds / 1000).toFixed(2)} GW`}
-          caption={`+${yoyPct}% YoY · highest annual since FY17`}
+          label={`${lastFy.fy} Additions`}
+          value={`${Math.round(lastFy.mw / 1000)} GW`}
+          caption={`+${yoyPct}% YoY · record annual addition`}
         />
       </div>
 
@@ -394,16 +403,18 @@ export default function CapacitySection({ bundle, selectedState }: Props) {
       </InfoCard>
 
       <InfoCard
-        title="Annual additions — FY18 to FY25"
+        title={`Annual additions — FY18 to ${lastFy.fy}`}
         delay={300}
         defaultOpen
         icon={<TrendIcon />}
         accent="#4cc87a"
       >
         <Prose>
-          Annual wind additions bottomed at <b className="text-[#f87171]">0.97 GW</b> in
-          FY20 (COVID + auction reset) and have rebounded sharply since FY23
-          on the back of FDRE and ISTS-tranche tendering.
+          Annual wind additions bottomed at <b className="text-[#f87171]">1.11 GW</b> in
+          FY22 (post-COVID auction reset) and have rebounded sharply since
+          FY23 on the back of FDRE and ISTS-tranche tendering — FY26 closes
+          at a <b className="text-[#4cc87a]">record 6.05 GW</b>, surpassing
+          the FY17 accelerated-depreciation peak.
         </Prose>
         <AnnualAdditionsChart data={ANNUAL_ADDITIONS} />
       </InfoCard>

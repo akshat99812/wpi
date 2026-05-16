@@ -17,12 +17,12 @@ import TechnologySection from './sections/TechnologySection';
 const TABS = [
   { id: 'wind',       label: 'Wind',       Component: WindSection,       indiaOnly: false },
   { id: 'capacity',   label: 'Capacity',   Component: CapacitySection,   indiaOnly: false },
+  { id: 'news',       label: 'News',       Component: NewsSection,       indiaOnly: false },
   { id: 'policy',     label: 'Policy',     Component: PolicySection,     indiaOnly: false },
   { id: 'tariffs',    label: 'Tariffs',    Component: TariffsSection,    indiaOnly: false },
   { id: 'grid',       label: 'Grid',       Component: GridSection,       indiaOnly: false },
   { id: 'land',       label: 'Land',       Component: LandSection,       indiaOnly: true  },
   { id: 'technology', label: 'Technology', Component: TechnologySection, indiaOnly: true  },
-  { id: 'news',       label: 'News',       Component: NewsSection,       indiaOnly: false },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];

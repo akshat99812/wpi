@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback } from 'react';
 import type { WpiBundle } from '@/lib/types';
-import ContextBar from './ContextBar';
 import MapCanvas, { type BasemapId } from './Map';
 import TabPanel from './KnowledgeBank/TabPanel';
 import SourceStatusBar from './SourceStatusBar';
@@ -17,11 +16,6 @@ export default function PortalShell({ bundle }: Props) {
 
   return (
     <>
-      <ContextBar
-        bundle={bundle}
-        basemap={basemap}
-      />
-
       <main className="flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0 overflow-y-auto lg:overflow-hidden">
 
         {/* ── Left: Map ──────────────────────────────── */}

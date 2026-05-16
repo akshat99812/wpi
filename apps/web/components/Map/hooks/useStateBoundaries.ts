@@ -191,7 +191,13 @@ export function useStateBoundaries({ mapRef: _mapRef, modeRef, stateRef, selectR
                           : isTerrain ? 'rgba(0,0,0,0.38)'
                           : isLight   ? 'rgba(0,0,0,0.75)'
                                       : 'rgba(255,255,255,0.7)';
-    const lineColorHover = isLight  ? 'rgba(0,0,0,0.95)'    : '#ffb366';
+    // Street mode: keep hover light (soft slate at ~0.55 alpha) so the
+    // highlight reads as a gentle accent rather than a black ring on the
+    // colourful OSM raster. Terrain stays dark for contrast on the muted
+    // hillshade palette.
+    const lineColorHover = isStreet  ? 'rgba(30,45,75,0.55)'
+                          : isLight  ? 'rgba(0,0,0,0.95)'
+                                     : '#ffb366';
     const fillColorHover = isLight  ? 'rgba(0,0,0,0.08)'    : 'rgba(255,180,80,0.18)';
     const lineWidthBase  = isStreet || isTerrain ? 0.7 : 1.0;
 
@@ -257,7 +263,10 @@ export function useStateBoundaries({ mapRef: _mapRef, modeRef, stateRef, selectR
     }
 
     // State name labels — one Point per state from the labels source.
-    if (!m.getLayer(LAYER_IDS.indiaLabel)) {
+    // Skip on the Street basemap: raw OSM raster tiles already have state
+    // and place names baked in, so an overlay symbol layer would duplicate
+    // every label.
+    if (modeRef.current !== 'street' && !m.getLayer(LAYER_IDS.indiaLabel)) {
       m.addLayer({
         id: LAYER_IDS.indiaLabel,
         type: 'symbol',

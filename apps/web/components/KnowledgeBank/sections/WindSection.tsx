@@ -170,11 +170,12 @@ export default function WindSection({ bundle, selectedState }: Props) {
   }
 
   // ── India-wide view ──────────────────────────────────────────────────────
-  // Default falls back to MNRE FY26 close national wind total
-  // (56,090 MW, 31 Mar 2026) when the live bundle is unavailable.
-  const installedMw  = bundle?.capacity?.installed_mw ?? 56_090;
+  // Default falls back to the latest MNRE physical-progress total
+  // (56,437 MW, 30 Apr 2026 — first month of FY27) when the live bundle
+  // is unavailable. FY26 close was 56,090 MW.
+  const installedMw  = bundle?.capacity?.installed_mw ?? 56_437;
   const installedGw  = Math.round(installedMw / 1000).toString();
-  const potentialGw  = 1163.86;
+  const potentialGw  = 1163.9;
   const potentialGwDisplay = Math.round(potentialGw).toLocaleString();
   const realisation  = ((installedMw / 1000) / potentialGw * 100).toFixed(2);
   const maxStateGw   = Math.max(...STATE_POTENTIAL_150M.map(s => s.gw));
@@ -198,7 +199,7 @@ export default function WindSection({ bundle, selectedState }: Props) {
         <Prose>
           NIWE&apos;s <b className="text-[#ffd0a0]">150 m assessment (2021)</b>{' '}
           revised the national onshore wind potential upward to{' '}
-          <b className="text-[#ffd0a0]">1,163.86 GW</b> — a ~5× increase over
+          <b className="text-[#ffd0a0]">1,163.9 GW</b> — a ~5× increase over
           the earlier 100 m estimate.
         </Prose>
       </div>
@@ -207,7 +208,7 @@ export default function WindSection({ bundle, selectedState }: Props) {
         <HeadlineMetric delay={60} emphasis accent="#ff8a1f"
           label="Installed (All-India)"
           value={`${installedGw} GW`}
-          caption="MNRE physical progress · FY26 close (31 Mar 2026) · +6 GW added"
+          caption="MNRE physical progress · 30 Apr 2026 · +6 GW added in FY26"
         />
         <HeadlineMetric delay={120} emphasis accent="#7bc4e2"
           label="Onshore 150 m Potential"
@@ -241,7 +242,7 @@ export default function WindSection({ bundle, selectedState }: Props) {
           NIWE&apos;s 2021 150 m Wind Potential Atlas revised the national
           onshore resource upward from roughly{' '}
           <b className="text-[#ffd0a0]">302 GW at 100 m</b> to{' '}
-          <b className="text-[#ffd0a0]">1,163.86 GW at 150 m</b> — a ~5×
+          <b className="text-[#ffd0a0]">1,163.9 GW at 150 m</b> — a ~5×
           jump driven by taller towers, higher wind shear, and smoothed
           seasonal profiles at hub height. Gujarat (~142 GW), Rajasthan
           (~128 GW), Maharashtra (~99 GW) and Karnataka (~169 GW) lead
@@ -294,13 +295,14 @@ export default function WindSection({ bundle, selectedState }: Props) {
 
       <InfoCard title="Sector profile — installed base, pipeline, OEMs" delay={420} icon={<Factory />} accent="#ffb066">
         <Prose>
-          India finished FY25 at roughly{' '}
-          <b className="text-[#ffd0a0]">50 GW</b> of installed wind capacity
-          (MNRE physical-progress dashboard). Additions of 4–5 GW per year
-          are now the norm, up from ~2 GW in 2022, supported by SECI&apos;s
-          ISTS wind tranches (Tranche XIV, XV), GUVNL Phase IV–V, MSEDCL
-          FDRE rounds, and state-led procurement by Tamil Nadu and Andhra
-          Pradesh.
+          India finished FY26 at{' '}
+          <b className="text-[#ffd0a0]">56 GW</b> of installed wind capacity
+          (MNRE physical-progress dashboard, 31 Mar 2026 close), with a{' '}
+          <b className="text-[#4cc87a]">record 6 GW added in FY26</b> alone.
+          The 4–6 GW/yr cadence — up from ~2 GW in 2022 — is now the norm,
+          supported by SECI&apos;s ISTS wind tranches (Tranche XIV, XV),
+          GUVNL Phase IV–V, MSEDCL FDRE rounds, and state-led procurement by
+          Tamil Nadu and Andhra Pradesh.
         </Prose>
         <Prose>
           Five OEMs account for the bulk of India&apos;s WTG fleet:{' '}
@@ -318,8 +320,8 @@ export default function WindSection({ bundle, selectedState }: Props) {
           into real-world project viability.
         </Prose>
         <ChipRow chips={[
-          { label: 'FY25 Installed', value: '~50 GW',       accent: '#ff8a1f' },
-          { label: 'Annual Adds',    value: '4 – 5 GW',     accent: '#4cc87a' },
+          { label: 'FY26 Installed', value: '~56 GW',       accent: '#ff8a1f' },
+          { label: 'FY26 Adds',      value: '6 GW · record', accent: '#4cc87a' },
           { label: '2022 Pace',      value: '~2 GW/yr' },
           { label: 'New WTG Class',  value: '3.x – 4.x MW' },
           { label: 'Hub',            value: '150 m+' },

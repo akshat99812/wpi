@@ -103,18 +103,21 @@ export function getStyle(mode: BasemapId): any {
 }
 
 // ── State wind data (NIWE / GWA @ 100 m AGL) ───────────────────────────────
-// Installed MW values aligned to MNRE RE-Statistics 2024-25 (Table 8.2,
-// cumulative as on 31 Mar 2025). All numbers rounded to nearest MW.
-// Potential GW values are NIWE @150 m AGL.
+// Installed MW values from MNRE RE-Statistics 2024-25 (Table 8.2, cumulative
+// as on 31 Mar 2025). State-wise FY26 table is not yet published — these
+// remain at FY25 close, while the India aggregate elsewhere on the page is
+// the latest MNRE physical-progress snapshot (56,437 MW as of 30 Apr 2026;
+// FY26 close was 56,090 MW on 31 Mar 2026).
+// All numbers rounded to nearest MW. Potential GW values are NIWE @150 m AGL.
 export const STATE_DATA: Record<string, StateMeta> = {
-  'Gujarat':          { lon: 71.57, lat: 22.26, mw: 12677, plf: 34, windMs: 7.2, potential: 181 },
-  'Tamil Nadu':       { lon: 78.66, lat: 11.13, mw: 11740, plf: 36, windMs: 7.8, potential: 95 },
-  'Karnataka':        { lon: 75.71, lat: 15.32, mw: 7351,  plf: 30, windMs: 6.8, potential: 169  },
-  'Maharashtra':      { lon: 75.71, lat: 19.75, mw: 5285,  plf: 26, windMs: 6.2, potential: 174  },
-  'Rajasthan':        { lon: 74.22, lat: 27.02, mw: 5209,  plf: 32, windMs: 7.5, potential: 284 },
-  'Andhra Pradesh':   { lon: 79.74, lat: 15.91, mw: 4377,  plf: 28, windMs: 7.0, potential: 123  },
-  'Madhya Pradesh':   { lon: 78.66, lat: 22.97, mw: 3195,  plf: 26, windMs: 5.8, potential: 55  },
-  'Telangana':        { lon: 79.02, lat: 18.11, mw: 128,   plf: 22, windMs: 6.5, potential: 55  },
+  'Gujarat':          { lon: 71.57, lat: 22.26, mw: 12677, plf: 34, windMs: 7.2, potential: 180.8 },
+  'Tamil Nadu':       { lon: 78.66, lat: 11.13, mw: 11740, plf: 36, windMs: 7.8, potential: 95.1 },
+  'Karnataka':        { lon: 75.71, lat: 15.32, mw: 7351,  plf: 30, windMs: 6.8, potential: 169.3 },
+  'Maharashtra':      { lon: 75.71, lat: 19.75, mw: 5285,  plf: 26, windMs: 6.2, potential: 173.9 },
+  'Rajasthan':        { lon: 74.22, lat: 27.02, mw: 5209,  plf: 32, windMs: 7.5, potential: 284.2 },
+  'Andhra Pradesh':   { lon: 79.74, lat: 15.91, mw: 4377,  plf: 28, windMs: 7.0, potential: 123.3 },
+  'Madhya Pradesh':   { lon: 78.66, lat: 22.97, mw: 3195,  plf: 26, windMs: 5.8, potential: 55.4 },
+  'Telangana':        { lon: 79.02, lat: 18.11, mw: 128,   plf: 22, windMs: 6.5, potential: 54.7 },
   // Kerala — Palakkad gap (Agali / Ramakkalmedu cluster). Small installed
   // base, modest PLF; NIWE pegs the @100 m potential at ~1.7 GW.
   'Kerala':           { lon: 76.70, lat: 10.85, mw: 71,    plf: 20, windMs: 5.5, potential: 3   },

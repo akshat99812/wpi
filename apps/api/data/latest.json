@@ -1,50 +1,65 @@
 {
-  "generatedAt": "2026-05-15T00:00:00.000Z",
+  "generatedAt": "2026-05-16T07:57:43.340Z",
   "stateCapacity": [
-    {
-      "state": "Andhra Pradesh",
-      "installed_mw": 4377,
-      "potential_150m_gw": 74
-    },
     {
       "state": "Gujarat",
       "installed_mw": 12677,
-      "potential_150m_gw": 142
-    },
-    {
-      "state": "Karnataka",
-      "installed_mw": 7351,
-      "potential_150m_gw": 169
-    },
-    {
-      "state": "Kerala",
-      "installed_mw": 71,
-      "potential_150m_gw": 2
-    },
-    {
-      "state": "Madhya Pradesh",
-      "installed_mw": 3195,
-      "potential_150m_gw": 22.76
-    },
-    {
-      "state": "Maharashtra",
-      "installed_mw": 5285,
-      "potential_150m_gw": 99
+      "year": 2025,
+      "potential_150m_gw": 180.8,
+      "potential_120m_gw": 142.56
     },
     {
       "state": "Rajasthan",
       "installed_mw": 5209,
-      "potential_150m_gw": 128
+      "year": 2025,
+      "potential_150m_gw": 284.2,
+      "potential_120m_gw": 127.75
+    },
+    {
+      "state": "Karnataka",
+      "installed_mw": 7351,
+      "year": 2025,
+      "potential_150m_gw": 169.3,
+      "potential_120m_gw": 124.15
     },
     {
       "state": "Tamil Nadu",
       "installed_mw": 11740,
-      "potential_150m_gw": 68
+      "year": 2025,
+      "potential_150m_gw": 95.1,
+      "potential_120m_gw": 68.75
+    },
+    {
+      "state": "Andhra Pradesh",
+      "installed_mw": 4377,
+      "year": 2025,
+      "potential_150m_gw": 123.3,
+      "potential_120m_gw": 74.90
+    },
+    {
+      "state": "Maharashtra",
+      "installed_mw": 5285,
+      "year": 2025,
+      "potential_150m_gw": 173.9,
+      "potential_120m_gw": 98.21
+    },
+    {
+      "state": "Madhya Pradesh",
+      "installed_mw": 3195,
+      "year": 2025,
+      "potential_150m_gw": 55.4,
+      "potential_120m_gw": 15.40
     },
     {
       "state": "Telangana",
       "installed_mw": 128,
-      "potential_150m_gw": 54
+      "year": 2025,
+      "potential_150m_gw": 54.7,
+      "potential_120m_gw": 24.83
+    },
+    {
+      "state": "Kerala",
+      "installed_mw": 71
     }
   ],
   "tariffOrders": [
@@ -55,8 +70,8 @@
       "effectiveDate": "2023-09-01",
       "title": "SECI Tranche-XIII ISTS Wind (1,200 MW)",
       "tariff_inr": 3.18,
-      "tariffLabel": "\u20b93.18/kWh",
-      "meta": "Serentica Renewables, JSW Energy \u00b7 1,200 MW",
+      "tariffLabel": "₹3.18/kWh",
+      "meta": "Serentica Renewables, JSW Energy · 1,200 MW",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -67,7 +82,7 @@
       "effectiveDate": "2026-03-01",
       "title": "NTPC REL 900 MW ISTS Wind (Anantapur)",
       "tariffLabel": "Tariff TBD (bid under evaluation)",
-      "meta": "BoS bids invited \u00b7 900 MW",
+      "meta": "BoS bids invited · 900 MW",
       "category": "Auction",
       "url": "https://www.mercomindia.com/"
     },
@@ -76,9 +91,9 @@
       "regulator": "Mercom India",
       "dateLabel": "Mar 2026",
       "effectiveDate": "2026-03-15",
-      "title": "NTPC\u2013Indian Oil JV 215 MW Wind (AP)",
+      "title": "NTPC–Indian Oil JV 215 MW Wind (AP)",
       "tariffLabel": "Tariff TBD",
-      "meta": "Bid under evaluation \u00b7 215 MW",
+      "meta": "Bid under evaluation · 215 MW",
       "category": "Auction",
       "url": "https://www.mercomindia.com/"
     },
@@ -88,8 +103,8 @@
       "dateLabel": "Jun 2025",
       "effectiveDate": "2025-06-01",
       "title": "TNGECL 500 MW / 1,000 MWh BESS (wind-firming)",
-      "tariffLabel": "\u20b94.52\u20134.80 lakh/MW/month (BESS capacity charge)",
-      "meta": "NLC India, Bondada, Oriana \u00b7 500 MW",
+      "tariffLabel": "₹4.52–4.80 lakh/MW/month (BESS capacity charge)",
+      "meta": "NLC India, Bondada, Oriana · 500 MW",
       "category": "BESS / Wind-firming",
       "url": "https://www.mercomindia.com/"
     },
@@ -100,8 +115,8 @@
       "effectiveDate": "2025-06-15",
       "title": "MPPMCL 800 MW Wind (+800 MW greenshoe)",
       "tariff_inr": 3.52,
-      "tariffLabel": "\u20b93.52/kWh (L1)",
-      "meta": "JSW, ReNew, Serentica (L1 cluster) \u00b7 1,600 MW",
+      "tariffLabel": "₹3.52/kWh (L1)",
+      "meta": "JSW, ReNew, Serentica (L1 cluster) · 1,600 MW",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -112,8 +127,8 @@
       "effectiveDate": "2022-07-01",
       "title": "SECI Tranche-XII ISTS Wind (1,200 MW)",
       "tariff_inr": 2.94,
-      "tariffLabel": "\u20b92.94/kWh",
-      "meta": "NTPC / JSW / Ayana / others \u00b7 1,200 MW",
+      "tariffLabel": "₹2.94/kWh",
+      "meta": "NTPC / JSW / Ayana / others · 1,200 MW",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -124,8 +139,8 @@
       "effectiveDate": "2023-02-01",
       "title": "GUVNL Phase-IV Wind (500 MW)",
       "tariff_inr": 2.83,
-      "tariffLabel": "\u20b92.83/kWh",
-      "meta": "Ayana Renewables (L1), Juniper, KPI Green \u00b7 500 MW",
+      "tariffLabel": "₹2.83/kWh",
+      "meta": "Ayana Renewables (L1), Juniper, KPI Green · 500 MW",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -136,8 +151,8 @@
       "effectiveDate": "2023-12-01",
       "title": "SECI Tranche-XIV ISTS Wind (1,200 MW)",
       "tariff_inr": 3.24,
-      "tariffLabel": "\u20b93.24/kWh",
-      "meta": "Serentica, NTPC REL, JSW \u00b7 1,200 MW",
+      "tariffLabel": "₹3.24/kWh",
+      "meta": "Serentica, NTPC REL, JSW · 1,200 MW",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -148,7 +163,7 @@
       "effectiveDate": "2025-08-01",
       "title": "MP Jal Nigam 60 MW Captive Wind",
       "tariffLabel": "Tariff TBD (captive)",
-      "meta": "Bid under evaluation \u00b7 60 MW",
+      "meta": "Bid under evaluation · 60 MW",
       "category": "Captive",
       "url": "https://www.mercomindia.com/"
     },
@@ -159,8 +174,8 @@
       "effectiveDate": "2024-08-01",
       "title": "GUVNL Phase-V Wind (1,000 MW)",
       "tariff_inr": 3.14,
-      "tariffLabel": "\u20b93.14\u20133.18/kWh (ceiling \u20b93.14)",
-      "meta": "ReNew, Juniper, Serentica \u00b7 1,000 MW",
+      "tariffLabel": "₹3.14–3.18/kWh (ceiling ₹3.14)",
+      "meta": "ReNew, Juniper, Serentica · 1,000 MW",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -169,9 +184,9 @@
       "regulator": "Mercom India",
       "dateLabel": "2025",
       "effectiveDate": "2025-01-01",
-      "title": "PGCIL undersea cable tender \u2014 Offshore Wind Zone, Gujarat",
-      "tariffLabel": "Transmission tariff \u2014 CERC regulated",
-      "meta": "Under evaluation \u00b7 \u2014",
+      "title": "PGCIL undersea cable tender — Offshore Wind Zone, Gujarat",
+      "tariffLabel": "Transmission tariff — CERC regulated",
+      "meta": "Under evaluation · —",
       "category": "Transmission",
       "url": "https://www.mercomindia.com/"
     },
@@ -181,8 +196,8 @@
       "dateLabel": "2025",
       "effectiveDate": "2025-02-01",
       "title": "INOX Wind manufacturing MoU (Karnataka)",
-      "tariffLabel": "Supply-chain investment \u2014 no PPA",
-      "meta": "INOX Wind (OEM base) \u00b7 \u2014",
+      "tariffLabel": "Supply-chain investment — no PPA",
+      "meta": "INOX Wind (OEM base) · —",
       "category": "Manufacturing",
       "url": "https://www.mercomindia.com/"
     },
@@ -193,8 +208,8 @@
       "effectiveDate": "2024-06-01",
       "title": "SECI Tranche-XV ISTS Wind",
       "tariff_inr": 3.28,
-      "tariffLabel": "\u20b93.28/kWh",
-      "meta": "Multiple (Serentica, JSW, ReNew) \u00b7 1,200 MW",
+      "tariffLabel": "₹3.28/kWh",
+      "meta": "Multiple (Serentica, JSW, ReNew) · 1,200 MW",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -205,8 +220,8 @@
       "effectiveDate": "2023-07-01",
       "title": "MSEDCL 1,000 MW FDRE (Wind + BESS + Solar)",
       "tariff_inr": 4.38,
-      "tariffLabel": "\u20b94.38/kWh (L1)",
-      "meta": "JSW Renew, ReNew Power, Hero Future \u00b7 1,000 MW \u00b7 COD FY26",
+      "tariffLabel": "₹4.38/kWh (L1)",
+      "meta": "JSW Renew, ReNew Power, Hero Future · 1,000 MW · COD FY26",
       "category": "FDRE Auction",
       "url": "https://www.mercomindia.com/"
     },
@@ -217,7 +232,7 @@
       "effectiveDate": "2024-04-01",
       "title": "MERC Generic Wind Tariff Order (FY25)",
       "tariff_inr": 3.46,
-      "tariffLabel": "\u20b93.46/kWh (generic)",
+      "tariffLabel": "₹3.46/kWh (generic)",
       "meta": "Applicable to non-competitive intra-state wind procurement",
       "category": "Generic Tariff",
       "url": "https://merc.gov.in/"
@@ -229,8 +244,8 @@
       "effectiveDate": "2024-10-01",
       "title": "MSEDCL 500 MW Wind (RPO Compliance Tender)",
       "tariff_inr": 3.49,
-      "tariffLabel": "\u20b93.49/kWh",
-      "meta": "Adani Green, ReNew, Juniper \u00b7 500 MW \u00b7 Sangli\u2013Satara cluster",
+      "tariffLabel": "₹3.49/kWh",
+      "meta": "Adani Green, ReNew, Juniper · 500 MW · Sangli–Satara cluster",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -241,7 +256,7 @@
       "effectiveDate": "2026-02-01",
       "title": "MEDA 300 MW Repowering Tender (Sangli / Satara)",
       "tariffLabel": "Tariff TBD (bid under evaluation)",
-      "meta": "Suzlon, Inox Wind, GE Vernova in fray \u00b7 300 MW",
+      "meta": "Suzlon, Inox Wind, GE Vernova in fray · 300 MW",
       "category": "Repowering",
       "url": "https://www.mercomindia.com/"
     },
@@ -252,7 +267,7 @@
       "effectiveDate": "2024-04-01",
       "title": "KERC Generic Wind Tariff Order (FY25)",
       "tariff_inr": 3.74,
-      "tariffLabel": "\u20b93.74/kWh (generic)",
+      "tariffLabel": "₹3.74/kWh (generic)",
       "meta": "Applicable to non-competitive intra-state wind procurement",
       "category": "Generic Tariff",
       "url": "https://www.karnataka.gov.in/kerc/english"
@@ -264,8 +279,8 @@
       "effectiveDate": "2024-09-01",
       "title": "BESCOM 200 MW Wind (RPO Compliance Tender)",
       "tariff_inr": 3.84,
-      "tariffLabel": "\u20b93.84/kWh",
-      "meta": "Adani Green, Juniper, Ayana \u00b7 200 MW \u00b7 Chitradurga\u2013Gadag cluster",
+      "tariffLabel": "₹3.84/kWh",
+      "meta": "Adani Green, Juniper, Ayana · 200 MW · Chitradurga–Gadag cluster",
       "category": "Auction L1",
       "url": "https://www.mercomindia.com/"
     },
@@ -276,7 +291,7 @@
       "effectiveDate": "2022-06-01",
       "title": "KREDL 750 MW Wind Allocation (REC / Captive Route)",
       "tariffLabel": "Bilateral PPAs (project-specific)",
-      "meta": "Pavagada, Chitradurga, Gadag clusters \u00b7 750 MW",
+      "meta": "Pavagada, Chitradurga, Gadag clusters · 750 MW",
       "category": "Allocation",
       "url": "https://kredl.karnataka.gov.in/"
     },
@@ -286,8 +301,8 @@
       "dateLabel": "2023",
       "effectiveDate": "2023-08-01",
       "title": "KERC Banking & Wheeling Charges Order (Wind / Solar)",
-      "tariffLabel": "Banking 2% \u00b7 Wheeling 5%",
-      "meta": "Open-access wind & solar generators \u00b7 captive / 3rd-party",
+      "tariffLabel": "Banking 2% · Wheeling 5%",
+      "meta": "Open-access wind & solar generators · captive / 3rd-party",
       "category": "Open Access",
       "url": "https://www.karnataka.gov.in/kerc/english"
     },
@@ -298,7 +313,7 @@
       "effectiveDate": "2024-04-01",
       "title": "KSERC Generic Wind Tariff Order (FY25)",
       "tariff_inr": 4.13,
-      "tariffLabel": "\u20b94.13/kWh (generic)",
+      "tariffLabel": "₹4.13/kWh (generic)",
       "meta": "Applicable to intra-state wind procurement by KSEBL",
       "category": "Generic Tariff",
       "url": "https://erckerala.org/"
@@ -310,8 +325,8 @@
       "effectiveDate": "2024-04-01",
       "title": "KSEBL APPC for Wind Purchase (FY25)",
       "tariff_inr": 4.45,
-      "tariffLabel": "\u20b94.45/kWh (APPC, indicative)",
-      "meta": "Avg. Power Purchase Cost \u00b7 legacy Palakkad-gap wind fleet",
+      "tariffLabel": "₹4.45/kWh (APPC, indicative)",
+      "meta": "Avg. Power Purchase Cost · legacy Palakkad-gap wind fleet",
       "category": "APPC",
       "url": "https://www.kseb.in/"
     },
@@ -322,7 +337,7 @@
       "effectiveDate": "2023-09-01",
       "title": "ANERT Small Wind / Solar-Wind Hybrid Scheme",
       "tariffLabel": "Capex-linked subsidy (no PPA)",
-      "meta": "Pilot scheme for sub-2 MW captive wind + hybrid \u00b7 all districts",
+      "meta": "Pilot scheme for sub-2 MW captive wind + hybrid · all districts",
       "category": "Subsidy Scheme",
       "url": "https://anert.gov.in/"
     },
@@ -333,7 +348,7 @@
       "effectiveDate": "2024-04-01",
       "title": "TSERC Generic Wind Tariff Order (FY25)",
       "tariff_inr": 3.84,
-      "tariffLabel": "\u20b93.84/kWh (generic)",
+      "tariffLabel": "₹3.84/kWh (generic)",
       "meta": "Applicable to intra-state wind procurement by TS DISCOMs",
       "category": "Generic Tariff",
       "url": "https://tserc.gov.in/"
@@ -345,8 +360,8 @@
       "effectiveDate": "2024-11-01",
       "title": "TS Wind-Solar Hybrid 200 MW Tender (Narayanpet)",
       "tariff_inr": 3.49,
-      "tariffLabel": "\u20b93.49/kWh",
-      "meta": "ReNew, Adani Green, JSW \u00b7 200 MW \u00b7 Narayanpet cluster",
+      "tariffLabel": "₹3.49/kWh",
+      "meta": "ReNew, Adani Green, JSW · 200 MW · Narayanpet cluster",
       "category": "Hybrid Auction",
       "url": "https://www.mercomindia.com/"
     },
@@ -357,7 +372,7 @@
       "effectiveDate": "2020-03-01",
       "title": "TSREDCO REC-Route Wind Allotment (Cumulative)",
       "tariffLabel": "Bilateral PPAs (project-specific)",
-      "meta": "Captive + 3rd-party wind via REC mechanism \u00b7 ~700 MW cumulative",
+      "meta": "Captive + 3rd-party wind via REC mechanism · ~700 MW cumulative",
       "category": "Allocation",
       "url": "https://tsredco.telangana.gov.in/"
     },
@@ -368,7 +383,7 @@
       "effectiveDate": "2025-11-01",
       "title": "TNGECL 34.75 MW Wind-Solar Hybrid (Kayathar, Muppandal, Puliyankulam)",
       "tariffLabel": "Tariff TBD",
-      "meta": "Bid under evaluation \u00b7 34.75 MW",
+      "meta": "Bid under evaluation · 34.75 MW",
       "category": "Hybrid",
       "url": "https://solarquarter.com/"
     },
@@ -378,7 +393,7 @@
       "effectiveDate": "2025-12-15",
       "title": "RfS for Setting up of 1200 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XIX)",
       "tariffLabel": "Tariff TBD (bid due Dec 2025)",
-      "meta": "Bid due Dec 2025 \u00b7 1,200 MW",
+      "meta": "Bid due Dec 2025 · 1,200 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/YmB1"
     },
@@ -388,7 +403,7 @@
       "effectiveDate": "2026-01-07",
       "title": "RfS for assured Peak supply of 4800 MWh (1200 MW x 4 Hrs.) from ISTS-Connected RE Power Projects in India (SECI-FDRE-VII)",
       "tariffLabel": "Tariff TBD (bid due Jan 2026)",
-      "meta": "Bid due Jan 2026 \u00b7 4,800 MW",
+      "meta": "Bid due Jan 2026 · 4,800 MW",
       "category": "FDRE",
       "url": "https://www.seci.co.in/tender-details/YmB2"
     },
@@ -398,7 +413,7 @@
       "effectiveDate": "2025-03-24",
       "title": "RfS for 1200 MW RTC Power from ISTS-Connected RE Power Projects in India (SECI-RTC-IV)",
       "tariffLabel": "Tariff TBD (bid due Mar 2025)",
-      "meta": "Bid due Mar 2025 \u00b7 1,200 MW",
+      "meta": "Bid due Mar 2025 · 1,200 MW",
       "category": "RTC",
       "url": "https://www.seci.co.in/tender-details/YWVx"
     },
@@ -408,7 +423,7 @@
       "effectiveDate": "2024-11-14",
       "title": "RfS for assured Peak supply of 8000 MWh (2000 MW x 4 Hrs.) from ISTS-Connected RE Projects (SECI-FDRE-VI)",
       "tariffLabel": "Tariff TBD (bid due Nov 2024)",
-      "meta": "Bid due Nov 2024 \u00b7 8,000 MW",
+      "meta": "Bid due Nov 2024 · 8,000 MW",
       "category": "FDRE",
       "url": "https://www.seci.co.in/tender-details/YWV3"
     },
@@ -418,7 +433,7 @@
       "effectiveDate": "2024-08-06",
       "title": "RfS for Selection of Hybrid Power Developers for Setting up of 400 MW ISTS-connected Wind-Solar Hybrid Power Projects in India (SECI-Tranche-IX)",
       "tariffLabel": "Tariff TBD (bid due Aug 2024)",
-      "meta": "Bid due Aug 2024 \u00b7 400 MW",
+      "meta": "Bid due Aug 2024 · 400 MW",
       "category": "Wind-Solar Hybrid",
       "url": "https://www.seci.co.in/tender-details/YWZx"
     },
@@ -428,7 +443,7 @@
       "effectiveDate": "2024-08-05",
       "title": "RfS for 500 MW ISTS-Connected Wind Power Projects in India (SECI-Tranche-XVII)",
       "tariffLabel": "Tariff TBD (bid due Aug 2024)",
-      "meta": "Bid due Aug 2024 \u00b7 500 MW",
+      "meta": "Bid due Aug 2024 · 500 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/YWZ3"
     },
@@ -438,7 +453,7 @@
       "effectiveDate": "2024-05-20",
       "title": "RfS for Selection of Hybrid Power Developers for Setting up of 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects in India under Tariff-Based Competitive Bidding (SECI-Tranche-VIII)",
       "tariffLabel": "Tariff TBD (bid due May 2024)",
-      "meta": "Bid due May 2024 \u00b7 1,200 MW",
+      "meta": "Bid due May 2024 · 1,200 MW",
       "category": "Wind-Solar Hybrid",
       "url": "https://www.seci.co.in/tender-details/YWB0"
     },
@@ -448,7 +463,7 @@
       "effectiveDate": "2024-01-10",
       "title": "RfS for Selection of Wind Power Developers for Setting up of 1350 MW ISTS-connected Wind Power Projects (SECI-Tranche-XVI)",
       "tariffLabel": "Tariff TBD (bid due Jan 2024)",
-      "meta": "Bid due Jan 2024 \u00b7 1,350 MW",
+      "meta": "Bid due Jan 2024 · 1,350 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/YWN1"
     },
@@ -458,7 +473,7 @@
       "effectiveDate": "2023-12-08",
       "title": "RfS for Selection of Hybrid Power Developers for Setting up of 2000 MW ISTS-connected Wind-Solar Hybrid Power Projects in India under Tariff-Based Competitive Bidding (SECI-Tranche-VII)",
       "tariffLabel": "Tariff TBD (bid due Dec 2023)",
-      "meta": "Bid due Dec 2023 \u00b7 2,000 MW",
+      "meta": "Bid due Dec 2023 · 2,000 MW",
       "category": "Wind-Solar Hybrid",
       "url": "https://www.seci.co.in/tender-details/YWJ_"
     },
@@ -468,7 +483,7 @@
       "effectiveDate": "2024-07-03",
       "title": "RfS for 1260 MW Firm and Dispatchable Power from ISTS-connected Renewable Energy (RE) Power Projects (SECI-FDRE-IV)",
       "tariffLabel": "Tariff TBD (bid due Jul 2024)",
-      "meta": "Bid due Jul 2024 \u00b7 1,260 MW",
+      "meta": "Bid due Jul 2024 · 1,260 MW",
       "category": "FDRE",
       "url": "https://www.seci.co.in/tender-details/YWJy"
     },
@@ -478,7 +493,7 @@
       "effectiveDate": "2023-04-17",
       "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIV)",
       "tariffLabel": "Tariff TBD (bid due Apr 2023)",
-      "meta": "Bid due Apr 2023 \u00b7 1,200 MW",
+      "meta": "Bid due Apr 2023 · 1,200 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/aGM"
     },
@@ -488,7 +503,7 @@
       "effectiveDate": "2023-03-10",
       "title": "RfS for 1200 MW ISTS-Connected Wind-Solar Hybrid Power Projects with assured Peak Power supply in India (Tranche-VI)",
       "tariffLabel": "Tariff TBD (bid due Mar 2023)",
-      "meta": "Bid due Mar 2023 \u00b7 1,200 MW",
+      "meta": "Bid due Mar 2023 · 1,200 MW",
       "category": "Wind-Solar Hybrid",
       "url": "https://www.seci.co.in/tender-details/Z2c"
     },
@@ -498,7 +513,7 @@
       "effectiveDate": "2022-07-04",
       "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XIII)",
       "tariffLabel": "Tariff TBD (bid due Jul 2022)",
-      "meta": "Bid due Jul 2022 \u00b7 1,200 MW",
+      "meta": "Bid due Jul 2022 · 1,200 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/ZGU"
     },
@@ -508,7 +523,7 @@
       "effectiveDate": "2022-01-04",
       "title": "RfS for Selection of Hybrid Power Developers for Setting up of 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects (Tranche-V)",
       "tariffLabel": "Tariff TBD (bid due Jan 2022)",
-      "meta": "Bid due Jan 2022 \u00b7 1,200 MW",
+      "meta": "Bid due Jan 2022 · 1,200 MW",
       "category": "Wind-Solar Hybrid",
       "url": "https://www.seci.co.in/tender-details/ZGE"
     },
@@ -518,7 +533,7 @@
       "effectiveDate": "2021-12-02",
       "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XII)",
       "tariffLabel": "Tariff TBD (bid due Dec 2021)",
-      "meta": "Bid due Dec 2021 \u00b7 1,200 MW",
+      "meta": "Bid due Dec 2021 · 1,200 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/ZGA"
     },
@@ -528,7 +543,7 @@
       "effectiveDate": "2021-07-06",
       "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-XI)",
       "tariffLabel": "Tariff TBD (bid due Jul 2021)",
-      "meta": "Bid due Jul 2021 \u00b7 1,200 MW",
+      "meta": "Bid due Jul 2021 · 1,200 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/Y2E"
     },
@@ -538,7 +553,7 @@
       "effectiveDate": "2021-07-16",
       "title": "RfS for setting up of 1200 MW ISTS-Connected Wind-Solar Hybrid Power Projects (Tranche-IV)",
       "tariffLabel": "Tariff TBD (bid due Jul 2021)",
-      "meta": "Bid due Jul 2021 \u00b7 1,200 MW",
+      "meta": "Bid due Jul 2021 · 1,200 MW",
       "category": "Wind-Solar Hybrid",
       "url": "https://www.seci.co.in/tender-details/Y2A"
     },
@@ -548,7 +563,7 @@
       "effectiveDate": "2021-02-19",
       "title": "RfS for Selection of Wind Power Developers for Setting up of 1200 MW ISTS-connected Wind Power Projects (Tranche-X)",
       "tariffLabel": "Tariff TBD (bid due Feb 2021)",
-      "meta": "Bid due Feb 2021 \u00b7 1,200 MW",
+      "meta": "Bid due Feb 2021 · 1,200 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/Ymc"
     },
@@ -558,7 +573,7 @@
       "effectiveDate": "2021-09-03",
       "title": "RfS for Supply of 5000 MW RTC Power from ISTS-connected RE Power Projects, complemented with Coal based Thermal Power in India (RTC-II)",
       "tariffLabel": "Tariff TBD (bid due Sep 2021)",
-      "meta": "Bid due Sep 2021 \u00b7 5,000 MW",
+      "meta": "Bid due Sep 2021 · 5,000 MW",
       "category": "RTC",
       "url": "https://www.seci.co.in/tender-details/Zw"
     },
@@ -568,7 +583,7 @@
       "effectiveDate": "2020-07-28",
       "title": "RfS for 2000 MW ISTS-connected Wind Power Projects in India (Tranche-IX)",
       "tariffLabel": "Tariff TBD (bid due Jul 2020)",
-      "meta": "Bid due Jul 2020 \u00b7 2,000 MW",
+      "meta": "Bid due Jul 2020 · 2,000 MW",
       "category": "Wind Auction",
       "url": "https://www.seci.co.in/tender-details/ZQ"
     },
@@ -578,7 +593,7 @@
       "effectiveDate": "2020-12-07",
       "title": "RfS for 1200 MW ISTS-connected Wind-Solar Hybrid Power Projects in India (Tranche-III)",
       "tariffLabel": "Tariff TBD (bid due Dec 2020)",
-      "meta": "Bid due Dec 2020 \u00b7 1,200 MW",
+      "meta": "Bid due Dec 2020 · 1,200 MW",
       "category": "Wind-Solar Hybrid",
       "url": "https://www.seci.co.in/tender-details/YQ"
     },
@@ -587,9 +602,9 @@
       "regulator": "Renewable Watch",
       "dateLabel": "2025",
       "effectiveDate": "2025-04-01",
-      "title": "Suzlon\u2013Yanara 153 MW FDRE (Barmer)",
+      "title": "Suzlon–Yanara 153 MW FDRE (Barmer)",
       "tariffLabel": "Bilateral PPA (not disclosed)",
-      "meta": "Yanara Energy (offtaker) \u00b7 153 MW",
+      "meta": "Yanara Energy (offtaker) · 153 MW",
       "category": "FDRE",
       "url": "https://renewablewatch.in/"
     },
@@ -598,9 +613,9 @@
       "regulator": "MPERC",
       "dateLabel": "2025",
       "effectiveDate": "2025-05-01",
-      "title": "MPERC Petition 22/2025 \u2014 wind-related order",
-      "tariffLabel": "Generic wind tariff \u2014 see order",
-      "meta": "MPPMCL regulated procurement \u00b7 \u2014",
+      "title": "MPERC Petition 22/2025 — wind-related order",
+      "tariffLabel": "Generic wind tariff — see order",
+      "meta": "MPPMCL regulated procurement · —",
       "category": "Generic Tariff",
       "url": "https://mperc.in/"
     },
@@ -609,9 +624,9 @@
       "regulator": "NREDCAP",
       "dateLabel": "2025",
       "effectiveDate": "2025-03-01",
-      "title": "NREDCAP Rekulakunta O&M \u2014 4 turbines + 7-machine",
-      "tariffLabel": "O&M scope \u2014 no PPA",
-      "meta": "Contractor selection underway \u00b7 \u2014",
+      "title": "NREDCAP Rekulakunta O&M — 4 turbines + 7-machine",
+      "tariffLabel": "O&M scope — no PPA",
+      "meta": "Contractor selection underway · —",
       "category": "O&M",
       "url": "https://nredcap.in/"
     },
@@ -622,7 +637,7 @@
       "effectiveDate": "2025-06-01",
       "title": "Telangana Clean & Green Energy Policy, 2025 (TGECA-2025)",
       "tariffLabel": "Banking @ 2%, wheeling 5.5%, no cross-subsidy for captive",
-      "meta": "All RE developers (wheeling + banking incentives) \u00b7 \u2014",
+      "meta": "All RE developers (wheeling + banking incentives) · —",
       "category": "Policy",
       "url": "https://tsredco.telangana.gov.in/"
     }
@@ -808,81 +823,144 @@
   ],
   "news": [
     {
-      "headline": "BHEL Floats Tender for 1.5 MW Rooftop Solar Project in Bhopal",
-      "url": "https://www.mercomindia.com/bhel-floats-tender-for-1-5-mw-rooftop-solar-project-in-bhopal",
-      "publishedAt": "2026-05-14T18:29:25.000Z",
+      "headline": "Higher Sales Volume Pushes Premier Energies’ Revenue Up 40% YoY in Q4 FY 2026",
+      "url": "https://www.mercomindia.com/higher-sales-volume-pushes-premier-energies-revenue-up-40-yoy-in-q4-fy-2026",
+      "publishedAt": "2026-05-15T19:38:43.000Z",
       "source": "Mercom India",
-      "summary": "<p>Listen to this article Bharat Heavy Electricals (BHEL) has invited bids to set up a 1,500 kW grid-connected rooftop solar project at its facility in</p>"
+      "summary": "<p>Solar module and cell manufacturer Premier Energies has posted revenue of ₹22.7 billion (~$237.12 million) in the fourth quarter (Q4) of the financial year (FY) 2026, up 40.1% year-over-year (YoY) from ₹16.2 billion (~$169 million).</p>"
     },
     {
-      "headline": "Indraprastha Gas Tenders 160 MW Solar Project With 28 MWh Battery Storage",
-      "url": "https://www.mercomindia.com/indraprastha-gas-tenders-160-mw-solar-project-with-28-mwh-battery-storage",
-      "publishedAt": "2026-05-14T18:14:52.000Z",
+      "headline": "Fujiyama Commissions 2 GW Solar Module Manufacturing Plant in Madhya Pradesh",
+      "url": "https://www.mercomindia.com/fujiyama-commissions-2-gw-solar-module-manufacturing-plant-in-madhya-pradesh",
+      "publishedAt": "2026-05-15T19:09:38.000Z",
       "source": "Mercom India",
-      "summary": "<p>Indrapastha Gas (IGL), a joint venture of GAIL India, BPCL, and the Government of Delhi, has invited bids to set up a 160 MW solar power project with a 28 MWh battery storage system in Rajasthan. The successful bidder must operate and maintain the project for five years.</p>"
+      "summary": "<p>Listen to this article Rooftop solar solutions company Fujiyama Power Systems has commissioned a 2,000 MW solar module manufacturing facility in Ratlam, Madhya Pradesh. In</p>"
     },
     {
-      "headline": "Terra Clean Issues Land Aggregation Tender for 100 MW Solar Project",
-      "url": "https://www.mercomindia.com/terra-clean-issues-land-aggregation-tender-for-100-mw-solar-project",
-      "publishedAt": "2026-05-14T16:55:27.000Z",
+      "headline": "SJVN’s Q4 FY 2026 Revenue Soars 197%, Loss Narrows",
+      "url": "https://www.mercomindia.com/sjvns-q4-fy-2026-revenue-soars-197-loss-narrows",
+      "publishedAt": "2026-05-15T18:42:04.000Z",
       "source": "Mercom India",
-      "summary": "<p>Terra Clean, a wholly owned subsidiary of Indian Oil Corporation, has issued a request for proposal to aggregate land for an interstate transmission system (ISTS) -connected 100 MW solar project near the Davanagere ISTS Pooling Substation in Karnataka.</p>"
+      "summary": "<p>Government-owned power generation company SJVN’s revenue rose 196.7% to ₹14.96 billion (~$156.31 million) in the fourth quarter of the financial year (FY) 2026 from ₹5.04 billion (~$52.66 million) in the same period last year.</p>"
     },
     {
-      "headline": "RUMSL Invites Bids for Land for Solar Projects in Madhya Pradesh",
-      "url": "https://www.mercomindia.com/rumsl-invites-bids-for-land-for-solar-projects-in-madhya-pradesh",
-      "publishedAt": "2026-05-14T16:51:28.000Z",
+      "headline": "PFC’s FY 2026 Net Profit Rises 10% YoY, Loan Asset Book Tops ₹11.64 Trillion",
+      "url": "https://www.mercomindia.com/pfcs-fy-2026-net-profit-rises-10-yoy-loan-asset-book-tops-11-64-trillion",
+      "publishedAt": "2026-05-15T17:42:08.000Z",
       "source": "Mercom India",
-      "summary": "<p>Rewa Ultra Mega Solar (RUMSL) has invited expressions of interest for the purchase of private land parcels from prospective land owners to set up solar projects in Madhya Pradesh.</p>"
+      "summary": "<p>State-owned lender to the energy sector, Power Finance Corporation (PFC), has reported consolidated revenue from operations of ₹289.20 billion (~$3.03 billion) in the fourth quarter (Q4) of the financial year (FY) 2026&#8230;</p>"
     },
     {
-      "headline": "Rajasthan Brings Renewable Energy Projects Under Land Conversion Framework",
-      "url": "https://www.mercomindia.com/rajasthan-brings-renewable-energy-projects-under-land-conversion-framework",
-      "publishedAt": "2026-05-14T16:35:16.000Z",
+      "headline": "EESL Invites Bids for Feasibility and Project Reports for Solar Projects",
+      "url": "https://www.mercomindia.com/eesl-invites-bids-for-feasibility-and-project-reports-for-solar-projects",
+      "publishedAt": "2026-05-15T16:43:07.000Z",
       "source": "Mercom India",
-      "summary": "<p>The Rajasthan Government has amended the Rajasthan Land Revenue (Conversion of Agricultural Land for Non-Agricultural Purposes in Rural Areas) Rules, 2007, bringing renewable energy projects\u2019 within the land conversion framework.</p>"
+      "summary": "<p>Listen to this article The Energy Efficiency Services (EESL), a government entity under the administrative control of the Ministry of Power (MoP), has issued an</p>"
     },
     {
-      "headline": "Germany Awards 2.3 GW Solar Capacity in the March Round",
-      "url": "https://www.mercomindia.com/germany-awards-2-3-gw-solar-capacity-in-the-march-round",
-      "publishedAt": "2026-05-14T13:30:16.000Z",
+      "headline": "Chhattisgarh Proposes ₹3.4/kWh Levelized Tariff for Solar Projects Up to 2 MW",
+      "url": "https://www.mercomindia.com/chhattisgarh-propose-₹3-4-kwh-levelized-tariff-for-solar-projects-up-to-2-mw",
+      "publishedAt": "2026-05-15T16:31:56.000Z",
       "source": "Mercom India",
-      "summary": "<p>Germany\u2019s Federal Network Agency (Bundesnetzagentur) has awarded 268 bids for solar installations with a combined capacity of 2,299 MW in its March 2026 solar PV auction.</p>"
+      "summary": "<p>The Chhattisgarh State Electricity Regulatory Commission (CSERC) has proposed a generic levelized tariff of ₹3.40 (~$0.04)/kWh for solar photovoltaic projects between 500 kW and 2 MW and ₹4.95 (~$0.05)/kWh for biogas-based power projects commissioned in the financial year (FY) 2026-27. The propos"
     },
     {
-      "headline": "India Adds Record 15.3 GW of Solar Capacity in Q1 2026",
-      "url": "https://www.mercomindia.com/india-adds-record-15-3-gw-of-solar-capacity-in-q1-2026",
-      "publishedAt": "2026-05-14T13:27:01.000Z",
+      "headline": "CERC Clears Transmission Charges for Khavda Renewable Energy Evacuation Project",
+      "url": "https://www.mercomindia.com/cerc-clears-transmission-charges-for-khavda-renewable-energy-evacuation-project",
+      "publishedAt": "2026-05-15T15:52:23.000Z",
       "source": "Mercom India",
-      "summary": "<p>India installed 15.3 GW of solar capacity in Q1 2026, its highest-ever quarterly total, according to Mercom India\u2019s Q1 2026 India Solar Market Update Report.</p>"
+      "summary": "<p>The Central Electricity Regulatory Commission (CERC) has approved annual transmission charges of ₹23.92 billion (~$249.86 million) for the interstate transmission system (ISTS) project to evacuate 8 GW of power from the renewable energy zone in Khavda, Gujarat, under Phase-V: Part C.</p>"
     },
     {
-      "headline": "Strong US Demand Pushes Nextpower\u2019s FY 2026 Revenue Up 20%",
-      "url": "https://www.mercomindia.com/strong-us-demand-pushes-nextpowers-fy-2026-revenue-up-20",
-      "publishedAt": "2026-05-14T13:17:02.000Z",
+      "headline": "Sunraycer Secures $901 Million for Solar and Storage Projects in Texas",
+      "url": "https://www.mercomindia.com/sunraycer-secures-901-million-solar-and-storage-projects",
+      "publishedAt": "2026-05-15T15:16:51.000Z",
       "source": "Mercom India",
-      "summary": "<p>U.S.-based solar tracker firm Nextpower reported revenue of $880.5 million in the fourth quarter (Q4) of the financial year (FY) 2026, a 4.7% year-over-year (YoY) decrease from $924.3 million. The revenue exceeded analysts\u2019 expectations by $50.7 million. The company said Q4 revenue was affected b"
+      "summary": "<p>Listen to this article Sunraycer Renewables, a developer, owner, and operator of clean energy power sites, has closed a $901 million project financing facility to</p>"
     },
     {
-      "headline": "Tata Power\u2019s Q4 FY 2026 Revenue Falls 8% on Lower EPC Revenue",
-      "url": "https://www.mercomindia.com/tata-powers-q4-fy-2026-revenue-falls-8-lower-epc-revenue",
-      "publishedAt": "2026-05-14T12:51:58.000Z",
+      "headline": "Arava Power to Acquire 50% Stake in La Salle Solar Project",
+      "url": "https://www.mercomindia.com/arava-power-to-acquire-50-stake-in-la-salle-solar-project",
+      "publishedAt": "2026-05-15T14:52:59.000Z",
       "source": "Mercom India",
-      "summary": "<p>Listen to this article Integrated power company\u00a0Tata Power\u00a0reported a revenue of \u20b9159.62 billion (~$1.67 billion) in the fourth quarter (Q4) of the financial year (FY)</p>"
+      "summary": "<p>OCI Energy, a utility-scale solar and battery storage project developer, and Arava Power, an Israeli utility-scale renewable energy&#8230;</p>"
     },
     {
-      "headline": "Daily News Wrap-Up: Tamil Nadu Issues Draft MYT Framework Until FY 2032",
-      "url": "https://www.mercomindia.com/daily-news-wrap-up-tamil-nadu-issues-draft-myt-framework-until-fy-2032",
-      "publishedAt": "2026-05-14T11:38:08.000Z",
+      "headline": "CEA Proposes Cost-Reflective Fixed Charges and Retail Tariffs for DISCOMs",
+      "url": "https://www.mercomindia.com/cea-proposes-cost-reflective-fixed-charges-and-retail-tariffs-for-discoms",
+      "publishedAt": "2026-05-15T14:42:22.000Z",
       "source": "Mercom India",
-      "summary": "<p>The Tamil Nadu Electricity Regulatory Commission (TNERC) released its draft multi-year tariff (MYT) regulations for distribution licensees (DISCOMs) covering financial years 2027-28 to 2031-32.</p>"
+      "summary": "<p>The Central Electricity Authority (CEA) has proposed a national framework to rationalize fixed charges and redesign retail tariffs to improve the recovery of fixed costs incurred by distribution companies (DISCOM).</p>"
     },
     {
-      "headline": "Inox Clean acquires US solar manufacturing assets from Boviet Solar for $750 million",
-      "url": "https://energy.economictimes.indiatimes.com/news/renewable/inox-clean-energy-acquires-750-million-solar-manufacturing-assets-from-boviet-solar-in-the-us/131089376",
-      "publishedAt": "2026-05-14T10:02:00.000Z",
-      "source": "ETEnergyWorld",
-      "summary": "Inox Clean said the localised manufacturing footprint in the US would help reduce tariff- and policy-related risks while improving profitability."
+      "headline": "JSW Energy commissions 250 MW of renewable energy capacity, including hydro, since April 2026",
+      "url": "https://www.pv-magazine-india.com/2026/05/15/jsw-energy-commissions-250-mw-of-renewable-energy-capacity-including-hydro-since-april-2026/",
+      "publishedAt": "2026-05-15T10:09:28.000Z",
+      "source": "PV Magazine India",
+      "summary": "JSW Energy has commissioned 250 MW of renewable energy capacity since April 2026, comprising 130 MW of wind, 69.4 MW of solar, and the 50 MW Tidong Hydro Plant. With this addition, its total installed power generation capacity has reached 13.7 GW."
+    },
+    {
+      "headline": "POWERGRID floats tender for 150 MW/300 MWh BESS project in Andhra Pradesh",
+      "url": "https://renewablewatch.in/2026/05/15/powergrid-floats-tender-for-150-mw-300-mwh-bess-project-in-andhra-pradesh/",
+      "publishedAt": "2026-05-15T07:28:20.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Power Grid Corporation of India Limited (POWERGRID) has invited tender for design, supply, erection, testing and commissioning of a 150 MW/300 MWh battery energy storage system (BESS) project at Kalikiri in Andhra Pradesh. The package <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/202"
+    },
+    {
+      "headline": "Fujiyama commissions solar panel manufacturing facility in Madhya Pradesh",
+      "url": "https://renewablewatch.in/2026/05/15/fujiyama-commissions-solar-panel-manufacturing-facility-in-madhya-pradesh/",
+      "publishedAt": "2026-05-15T07:27:31.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Fujiyama Power Systems Limited has commissioned a 2,000 MW solar panel manufacturing facility at Ratlam, Madhya Pradesh. The facility is part of the company’s greenfield manufacturing expansion programme, and has been planned with manufacturing capacities <a class=\"mh-excerpt-more\" href=\"https://"
+    },
+    {
+      "headline": "IGL invites bids to set up 200 MW solar project in Rajasthan",
+      "url": "https://renewablewatch.in/2026/05/15/igl-invites-bids-to-set-up-200-mw-solar-project-in-rajasthan/",
+      "publishedAt": "2026-05-15T07:26:41.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Indraprastha Gas Limited (IGL) has invited bids for the setting up of a 200 MWdc (160 MWac) solar power project in Rajasthan. The project will also include an integrated battery energy storage system (BESS).  The <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/igl-invites-bi"
+    },
+    {
+      "headline": "Mainstream achieves commercial operations for Ckhúri wind farm in Chile",
+      "url": "https://renewablewatch.in/2026/05/15/mainstream-achieves-commercial-operations-for-ckhuri-wind-farm-in-chile/",
+      "publishedAt": "2026-05-15T06:59:57.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Mainstream Renewable Power has announced that it has received commercial operations date (COD) certification for the Ckhúri Wind Farm from the National Electricity Coordinator. The project is located in Calama in the Antofagasta Region, Chile. <a class=\"mh-excerpt-more\" href=\"https://renewablewat"
+    },
+    {
+      "headline": "Envision and Menderes join forces for 120 MW wind power project in Turkey",
+      "url": "https://renewablewatch.in/2026/05/15/envision-and-menderes-join-forces-for-120-mw-wind-power-project-in-turkey/",
+      "publishedAt": "2026-05-15T06:59:16.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Envision Energy has partnered with Menderes Tekstil for the Beğendik wind power project. The project, located in Edirne Province, Turkey, has an installed capacity of 120 MW. The project will deploy 15 units of Envision’s <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/envis"
+    },
+    {
+      "headline": "OCI Energy and Arava Power sign agreement for 670 MWdc Texas solar project",
+      "url": "https://renewablewatch.in/2026/05/15/oci-energy-and-arava-power-sign-agreement-for-670-mwdc-texas-solar-project/",
+      "publishedAt": "2026-05-15T06:58:38.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>OCI Energy and Arava Power have signed a membership interest purchase agreement (MIPA) for the 670 MWdc La Salle Solar project. The project is located in La Salle County, Texas. Under the agreement, Arava Power <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/oci-energy-and-a"
+    },
+    {
+      "headline": "NTPC invites bids for development of infrastructure at Pudimadaka green hydrogen hub",
+      "url": "https://renewablewatch.in/2026/05/15/ntpc-invites-bids-for-infrastructure-development-of-pudimadaka-green-hydrogen-hub/",
+      "publishedAt": "2026-05-15T05:49:04.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>NTPC Green Energy Limited (NGEL), a wholly owned subsidiary of NTPC Limited, has floated a tender inviting bids for the development of enabling infrastructure and related works for the green hydrogen hub at Pudimadaka, Andhra <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/n"
+    },
+    {
+      "headline": "Inox Clean buys US assets of Boviet Solar",
+      "url": "https://www.pv-magazine-india.com/2026/05/15/inox-clean-buys-us-assets-of-boviet-solar/",
+      "publishedAt": "2026-05-15T05:39:27.000Z",
+      "source": "PV Magazine India",
+      "summary": "Through this asset purchase, Inox Clean gains an operational capacity of 3 GW of TOPCon solar module manufacturing in the United States, positioning it in line with the “Make in America, For America” initiative."
+    },
+    {
+      "headline": "Gen2 Energy secures grid capacity for green hydrogen project in Norway",
+      "url": "https://renewablewatch.in/2026/05/15/gen2-energy-secures-grid-capacity-for-green-hydrogen-project-norway/",
+      "publishedAt": "2026-05-15T05:11:09.000Z",
+      "source": "Renewable Watch",
+      "summary": "<p>Norway-based Gen2 Energy has secured a 150 MW grid capacity reservation for its green hydrogen project at Monstad in Åfjord municipality. This will strengthen the project’s power connectivity framework. The project will produce up to <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026"
     },
     {
       "headline": "WABAG and PEAK announce Bio-CNG plant in Uttar Pradesh",
@@ -896,63 +974,7 @@
       "url": "https://renewablewatch.in/2026/05/14/hpcl-announces-financial-results-for-fy-2025-26/",
       "publishedAt": "2026-05-14T06:48:52.000Z",
       "source": "Renewable Watch",
-      "summary": "<p>Hindustan Petroleum Corporation Limited (HPCL) has announced the results for the financial year (FY) 2025-26, ending March 31, 2026. The company\u2019s revenue from operations stood at Rs 4,785.43 billion in FY 2025-26, registering a 2.62 <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026"
-    },
-    {
-      "headline": "Ceigall India to set up 50 MW BESS project in Punjab",
-      "url": "https://renewablewatch.in/2026/05/14/ceigall-india-to-set-up-50-mw-bess-project-in-punjab/",
-      "publishedAt": "2026-05-14T06:47:46.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>Ceigall India Limited has secured an order from Punjab State Power Corporation Limited (PSPCL) to set up a 50 MW standalone battery energy storage system (BESS) project in Punjab. The project has been awarded under <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/14/ceigall-indi"
-    },
-    {
-      "headline": "Bajel Projects bags transmission line order for Bellary-Davanagere RE evacuation",
-      "url": "https://renewablewatch.in/2026/05/14/bajel-projects-bags-transmission-line-order-for-bellary-davanagere-re-evacuation/",
-      "publishedAt": "2026-05-14T06:46:58.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>Bajel Projects Limited has secured an order for the Bellary-Davanagere transmission line Package TL01. The project involves the construction of an approximately 70 km 400 kV (Quad) double-circuit transmission line connecting the Bellary Substation and <a class=\"mh-excerpt-more\" href=\"https://rene"
-    },
-    {
-      "headline": "J&#038;V Energy Technology to acquire 187 MW solar portfolio in Taiwan",
-      "url": "https://renewablewatch.in/2026/05/14/jv-energy-technology-to-acquire-187-mw-solar-portfolio-in-taiwan/",
-      "publishedAt": "2026-05-14T05:40:29.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>J&#38;V Energy Technology Co., Ltd. has signed an agreement to acquire a portfolio of operational solar plants in Taiwan. The portfolio includes 42 operating solar plants located across Central and Southern Taiwan with a combined <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/"
-    },
-    {
-      "headline": "Meta and DESRI sign 850 MW clean power PPAs in US",
-      "url": "https://renewablewatch.in/2026/05/14/meta-and-desri-sign-850-mw-clean-power-ppas-in-us/",
-      "publishedAt": "2026-05-14T05:39:55.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>DESRI and Meta have signed 850 MW of solar and battery storage power purchase agreements (PPAs) in US. The agreement includes 500 MW in Oklahoma, 200 MW in Texas and 150 MW in Mississippi. With <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/14/meta-and-desri-sign-850-mw-clean-"
-    },
-    {
-      "headline": "Germany awards 2.2 GW of solar capacity",
-      "url": "https://renewablewatch.in/2026/05/14/germany-awards-2-2-gw-of-solar-capacity/",
-      "publishedAt": "2026-05-14T05:39:04.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>The Federal Network Agency of Germany has announced the results of its March 1, 2026 solar PV auction which was oversubscribed. The tender covered 2,295 MW of ground-mounted and special-structure solar projects. A total of <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/14/germ"
-    },
-    {
-      "headline": "Cleantech Solar and Sona Comstar ink PPA for open access solar project in Tamil Nadu",
-      "url": "https://renewablewatch.in/2026/05/13/cleantech-solar-and-sona-comstar-ink-ppa-for-open-access-solar-project-in-tamil-nadu/",
-      "publishedAt": "2026-05-13T06:42:46.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>Cleantech Solar has signed a power purchase agreement (PPA) with Sona BLW Precision Forgings Limited (Sona Comstar). Under the agreement, Sona Comstar will procure power on a group captive basis from Cleantech Solar\u2019s open access <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/"
-    },
-    {
-      "headline": "Tata Power announces financial results for FY 2025-26",
-      "url": "https://renewablewatch.in/2026/05/13/tata-power-announces-financial-results-for-fy-2025-26/",
-      "publishedAt": "2026-05-13T06:42:00.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>Tata Power has announced the results for the financial year (FY) 2025-26, ending March 31, 2026. The company\u2019s consolidated revenue from operations stood at Rs 636.81 billion in FY 2025-26, registering a 1.27 per cent <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/13/tata-powe"
-    },
-    {
-      "headline": "CleanMax announces financial results for FY 2025-26",
-      "url": "https://renewablewatch.in/2026/05/13/cleanmax-announces-financial-results-for-fy-2025-26/",
-      "publishedAt": "2026-05-13T06:41:19.000Z",
-      "source": "Renewable Watch",
-      "summary": "<p>CleanMax has announced the results for the financial year (FY) 2025-26. The company reported revenue from operations of Rs 19.13 billion, which rose from Rs 14.96 billion in FY2024-25. This reflects a 28 per cent <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/13/cleanmax-annou"
+      "summary": "<p>Hindustan Petroleum Corporation Limited (HPCL) has announced the results for the financial year (FY) 2025-26, ending March 31, 2026. The company’s revenue from operations stood at Rs 4,785.43 billion in FY 2025-26, registering a 2.62 <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026"
     },
     {
       "headline": "Hybrid energy systems: Combining solar, wind &#038; storage for maximum efficiency",
@@ -962,14 +984,21 @@
       "summary": "Hybrid energy systems are set to play a crucial role in shaping the future of energy infrastructure. With advancements in smart grid technologies, artificial intelligence, and predictive analytics, these systems will become even more efficient and adaptive. They offer a scalable and sustainable solu"
     },
     {
-      "headline": "Adani Green commissions 150 MW solar capacity at Khavda",
-      "url": "https://www.pv-magazine-india.com/2026/05/11/adani-green-commissions-150-mw-solar-capacity-at-khavda/",
-      "publishedAt": "2026-05-11T10:49:15.000Z",
-      "source": "PV Magazine India",
-      "summary": "Adani Green Energy Ltd (AGEL) has commissioned a 150 MW solar power project at Khavda, taking its total operational renewable energy generation capacity to 19,735.8 MW and its operational battery energy storage system (BESS) capacity to 1,376 MWh."
+      "headline": "Avaada Group Surpasses 17.7 GWp Renewable Portfolio; Over 7.2 GWp Operational and ~ 10.5 GWp Under Construction &#8211; EQ",
+      "url": "https://www.eqmagpro.com/avaada-group-surpasses-17-7-gwp-renewable-portfolio-over-7-2-gwp-operational-and-10-5-gwp-under-construction-eq/",
+      "publishedAt": "2026-05-08T12:21:51.000Z",
+      "source": "EQ Magazine",
+      "summary": "With over 7.2 GWp operational and ~ 10.5 GWp under construction, the company aims to accelerate the country’s green energy transition. The company strategically integrates Solar, Wind, Hybrid, FDRE, and Solar-plus-storage projects to provide clean, affordable and round-the-clock power Mumbai &#8211;"
     },
     {
-      "headline": "India Adds 4.5 GW of Wind Capacity in FY25 \u2014 Highest Ever",
+      "headline": "KP Group Leads with India’s First Indigenous 4.2 MW Wind Turbine Installation &#8211; EQ",
+      "url": "https://www.eqmagpro.com/kp-group-leads-with-indias-first-indigenous-4-2-mw-wind-turbine-installation-eq/",
+      "publishedAt": "2026-05-06T10:59:37.000Z",
+      "source": "EQ Magazine",
+      "summary": "In Short : KP Group has become the first Indian company to install an indigenous 4.2 MW wind turbine in Gujarat. Developed by Senvion India, the advanced turbine marks a major step in domestic wind technology, supporting higher efficiency, local manufacturing, and India’s push toward self-reliant re"
+    },
+    {
+      "headline": "India Adds 4.5 GW of Wind Capacity in FY25 — Highest Ever",
       "url": "https://www.saurenergy.com/wind-energy/india-wind-fy25-record",
       "publishedAt": "2025-04-10T00:00:00Z",
       "source": "Saur Energy",
@@ -983,11 +1012,11 @@
       "summary": "MNRE roadmap pegs wind contribution at 100 GW under 500 GW RE goal"
     },
     {
-      "headline": "India Wind Installed Capacity Touches 49.5 GW at FY25 Close",
-      "url": "https://www.eqmagpro.com/india-wind-49gw-fy25",
-      "publishedAt": "2025-04-05T00:00:00Z",
-      "source": "EQ Magazine",
-      "summary": "India wind fleet reaches new high; Gujarat, TN, Karnataka lead additions"
+      "headline": "Wind Power Tariffs Hit ₹3.18/kWh in SECI Tranche XIII",
+      "url": "https://energy.economictimes.indiatimes.com/news/renewable/seci-tranche-xiii-wind-tariff",
+      "publishedAt": "2025-04-02T00:00:00Z",
+      "source": "ETEnergyWorld",
+      "summary": "SECI Tranche XIII closes at ₹3.18/kWh L1 for 1,200 MW ISTS wind"
     },
     {
       "headline": "Suzlon Q4 Order Book Crosses 5.5 GW with Fresh NTPC Contracts",
@@ -997,11 +1026,18 @@
       "summary": "Suzlon Energy adds 504 MW NTPC REL order to growing pipeline"
     },
     {
-      "headline": "JSW Energy to Invest \u20b915,000 Cr in Wind-BESS Hybrid Build-out",
+      "headline": "JSW Energy to Invest ₹15,000 Cr in Wind-BESS Hybrid Build-out",
       "url": "https://www.business-standard.com/companies/news/jsw-energy-wind-bess-investment",
       "publishedAt": "2025-03-20T00:00:00Z",
       "source": "Business Standard",
       "summary": "JSW Energy capex plan focuses on wind-storage hybrid projects"
+    },
+    {
+      "headline": "NTPC REL to Float 900 MW Wind Bid for Anantapur Cluster",
+      "url": "https://energy.economictimes.indiatimes.com/news/renewable/ntpc-rel-900mw-wind-anantapur",
+      "publishedAt": "2025-03-18T00:00:00Z",
+      "source": "ETEnergyWorld",
+      "summary": "NTPC Renewables targets Anantapur ISTS wind cluster, BoS bids invited"
     },
     {
       "headline": "Inox Wind Bags 200 MW Repowering Order from Adani Green",
@@ -1011,25 +1047,18 @@
       "summary": "Major repowering deal for Inox Wind under MNRE 2023 policy"
     },
     {
-      "headline": "Vestas Reopens Chennai Nacelle Plant after 2-Year Pause",
-      "url": "https://www.eqmagpro.com/vestas-chennai-restart",
-      "publishedAt": "2025-03-12T00:00:00Z",
-      "source": "EQ Magazine",
-      "summary": "Vestas resumes Indian wind nacelle manufacturing at Chennai facility"
+      "headline": "GE Vernova Eyes India Wind Re-entry with 6 MW Onshore Platform",
+      "url": "https://energy.economictimes.indiatimes.com/news/renewable/ge-vernova-india-wind-reentry",
+      "publishedAt": "2025-03-04T00:00:00Z",
+      "source": "ETEnergyWorld",
+      "summary": "Global OEM signals comeback to India wind market with high-rated turbine"
     },
     {
-      "headline": "PGCIL to Bid Out \u20b913,000 Cr Offshore Wind Transmission Line",
+      "headline": "PGCIL to Bid Out ₹13,000 Cr Offshore Wind Transmission Line",
       "url": "https://www.business-standard.com/industry/news/pgcil-offshore-wind-transmission",
       "publishedAt": "2025-03-01T00:00:00Z",
       "source": "Business Standard",
       "summary": "PGCIL undersea cable tender for Gulf of Kutch offshore wind zone"
-    },
-    {
-      "headline": "GWEC: India Tops APAC Wind Additions for Second Year",
-      "url": "https://www.eqmagpro.com/gwec-india-apac-wind-additions",
-      "publishedAt": "2025-02-28T00:00:00Z",
-      "source": "EQ Magazine",
-      "summary": "Global Wind Energy Council report ranks India #1 in APAC additions"
     },
     {
       "headline": "MNRE Notifies Revised Offshore Wind VGF Framework",
@@ -1046,6 +1075,13 @@
       "source": "PIB",
       "category": "Wind",
       "summary": "MNRE announces milestone in wind energy deployment"
+    },
+    {
+      "headline": "Gujarat to Hold 1 GW Offshore Wind Auction in Q1 FY26",
+      "url": "https://energy.economictimes.indiatimes.com/news/renewable/gujarat-offshore-wind-auction",
+      "publishedAt": "2025-02-12T00:00:00Z",
+      "source": "ETEnergyWorld",
+      "summary": "Gulf of Kutch offshore wind zone goes to auction with VGF support"
     },
     {
       "headline": "Government Extends RPO Targets for Wind Energy to FY2030",
@@ -1196,7 +1232,7 @@
     },
     {
       "analyst": "CRISIL",
-      "title": "Bankability of Indian Wind Projects \u2013 FY25 Update",
+      "title": "Bankability of Indian Wind Projects – FY25 Update",
       "date": "2024-11-15",
       "url": "https://crisil.com"
     },
@@ -1210,130 +1246,131 @@
   "sourceStatus": {
     "mnre": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:13.305Z"
+      "fetchedAt": "2026-05-16T07:56:55.167Z"
     },
     "cea": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:13.305Z",
+      "fetchedAt": "2026-05-16T07:56:55.172Z",
       "fixturesUsed": true
     },
     "niwe": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:13.305Z",
+      "fetchedAt": "2026-05-16T07:56:55.181Z",
       "fixturesUsed": true
     },
     "seci": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:42.580Z"
+      "fetchedAt": "2026-05-16T07:57:19.237Z"
     },
     "lenders": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:42.581Z",
+      "fetchedAt": "2026-05-16T07:57:19.239Z",
       "fixturesUsed": true
     },
     "cerc": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:42.581Z",
+      "fetchedAt": "2026-05-16T07:57:19.239Z",
       "fixturesUsed": true
     },
     "state_serc": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:43.814Z",
+      "fetchedAt": "2026-05-16T07:57:22.299Z",
       "fixturesUsed": true
     },
     "state_nodal": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:43.814Z",
+      "fetchedAt": "2026-05-16T07:57:22.299Z",
       "fixturesUsed": true
     },
     "mercom": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:43.815Z"
+      "fetchedAt": "2026-05-16T07:57:22.299Z"
     },
     "renewable_watch": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:45.908Z"
+      "fetchedAt": "2026-05-16T07:57:22.616Z"
     },
     "solarquarter": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:45.909Z"
+      "fetchedAt": "2026-05-16T07:57:22.616Z"
     },
     "nredcap": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:45.910Z",
+      "fetchedAt": "2026-05-16T07:57:22.617Z",
       "fixturesUsed": true
     },
     "tsredco": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:53.269Z",
+      "fetchedAt": "2026-05-16T07:57:29.996Z",
       "fixturesUsed": true
     },
     "pib": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:53.270Z",
+      "fetchedAt": "2026-05-16T07:57:29.997Z",
       "fixturesUsed": true
     },
     "grid": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:12:53.270Z",
+      "fetchedAt": "2026-05-16T07:57:29.997Z",
       "fixturesUsed": true
     },
     "global_wind_atlas": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:06.432Z",
+      "fetchedAt": "2026-05-16T07:57:41.108Z",
       "fixturesUsed": true
     },
     "oem_reports": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:06.432Z",
+      "fetchedAt": "2026-05-16T07:57:41.109Z",
       "fixturesUsed": true
     },
     "analyst_notes": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:06.432Z",
+      "fetchedAt": "2026-05-16T07:57:41.109Z",
       "fixturesUsed": true
     },
     "saur_energy": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:07.488Z",
+      "fetchedAt": "2026-05-16T07:57:41.730Z",
       "fixturesUsed": true
     },
     "et_energyworld": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:07.488Z"
+      "fetchedAt": "2026-05-16T07:57:41.731Z",
+      "fixturesUsed": true
     },
     "pv_magazine": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:07.488Z"
+      "fetchedAt": "2026-05-16T07:57:41.731Z"
     },
     "eq_magazine": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:09.435Z",
-      "fixturesUsed": true
+      "fetchedAt": "2026-05-16T07:57:42.274Z"
     },
     "business_standard": {
       "ok": true,
-      "fetchedAt": "2026-05-14T13:13:09.436Z",
+      "fetchedAt": "2026-05-16T07:57:42.274Z",
       "fixturesUsed": true
     }
   },
   "capacity": {
-    "installed_mw": 56090,
+    "installed_mw": 56437,
     "target_fy_mw": 100000
   },
   "grid": {
     "daily_wind_gen_mu": 142.5,
     "wind_grid_share_pct": 4.8,
     "curtailment_pct": 2.1,
-    "date": "2026-05-14"
+    "date": "2026-05-16"
   },
   "windAtlas": {
     "country": "IND",
     "mean_wind_speed_100m": 5.8,
     "mean_wind_speed_150m": 6.4,
-    "exploitable_potential_150m_gw": 1164,
+    "exploitable_potential_150m_gw": 1163.9,
+    "exploitable_potential_120m_gw": 695.5,
     "exploitable_potential_100m_gw": 695,
     "source": "Global Wind Atlas v3.3",
-    "fetchedAt": "2026-05-14T13:13:06.432Z"
+    "fetchedAt": "2026-05-16T07:57:41.108Z"
   }
 }

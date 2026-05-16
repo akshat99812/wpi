@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import FinanceDashboard from './FinanceDashboard';
 import BankabilityCalc from './BankabilityCalc';
 import ResearchDashboard from './ResearchDashboard';
@@ -23,8 +24,15 @@ export default function EngineModal({ initialEngine, onClose }: EngineModalProps
         {/* Header bar */}
         <header className="flex-none px-3 sm:px-5 py-3 sm:py-3.5 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2 sm:gap-0 bg-gradient-to-b from-[#13192a] to-[#0c111d] border-b border-[#1f2740]">
           <div className="flex items-center gap-2.5 sm:gap-3.5 order-1 min-w-0">
-            <div className="w-8 h-8 sm:w-[42px] sm:h-[42px] rounded-xl flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-orange/20 to-orange/5 border border-orange/40 text-orange-200">
-              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            <div className="w-12 h-12 sm:w-[60px] sm:h-[60px] flex-shrink-0 flex items-center justify-center overflow-hidden">
+              <Image
+                src="/logo.png"
+                alt="Wind Power India"
+                width={60}
+                height={60}
+                className="object-contain w-full h-full"
+                priority
+              />
             </div>
             <div className="min-w-0">
               <div className="text-[9px] sm:text-[10px] tracking-[1.2px] text-orange font-bold uppercase mb-0.5">Persona Engine</div>

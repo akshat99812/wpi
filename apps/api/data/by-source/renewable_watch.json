@@ -1,9 +1,65 @@
 {
   "source": "renewable_watch",
-  "fetchedAt": "2026-05-14T13:12:45.908Z",
+  "fetchedAt": "2026-05-16T07:57:22.616Z",
   "ok": true,
   "payload": {
     "news": [
+      {
+        "headline": "Mainstream achieves commercial operations for Ckhúri wind farm in Chile",
+        "url": "https://renewablewatch.in/2026/05/15/mainstream-achieves-commercial-operations-for-ckhuri-wind-farm-in-chile/",
+        "publishedAt": "2026-05-15T06:59:57.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Mainstream Renewable Power has announced that it has received commercial operations date (COD) certification for the Ckhúri Wind Farm from the National Electricity Coordinator. The project is located in Calama in the Antofagasta Region, Chile. <a class=\"mh-excerpt-more\" href=\"https://renewablewat"
+      },
+      {
+        "headline": "Envision and Menderes join forces for 120 MW wind power project in Turkey",
+        "url": "https://renewablewatch.in/2026/05/15/envision-and-menderes-join-forces-for-120-mw-wind-power-project-in-turkey/",
+        "publishedAt": "2026-05-15T06:59:16.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Envision Energy has partnered with Menderes Tekstil for the Beğendik wind power project. The project, located in Edirne Province, Turkey, has an installed capacity of 120 MW. The project will deploy 15 units of Envision’s <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/envis"
+      },
+      {
+        "headline": "POWERGRID floats tender for 150 MW/300 MWh BESS project in Andhra Pradesh",
+        "url": "https://renewablewatch.in/2026/05/15/powergrid-floats-tender-for-150-mw-300-mwh-bess-project-in-andhra-pradesh/",
+        "publishedAt": "2026-05-15T07:28:20.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Power Grid Corporation of India Limited (POWERGRID) has invited tender for design, supply, erection, testing and commissioning of a 150 MW/300 MWh battery energy storage system (BESS) project at Kalikiri in Andhra Pradesh. The package <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/202"
+      },
+      {
+        "headline": "Fujiyama commissions solar panel manufacturing facility in Madhya Pradesh",
+        "url": "https://renewablewatch.in/2026/05/15/fujiyama-commissions-solar-panel-manufacturing-facility-in-madhya-pradesh/",
+        "publishedAt": "2026-05-15T07:27:31.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Fujiyama Power Systems Limited has commissioned a 2,000 MW solar panel manufacturing facility at Ratlam, Madhya Pradesh. The facility is part of the company’s greenfield manufacturing expansion programme, and has been planned with manufacturing capacities <a class=\"mh-excerpt-more\" href=\"https://"
+      },
+      {
+        "headline": "IGL invites bids to set up 200 MW solar project in Rajasthan",
+        "url": "https://renewablewatch.in/2026/05/15/igl-invites-bids-to-set-up-200-mw-solar-project-in-rajasthan/",
+        "publishedAt": "2026-05-15T07:26:41.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Indraprastha Gas Limited (IGL) has invited bids for the setting up of a 200 MWdc (160 MWac) solar power project in Rajasthan. The project will also include an integrated battery energy storage system (BESS).  The <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/igl-invites-bi"
+      },
+      {
+        "headline": "OCI Energy and Arava Power sign agreement for 670 MWdc Texas solar project",
+        "url": "https://renewablewatch.in/2026/05/15/oci-energy-and-arava-power-sign-agreement-for-670-mwdc-texas-solar-project/",
+        "publishedAt": "2026-05-15T06:58:38.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>OCI Energy and Arava Power have signed a membership interest purchase agreement (MIPA) for the 670 MWdc La Salle Solar project. The project is located in La Salle County, Texas. Under the agreement, Arava Power <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/oci-energy-and-a"
+      },
+      {
+        "headline": "NTPC invites bids for development of infrastructure at Pudimadaka green hydrogen hub",
+        "url": "https://renewablewatch.in/2026/05/15/ntpc-invites-bids-for-infrastructure-development-of-pudimadaka-green-hydrogen-hub/",
+        "publishedAt": "2026-05-15T05:49:04.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>NTPC Green Energy Limited (NGEL), a wholly owned subsidiary of NTPC Limited, has floated a tender inviting bids for the development of enabling infrastructure and related works for the green hydrogen hub at Pudimadaka, Andhra <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/n"
+      },
+      {
+        "headline": "Gen2 Energy secures grid capacity for green hydrogen project in Norway",
+        "url": "https://renewablewatch.in/2026/05/15/gen2-energy-secures-grid-capacity-for-green-hydrogen-project-norway/",
+        "publishedAt": "2026-05-15T05:11:09.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Norway-based Gen2 Energy has secured a 150 MW grid capacity reservation for its green hydrogen project at Monstad in Åfjord municipality. This will strengthen the project’s power connectivity framework. The project will produce up to <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026"
+      },
       {
         "headline": "WABAG and PEAK announce Bio-CNG plant in Uttar Pradesh",
         "url": "https://renewablewatch.in/2026/05/14/wabag-and-peak-launch-bio-cng-plant-in-uttar-pradesh/",
@@ -17,62 +73,6 @@
         "publishedAt": "2026-05-14T06:48:52.000Z",
         "source": "Renewable Watch",
         "summary": "<p>Hindustan Petroleum Corporation Limited (HPCL) has announced the results for the financial year (FY) 2025-26, ending March 31, 2026. The company’s revenue from operations stood at Rs 4,785.43 billion in FY 2025-26, registering a 2.62 <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026"
-      },
-      {
-        "headline": "Ceigall India to set up 50 MW BESS project in Punjab",
-        "url": "https://renewablewatch.in/2026/05/14/ceigall-india-to-set-up-50-mw-bess-project-in-punjab/",
-        "publishedAt": "2026-05-14T06:47:46.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Ceigall India Limited has secured an order from Punjab State Power Corporation Limited (PSPCL) to set up a 50 MW standalone battery energy storage system (BESS) project in Punjab. The project has been awarded under <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/14/ceigall-indi"
-      },
-      {
-        "headline": "Bajel Projects bags transmission line order for Bellary-Davanagere RE evacuation",
-        "url": "https://renewablewatch.in/2026/05/14/bajel-projects-bags-transmission-line-order-for-bellary-davanagere-re-evacuation/",
-        "publishedAt": "2026-05-14T06:46:58.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Bajel Projects Limited has secured an order for the Bellary-Davanagere transmission line Package TL01. The project involves the construction of an approximately 70 km 400 kV (Quad) double-circuit transmission line connecting the Bellary Substation and <a class=\"mh-excerpt-more\" href=\"https://rene"
-      },
-      {
-        "headline": "J&#038;V Energy Technology to acquire 187 MW solar portfolio in Taiwan",
-        "url": "https://renewablewatch.in/2026/05/14/jv-energy-technology-to-acquire-187-mw-solar-portfolio-in-taiwan/",
-        "publishedAt": "2026-05-14T05:40:29.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>J&#38;V Energy Technology Co., Ltd. has signed an agreement to acquire a portfolio of operational solar plants in Taiwan. The portfolio includes 42 operating solar plants located across Central and Southern Taiwan with a combined <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/"
-      },
-      {
-        "headline": "Meta and DESRI sign 850 MW clean power PPAs in US",
-        "url": "https://renewablewatch.in/2026/05/14/meta-and-desri-sign-850-mw-clean-power-ppas-in-us/",
-        "publishedAt": "2026-05-14T05:39:55.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>DESRI and Meta have signed 850 MW of solar and battery storage power purchase agreements (PPAs) in US. The agreement includes 500 MW in Oklahoma, 200 MW in Texas and 150 MW in Mississippi. With <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/14/meta-and-desri-sign-850-mw-clean-"
-      },
-      {
-        "headline": "Germany awards 2.2 GW of solar capacity",
-        "url": "https://renewablewatch.in/2026/05/14/germany-awards-2-2-gw-of-solar-capacity/",
-        "publishedAt": "2026-05-14T05:39:04.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>The Federal Network Agency of Germany has announced the results of its March 1, 2026 solar PV auction which was oversubscribed. The tender covered 2,295 MW of ground-mounted and special-structure solar projects. A total of <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/14/germ"
-      },
-      {
-        "headline": "Cleantech Solar and Sona Comstar ink PPA for open access solar project in Tamil Nadu",
-        "url": "https://renewablewatch.in/2026/05/13/cleantech-solar-and-sona-comstar-ink-ppa-for-open-access-solar-project-in-tamil-nadu/",
-        "publishedAt": "2026-05-13T06:42:46.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Cleantech Solar has signed a power purchase agreement (PPA) with Sona BLW Precision Forgings Limited (Sona Comstar). Under the agreement, Sona Comstar will procure power on a group captive basis from Cleantech Solar’s open access <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/"
-      },
-      {
-        "headline": "Tata Power announces financial results for FY 2025-26",
-        "url": "https://renewablewatch.in/2026/05/13/tata-power-announces-financial-results-for-fy-2025-26/",
-        "publishedAt": "2026-05-13T06:42:00.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Tata Power has announced the results for the financial year (FY) 2025-26, ending March 31, 2026. The company’s consolidated revenue from operations stood at Rs 636.81 billion in FY 2025-26, registering a 1.27 per cent <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/13/tata-powe"
-      },
-      {
-        "headline": "CleanMax announces financial results for FY 2025-26",
-        "url": "https://renewablewatch.in/2026/05/13/cleanmax-announces-financial-results-for-fy-2025-26/",
-        "publishedAt": "2026-05-13T06:41:19.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>CleanMax has announced the results for the financial year (FY) 2025-26. The company reported revenue from operations of Rs 19.13 billion, which rose from Rs 14.96 billion in FY2024-25. This reflects a 28 per cent <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/13/cleanmax-annou"
       }
     ],
     "tariffOrders": [
