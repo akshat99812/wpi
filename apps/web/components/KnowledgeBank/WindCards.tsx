@@ -315,20 +315,20 @@ export function PotentialBar({ state, gw, max, delay = 0 }: PotentialBarProps) {
   const pct = Math.min(100, (gw / max) * 100);
   return (
     <div className="flex items-center gap-3">
-      <span className="text-[11px] text-text/85 font-medium w-[110px] flex-shrink-0">
+      <span className="text-[11px] text-muted/85 w-[110px] flex-shrink-0">
         {state}
       </span>
-      <div className="flex-1 h-2 bg-[#0a0f1c] rounded-full overflow-hidden border border-[#1f2c44]">
+      <div className="flex-1 h-1.5 bg-[#0a0f1c] rounded-full overflow-hidden">
         <div
-          className="wpi-bar-grow h-full rounded-full bg-gradient-to-r from-orange to-[#ffd0a0]"
+          className="wpi-bar-grow h-full rounded-full bg-orange/80"
           style={{
             ['--wpi-delay' as string]:      `${delay}ms`,
             ['--wpi-bar-target' as string]: `${pct}%`,
           }}
         />
       </div>
-      <span className="text-[11px] font-mono font-bold text-[#ffd0a0] w-[60px] text-right tabular-nums">
-        {gw} GW
+      <span className="text-[11px] font-mono text-text/85 w-[60px] text-right tabular-nums">
+        {gw}
       </span>
     </div>
   );

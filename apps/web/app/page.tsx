@@ -61,7 +61,7 @@ export default function Landing() {
       <TopBar showEngines={false} />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="flex-1 relative overflow-hidden border-b border-[#1a2540]">
+      <section className="flex-1 relative overflow-hidden border-b border-[#1a2540] flex flex-col justify-center">
         {/* Soft orange wash + faint grid pattern for depth */}
         <div
           aria-hidden

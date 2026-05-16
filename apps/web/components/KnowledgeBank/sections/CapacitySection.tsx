@@ -463,38 +463,29 @@ function DistrictCapacityChart({
   const rows = [...data].sort((a, b) => b.mw - a.mw);
   const max  = rows[0]?.mw ?? 1;
 
-  const fillFor = (i: number) =>
-    i === 0           ? '#ff8a1f' :
-    i === 1           ? '#ffb066' :
-    i === 2           ? '#ffd0a0' :
-                        '#7bc4e2';
-
   return (
-    <div className="flex flex-col gap-2 mt-1">
+    <div className="flex flex-col gap-1.5 mt-1">
       {rows.map((row, i) => {
         const pct  = (row.mw / max) * 100;
-        const fill = fillFor(i);
         const label    = row.mw >= 1_000
-          ? `${(row.mw / 1000).toFixed(2)} GW`
+          ? `${(row.mw / 1000).toFixed(1)} GW`
           : `${row.mw.toLocaleString()} MW`;
         return (
-          <div key={row.district} className="flex items-center gap-3">
-            <span className="text-[11px] font-medium w-[120px] flex-shrink-0 text-text/85 truncate" title={row.district}>
+          <div key={row.district} className="flex items-center gap-3 py-0.5">
+            <span className="text-[11px] w-[120px] flex-shrink-0 text-text/85 truncate" title={row.district}>
               {row.district}
             </span>
-            <div className="flex-1 h-3 bg-[#0a0f1c] rounded-full overflow-hidden border border-[#1f2c44] relative">
+            <div className="flex-1 h-1.5 bg-[#1a2540]/60 rounded-full overflow-hidden">
               <div
-                className="wpi-bar-grow h-full rounded-full"
+                className="wpi-bar-grow h-full rounded-full bg-orange/80"
                 style={{
-                  background: `linear-gradient(90deg, ${fill}, ${fill}cc)`,
-                  boxShadow: `0 0 8px ${fill}55 inset`,
                   ['--wpi-delay' as string]: `${120 + i * 60}ms`,
                   ['--wpi-bar-target' as string]: `${pct}%`,
                 }}
               />
             </div>
-            <div className="flex flex-col items-end gap-0.5 w-[88px] flex-shrink-0">
-              <span className="text-[11px] font-mono font-bold text-[#ffd0a0] tabular-nums leading-none">
+            <div className="w-[88px] flex-shrink-0 text-right">
+              <span className="text-[11.5px] font-mono text-text/90 tabular-nums">
                 {label}
               </span>
             </div>
@@ -502,15 +493,9 @@ function DistrictCapacityChart({
         );
       })}
 
-      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#1a2a44]">
-        <span className="text-[9px] text-muted/55 uppercase tracking-wider font-bold">
-          Districts shown
-        </span>
-        <span className="text-[9.5px] text-muted/70 font-mono tabular-nums">
-          {rows.length}
-        </span>
-        <span className="ml-auto text-[9px] text-muted/55 italic">
-          Bar length normalised to top district
+      <div className="mt-2 pt-2 border-t border-[#1a2a44]/60">
+        <span className="text-[9px] text-muted/45 italic">
+          {rows.length} districts · normalised to leader
         </span>
       </div>
     </div>
@@ -531,116 +516,57 @@ function StateInstalledChart({
   data: Array<{ state: string; installed_mw: number; potential_gw: number; realisation_pct: number }>;
   highlight?: string | null;
 }) {
-  const fillFor = (pct: number, isHL: boolean) =>
-    isHL      ? '#ffd0a0' :
-    pct >= 5  ? '#ff8a1f' :
-    pct >= 1  ? '#ffb066' :
-                '#7bc4e2';
-
   const fmtMw = (mw: number) => Math.round(mw).toLocaleString('en-IN');
 
   return (
-    <div className="flex flex-col gap-2 mt-1">
+    <div className="flex flex-col gap-1.5 mt-1">
       {data.map((row, i) => {
         const potentialMw = row.potential_gw * 1_000;
         const truePct     = Math.min(100, Math.max(0, (row.installed_mw / potentialMw) * 100));
-        // Use a sqrt visual scale so small realisations (most states sit
-        // at 1–15%) actually render as a visible slice of the bar. The
-        // truePct value continues to drive the colour bucket via fillFor.
+        // sqrt scale so small realisations (most sit at 1–15%) still read.
         const fillPct     = Math.sqrt(truePct / 100) * 100;
         const isHL        = !!highlight && (row.state === highlight || row.state.startsWith(highlight.slice(0, 6)));
-        const fill        = fillFor(row.realisation_pct, isHL);
         const muted       = highlight && !isHL;
         return (
           <div
             key={row.state}
-            className={`group relative flex items-center gap-3 rounded-lg
-                       px-2.5 py-2 transition-all
-                       ${isHL
-                         ? 'bg-[#1a1228]/70 border border-orange/30 shadow-[0_0_18px_-6px_rgba(255,138,31,0.45)]'
-                         : 'bg-[#0a0f1c]/40 border border-[#1f2c44] hover:bg-[#0f1424]'}
-                       ${muted ? 'opacity-40' : ''}`}
+            className={`group flex items-center gap-3 py-1.5 px-1 transition-opacity
+                       ${muted ? 'opacity-35' : ''}`}
           >
-            {/* Accent rail */}
-            <span
-              aria-hidden
-              className="absolute left-0 top-2 bottom-2 w-[2px] rounded-r-full opacity-80"
-              style={{ backgroundColor: fill }}
-            />
-
             {/* State name */}
             <span
-              className={`pl-1.5 text-[12px] w-[120px] flex-shrink-0 leading-snug
-                         ${isHL ? 'text-[#ffd0a0] font-black' : 'font-bold text-text/90'}`}
+              className={`text-[12px] w-[120px] flex-shrink-0 leading-snug
+                         ${isHL ? 'text-orange font-semibold' : 'text-text/85'}`}
             >
               {row.state}
             </span>
 
-            {/* Bar track */}
-            <div
-              className={`relative flex-1 h-3.5 rounded-full overflow-hidden
-                         bg-gradient-to-r from-[#0a0f1c] via-[#0d1424] to-[#0a0f1c]
-                         border ${isHL ? 'border-orange/40' : 'border-[#1f2c44]'}`}
-            >
-              {/* Quarter-tick marks at 25% / 50% / 75% for readability */}
-              {[25, 50, 75].map(t => (
-                <span
-                  key={t}
-                  aria-hidden
-                  className="absolute top-0 bottom-0 w-px bg-[#1f2c44]/70"
-                  style={{ left: `${t}%` }}
-                />
-              ))}
-
-              {/* Filled installed portion */}
+            {/* Bar track — single flat rule, no border */}
+            <div className="relative flex-1 h-1.5 rounded-full overflow-hidden bg-[#1a2540]/60">
               <div
-                className="wpi-bar-grow absolute inset-y-0 left-0 rounded-full"
+                className="wpi-bar-grow absolute inset-y-0 left-0 rounded-full bg-orange/80"
                 style={{
-                  background: `linear-gradient(90deg, ${fill}, ${fill}cc)`,
-                  boxShadow: `0 0 10px ${fill}66 inset, 0 0 6px ${fill}33`,
                   ['--wpi-delay' as string]: `${280 + i * 55}ms`,
                   ['--wpi-bar-target' as string]: `${fillPct}%`,
                 }}
               />
-
-              {/* End marker */}
-              <span
-                aria-hidden
-                className="absolute right-0 top-0 bottom-0 w-px bg-[#7bc4e2]/50"
-              />
             </div>
 
-            {/* Values */}
-            <div className="flex flex-col items-end gap-0.5 w-[112px] flex-shrink-0">
-              <span className="text-[12px] font-mono font-black text-[#ffd0a0] tabular-nums leading-none">
+            {/* Values — single MW figure, lighter type */}
+            <div className="w-[112px] flex-shrink-0 text-right">
+              <span className="text-[11.5px] font-mono text-text/90 tabular-nums">
                 {fmtMw(row.installed_mw)}
-                <span className="ml-1 text-[9px] font-bold text-[#ffd0a0]/70">MW</span>
-              </span>
-              <span className="text-[9.5px] font-mono text-muted/60 tabular-nums leading-none">
-                of {fmtMw(potentialMw)} MW
+                <span className="ml-1 text-[9px] text-muted/55">MW</span>
               </span>
             </div>
           </div>
         );
       })}
 
-      {/* Legend */}
-      <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-[#1a2a44]">
-        <span className="text-[9px] text-muted/55 uppercase tracking-wider font-bold">
-          Realisation
-        </span>
-        {[
-          ['#ff8a1f', '≥ 5%'],
-          ['#ffb066', '1 – 5%'],
-          ['#7bc4e2', '< 1%'],
-        ].map(([c, l]) => (
-          <span key={l} className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} />
-            <span className="text-[9.5px] text-muted/70">{l}</span>
-          </span>
-        ))}
-        <span className="ml-auto text-[9px] text-muted/55 italic">
-          Track length = state 150 m potential · perceptual (√) scale
+      {/* Footnote — minimal one-liner instead of legend chips */}
+      <div className="mt-2 pt-2 border-t border-[#1a2a44]/60">
+        <span className="text-[9px] text-muted/45 italic">
+          Bar length = installed share of state 150 m potential (√ scale)
         </span>
       </div>
     </div>
@@ -678,65 +604,60 @@ function AnnualAdditionsChart({
              : v >= 100 ? Math.round(v).toString()
                         : v.toFixed(0);
 
-  const barW = (CW / data.length) * 0.62;
+  const barW = (CW / data.length) * 0.5;
   const slot = CW / data.length;
-  const ticks = Array.from({ length: 5 }, (_, i) => (maxMw / 4) * i);
+  // Three ticks (0, mid, max) — minimalist axis, fewer horizontal lines.
+  const ticks = [0, maxMw / 2, maxMw];
 
   return (
-    <div className="bg-[#0a0f1c]/50 border border-[#1f2c44] rounded-lg p-3 mt-1">
+    <div className="mt-1">
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
-        {/* Y-axis grid */}
+        {/* Y-axis grid — three light, solid rules */}
         {ticks.map((t, i) => {
           const y = PAD_T + CH - (t / maxMw) * CH;
           return (
             <g key={i}>
               <line
                 x1={PAD_L} x2={W - PAD_R} y1={y} y2={y}
-                stroke="#1f2c44" strokeDasharray="2 3" strokeWidth="1"
+                stroke="rgba(154,164,186,0.10)" strokeWidth="1"
               />
               <text
                 x={PAD_L - 6} y={y + 3}
                 textAnchor="end"
                 fontSize="9"
                 fontFamily="ui-monospace, monospace"
-                fill="rgba(154,164,186,0.55)"
+                fill="rgba(154,164,186,0.45)"
               >
                 {formatTick(t)}
               </text>
             </g>
           );
         })}
-        {/* Y-axis label */}
+        {/* Y-axis unit label */}
         <text
           x={4} y={PAD_T - 2}
           fontSize="9"
           fontFamily="ui-monospace, monospace"
-          fill="rgba(154,164,186,0.6)"
-          fontWeight="bold"
+          fill="rgba(154,164,186,0.45)"
         >
           {axisLabel}
         </text>
 
-        {/* Bars */}
+        {/* Bars — single muted-orange tone for all years */}
         {data.map((d, i) => {
           const h    = (d.mw / maxMw) * CH;
           const x    = PAD_L + slot * i + (slot - barW) / 2;
           const y    = PAD_T + CH - h;
-          // Highlight the rebound from FY22 onward in warm orange; earlier
-          // years stay in muted slate.
-          const isRecent = i >= 5;
-          const fill   = isRecent ? '#ff8a1f' : '#3a4a6a';
-          const accent = isRecent ? '#ffd0a0' : '#7bc4e2';
           return (
             <g key={d.fy}>
-              {/* Bar */}
               <rect
                 x={x}
                 y={y}
                 width={barW}
                 height={h}
-                fill={fill}
-                rx="2"
+                fill="#ff8a1f"
+                fillOpacity="0.85"
+                rx="1.5"
                 style={{
                   transformOrigin: `${x + barW / 2}px ${PAD_T + CH}px`,
                   transform: 'scaleY(0)',
@@ -744,22 +665,20 @@ function AnnualAdditionsChart({
                   animationDelay: `${320 + i * 70}ms`,
                 }}
               />
-              {/* MW / GW label above bar — match the axis unit */}
               <text
                 x={x + barW / 2}
                 y={y - 4}
                 textAnchor="middle"
-                fontSize="9"
+                fontSize="8.5"
                 fontFamily="ui-monospace, monospace"
-                fontWeight="bold"
-                fill={accent}
+                fill="rgba(255,255,255,0.6)"
                 opacity="0"
                 style={{
                   animation: `wpi-fade-in 0.5s ease forwards`,
                   animationDelay: `${800 + i * 70}ms`,
                 }}
               >
-                {axisInGw ? (d.mw / 1_000).toFixed(2) : Math.round(d.mw).toString()}
+                {axisInGw ? (d.mw / 1_000).toFixed(1) : Math.round(d.mw).toString()}
               </text>
               {/* X-axis label */}
               <text

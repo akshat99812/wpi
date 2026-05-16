@@ -14,15 +14,19 @@ interface Props {
 }
 
 // ── India-wide reference data ──────────────────────────────────────────────
+// State-wise NIWE @150 m onshore potential, sourced verbatim from MNRE's
+// official table (8 windy states = 1,136.7 GW; +27.1 GW from "Others" =
+// 1,163.9 GW national). Sorted descending by potential so the chart leads
+// with the largest endowment.
 const STATE_POTENTIAL_150M = [
-  { state: 'Karnataka',   gw: 169.5 },
-  { state: 'Gujarat',     gw: 142.6 },
-  { state: 'Rajasthan',   gw: 127.8 },
-  { state: 'Maharashtra', gw:  99.2 },
-  { state: 'Andhra Pr.',  gw:  74.1 },
-  { state: 'Tamil Nadu',  gw:  68.0 },
-  { state: 'Madhya Pr.',  gw:  15.4 },
-  { state: 'Telangana',   gw:   9.8 },
+  { state: 'Rajasthan',   gw: 284.2 },
+  { state: 'Gujarat',     gw: 180.8 },
+  { state: 'Maharashtra', gw: 173.9 },
+  { state: 'Karnataka',   gw: 169.3 },
+  { state: 'Andhra Pr.',  gw: 123.3 },
+  { state: 'Tamil Nadu',  gw:  95.1 },
+  { state: 'Madhya Pr.',  gw:  55.4 },
+  { state: 'Telangana',   gw:  54.7 },
 ];
 
 const INDIA_SOURCES = [
