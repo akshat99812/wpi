@@ -1,0 +1,108 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+
+    steps:
+      - name: Deploy over SSH (password auth)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            cd /opt/wce
+            bash deploy/update.sh
+
+      - name: Smoke test endpoints
+        run: |
+          set -e
+          echo "Waiting 10s for containers to settle..."
+          sleep 10
+          curl -fsS --max-time 10 https://windpowerindia.com > /dev/null
+          curl -fsS --max-time 10 https://api.windpowerindia.com/health > /dev/null
+          echo "✅ Both endpoints healthy"
+
+      - name: Mark result
+        id: result
+        if: always()
+        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      # --- Discord notification ---
+      - name: Notify Discord
+        if: env.DISCORD_WEBHOOK != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          STATUS="${{ needs.deploy.result }}"
+          if [ "$STATUS" = "success" ]; then
+            COLOR=3066993   # green
+            EMOJI="✅"
+            TITLE="Deploy succeeded"
+          else
+            COLOR=15158332  # red
+            EMOJI="❌"
+            TITLE="Deploy failed"
+          fi
+
+          curl -fsS -H "Content-Type: application/json" \
+            -d @- "$DISCORD_WEBHOOK" <<EOF
+          {
+            "username": "WindPowerIndia CI",
+            "embeds": [{
+              "title": "$EMOJI $TITLE",
+              "color": $COLOR,
+              "fields": [
+                {"name": "Repo",   "value": "${{ github.repository }}",                   "inline": true},
+                {"name": "Branch", "value": "${{ github.ref_name }}",                     "inline": true},
+                {"name": "Author", "value": "${{ github.actor }}",                        "inline": true},
+                {"name": "Commit", "value": "[\`${GITHUB_SHA::7}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})", "inline": true},
+                {"name": "Run",    "value": "[View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})", "inline": true}
+              ],
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          EOF
+
+      # --- Slack notification (only fires if SLACK_WEBHOOK is set) ---
+      - name: Notify Slack
+        if: env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          STATUS="${{ needs.deploy.result }}"
+          if [ "$STATUS" = "success" ]; then
+            EMOJI=":white_check_mark:"
+            TEXT="Deploy succeeded"
+          else
+            EMOJI=":x:"
+            TEXT="Deploy failed"
+          fi
+
+          curl -fsS -X POST -H "Content-Type: application/json" \
+            --data "{
+              \"text\": \"$EMOJI *$TEXT* — \`${{ github.repository }}\` @ \`${GITHUB_SHA::7}\` by ${{ github.actor }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>\"
+            }" \
+            "$SLACK_WEBHOOK"

@@ -57,7 +57,7 @@ const HERO_STATS: HeroStat[] = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen w-full bg-[#090d18] text-text flex flex-col">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#090d18] text-text flex flex-col">
       <TopBar showEngines={false} />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -80,9 +80,10 @@ export default function Landing() {
           }}
         />
 
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-10 pb-10 lg:pt-14 lg:pb-14 flex flex-col items-center text-center">
-          {/* Headline + typewriter rotator below — single-line via fluid clamp */}
-          <h1 className="whitespace-nowrap text-[clamp(22px,5vw,46px)] font-bold leading-[1.05] tracking-tight text-text">
+        <div className="relative max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 pb-8 lg:pt-14 lg:pb-14 flex flex-col items-center text-center">
+          {/* Headline + typewriter rotator below — single-line on >=sm via fluid
+              clamp; wraps on narrow mobile so it never overflows. */}
+          <h1 className="sm:whitespace-nowrap text-[clamp(22px,6.5vw,46px)] font-bold leading-[1.15] sm:leading-[1.05] tracking-tight text-text">
             Geospatial Wind,{' '}
             <span className="bg-gradient-to-r from-orange to-[#ffd0a0] bg-clip-text text-transparent">
               Intelligence
@@ -90,7 +91,7 @@ export default function Landing() {
             Terminal.
           </h1>
 
-          <div className="mt-4 lg:mt-5 flex items-baseline justify-center gap-3 text-[18px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
+          <div className="mt-4 lg:mt-5 flex items-baseline justify-center gap-2 sm:gap-3 text-[16px] sm:text-[22px] lg:text-[26px] font-semibold tracking-tight text-muted/90">
             <span className="text-orange/85">›</span>
             <TypingAnimation
               words={["Map", "Analyse", "Tender", "Finance", "Research"]}
@@ -100,31 +101,31 @@ export default function Landing() {
             />
           </div>
 
-          <p className="mt-5 lg:mt-6 max-w-[60ch] text-[14px] lg:text-[15px] leading-relaxed text-muted/95">
+          <p className="mt-5 lg:mt-6 max-w-[60ch] text-[13px] sm:text-[14px] lg:text-[15px] leading-relaxed text-muted/95">
             Open intelligence portal for India&apos;s wind sector built on four decades of
             capacity, tariffs, policy, grid, and resource data.
           </p>
 
-          <p className="mt-2 text-[11.5px] lg:text-[12.5px] font-medium tracking-tight text-muted/70">
+          <p className="mt-2 text-[11px] sm:text-[11.5px] lg:text-[12.5px] font-medium tracking-tight text-muted/70">
             Built by <span className="text-orange/90">Consolidated Energy Consultants Ltd.</span>
             <span className="text-muted/45"> · </span>
             <span className="tabular-nums">1986</span>
           </p>
 
           {/* Primary CTA — centred shiny pill */}
-          <div className="mt-7 lg:mt-9 flex justify-center">
+          <div className="mt-6 sm:mt-7 lg:mt-9 flex justify-center">
             <ShinyButton
               href="/dashboard"
-              className="px-6 lg:px-8 py-3 lg:py-3.5 text-[14px] lg:text-[16px]"
+              className="px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-3.5 text-[13px] sm:text-[14px] lg:text-[16px]"
             >
               Enter portal
-              <span className="text-[15px] lg:text-[17px]">→</span>
+              <span className="text-[14px] sm:text-[15px] lg:text-[17px]">→</span>
             </ShinyButton>
           </div>
 
           {/* Hero stat ticker — premium cards in an auto-scrolling marquee,
               pauses on hover so the user can read individual tiles. */}
-          <div className="mt-9 lg:mt-11 mb-10 lg:mb-16 relative w-full">
+          <div className="mt-8 sm:mt-9 lg:mt-11 mb-8 sm:mb-10 lg:mb-16 relative w-full">
             <Marquee
               pauseOnHover
               repeat={4}
@@ -133,15 +134,15 @@ export default function Landing() {
               {HERO_STATS.map(s => <HeroStatCard key={s.label} stat={s} />)}
             </Marquee>
             {/* Edge fades so cards bleed in/out softly instead of clipping */}
-            <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#090d18] to-transparent" />
-            <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#090d18] to-transparent" />
+            <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-[#090d18] to-transparent" />
+            <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-[#090d18] to-transparent" />
           </div>
         </div>
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
       <footer className="border-t border-[#1a2540] bg-[#080b10]">
-        <div className=" mx-auto px-6 lg:px-8 pt-3 pb-3">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3">
 
           {/* Brand */}
           <div className="pb-3">
@@ -251,10 +252,10 @@ function HeroStatCard({ stat }: { stat: HeroStat }) {
   :                                '→';
 
   return (
-    <div className="group/card relative w-[280px] sm:w-[300px] shrink-0
+    <div className="group/card relative w-[248px] sm:w-[300px] shrink-0
                     rounded-2xl border border-[#1f2c44]
                     bg-gradient-to-b from-[#0f1424] to-[#0a0f1c]
-                    px-5 py-4
+                    px-4 sm:px-5 py-3.5 sm:py-4
                     shadow-[0_8px_28px_-12px_rgba(0,0,0,0.6)]
                     hover:border-orange/40 hover:-translate-y-0.5
                     transition-all duration-200">

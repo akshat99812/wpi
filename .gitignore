@@ -29,3 +29,10 @@ logs
 # IDE
 .vscode/
 .idea/
+
+# RAG ingestion subsystem (Python)
+ingestion/.env
+ingestion/.venv/
+ingestion/data/pdfs/
+ingestion/data/parsed/
+ingestion/qdrant_storage/

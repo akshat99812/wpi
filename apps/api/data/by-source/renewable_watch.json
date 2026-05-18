@@ -1,9 +1,16 @@
 {
   "source": "renewable_watch",
-  "fetchedAt": "2026-05-16T07:57:22.616Z",
+  "fetchedAt": "2026-05-18T11:30:22.644Z",
   "ok": true,
   "payload": {
     "news": [
+      {
+        "headline": "Iberdrola to commission 195 MW wind farm in Portugal",
+        "url": "https://renewablewatch.in/2026/05/18/iberdrola-to-commission-195-mw-wind-farm-in-portugal/",
+        "publishedAt": "2026-05-18T06:39:05.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Iberdrola has commissioned the 195 MW Tâmega Norte wind farm in Portugal. Located between Braga and Vila Real, in the municipalities of Cabeceiras de Basto and Montalegre, theTâmega Norte wind farm is an onshore wind <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/18/iberdrola-"
+      },
       {
         "headline": "Mainstream achieves commercial operations for Ckhúri wind farm in Chile",
         "url": "https://renewablewatch.in/2026/05/15/mainstream-achieves-commercial-operations-for-ckhuri-wind-farm-in-chile/",
@@ -12,11 +19,39 @@
         "summary": "<p>Mainstream Renewable Power has announced that it has received commercial operations date (COD) certification for the Ckhúri Wind Farm from the National Electricity Coordinator. The project is located in Calama in the Antofagasta Region, Chile. <a class=\"mh-excerpt-more\" href=\"https://renewablewat"
       },
       {
-        "headline": "Envision and Menderes join forces for 120 MW wind power project in Turkey",
-        "url": "https://renewablewatch.in/2026/05/15/envision-and-menderes-join-forces-for-120-mw-wind-power-project-in-turkey/",
-        "publishedAt": "2026-05-15T06:59:16.000Z",
+        "headline": "Pace Digitek secures contract for 250 MW/500 MWh BESS in Tamil Nadu",
+        "url": "https://renewablewatch.in/2026/05/18/pace-digitek-secures-contract-for-250-mw-500-mwh-bess-in-tamil-nadu/",
+        "publishedAt": "2026-05-18T06:45:25.000Z",
         "source": "Renewable Watch",
-        "summary": "<p>Envision Energy has partnered with Menderes Tekstil for the Beğendik wind power project. The project, located in Edirne Province, Turkey, has an installed capacity of 120 MW. The project will deploy 15 units of Envision’s <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/envis"
+        "summary": "<p>Pace Digitek Limited has secured a contract worth Rs 7,099.19 million from NLC India Renewables Limited for a 250 MW/500 MWh battery energy storage system (BESS) in Tamil Nadu. The project will be developed across <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/18/pace-digitek-"
+      },
+      {
+        "headline": "SECI announces results of 10 MW solar plus storage auction",
+        "url": "https://renewablewatch.in/2026/05/18/seci-announces-results-of-10-mw-solar-plus-storage-auction/",
+        "publishedAt": "2026-05-18T06:44:37.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>The Solar Energy Corporation of India (SECI) has announced BNC Power Projects as the winner of its auction to develop a 10 MW grid-connected solar project along with a 10 MW/20 MWh battery energy storage <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/18/seci-announces-results-"
+      },
+      {
+        "headline": "PSPCL announces results of 1 GWh BESS auction",
+        "url": "https://renewablewatch.in/2026/05/18/pspcl-announces-results-of-1-gwh-bess-auction/",
+        "publishedAt": "2026-05-18T06:43:49.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Punjab State Power Corporation Limited (PSPCL) has announced the results of its auction to set up 500 MW/1,000 MWh standalone battery energy storage system (BESS) projects in Punjab. Stockwell Solar won 150 MW/300 MWh capacity <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/18/"
+      },
+      {
+        "headline": "Waaree secures green hydrogen project order in Karnataka",
+        "url": "https://renewablewatch.in/2026/05/18/waaree-secures-green-hydrogen-project-order-in-karnataka/",
+        "publishedAt": "2026-05-18T06:41:22.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Waaree Clean Energy Solutions Private Limited (WCES), a wholly owned subsidiary of Waaree Energies Limited, has secured an order to develop a multi-technology green hydrogen project at TMEIC Industrial Systems India Private Limited’s facility in <a class=\"mh-excerpt-more\" href=\"https://renewablew"
+      },
+      {
+        "headline": "Sunraycer Renewables secures $901 million for solar and BESS projects in Texas",
+        "url": "https://renewablewatch.in/2026/05/18/sunraycer-renewables-secures-901-million-for-solar-and-bess-projects-in-texas/",
+        "publishedAt": "2026-05-18T06:40:15.000Z",
+        "source": "Renewable Watch",
+        "summary": "<p>Sunraycer Renewables has secured a $901 million project financing facility from MUFG Bank Limited., Ally Bank, Nomura Securities International, Inc., Norddeutsche Landesbank Girozentrale, and Societe Generale. The financing package comprises a construction-to-term loan, a tax <a class=\"mh-excerpt"
       },
       {
         "headline": "POWERGRID floats tender for 150 MW/300 MWh BESS project in Andhra Pradesh",
@@ -38,41 +73,6 @@
         "publishedAt": "2026-05-15T07:26:41.000Z",
         "source": "Renewable Watch",
         "summary": "<p>Indraprastha Gas Limited (IGL) has invited bids for the setting up of a 200 MWdc (160 MWac) solar power project in Rajasthan. The project will also include an integrated battery energy storage system (BESS).  The <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/igl-invites-bi"
-      },
-      {
-        "headline": "OCI Energy and Arava Power sign agreement for 670 MWdc Texas solar project",
-        "url": "https://renewablewatch.in/2026/05/15/oci-energy-and-arava-power-sign-agreement-for-670-mwdc-texas-solar-project/",
-        "publishedAt": "2026-05-15T06:58:38.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>OCI Energy and Arava Power have signed a membership interest purchase agreement (MIPA) for the 670 MWdc La Salle Solar project. The project is located in La Salle County, Texas. Under the agreement, Arava Power <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/oci-energy-and-a"
-      },
-      {
-        "headline": "NTPC invites bids for development of infrastructure at Pudimadaka green hydrogen hub",
-        "url": "https://renewablewatch.in/2026/05/15/ntpc-invites-bids-for-infrastructure-development-of-pudimadaka-green-hydrogen-hub/",
-        "publishedAt": "2026-05-15T05:49:04.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>NTPC Green Energy Limited (NGEL), a wholly owned subsidiary of NTPC Limited, has floated a tender inviting bids for the development of enabling infrastructure and related works for the green hydrogen hub at Pudimadaka, Andhra <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/15/n"
-      },
-      {
-        "headline": "Gen2 Energy secures grid capacity for green hydrogen project in Norway",
-        "url": "https://renewablewatch.in/2026/05/15/gen2-energy-secures-grid-capacity-for-green-hydrogen-project-norway/",
-        "publishedAt": "2026-05-15T05:11:09.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Norway-based Gen2 Energy has secured a 150 MW grid capacity reservation for its green hydrogen project at Monstad in Åfjord municipality. This will strengthen the project’s power connectivity framework. The project will produce up to <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026"
-      },
-      {
-        "headline": "WABAG and PEAK announce Bio-CNG plant in Uttar Pradesh",
-        "url": "https://renewablewatch.in/2026/05/14/wabag-and-peak-launch-bio-cng-plant-in-uttar-pradesh/",
-        "publishedAt": "2026-05-14T06:49:49.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>VA TECH WABAG LIMITED (WABAG) and PEAK Sustainability Ventures have launched a Bio-CNG plant in Ghaziabad, Uttar Pradesh. The project will be set up at a 70 million litres per day sewage treatment plant in <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/05/14/wabag-and-peak-launch"
-      },
-      {
-        "headline": "HPCL announces financial results for FY 2025-26",
-        "url": "https://renewablewatch.in/2026/05/14/hpcl-announces-financial-results-for-fy-2025-26/",
-        "publishedAt": "2026-05-14T06:48:52.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Hindustan Petroleum Corporation Limited (HPCL) has announced the results for the financial year (FY) 2025-26, ending March 31, 2026. The company’s revenue from operations stood at Rs 4,785.43 billion in FY 2025-26, registering a 2.62 <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026"
       }
     ],
     "tariffOrders": [

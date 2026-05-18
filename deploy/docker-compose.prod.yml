@@ -1,0 +1,19 @@
+services:
+  api:
+    ports: !override
+      - "127.0.0.1:3005:3005"
+    environment:
+      PORT: "3005"
+      WPI_ADMIN_TOKEN: ${WPI_ADMIN_TOKEN:-dev-token}
+      WPI_CRON_SCHEDULE: "0 1 * * *"
+      WPI_ALLOW_ORIGINS: https://windpowerindia.com,https://www.windpowerindia.com
+
+  web:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: https://api.windpowerindia.com
+    ports: !override
+      - "127.0.0.1:3006:3006"
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.windpowerindia.com
+      PORT: "3006"

@@ -1,9 +1,9 @@
 {
   "source": "mnre",
-  "fetchedAt": "2026-05-16T07:56:55.167Z",
+  "fetchedAt": "2026-05-18T11:27:27.883Z",
   "ok": true,
   "payload": {
-    "fetchedAt": "2026-05-16T07:48:06.887Z",
+    "fetchedAt": "2026-05-18T11:27:38.539Z",
     "fy": "2024-25",
     "sourceUrl": "https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2025/11/202511061627678782.pdf",
     "asOf": "31.03.2025",
@@ -50,8 +50,7 @@
       "target_fy_mw": 100000
     },
     "_cache": {
-      "hit": true,
-      "ageMs": 528319
+      "hit": false
     }
   }
 }

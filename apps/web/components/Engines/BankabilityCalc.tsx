@@ -157,8 +157,8 @@ export default function BankabilityCalc() {
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2 text-[11px] tracking-[1.1px] text-orange uppercase font-bold">
+      <div className="flex flex-wrap justify-between items-center gap-2">
+        <div className="flex items-center gap-2 text-[10.5px] sm:text-[11px] tracking-[0.9px] sm:tracking-[1.1px] text-orange uppercase font-bold">
           <div className="w-3.5 h-[2px] rounded bg-gradient-to-r from-orange to-transparent" />
           25-yr Bankability Calculator
         </div>
@@ -176,7 +176,7 @@ export default function BankabilityCalc() {
       {/* ── Derived inputs (4 tiles) ── */}
       <div>
         <div className="text-[9.5px] text-muted uppercase font-bold tracking-wide mb-2">Derived Inputs</div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <Tile label="Turnkey CapEx"      value={`₹${res.capex.toFixed(0)} Cr`}   sub={`${(p.wtg + p.bop).toFixed(2)} Cr/MW`} />
           <Tile label="Equity incl. WC"    value={`₹${res.equityWC.toFixed(0)} Cr`} />
           <Tile label="Debt"               value={`₹${res.debtAmt.toFixed(0)} Cr`}   sub={`${p.debt}% of CapEx`} />
@@ -187,7 +187,7 @@ export default function BankabilityCalc() {
       {/* ── Year-1 Run Rate (6 tiles) ── */}
       <div>
         <div className="text-[9.5px] text-muted uppercase font-bold tracking-wide mb-2">Year-1 Run Rate</div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <Tile label="Generation"    value={`${(p.size * HOURS * p.plf / 100 * (1-AUX) / 1000).toFixed(1)} MU`} />
           <Tile label="Revenue"       value={`₹${res.revY1.toFixed(1)} Cr`} />
           <Tile label="O&M"           value={`₹${res.omY1.toFixed(1)} Cr`} />
@@ -200,7 +200,7 @@ export default function BankabilityCalc() {
       {/* ── Returns & Coverage (6 tiles) ── */}
       <div>
         <div className="text-[9.5px] text-muted uppercase font-bold tracking-wide mb-2">Returns & Coverage</div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <Tile label="Project IRR"   value={`${res.projIrr.toFixed(1)}%`} />
           <Tile label="Equity IRR"    value={`${res.eqIrr.toFixed(1)}%`} sub={res.eqIrr >= 13 ? '✓ ≥ 13% threshold' : '✗ Below 13%'} />
           <Tile label="Payback"       value={`${res.payback.toFixed(1)} yrs`} />
@@ -211,17 +211,17 @@ export default function BankabilityCalc() {
       </div>
 
       {/* ── Bankability Verdict ── */}
-      <div className={`p-4 rounded-xl border flex justify-between items-center ${res.verdictClr}`}>
-        <div>
+      <div className={`p-4 rounded-xl border flex justify-between items-center gap-3 ${res.verdictClr}`}>
+        <div className="min-w-0">
           <div className="text-[9px] uppercase font-extrabold tracking-[1.2px] opacity-70 mb-0.5">Bankability Verdict</div>
-          <div className="text-lg font-black uppercase">{res.verdict}</div>
+          <div className="text-base sm:text-lg font-black uppercase">{res.verdict}</div>
           <div className="text-[10px] opacity-60 mt-0.5">
             {res.verdict === 'Bankable'     ? 'Equity IRR ≥ 13% AND Avg DSCR ≥ 1.30×'
             : res.verdict === 'Marginal'    ? 'IRR ≥ 11% or DSCR ≥ 1.15× — review assumptions'
                                            : 'Fails IRR ≥ 13% or DSCR ≥ 1.30× — not financeable at current terms'}
           </div>
         </div>
-        <div className="text-3xl">
+        <div className="text-2xl sm:text-3xl shrink-0">
           {res.verdict === 'Bankable' ? '✅' : res.verdict === 'Marginal' ? '⚠️' : '❌'}
         </div>
       </div>
@@ -252,9 +252,9 @@ export default function BankabilityCalc() {
           className="pointer-events-none absolute -top-12 -right-12 h-44 w-44 rounded-full
                      bg-orange/15 blur-3xl"
         />
-        <div className="relative p-5 flex flex-col gap-4">
+        <div className="relative p-4 sm:p-5 flex flex-col gap-4">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 grid place-items-center h-11 w-11 rounded-xl
+            <div className="flex-shrink-0 grid place-items-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl
                             bg-gradient-to-br from-orange/30 to-orange/10
                             border border-orange/45 text-orange">
               <BriefcaseIcon />
@@ -263,7 +263,7 @@ export default function BankabilityCalc() {
               <div className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-orange/90">
                 CECL Advisory
               </div>
-              <h3 className="mt-1 text-[15px] font-black text-text leading-tight">
+              <h3 className="mt-1 text-[14px] sm:text-[15px] font-black text-text leading-tight">
                 Contact CECL for bankable reports
               </h3>
               <div className="mt-1 text-[10px] uppercase tracking-[0.1em] font-bold text-muted/80">

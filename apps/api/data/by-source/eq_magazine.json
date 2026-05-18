@@ -1,22 +1,22 @@
 {
   "source": "eq_magazine",
-  "fetchedAt": "2026-05-16T07:57:42.274Z",
+  "fetchedAt": "2026-05-18T11:30:47.163Z",
   "ok": true,
   "payload": {
     "news": [
+      {
+        "headline": "Renewable Energy Growth Slows Emissions Rise in 2025, Says IEA &#8211; EQ",
+        "url": "https://www.eqmagpro.com/renewable-energy-growth-slows-emissions-rise-in-2025-says-iea-eq/",
+        "publishedAt": "2026-05-16T09:35:37.000Z",
+        "source": "EQ Magazine",
+        "summary": "In Short : Rising deployment of renewable energy helped curb the growth of global carbon emissions in 2025, according to the International Energy Agency. Increased use of solar, wind, and other clean sources reduced dependence on fossil fuels, limiting emissions expansion. The trend highlights the c"
+      },
       {
         "headline": "Avaada Group Surpasses 17.7 GWp Renewable Portfolio; Over 7.2 GWp Operational and ~ 10.5 GWp Under Construction &#8211; EQ",
         "url": "https://www.eqmagpro.com/avaada-group-surpasses-17-7-gwp-renewable-portfolio-over-7-2-gwp-operational-and-10-5-gwp-under-construction-eq/",
         "publishedAt": "2026-05-08T12:21:51.000Z",
         "source": "EQ Magazine",
         "summary": "With over 7.2 GWp operational and ~ 10.5 GWp under construction, the company aims to accelerate the country’s green energy transition. The company strategically integrates Solar, Wind, Hybrid, FDRE, and Solar-plus-storage projects to provide clean, affordable and round-the-clock power Mumbai &#8211;"
-      },
-      {
-        "headline": "KP Group Leads with India’s First Indigenous 4.2 MW Wind Turbine Installation &#8211; EQ",
-        "url": "https://www.eqmagpro.com/kp-group-leads-with-indias-first-indigenous-4-2-mw-wind-turbine-installation-eq/",
-        "publishedAt": "2026-05-06T10:59:37.000Z",
-        "source": "EQ Magazine",
-        "summary": "In Short : KP Group has become the first Indian company to install an indigenous 4.2 MW wind turbine in Gujarat. Developed by Senvion India, the advanced turbine marks a major step in domestic wind technology, supporting higher efficiency, local manufacturing, and India’s push toward self-reliant re"
       }
     ]
   }

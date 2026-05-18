@@ -16,9 +16,9 @@ export default function EngineModal({ initialEngine, onClose }: EngineModalProps
   const [activeEngine, setActiveEngine] = useState<EngineType>(initialEngine);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-200" onClick={onClose}>
-      <div 
-        className="w-full max-w-[1400px] h-[92vh] max-h-[880px] bg-gradient-to-b from-[#0e1422] to-[#090d18] rounded-xl border border-[#2a3350] shadow-2xl flex flex-col overflow-hidden transform transition-transform duration-200"
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 transition-opacity duration-200" onClick={onClose}>
+      <div
+        className="w-full max-w-[1400px] h-[96vh] sm:h-[92vh] max-h-[880px] bg-gradient-to-b from-[#0e1422] to-[#090d18] rounded-xl border border-[#2a3350] shadow-2xl flex flex-col overflow-hidden transform transition-transform duration-200"
         onClick={e => e.stopPropagation()}
       >
         {/* Header bar */}
@@ -70,26 +70,26 @@ export default function EngineModal({ initialEngine, onClose }: EngineModalProps
         {/* Body */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           {activeEngine === 'Finance' && (
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] overflow-hidden min-h-0">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] overflow-y-auto lg:overflow-hidden min-h-0">
               {/* Left Column */}
-              <div className="bg-[#0a0e18] border-r border-[#1f2740] overflow-y-auto custom-scrollbar p-5">
+              <div className="bg-[#0a0e18] border-b lg:border-b-0 lg:border-r border-[#1f2740] lg:overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5">
                  <FinanceDashboard />
               </div>
               {/* Right Column */}
-              <div className="bg-[#0c1120] overflow-y-auto custom-scrollbar p-5">
+              <div className="bg-[#0c1120] lg:overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5">
                  <BankabilityCalc />
               </div>
             </div>
           )}
-          
+
           {activeEngine === 'Research' && (
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] overflow-hidden min-h-0">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] overflow-y-auto lg:overflow-hidden min-h-0">
               {/* Left Column */}
-              <div className="bg-[#0a0e18] border-r border-[#1f2740] overflow-y-auto custom-scrollbar p-5">
+              <div className="bg-[#0a0e18] border-b lg:border-b-0 lg:border-r border-[#1f2740] lg:overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5">
                  <ResearchDashboard />
               </div>
               {/* Right Column */}
-              <div className="bg-[#0c1120] overflow-y-auto custom-scrollbar p-5">
+              <div className="bg-[#0c1120] lg:overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5 min-h-[560px] lg:min-h-0">
                  <AITopicSearch />
               </div>
             </div>

@@ -1,7 +1,12 @@
 FROM oven/bun:1 AS base
 WORKDIR /app
-COPY package.json bun.lockb ./
+COPY package.json bun.lock* ./
 RUN bun install --frozen-lockfile
 COPY . .
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_BASE_PATH
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 RUN bun run build
+EXPOSE 3006
 CMD ["bun", "run", "start"]

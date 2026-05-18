@@ -204,7 +204,7 @@ export default function FinancialSliders({
         }
       `}</style>
 
-      <div className="bg-[#0e1527] border border-[#1e2c44] rounded-xl p-4 grid grid-cols-2 gap-x-6 gap-y-5">
+      <div className="bg-[#0e1527] border border-[#1e2c44] rounded-xl p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5">
         <AnimatedSlider index={0} id="finSize"   label="Capacity"     value={p.size}   min={20}  max={1000} step={5}    unit="MW"       onChange={set('size')} />
         <AnimatedSlider index={1} id="finTariff" label="Tariff"       value={p.tariff} min={2.5} max={6.5}  step={0.05} unit="₹/kWh"   onChange={set('tariff')} />
         <AnimatedSlider index={2} id="finPlf"    label="PLF"          value={p.plf}    min={16}  max={45}   step={0.5}  unit="%"        onChange={set('plf')} />
@@ -213,7 +213,7 @@ export default function FinancialSliders({
         <AnimatedSlider index={5} id="finBop"    label="BoP Cost"     value={p.bop}    min={1.5} max={4.0}  step={0.05} unit="₹Cr/MW"  onChange={set('bop')} />
         <AnimatedSlider index={6} id="finDebt"   label="Debt %"       value={p.debt}   min={0}   max={85}   step={1}    unit="%"        onChange={set('debt')} />
         <AnimatedSlider index={7} id="finTenor"  label="Debt Tenor"   value={p.tenor}  min={5}   max={20}   step={1}    unit="yrs"      onChange={set('tenor')} />
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <AnimatedSlider index={8} id="finOm"   label="O&M Cost"     value={p.om}     min={5}   max={30}   step={0.1}  unit="₹L/MW/yr" onChange={set('om')} />
         </div>
       </div>

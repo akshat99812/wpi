@@ -18,7 +18,14 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors({ origin: process.env.WPI_ALLOW_ORIGINS || '*' }));
+const allowOrigins = (process.env.WPI_ALLOW_ORIGINS || '*')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+app.use(cors({
+  origin: allowOrigins.includes('*') ? true : allowOrigins,
+  credentials: true,
+}));
 app.use(compression() as any);
 app.use(express.json());
 

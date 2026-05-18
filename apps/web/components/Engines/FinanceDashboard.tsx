@@ -193,12 +193,12 @@ export default function FinanceDashboard() {
         Salvage 5% of CapEx at Year 25. Working capital = 1 month revenue.
       </div>
 
-      <div className="mt-2 p-4 rounded-xl bg-gradient-to-br from-[#1a1208] to-[#0d0d0d] border border-orange/25 flex justify-between items-center">
+      <div className="mt-2 p-4 rounded-xl bg-gradient-to-br from-[#1a1208] to-[#0d0d0d] border border-orange/25 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
           <div className="text-[9.5px] text-orange font-extrabold uppercase tracking-[1px] mb-0.5">CECL Pro — Finance Suite</div>
-          <div className="text-sm font-bold text-text">25-yr model export · Sensitivity tables · DSCR waterfalls</div>
+          <div className="text-[13px] sm:text-sm font-bold text-text">25-yr model export · Sensitivity tables · DSCR waterfalls</div>
         </div>
-        <button className="bg-gradient-to-r from-orange to-[#ffb066] text-[#0a0e18] px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide">
+        <button className="self-start sm:self-auto bg-gradient-to-r from-orange to-[#ffb066] text-[#0a0e18] px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide whitespace-nowrap">
           Unlock Pro
         </button>
       </div>

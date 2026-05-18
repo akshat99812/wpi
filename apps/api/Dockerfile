@@ -1,8 +1,8 @@
 FROM oven/bun:1 AS base
 WORKDIR /app
-COPY package.json ./
-RUN bun install --frozen-lockfile
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile || bun install
 COPY . .
-RUN bunx prisma generate
-# Optional: bun run build if you pre-compile, but ts-node/bun can run ts files directly
+RUN if [ -d prisma ]; then bunx prisma generate; fi
+EXPOSE 3005
 CMD ["bun", "run", "src/server.ts"]

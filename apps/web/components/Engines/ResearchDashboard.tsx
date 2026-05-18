@@ -190,9 +190,9 @@ const SECTIONS: ResearchSection[] = [
 // ─── KPI row ──────────────────────────────────────────────────────────────────
 function DataRow({ label, value }: DataRow) {
   return (
-    <div className="flex justify-between items-start gap-3 bg-[#0b0f19] border border-[#1a2138] px-3 py-2 rounded-lg">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-3 bg-[#0b0f19] border border-[#1a2138] px-3 py-2 rounded-lg">
       <span className="text-[10px] text-[#7a8599] leading-snug">{label}</span>
-      <span className="text-[11px] font-mono font-bold text-[#ffd0a0] text-right leading-snug">{value}</span>
+      <span className="text-[11px] font-mono font-bold text-[#ffd0a0] sm:text-right leading-snug break-words">{value}</span>
     </div>
   );
 }
@@ -208,7 +208,7 @@ export default function ResearchDashboard() {
       </div>
 
       {/* Top KPI strip */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {[
           { label: 'Installed Wind',    value: '48.2 GW' },
           { label: 'FY30 Target',       value: '140 GW' },
@@ -228,11 +228,11 @@ export default function ResearchDashboard() {
       <div className="flex flex-col gap-2">
         {SECTIONS.map((sec, i) => (
           <details key={i} className="group border border-[#1a2138] rounded-xl overflow-hidden bg-[#0d1220]">
-            <summary className="flex justify-between items-center px-4 py-3 cursor-pointer list-none hover:bg-[#151e30] transition-colors select-none">
-              <span className="text-sm font-bold text-[#c8d4e8]">{sec.title}</span>
-              <span className="text-[10px] text-muted group-open:rotate-180 transition-transform duration-200">▼</span>
+            <summary className="flex justify-between items-center gap-3 px-3 sm:px-4 py-3 cursor-pointer list-none hover:bg-[#151e30] transition-colors select-none">
+              <span className="text-[13px] sm:text-sm font-bold text-[#c8d4e8] min-w-0">{sec.title}</span>
+              <span className="text-[10px] text-muted shrink-0 group-open:rotate-180 transition-transform duration-200">▼</span>
             </summary>
-            <div className="px-4 pb-4 border-t border-[#1a2138] flex flex-col gap-3 pt-3">
+            <div className="px-3 sm:px-4 pb-4 border-t border-[#1a2138] flex flex-col gap-3 pt-3">
               {/* Tag chips */}
               <div className="flex flex-wrap gap-1.5">
                 {sec.chips.map(chip => (
@@ -259,7 +259,7 @@ export default function ResearchDashboard() {
         href="https://www.amazon.in/Directory-Indian-Windpower-2025-Jubilee/dp/B0FVFY1ZHW"
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative overflow-hidden mt-2 flex items-center justify-between gap-4
+        className="group relative overflow-hidden mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4
                    rounded-xl border border-orange/30
                    bg-gradient-to-br from-[#1a140a] via-[#0f1424] to-[#0a0e18]
                    px-4 py-3.5
@@ -271,7 +271,7 @@ export default function ResearchDashboard() {
                      bg-orange/15 blur-3xl"
         />
 
-        <div className="flex items-center gap-3.5 relative">
+        <div className="flex items-center gap-3 sm:gap-3.5 relative min-w-0">
           {/* Book spine glyph — inline SVG so we don't pull an icon lib */}
           <div className="shrink-0 w-9 h-11 rounded-[3px] bg-gradient-to-b from-orange to-[#c25e10]
                           shadow-[0_4px_12px_-4px_rgba(255,138,31,0.55)] flex items-center justify-center
@@ -282,11 +282,11 @@ export default function ResearchDashboard() {
               <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 18.5" />
             </svg>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="text-[9.5px] uppercase tracking-[0.16em] text-orange/85 font-bold">
               Reference · Print Edition
             </div>
-            <div className="text-[13px] font-bold text-text leading-tight mt-0.5">
+            <div className="text-[12.5px] sm:text-[13px] font-bold text-text leading-tight mt-0.5">
               Directory of Indian Windpower 2025
             </div>
             <div className="text-[10.5px] text-muted leading-snug mt-0.5">
@@ -295,7 +295,7 @@ export default function ResearchDashboard() {
           </div>
         </div>
 
-        <span className="relative inline-flex items-center gap-1.5 rounded-lg
+        <span className="relative self-start sm:self-auto inline-flex items-center gap-1.5 rounded-lg
                          bg-gradient-to-r from-orange to-[#ffb066]
                          text-[#0a0e18] px-3.5 py-2
                          text-[11.5px] font-bold tracking-tight whitespace-nowrap
@@ -308,12 +308,12 @@ export default function ResearchDashboard() {
       </a>
 
       {/* CECL Pro teaser */}
-      <div className="p-4 rounded-xl bg-gradient-to-br from-[#0f1a0d] to-[#0d0d0d] border border-[#2a4020] flex justify-between items-center mt-2">
+      <div className="p-4 rounded-xl bg-gradient-to-br from-[#0f1a0d] to-[#0d0d0d] border border-[#2a4020] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mt-2">
         <div>
           <div className="text-[9.5px] text-[#6ecf80] font-extrabold uppercase tracking-[1px] mb-0.5">CECL Pro — Research Suite</div>
-          <div className="text-sm font-bold text-text">Full report access · State deep-dives · NIWE API</div>
+          <div className="text-[13px] sm:text-sm font-bold text-text">Full report access · State deep-dives · NIWE API</div>
         </div>
-        <button className="bg-gradient-to-r from-[#4cc87a] to-[#2da85a] text-[#0a0e18] px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide">
+        <button className="self-start sm:self-auto bg-gradient-to-r from-[#4cc87a] to-[#2da85a] text-[#0a0e18] px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide whitespace-nowrap">
           Unlock Pro
         </button>
       </div>

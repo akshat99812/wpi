@@ -1,17 +1,9 @@
 {
   "source": "solarquarter",
-  "fetchedAt": "2026-05-16T07:57:22.616Z",
+  "fetchedAt": "2026-05-18T11:30:22.644Z",
   "ok": true,
   "payload": {
-    "news": [
-      {
-        "headline": "Hybrid Solar And Wind Systems With Battery Storage Redefine Reliable Clean Energy Supply—Report",
-        "url": "https://solarquarter.com/2026/05/16/hybrid-solar-and-wind-systems-with-battery-storage-redefine-reliable-clean-energy-supply-report/",
-        "publishedAt": "2026-05-16T04:11:11.000Z",
-        "source": "SolarQuarter",
-        "summary": "<a href=\"https://solarquarter.com/2026/05/16/hybrid-solar-and-wind-systems-with-battery-storage-redefine-reliable-clean-energy-supply-report/\" title=\"Hybrid Solar And Wind Systems With Battery Storage Redefine Reliable Clean Energy Supply—Report\" rel=\"nofollow\"><img width=\"1200\" height=\"675\" src=\"ht"
-      }
-    ],
+    "news": [],
     "tariffOrders": [
       {
         "state": "Tamil Nadu",

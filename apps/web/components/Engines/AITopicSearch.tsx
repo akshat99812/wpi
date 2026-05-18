@@ -40,7 +40,7 @@ const TRAINING_BADGES = [
 
 export default function AITopicSearch() {
   return (
-    <div className="relative flex flex-col h-full gap-4 isolate">
+    <div className="relative flex flex-col h-full min-h-[460px] sm:min-h-[500px] gap-3 sm:gap-4 isolate">
       {/* ── Local animation keyframes ───────────────────────────────── */}
       <style>{`
         @keyframes rc-orb-a { 0%,100%{transform:translate3d(0,0,0) scale(1);} 50%{transform:translate3d(8%,-6%,0) scale(1.08);} }
@@ -146,16 +146,16 @@ export default function AITopicSearch() {
         </div>
 
         {/* ── Lock overlay ──────────────────────────────────────────── */}
-        <div className="absolute inset-0 grid place-items-center
+        <div className="absolute inset-0 grid place-items-center px-3 sm:px-0
                         bg-gradient-to-b from-[#0a0e18]/30 via-[#0a0e18]/60 to-[#0a0e18]/85
                         backdrop-blur-[3px]">
           <div
-            className="relative max-w-[400px] w-[90%]
+            className="relative w-full max-w-[360px] sm:max-w-[400px]
                        rounded-2xl border border-white/12
                        bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent
                        backdrop-blur-2xl
                        shadow-[0_30px_80px_-20px_rgba(255,138,31,0.32),inset_0_1px_0_rgba(255,255,255,0.08)]
-                       p-5"
+                       p-3.5 sm:p-5"
             style={{ animation: 'rc-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both' }}
           >
             {/* Soft glow halo */}
@@ -165,23 +165,23 @@ export default function AITopicSearch() {
                          bg-orange/15 blur-3xl"
             />
 
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2.5 sm:gap-3">
               <div
-                className="flex-shrink-0 grid place-items-center h-11 w-11 rounded-xl
+                className="flex-shrink-0 grid place-items-center h-9 w-9 sm:h-11 sm:w-11 rounded-xl
                            bg-gradient-to-br from-orange/40 to-orange/15
                            border border-orange/55 text-orange"
                 style={{ animation: 'rc-glow-ring 2.6s ease-in-out infinite' }}
               >
                 <LockIcon />
               </div>
-              <div className="min-w-0">
-                <div className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-orange/90">
+              <div className="min-w-0 flex-1">
+                <div className="text-[9.5px] sm:text-[10px] font-extrabold uppercase tracking-[0.14em] text-orange/90">
                   CECL Pro · Research Chatbot
                 </div>
-                <h3 className="mt-1 text-[15px] font-black text-text leading-tight">
+                <h3 className="mt-1 text-[13.5px] sm:text-[15px] font-black text-text leading-tight">
                   Chat with the wind research bot
                 </h3>
-                <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted/95">
+                <p className="mt-1.5 text-[11px] sm:text-[11.5px] leading-relaxed text-muted/95">
                   Trained on <b className="text-[#ffd0a0]">CECL&apos;s proprietary
                   Indian wind power archive</b> and authoritative public datasets
                   spanning <b className="text-[#ffd0a0]">2001 → 2026</b> —
@@ -212,11 +212,11 @@ export default function AITopicSearch() {
 
             {/* CTA with shimmer */}
             <button
-              className="group mt-5 relative w-full inline-flex items-center justify-center gap-2
+              className="group mt-4 sm:mt-5 relative w-full inline-flex items-center justify-center gap-2
                          rounded-lg overflow-hidden
                          bg-gradient-to-r from-orange via-[#ffb066] to-orange
-                         text-[#0a0e18] px-4 py-2.5
-                         text-[11.5px] font-black uppercase tracking-[0.6px]
+                         text-[#0a0e18] px-3 sm:px-4 py-2 sm:py-2.5
+                         text-[11px] sm:text-[11.5px] font-black uppercase tracking-[0.5px] sm:tracking-[0.6px]
                          shadow-[0_8px_24px_-6px_rgba(255,138,31,0.55)]
                          hover:shadow-[0_12px_32px_-6px_rgba(255,138,31,0.7)]
                          transition-shadow"
