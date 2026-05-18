@@ -308,12 +308,12 @@ export default function TopBar({
                   onHoverEnd={() => setHoveredEngine(null)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`group relative flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 px-1.5 sm:px-2.5 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-xl sm:rounded-2xl border bg-gradient-to-br transition-all duration-300 ${
+                  className={`group relative flex items-center gap-1.5 sm:gap-1.5 lg:gap-2.5 px-2.5 sm:px-2.5 lg:px-4 py-2 sm:py-1.5 lg:py-2 rounded-2xl border bg-gradient-to-br transition-all duration-300 ${
                     isHovered ? hoverGradients[idx] : restGradients[idx]
                   }`}
                 >
                   <motion.span
-                    className={`inline-flex items-center justify-center w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px] group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300 ${
+                    className={`inline-flex items-center justify-center w-[20px] h-[20px] sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px] group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300 ${
                       isHovered ? textColors[idx] : iconColors[idx]
                     }`}
                     animate={isHovered ? {
@@ -339,8 +339,8 @@ export default function TopBar({
                   {isLocked && (
                     <span
                       aria-hidden
-                      className="ml-0.5 sm:ml-1 px-1 sm:px-1.5 py-[1px] rounded
-                                 text-[7.5px] sm:text-[8px] font-extrabold uppercase tracking-[0.5px]
+                      className="ml-0.5 sm:ml-1 px-1.5 py-[1px] rounded
+                                 text-[8.5px] sm:text-[8px] font-extrabold uppercase tracking-[0.5px]
                                  bg-orange/85 text-[#0a0e18]
                                  shadow-[0_0_10px_rgba(255,138,31,0.45)]"
                     >
