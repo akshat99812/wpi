@@ -37,7 +37,7 @@ jobs:
           echo "Waiting 10s for containers to settle..."
           sleep 10
           curl -fsS --max-time 10 https://windpowerindia.com > /dev/null
-          curl -fsS --max-time 10 https://api.windpowerindia.com/health > /dev/null
+          curl -fsS --max-time 10 https://api.windpowerindia.com/api/health > /dev/null
           echo "✅ Both endpoints healthy"
 
       - name: Mark result
