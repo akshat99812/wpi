@@ -1,9 +1,13 @@
 {
   "source": "niwe",
-  "fetchedAt": "2026-05-18T11:27:27.899Z",
+  "fetchedAt": "2026-05-19T11:06:54.436Z",
   "ok": true,
-  "fixturesUsed": true,
   "payload": {
+    "fetchedAt": "2026-05-19T11:06:56.059Z",
+    "sourceUrl": "https://mnre.gov.in/en/wind-overview/",
+    "asOf": "December 19, 2024",
+    "total_150m_gw": 1163.9,
+    "total_120m_gw": 695.5,
     "statePotential": [
       {
         "state": "Rajasthan",
@@ -40,6 +44,9 @@
         "potential_150m_gw": 82.4,
         "potential_120m_gw": 58.6
       }
-    ]
+    ],
+    "_cache": {
+      "hit": false
+    }
   }
 }

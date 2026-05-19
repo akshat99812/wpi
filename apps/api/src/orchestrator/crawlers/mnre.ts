@@ -1,19 +1,25 @@
 /**
  * MNRE — Physical Progress crawler.
  *
- * Source of truth for India's wind capacity. Fetches the latest
- * RE-Statistics PDF linked from MNRE's physical-progress landing page,
- * parses it with pdf-parse, and extracts:
- *   - Table 8.2 state-wise wind installed capacity (cumulative)
- *   - National wind installed total
+ * Source of truth for India's wind capacity. MNRE's physical-progress
+ * landing page links two relevant PDFs:
+ *   1. The MONTHLY "State wise RE Installed Capacity as on dd.mm.yyyy"
+ *      report — current to within a month. This is what we want.
+ *   2. The ANNUAL "RE-Statistics YYYY-YY" bulletin (Table 8.2) — only
+ *      updated each November and ~12 months stale by the time we read it.
+ *
+ * We prefer the monthly link; if not present we fall back to the annual
+ * RE-Statistics PDF (Table 8.2 has the same column structure). Both
+ * PDFs lay rows out as:
+ *   `State <ws> SmallHydro <ws> Wind <ws> Bio <ws> Solar <ws> LargeHydro <ws> Total`
+ * so the wind column is always the 2nd number after the state name.
  *
  * Caching:
- *   The PDF is updated by MNRE roughly once a year (annual statistics
- *   bulletin) plus the occasional monthly physical-progress note. We
- *   cache the parsed result on disk for 24 hours so the orchestrator
- *   doesn't re-fetch the ~3.5 MB PDF on every run. On parse failure we
- *   return the last cached payload; if no cache exists we fall back to
- *   the verified MNRE FY25-close snapshot bundled in this file.
+ *   MNRE refreshes the monthly PDF roughly once per month and the
+ *   annual once per year, but we only need quarterly granularity here,
+ *   so we hold the parsed result on disk for 90 days. On parse failure
+ *   we return the last cached payload; if no cache exists we fall back
+ *   to the verified MNRE FY25-close snapshot bundled in this file.
  */
 import { SourceResult } from '../merge';
 import { politeFetch } from '../httpClient';
@@ -25,7 +31,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
 
 const CACHE_PATH      = path.resolve(__dirname, '../../../data/cache/mnre-stats.json');
-const CACHE_TTL_MS    = 24 * 60 * 60 * 1000; // 24 h
+const CACHE_TTL_MS    = 90 * 24 * 60 * 60 * 1000; // 90 days
 const PROGRESS_URL    = 'https://mnre.gov.in/en/physical-progress/';
 const TARGET_FY30_MW  = 100_000;
 
@@ -79,32 +85,39 @@ async function saveCache(data: MnrePayload): Promise<void> {
   await writeFile(CACHE_PATH, JSON.stringify(data, null, 2));
 }
 
-// Pull the wind column out of Table 8.2 text. We scope to the data block
-// that follows the header "Table 8.2 RE cumulative installed capacity as
-// on dd.mm.yyyy" and stops at the next table marker ("Table 8.3 …") or
-// the row total. Within that block, wind-state rows have the layout
+// Pull the wind column out of the state-wise capacity table. Works on
+// both the annual Table 8.2 block and the monthly "State wise RE
+// Installed Capacity" PDF — in both, wind-state rows have the layout
 // `State <ws> SmallHydro <ws> Wind <ws> Bio <ws> Solar <ws> LargeHydro <ws> Total`
-// (7 fields, 6 numeric). pdf-parse emits tab-separated values; for each
-// state we read the 2nd numeric column.
-function parseTable82(text: string): Array<{ state: string; installed_mw: number }> {
+// (state name followed by 6+ numeric columns). Wind is the 2nd number.
+//
+// For the annual PDF we scope to lines between "Table 8.2 RE cumulative
+// installed capacity as on dd.mm.yyyy" and the next table/total marker
+// to avoid catching nearby tables (e.g. 8.1 monthly addition). For the
+// monthly PDF (no such header) we scan the full document — its layout
+// is a single contiguous table.
+function parseStateWindRows(text: string): Array<{ state: string; installed_mw: number }> {
   const lines = text.split('\n');
-  // Locate the data block (skip the table-of-contents reference at the top
-  // of the PDF; the actual table appears later with the same header).
+
+  // Try to bound by Table 8.2 anchor (annual PDF). Last occurrence wins —
+  // the actual data table sits after the table-of-contents reference.
   let start = -1, end = lines.length;
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i] ?? '';
-    if (/Table 8\.2 RE cumulative installed capacity as on \d{2}\.\d{2}\.\d{4}/i.test(line)) {
-      // Prefer the LAST occurrence (the data block sits after the TOC).
+    if (/Table 8\.2 RE cumulative installed capacity as on \d{2}\.\d{2}\.\d{4}/i.test(lines[i] ?? '')) {
       start = i;
     }
   }
-  if (start < 0) return [];
-  for (let i = start + 1; i < lines.length; i++) {
-    const line = lines[i] ?? '';
-    if (/^\s*Table 8\.3/i.test(line) || /^\s*Total\s+\d/i.test(line)) {
-      end = i;
-      break;
+  if (start >= 0) {
+    for (let i = start + 1; i < lines.length; i++) {
+      const line = lines[i] ?? '';
+      if (/^\s*Table 8\.3/i.test(line) || /^\s*Total\s+\d/i.test(line)) {
+        end = i;
+        break;
+      }
     }
+  } else {
+    // No Table 8.2 anchor → monthly PDF. Scan the whole document.
+    start = 0;
   }
 
   const out: Array<{ state: string; installed_mw: number }> = [];
@@ -126,50 +139,119 @@ function parseTable82(text: string): Array<{ state: string; installed_mw: number
   return out;
 }
 
+// Convert a "dd.mm.yyyy" stamp into a fiscal-year label like "2026-27".
+// Indian FY runs Apr 1 → Mar 31, so an as-on of 30.04.2026 falls in
+// FY 2026-27, but 31.03.2025 falls in FY 2024-25.
+function fyFromAsOf(asOf: string): string {
+  const m = asOf.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!m) return 'unknown';
+  const month = parseInt(m[2]!, 10);
+  const year  = parseInt(m[3]!, 10);
+  const startYear = month >= 4 ? year : year - 1;
+  const endYY     = String((startYear + 1) % 100).padStart(2, '0');
+  return `${startYear}-${endYY}`;
+}
+
+// Parse the "Physical Achievements" HTML table on the landing page.
+// The row of interest is:
+//   <td>Wind Power</td>
+//   <td>{monthAchievement}</td>
+//   <td>{fyAchievement}</td>
+//   <td>{cumulative}</td>          <-- this is what we want
+// The cumulative-column header carries the as-on date:
+//   <th …>Cumulative Achievements (as on DD.MM.YYYY)</th>
+function parsePhysicalAchievementsTable(html: string): { installed_mw: number; asOf: string } | null {
+  const asOfMatch = html.match(/Cumulative Achievements\s*\(as on\s*(\d{2}\.\d{2}\.\d{4})\)/i);
+  const asOf      = asOfMatch && asOfMatch[1] ? asOfMatch[1] : null;
+
+  // Wind Power row — tolerant of whitespace and minor markup variation.
+  const rowMatch = html.match(
+    /<td[^>]*>\s*Wind\s+Power\s*<\/td>\s*<td[^>]*>\s*([0-9.,]+)\s*<\/td>\s*<td[^>]*>\s*([0-9.,]+)\s*<\/td>\s*<td[^>]*>\s*([0-9.,]+)\s*<\/td>/i
+  );
+  if (!rowMatch || !rowMatch[3] || !asOf) return null;
+
+  const cumulative = parseFloat(rowMatch[3].replace(/,/g, ''));
+  if (!Number.isFinite(cumulative) || cumulative <= 0) return null;
+
+  return { installed_mw: Math.round(cumulative), asOf };
+}
+
 async function fetchAndParse(): Promise<MnrePayload> {
-  // 1. Pull the physical-progress landing page to find the latest
-  //    RE-Statistics PDF link. The hyperlink text always starts with
-  //    "RE-Statistics YYYY-YY".
+  // 1. Pull the physical-progress landing page. It carries:
+  //    - A "Physical Achievements" HTML table with the current Wind
+  //      Power cumulative MW (PRIMARY — month-current national total).
+  //    - A monthly "State wise RE Installed Capacity as on dd.mm.yyyy"
+  //      PDF link (used for the state-wise breakdown).
+  //    - An annual "RE-Statistics YYYY-YY" PDF (stale fallback).
   const progressRes = await politeFetch(PROGRESS_URL, {
     headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
   });
   if (!progressRes.ok) throw new Error(`physical-progress page HTTP ${progressRes.status}`);
   const html = await progressRes.text();
 
-  const linkMatch = html.match(/href="(https?:\/\/[^"]+\.pdf)"[^>]*tabindex="-1"[^>]*>\s*RE[ -]Statistics\s*(\d{4})-(\d{2})/i);
-  if (!linkMatch || !linkMatch[1]) throw new Error('RE-Statistics PDF link not found on physical-progress page');
-  const pdfUrl = linkMatch[1];
-  const fy     = `${linkMatch[2]}-${linkMatch[3]}`;
+  // 2. PRIMARY: Physical Achievements table → national cumulative MW + as-on.
+  const tableData = parsePhysicalAchievementsTable(html);
+  if (!tableData) throw new Error('Physical Achievements table: Wind Power row or as-on date not found');
+  const nationalInstalledMw = tableData.installed_mw;
+  const asOf                = tableData.asOf;
+  const fy                  = fyFromAsOf(asOf);
 
-  // 2. Download the PDF.
-  const pdfRes = await politeFetch(pdfUrl);
-  if (!pdfRes.ok) throw new Error(`PDF HTTP ${pdfRes.status} at ${pdfUrl}`);
-  const pdfBuf = await pdfRes.arrayBuffer();
+  // 3. Find the monthly PDF link for state-wise breakdown. The link's
+  //    text is empty; the descriptive label sits in aria-label, e.g.
+  //      <a href="…/202605111869474490.pdf"
+  //         aria-label="State wise RE Installed Capacity as on 30.04.2026 …">
+  //    Walk every <a …> opening tag, keep ones that point at a PDF
+  //    AND carry the matching aria-label, regardless of attribute order.
+  let pdfUrl: string | null = null;
+  for (const m of html.matchAll(/<a\b[^>]*>/gi)) {
+    const tag = m[0];
+    if (!/\.pdf/i.test(tag)) continue;
+    const aria = tag.match(/aria-label="([^"]+)"/i);
+    if (!aria || !aria[1]) continue;
+    if (!/State[-\s]+wise\s+RE\s+Installed\s+Capacity\s+as\s+on/i.test(aria[1])) continue;
+    const href = tag.match(/href="(https?:\/\/[^"]+\.pdf)"/i);
+    if (!href || !href[1]) continue;
+    pdfUrl = href[1];
+    break;
+  }
+  // Fallback to annual RE-Statistics PDF if the monthly link is gone.
+  if (!pdfUrl) {
+    const annualMatch = html.match(
+      /href="(https?:\/\/[^"]+\.pdf)"[^>]*>\s*RE[ -]Statistics\s*\d{4}-\d{2}/i
+    );
+    if (annualMatch && annualMatch[1]) pdfUrl = annualMatch[1];
+  }
 
-  // 3. Parse text with pdf-parse.
-  const { PDFParse } = await import('pdf-parse');
-  const parser = new PDFParse({ data: Buffer.from(pdfBuf) });
-  const result = await parser.getText();
-  const text   = typeof result === 'string'
-    ? result
-    : ((result as { text?: string }).text ?? '');
-
-  // 4. Extract Table 8.2 wind values.
-  const stateCapacity = parseTable82(text);
-  if (stateCapacity.length === 0) throw new Error('Table 8.2 parse returned zero wind states');
-
-  const installed_mw = stateCapacity.reduce((s, x) => s + x.installed_mw, 0);
-
-  // 5. Surface the "as on dd.mm.yyyy" stamp from the section header so the
-  //    UI can show the freshness date.
-  const asOfMatch = text.match(/Table 8\.2 RE cumulative installed capacity as on (\d{2}\.\d{2}\.\d{4})/i);
-  const asOf = asOfMatch && asOfMatch[1] ? asOfMatch[1] : `FY${fy.split('-')[0]}-${fy.split('-')[1]}`;
+  // 4. Best-effort state-wise breakdown from PDF. We already have the
+  //    national total from HTML, so a PDF failure isn't fatal.
+  let stateCapacity: Array<{ state: string; installed_mw: number }> = [];
+  let sourceUrl = PROGRESS_URL;
+  if (pdfUrl) {
+    sourceUrl = pdfUrl;
+    try {
+      const pdfRes = await politeFetch(pdfUrl);
+      if (pdfRes.ok) {
+        const pdfBuf = await pdfRes.arrayBuffer();
+        const { PDFParse } = await import('pdf-parse');
+        const parser = new PDFParse({ data: Buffer.from(pdfBuf) });
+        const result = await parser.getText();
+        const text   = typeof result === 'string'
+          ? result
+          : ((result as { text?: string }).text ?? '');
+        stateCapacity = parseStateWindRows(text);
+      }
+    } catch {
+      // Swallow — state-wise stays empty, national total still flows.
+    }
+  }
 
   return {
     fetchedAt: new Date().toISOString(),
-    fy, sourceUrl: pdfUrl, asOf,
+    fy,
+    sourceUrl,
+    asOf,
     stateCapacity,
-    capacity: { installed_mw, target_fy_mw: TARGET_FY30_MW },
+    capacity:  { installed_mw: nationalInstalledMw, target_fy_mw: TARGET_FY30_MW },
   };
 }
 

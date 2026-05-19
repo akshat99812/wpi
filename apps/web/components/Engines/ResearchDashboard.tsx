@@ -11,13 +11,15 @@ interface ResearchSection {
 }
 
 // ─── All 11 research sections per BUILD_PROMPT spec ──────────────────────────
-const SECTIONS: ResearchSection[] = [
+function buildSections(potentialGw: number): ResearchSection[] {
+  const potentialLabel = `${Math.round(potentialGw).toLocaleString()} GW`;
+  return [
   {
     title: '1. Resource & Wind Regime',
     chips: ['@150m potential', 'offshore', 'Class I speed', 'P50→P90'],
-    narrative: 'India\'s wind resource at 150m hub height reveals 1,164 GW of technically exploitable capacity — nearly 7× current installed base. The resource is concentrated in 7 states, with Gujarat, Tamil Nadu, Rajasthan, Karnataka and Andhra Pradesh accounting for 80%+ of Class I potential.',
+    narrative: `India's wind resource at 150m hub height reveals ${potentialLabel} of technically exploitable capacity — nearly 7× current installed base. The resource is concentrated in 7 states, with Gujarat, Tamil Nadu, Rajasthan, Karnataka and Andhra Pradesh accounting for 80%+ of Class I potential.`,
     data: [
-      { label: '@150m Potential (Tech. Exploitable)', value: '1,164 GW' },
+      { label: '@150m Potential (Tech. Exploitable)', value: potentialLabel },
       { label: '@120m Potential',                      value: '695 GW' },
       { label: 'Offshore Potential (MNRE est.)',        value: '~70 GW' },
       { label: 'Class I Wind Speed (best sites)',       value: '≥ 8.4 m/s' },
@@ -185,7 +187,8 @@ const SECTIONS: ResearchSection[] = [
     ],
     source: 'MNRE Physical Progress / State SERC Orders / NIWE'
   }
-];
+  ];
+}
 
 // ─── KPI row ──────────────────────────────────────────────────────────────────
 function DataRow({ label, value }: DataRow) {
@@ -198,7 +201,10 @@ function DataRow({ label, value }: DataRow) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function ResearchDashboard() {
+export default function ResearchDashboard({ potentialGw }: { potentialGw?: number } = {}) {
+  const effectivePotentialGw = potentialGw ?? 1163.9;
+  const potentialLabel = `${Math.round(effectivePotentialGw).toLocaleString()} GW`;
+  const SECTIONS = buildSections(effectivePotentialGw);
   return (
     <div className="flex flex-col gap-5">
       {/* Header */}
@@ -212,7 +218,7 @@ export default function ResearchDashboard() {
         {[
           { label: 'Installed Wind',    value: '48.2 GW' },
           { label: 'FY30 Target',       value: '140 GW' },
-          { label: 'Potential @150m',   value: '1,164 GW' },
+          { label: 'Potential @150m',   value: potentialLabel },
           { label: 'FY25 Auction Low',  value: '₹3.15/kWh' },
           { label: 'National Avg PLF',  value: '~24%' },
           { label: 'Top-Decile PLF',    value: '38 – 42%' },

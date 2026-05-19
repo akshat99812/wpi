@@ -1,6 +1,6 @@
 {
   "source": "global_wind_atlas",
-  "fetchedAt": "2026-05-18T11:30:43.342Z",
+  "fetchedAt": "2026-05-19T11:07:49.585Z",
   "ok": true,
   "fixturesUsed": true,
   "payload": {
@@ -11,7 +11,7 @@
       "exploitable_potential_150m_gw": 1164,
       "exploitable_potential_100m_gw": 695,
       "source": "Global Wind Atlas v3.3",
-      "fetchedAt": "2026-05-18T11:30:43.342Z"
+      "fetchedAt": "2026-05-19T11:07:49.585Z"
     }
   }
 }

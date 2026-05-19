@@ -55,6 +55,14 @@ export default function MapCanvas({
   const [mode, setMode]       = useState<BasemapId>(basemap);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [isSwitching, setIsSwitching] = useState(false);
+  // Zoom level — used to suppress the hover tooltip once the user has
+  // zoomed past the state-overview range (see TOOLTIP_MAX_ZOOM below).
+  const [zoom, setZoom] = useState<number>(4.2);
+
+  // Hide the floating state/turbine card once the viewer is zoomed
+  // "inside" a state — at that zoom the card is more clutter than
+  // signal, since the selected-state badge already names the area.
+  const TOOLTIP_MAX_ZOOM = 6.5;
 
   // ── Hooks ──────────────────────────────────────────────────────────────
   useMapInit({ containerRef, mapRef, modeRef, initialBasemap: basemap });
@@ -102,6 +110,27 @@ export default function MapCanvas({
     if (!m || !m.isStyleLoaded()) return;
     placeTurbines(m);
   }, [bundle, placeTurbines]);
+
+  // ── Track zoom; clear stale tooltip when zooming in past threshold ────
+  // The map fires `zoom` continuously during gestures and `zoomend` once
+  // the gesture settles — we listen to both so the gate reacts mid-zoom
+  // (the card vanishes the moment you cross the threshold).
+  useEffect(() => {
+    const m = mapRef.current;
+    if (!m) return;
+    const sync = () => {
+      const z = m.getZoom();
+      setZoom(z);
+      if (z > TOOLTIP_MAX_ZOOM) setTooltip(null);
+    };
+    sync();
+    m.on('zoom', sync);
+    m.on('zoomend', sync);
+    return () => {
+      m.off('zoom', sync);
+      m.off('zoomend', sync);
+    };
+  }, []);
 
   // ── Basemap switch ─────────────────────────────────────────────────────
   // Each mode uses a distinct style (wind uses a darkened-satellite variant
@@ -161,8 +190,10 @@ export default function MapCanvas({
       {/* Hover tooltip. The `key` includes the state name so React unmounts
           and remounts the card on every state change — eliminates any chance
           of stale internal state lingering across hovers (Safari was showing
-          the previously-hovered state's card on rapid transitions). */}
-      {tooltip && (
+          the previously-hovered state's card on rapid transitions).
+          Suppressed once zoom > TOOLTIP_MAX_ZOOM — at high zoom the user is
+          inside a state and the card becomes clutter. */}
+      {tooltip && zoom <= TOOLTIP_MAX_ZOOM && (
         <StateTooltip
           key={tooltip.state}
           tooltip={tooltip}

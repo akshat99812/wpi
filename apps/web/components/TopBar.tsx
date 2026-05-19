@@ -5,75 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import AboutModal from './AboutModal';
-import EngineModal from './Engines/EngineModal';
-
-type EngineType = 'Finance' | 'Research' | 'Operators';
-
-// Inline icons — line-style, currentColor, so they inherit the surrounding
-// text colour and tone with each engine's hover palette.
-const FinanceIcon = ({ className = '' }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    aria-hidden
-  >
-    <path d="M3.5 20h17" />
-    <path d="M7 20v-5" />
-    <path d="M12 20v-9" />
-    <path d="M17 20v-7" />
-    <path d="M4.5 9.5L9 6.5l4 2 6.5-4.5" />
-    <path d="M16 4h3.5V7.5" />
-  </svg>
-);
-
-const ResearchIcon = ({ className = '' }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    aria-hidden
-  >
-    <circle cx="10.5" cy="10.5" r="6.25" />
-    <path d="M10.5 7.5v6" />
-    <path d="M7.5 10.5h6" />
-    <path d="M15.25 15.25L20 20" />
-  </svg>
-);
-
-const OperatorsIcon = ({ className = '' }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    aria-hidden
-  >
-    <circle cx="12" cy="12" r="2.75" />
-    <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.1 5.1l2.1 2.1M16.8 16.8l2.1 2.1M5.1 18.9l2.1-2.1M16.8 7.2l2.1-2.1" />
-  </svg>
-);
-
-const ENGINES: {
-  id: EngineType;
-  Icon: React.ComponentType<{ className?: string }>;
-  desc: string;
-}[] = [
-  { id: 'Finance',   Icon: FinanceIcon,   desc: 'DCF & Bankability' },
-  { id: 'Research',  Icon: ResearchIcon,  desc: 'Resource Intelligence' },
-  { id: 'Operators', Icon: OperatorsIcon, desc: 'Fleet & O&M' },
-];
+import PageSwitcher from './PageSwitcher';
 
 // Animation variants
 const containerVariants: Variants = {
@@ -103,31 +35,24 @@ export default function TopBar({
   onRefresh,
   isRefreshing,
   showEngines = true,
+  showAbout = true,
+  windPotentialGw,
 }: {
   generatedAt?: string;
   onRefresh?: () => void;
   isRefreshing?: boolean;
-  /** Hide the Finance / Research / Operators engine cluster (used on the
-   *  landing page, where these are previewed in the body of the page). */
+  /** Hide the page-switcher pill (used on the landing page, where the
+   *  three portal sections are previewed in the body of the page). */
   showEngines?: boolean;
+  /** Hide the About button (used on the landing page). */
+  showAbout?: boolean;
+  /** All-India onshore wind potential at 150 m (GW), from the live niwe
+   *  crawler. Forwarded to AboutModal so its headline figure stays in
+   *  sync with the bundle. Falls back to 1163.9 when undefined (e.g.
+   *  landing page, no bundle fetched). */
+  windPotentialGw?: number;
 }) {
-  const [engineOpen, setEngineOpen] = useState<EngineType | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [hoveredEngine, setHoveredEngine] = useState<EngineType | null>(null);
-
-  // Engines that aren't yet available — clicking them flashes an inline
-  // "coming soon" toast on the same page instead of opening the modal.
-  const LOCKED_ENGINES = new Set<EngineType>(['Operators']);
-  const [comingSoon, setComingSoon] = useState<EngineType | null>(null);
-  const comingSoonTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const flashComingSoon = (engine: EngineType) => {
-    if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
-    setComingSoon(engine);
-    comingSoonTimer.current = setTimeout(() => setComingSoon(null), 2400);
-  };
-  React.useEffect(() => () => {
-    if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
-  }, []);
 
   return (
     <>
@@ -249,127 +174,13 @@ export default function TopBar({
           )}
         </motion.div>
 
-        {/* ── Engine buttons + About ── */}
+        {/* ── Page switcher + About ── */}
         <motion.div variants={itemVariants} className="flex items-center gap-1.5 lg:gap-3 z-10 flex-shrink-0">
-          {/* Engine switcher pill — hidden on landing via `showEngines={false}` */}
-          {showEngines && (
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 p-0.5 sm:p-1 lg:p-1.5 rounded-[16px] sm:rounded-[20px] border border-white/[0.10]"
-            style={{
-              background: 'rgba(20, 25, 40, 0.5)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.3)'
-            }}
-          >
-            {ENGINES.map((engine, idx) => {
-              // Hover (intense) gradient — same shape as before
-              const hoverGradients = [
-                'from-blue-500/30 to-cyan-500/15 border-blue-400/55 shadow-[0_0_22px_rgba(59,130,246,0.4)]',
-                'from-purple-500/30 to-pink-500/15 border-purple-400/55 shadow-[0_0_22px_rgba(168,85,247,0.4)]',
-                'from-emerald-500/30 to-green-500/15 border-emerald-400/55 shadow-[0_0_22px_rgba(16,185,129,0.4)]',
-              ];
+          {/* Three-tab page switcher (Geospatial / Finance / Research).
+              Hidden on landing via `showEngines={false}`. */}
+          {showEngines && <PageSwitcher />}
 
-              // Default (resting) gradient — always visible so the tabs read
-              // as obvious interactive features, not subtle ornaments.
-              const restGradients = [
-                'from-blue-500/18 to-cyan-500/8 border-blue-400/40',
-                'from-purple-500/18 to-pink-500/8 border-purple-400/40',
-                'from-emerald-500/18 to-green-500/8 border-emerald-400/40',
-              ];
-
-              const textColors = [
-                'text-blue-100',
-                'text-purple-100',
-                'text-emerald-100',
-              ];
-
-              const iconColors = [
-                'text-blue-200',
-                'text-purple-200',
-                'text-emerald-200',
-              ];
-
-              const isHovered = hoveredEngine === engine.id;
-              const isLocked  = LOCKED_ENGINES.has(engine.id);
-
-              return (
-                <motion.button
-                  key={engine.id}
-                  onClick={() => {
-                    if (isLocked) {
-                      flashComingSoon(engine.id);
-                    } else {
-                      setEngineOpen(engine.id);
-                    }
-                  }}
-                  onHoverStart={() => setHoveredEngine(engine.id)}
-                  onHoverEnd={() => setHoveredEngine(null)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`group relative flex items-center gap-1.5 sm:gap-1.5 lg:gap-2.5 px-2.5 sm:px-2.5 lg:px-4 py-2 sm:py-1.5 lg:py-2 rounded-2xl border bg-gradient-to-br transition-all duration-300 ${
-                    isHovered ? hoverGradients[idx] : restGradients[idx]
-                  }`}
-                >
-                  <motion.span
-                    className={`inline-flex items-center justify-center w-[20px] h-[20px] sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px] group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300 ${
-                      isHovered ? textColors[idx] : iconColors[idx]
-                    }`}
-                    animate={isHovered ? {
-                      rotate: [0, 10, -10, 0],
-                      transition: { duration: 0.5 }
-                    } : {}}
-                  >
-                    <engine.Icon className="w-full h-full" />
-                  </motion.span>
-                  <div className="hidden sm:flex flex-col items-start">
-                    <span className={`text-[12.5px] font-bold leading-tight transition-colors duration-300 ${
-                      isHovered ? textColors[idx] : iconColors[idx]
-                    }`}>
-                      {engine.id}
-                    </span>
-                    <span className="text-[9.5px] text-white/40 leading-tight hidden lg:block font-medium tracking-wide">
-                      {engine.desc}
-                    </span>
-                  </div>
-
-                  {/* Tiny "Soon" badge for locked engines so the lock state
-                      reads at a glance — no greying-out, just a clear hint. */}
-                  {isLocked && (
-                    <span
-                      aria-hidden
-                      className="ml-0.5 sm:ml-1 px-1.5 py-[1px] rounded
-                                 text-[8.5px] sm:text-[8px] font-extrabold uppercase tracking-[0.5px]
-                                 bg-orange/85 text-[#0a0e18]
-                                 shadow-[0_0_10px_rgba(255,138,31,0.45)]"
-                    >
-                      Soon
-                    </span>
-                  )}
-
-                  {/* Animated highlight on hover */}
-                  {isHovered && (
-                    <motion.div
-                      layoutId="engineHighlight"
-                      className="absolute inset-0 rounded-2xl opacity-20"
-                      style={{
-                        background: `radial-gradient(circle at center, transparent 0%, ${
-                          idx === 0 ? 'rgba(59,130,246,0.3)' :
-                          idx === 1 ? 'rgba(168,85,247,0.3)' :
-                          'rgba(16,185,129,0.3)'
-                        } 100%)`
-                      }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    />
-                  )}
-                </motion.button>
-              );
-            })}
-          </motion.div>
-          )}
-
-          {/* Divider — only meaningful when the engine pill is visible */}
+          {/* Divider — only meaningful when the page switcher is visible */}
           {showEngines && (
           <motion.div
             initial={{ scaleY: 0 }}
@@ -382,6 +193,7 @@ export default function TopBar({
           {/* About button — clean SaaS: solid weight, restrained accent,
               one quiet hover sweep. Bigger and brighter than the prior
               pass without going back to the shiny look. */}
+          {showAbout && (
           <motion.button
             onClick={() => setAboutOpen(true)}
             whileTap={{ scale: 0.97 }}
@@ -424,6 +236,7 @@ export default function TopBar({
                          transition-[transform,opacity] duration-[800ms] ease-out"
             />
           </motion.button>
+          )}
           {/* Refresh button — hidden on mobile to keep the bar uncluttered */}
           {onRefresh && (
             <motion.button
@@ -456,42 +269,9 @@ export default function TopBar({
         </motion.div>
       </motion.header>
 
-      {/* Inline "coming soon" toast — anchored under the topbar, doesn't
-          open a new modal/terminal. */}
       <AnimatePresence>
-        {comingSoon && (
-          <motion.div
-            key="engine-coming-soon"
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed top-[60px] sm:top-[68px] left-1/2 -translate-x-1/2 z-40
-                       flex items-center gap-2.5 px-3.5 py-2 rounded-xl
-                       bg-[#0a0e18]/95 backdrop-blur-xl
-                       border border-orange/35
-                       shadow-[0_12px_28px_-10px_rgba(0,0,0,0.7)]"
-          >
-            <span className="text-[9px] font-semibold uppercase tracking-[0.14em]
-                             px-1.5 py-0.5 rounded bg-orange text-[#0a0e18]">
-              {comingSoon}
-            </span>
-            <span className="text-[12px] font-medium text-white/90">
-              Engine · coming soon
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {engineOpen && (
-          <EngineModal 
-            initialEngine={engineOpen} 
-            onClose={() => setEngineOpen(null)} 
-          />
-        )}
         {aboutOpen && (
-          <AboutModal onClose={() => setAboutOpen(false)} />
+          <AboutModal onClose={() => setAboutOpen(false)} potentialGw={windPotentialGw} />
         )}
       </AnimatePresence>
     </>

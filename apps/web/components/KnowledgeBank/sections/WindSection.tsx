@@ -179,7 +179,7 @@ export default function WindSection({ bundle, selectedState }: Props) {
   // is unavailable. FY26 close was 56,090 MW.
   const installedMw  = bundle?.capacity?.installed_mw ?? 56_437;
   const installedGw  = Math.round(installedMw / 1000).toString();
-  const potentialGw  = 1163.9;
+  const potentialGw  = bundle?.windPotential?.total_150m_gw ?? 1163.9;
   const potentialGwDisplay = Math.round(potentialGw).toLocaleString();
   const realisation  = ((installedMw / 1000) / potentialGw * 100).toFixed(2);
   const maxStateGw   = Math.max(...STATE_POTENTIAL_150M.map(s => s.gw));

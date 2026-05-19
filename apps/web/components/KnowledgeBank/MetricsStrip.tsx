@@ -32,12 +32,15 @@ export default function MetricsStrip({ bundle }: Props) {
   const ok    = bundle ? Object.values(bundle.sourceStatus).filter(s => s.ok).length : 0;
   const total = bundle ? Object.keys(bundle.sourceStatus).length : 15;
 
+  const potentialGw = bundle?.windPotential?.total_150m_gw ?? 1163.9;
+  const potentialDisplay = `${Math.round(potentialGw).toLocaleString()} GW`;
+
   const metrics: Metric[] = [
     { label: 'Installed',   value: cap ? `${(cap.installed_mw / 1000).toFixed(1)} GW` : '48.2 GW',
       sub: 'All-India fleet',                                  accent: ACCENT.orange },
     { label: 'FY30 Target', value: cap ? `${(cap.target_fy_mw / 1000).toFixed(0)} GW` : '100 GW',
       sub: 'MNRE wind-only',                                   accent: ACCENT.amber },
-    { label: 'Potential',   value: '1,164 GW',                 sub: 'NIWE @150m',     accent: ACCENT.cyan },
+    { label: 'Potential',   value: potentialDisplay,           sub: 'NIWE @150m',     accent: ACCENT.cyan },
   ];
 
   return (

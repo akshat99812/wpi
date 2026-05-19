@@ -18,6 +18,13 @@ export interface Bundle {
   policies: Record<string, unknown>[];
   grid?: Record<string, unknown>;
   windAtlas?: Record<string, unknown>;
+  windPotential?: {
+    total_150m_gw: number;
+    total_120m_gw: number | null;
+    sourceUrl: string;
+    asOf: string | null;
+    fetchedAt: string;
+  };
   oemModels: Record<string, unknown>[];
   analystReports: Record<string, unknown>[];
   sourceStatus: Record<string, { ok: boolean; error?: string; fetchedAt: string; fixturesUsed?: boolean }>;
@@ -76,6 +83,19 @@ export const merge = (results: SourceResult[]): Bundle => {
     }
   }
   bundle.stateCapacity = Object.values(stateMap);
+
+  // === Wind Potential (national headline) — from niwe (MNRE wind-overview).
+  // 150 m and 120 m gross potential figures, scraped from the MNRE
+  // wind-overview page and cached for 365 days.
+  if (niweData && typeof niweData.total_150m_gw === 'number') {
+    bundle.windPotential = {
+      total_150m_gw: niweData.total_150m_gw as number,
+      total_120m_gw: (niweData.total_120m_gw as number | null) ?? null,
+      sourceUrl:     (niweData.sourceUrl as string) ?? 'https://mnre.gov.in/en/wind-overview/',
+      asOf:          (niweData.asOf as string | null) ?? null,
+      fetchedAt:     (niweData.fetchedAt as string) ?? new Date().toISOString(),
+    };
+  }
 
   // === Auctions: from seci ===
   const seciData = getPayload('seci');

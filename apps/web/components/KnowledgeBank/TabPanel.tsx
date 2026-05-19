@@ -13,6 +13,7 @@ import GridSection       from './sections/GridSection';
 import LandSection       from './sections/LandSection';
 import NewsSection       from './sections/NewsSection';
 import TechnologySection from './sections/TechnologySection';
+import FAQSection        from './sections/FAQSection';
 
 const TABS = [
   { id: 'wind',       label: 'Wind',       Component: WindSection,       indiaOnly: false },
@@ -23,6 +24,7 @@ const TABS = [
   { id: 'grid',       label: 'Grid',       Component: GridSection,       indiaOnly: false },
   { id: 'land',       label: 'Land',       Component: LandSection,       indiaOnly: true  },
   { id: 'technology', label: 'Technology', Component: TechnologySection, indiaOnly: true  },
+  { id: 'faq',        label: 'FAQ',        Component: FAQSection,        indiaOnly: true  },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];

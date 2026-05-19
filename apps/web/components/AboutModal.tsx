@@ -3,7 +3,8 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export default function AboutModal({ onClose }: { onClose: () => void }) {
+export default function AboutModal({ onClose, potentialGw }: { onClose: () => void; potentialGw?: number }) {
+  const potentialDisplay = `${Math.round(potentialGw ?? 1163.9).toLocaleString()} GW`;
   // Esc-to-close. Captured at window level. `capture: true` runs the
   // handler in the capture phase so it isn't swallowed by any focused
   // element (inputs, buttons) that might call stopPropagation in bubble.
@@ -77,7 +78,7 @@ export default function AboutModal({ onClose }: { onClose: () => void }) {
             {/* Quiet stat strip — gives the hero visual anchor without a big graphic. */}
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px]">
               <HeroStat value="50 GW+" label="India fleet" />
-              <HeroStat value="1,164 GW" label="@150 m potential" accent />
+              <HeroStat value={potentialDisplay} label="@150 m potential" accent />
               <HeroStat value="600+" label="CECL projects" />
             </div>
           </header>

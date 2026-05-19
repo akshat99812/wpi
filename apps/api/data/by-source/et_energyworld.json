@@ -1,37 +1,15 @@
 {
   "source": "et_energyworld",
-  "fetchedAt": "2026-05-18T11:30:45.671Z",
+  "fetchedAt": "2026-05-19T11:07:50.976Z",
   "ok": true,
-  "fixturesUsed": true,
   "payload": {
     "news": [
       {
-        "headline": "Wind Power Tariffs Hit ₹3.18/kWh in SECI Tranche XIII",
-        "url": "https://energy.economictimes.indiatimes.com/news/renewable/seci-tranche-xiii-wind-tariff",
-        "publishedAt": "2025-04-02T00:00:00Z",
+        "headline": "Inox Clean Energy powers into top three with ₹25k crore buys, says company official",
+        "url": "https://energy.economictimes.indiatimes.com/news/renewable/inox-clean-energy-joins-top-three-renewable-energy-firms-with-25000-crore-acquisitions/131188717",
+        "publishedAt": "2026-05-19T02:04:38.000Z",
         "source": "ETEnergyWorld",
-        "summary": "SECI Tranche XIII closes at ₹3.18/kWh L1 for 1,200 MW ISTS wind"
-      },
-      {
-        "headline": "NTPC REL to Float 900 MW Wind Bid for Anantapur Cluster",
-        "url": "https://energy.economictimes.indiatimes.com/news/renewable/ntpc-rel-900mw-wind-anantapur",
-        "publishedAt": "2025-03-18T00:00:00Z",
-        "source": "ETEnergyWorld",
-        "summary": "NTPC Renewables targets Anantapur ISTS wind cluster, BoS bids invited"
-      },
-      {
-        "headline": "GE Vernova Eyes India Wind Re-entry with 6 MW Onshore Platform",
-        "url": "https://energy.economictimes.indiatimes.com/news/renewable/ge-vernova-india-wind-reentry",
-        "publishedAt": "2025-03-04T00:00:00Z",
-        "source": "ETEnergyWorld",
-        "summary": "Global OEM signals comeback to India wind market with high-rated turbine"
-      },
-      {
-        "headline": "Gujarat to Hold 1 GW Offshore Wind Auction in Q1 FY26",
-        "url": "https://energy.economictimes.indiatimes.com/news/renewable/gujarat-offshore-wind-auction",
-        "publishedAt": "2025-02-12T00:00:00Z",
-        "source": "ETEnergyWorld",
-        "summary": "Gulf of Kutch offshore wind zone goes to auction with VGF support"
+        "summary": "This strategic move positions the company among the top three renewable energy players in India, with a global footprint across three continents."
       }
     ]
   }

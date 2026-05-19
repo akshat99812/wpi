@@ -65,6 +65,13 @@ export interface WpiBundle {
     exploitable_potential_100m_gw?: number;
     source: string;
   };
+  windPotential?: {
+    total_150m_gw: number;
+    total_120m_gw: number | null;
+    sourceUrl: string;
+    asOf: string | null;
+    fetchedAt: string;
+  };
   oemModels: Array<{
     oem: string;
     model: string;
