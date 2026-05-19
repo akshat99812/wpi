@@ -567,7 +567,7 @@ function ResearchIllustration() {
           <line x1="7.5" y1="7.5" x2="11" y2="11" />
         </g>
         <text x="28" y="15" fontSize="9" fontFamily="ui-sans-serif"
-              fill="rgba(255,255,255,0.55)">Ask the corpus — "FY26 wind PLF by state"</text>
+              fill="rgba(255,255,255,0.55)">Ask the corpus — &ldquo;FY26 wind PLF by state&rdquo;</text>
         <rect x="260" width="48" height="22" rx="5"
               fill="rgba(255,138,31,0.18)" stroke="rgba(255,138,31,0.55)" strokeWidth="1" />
         <text x="284" y="15" textAnchor="middle" fontSize="9" fontWeight="800"

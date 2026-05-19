@@ -71,7 +71,7 @@ const FAQS: FAQ[] = [
           daily run.
         </Prose>
         <Prose>
-          The "Live" pill in each tab header signals that the section is
+          The &ldquo;Live&rdquo; pill in each tab header signals that the section is
           backed by the orchestrator&apos;s latest bundle, not a hardcoded
           fixture.
         </Prose>
