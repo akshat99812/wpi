@@ -112,16 +112,9 @@ export default function Landing() {
             <span className="tabular-nums">1986</span>
           </p>
 
-          {/* Product cards — replaces the prior "Enter portal" CTA.
-              Each card is a direct link into one of the three portal
-              sections, with a short description of what's inside. */}
-          <div className="mt-12 sm:mt-14 lg:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 w-full max-w-6xl">
-            {PRODUCTS.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
-
           {/* Hero stat ticker — premium cards in an auto-scrolling marquee,
               pauses on hover so the user can read individual tiles. */}
-          <div className="mt-14 sm:mt-16 lg:mt-20 mb-10 sm:mb-12 lg:mb-16 relative w-full">
+          <div className="mt-12 sm:mt-14 lg:mt-16 relative w-full">
             <Marquee
               pauseOnHover
               repeat={4}
@@ -132,6 +125,13 @@ export default function Landing() {
             {/* Edge fades so cards bleed in/out softly instead of clipping */}
             <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-[#090d18] to-transparent" />
             <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-[#090d18] to-transparent" />
+          </div>
+
+          {/* Product cards — replaces the prior "Enter portal" CTA.
+              Each card is a direct link into one of the three portal
+              sections, with a short description of what's inside. */}
+          <div className="mt-14 sm:mt-16 lg:mt-20 mb-10 sm:mb-12 lg:mb-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 w-full max-w-6xl">
+            {PRODUCTS.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
 
           {/* Scroll cue — quiet hint that there's more below. */}
