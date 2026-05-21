@@ -54,26 +54,29 @@ sleep 5
 docker compose ps
 
 echo "==> [7/7] Nginx + Let's Encrypt"
-cp "$REPO_DIR/deploy/nginx/windpowerindia.com.conf"     /etc/nginx/sites-available/
-cp "$REPO_DIR/deploy/nginx/api.windpowerindia.com.conf" /etc/nginx/sites-available/
-ln -sf /etc/nginx/sites-available/windpowerindia.com.conf     /etc/nginx/sites-enabled/
-ln -sf /etc/nginx/sites-available/api.windpowerindia.com.conf /etc/nginx/sites-enabled/
+cp "$REPO_DIR/deploy/nginx/windpowerindia.com.conf"           /etc/nginx/sites-available/
+cp "$REPO_DIR/deploy/nginx/api.windpowerindia.com.conf"       /etc/nginx/sites-available/
+cp "$REPO_DIR/deploy/nginx/analytics.windpowerindia.com.conf" /etc/nginx/sites-available/
+ln -sf /etc/nginx/sites-available/windpowerindia.com.conf           /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/api.windpowerindia.com.conf       /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/analytics.windpowerindia.com.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
 systemctl reload nginx
 
 echo "    DNS sanity check..."
-for host in windpowerindia.com www.windpowerindia.com api.windpowerindia.com; do
+for host in windpowerindia.com www.windpowerindia.com api.windpowerindia.com analytics.windpowerindia.com; do
   ip=$(dig +short "$host" | tail -n1)
   echo "      $host -> ${ip:-<no record>}"
 done
 
 echo "    Running certbot — this requires DNS to be propagated."
 certbot --nginx \
-  -d windpowerindia.com -d www.windpowerindia.com -d api.windpowerindia.com \
+  -d windpowerindia.com -d www.windpowerindia.com -d api.windpowerindia.com -d analytics.windpowerindia.com \
   --redirect --agree-tos -m "$CERTBOT_EMAIL" --no-eff-email -n
 
 echo
 echo "Done."
 echo "  https://windpowerindia.com"
 echo "  https://api.windpowerindia.com/health"
+echo "  https://analytics.windpowerindia.com  (Umami — finish first-time setup in the browser)"

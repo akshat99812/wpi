@@ -12,8 +12,18 @@ services:
     build:
       args:
         NEXT_PUBLIC_API_URL: https://api.windpowerindia.com
+        NEXT_PUBLIC_UMAMI_SCRIPT_URL: ${NEXT_PUBLIC_UMAMI_SCRIPT_URL:-}
+        NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
     ports: !override
       - "127.0.0.1:3006:3006"
     environment:
       NEXT_PUBLIC_API_URL: https://api.windpowerindia.com
+      NEXT_PUBLIC_UMAMI_SCRIPT_URL: ${NEXT_PUBLIC_UMAMI_SCRIPT_URL:-}
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
+      ADMIN_GOOGLE_IDS: ${ADMIN_GOOGLE_IDS:-}
+      UMAMI_SHARE_URL: ${UMAMI_SHARE_URL:-}
       PORT: "3006"
+
+  umami:
+    ports: !override
+      - "127.0.0.1:3007:3000"

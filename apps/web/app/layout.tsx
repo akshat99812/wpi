@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import AuthProvider from "@/components/AuthProvider";
@@ -18,9 +19,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const umamiScriptUrl = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL;
+  const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+  const umamiEnabled = Boolean(umamiScriptUrl && umamiWebsiteId);
+
   return (
     <html lang="en">
       <body>
+        {umamiEnabled && (
+          <Script
+            src={umamiScriptUrl}
+            data-website-id={umamiWebsiteId}
+            strategy="afterInteractive"
+          />
+        )}
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
