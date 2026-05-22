@@ -87,19 +87,74 @@ def require_env(name: str) -> str:
 # Parse — Docling
 # ────────────────────────────────────────────────────────────────────────────
 
-def parse_pdf(pdf_path: Path) -> str:
+def parse_pdf(pdf_path: Path, *, force: bool = False) -> str:
     """Run Docling on the PDF, return its markdown rendering. Cached under
-    data/parsed/<stem>.md — repeat runs skip the (slow) parse step."""
+    data/parsed/<stem>.md — repeat runs skip the (slow) parse step.
+
+    OCR engine selection matters a lot for scanned directories:
+      - The Docling default (RapidOCR) was tested on the 2025 directory
+        and produced ~16 KB of text for 709 image-only pages — most pages
+        came back empty.
+      - We switch to Apple Vision (OcrMacOptions) which handles printed
+        text and table-like layouts much better on macOS.
+      - We also force accurate table structure recognition so member
+        lists / state capacity tables come through as markdown tables
+        instead of being silently dropped.
+      - force_full_page_ocr=True is critical: by default Docling only
+        OCRs pages with no extractable text layer. The directory's cover
+        ads do have a text layer (they pass through fine) but the actual
+        member-roster pages are image-only AND get skipped without this
+        flag. Verified: without it, a 709-page scan produces ~26 KB of
+        output instead of the megabytes we expect.
+      - images_scale=2.0 renders pages at ~144 DPI before OCR, which is
+        needed for small tabular text to be legible. 1.0 (72 DPI) loses
+        capacity figures and contact details.
+      - lang=['en-US'] only — the directory is English; the default also
+        includes fr/de/es which slows OCR and worsens recognition.
+    On non-mac platforms, fall through to Tesseract CLI (apt install
+    tesseract-ocr beforehand); without that, the default engine is used.
+    """
+    import sys
     PARSED_DIR.mkdir(parents=True, exist_ok=True)
     cache = PARSED_DIR / f"{pdf_path.stem}.md"
-    if cache.exists():
+    if cache.exists() and not force:
         print(f"[parse] cache hit -> {cache.relative_to(ROOT)}")
         return cache.read_text(encoding="utf-8")
+    if force and cache.exists():
+        print(f"[parse] --force-reparse: discarding cached {cache.relative_to(ROOT)}")
 
     print(f"[parse] Docling parsing {pdf_path.name} (slow; first run also "
           f"downloads layout models)")
-    from docling.document_converter import DocumentConverter  # heavy import
-    converter = DocumentConverter()
+    from docling.document_converter import DocumentConverter, PdfFormatOption  # heavy
+    from docling.datamodel.base_models import InputFormat
+    from docling.datamodel.pipeline_options import (
+        PdfPipelineOptions, TableFormerMode,
+        OcrMacOptions, TesseractCliOcrOptions,
+    )
+
+    if sys.platform == "darwin":
+        ocr_options = OcrMacOptions(
+            lang=["en-US"],
+            force_full_page_ocr=True,
+        )
+        print("[parse] OCR engine: Apple Vision (force_full_page_ocr=True, en-US)")
+    else:
+        ocr_options = TesseractCliOcrOptions(force_full_page_ocr=True)
+        print("[parse] OCR engine: Tesseract CLI (force_full_page_ocr=True)")
+
+    pipeline_options = PdfPipelineOptions(
+        do_ocr=True,
+        ocr_options=ocr_options,
+        do_table_structure=True,
+        images_scale=2.0,
+    )
+    pipeline_options.table_structure_options.mode = TableFormerMode.ACCURATE
+
+    converter = DocumentConverter(
+        format_options={
+            InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options),
+        },
+    )
     result = converter.convert(str(pdf_path))
     md = result.document.export_to_markdown()
     cache.write_text(md, encoding="utf-8")
@@ -306,6 +361,12 @@ def main() -> None:
         help="Parse + chunk + write a .chunks.jsonl sample, then stop. "
              "Does NOT call OpenAI or Qdrant.",
     )
+    ap.add_argument(
+        "--force-reparse",
+        action="store_true",
+        help="Ignore any cached data/parsed/<stem>.md and re-run Docling. "
+             "Use after changing OCR/pipeline options.",
+    )
     args = ap.parse_args()
 
     load_dotenv(ROOT / ".env")
@@ -314,7 +375,7 @@ def main() -> None:
         sys.exit(f"FATAL: PDF not found: {args.pdf}")
 
     # 1. Parse
-    md = parse_pdf(args.pdf)
+    md = parse_pdf(args.pdf, force=args.force_reparse)
 
     # 2. Chunk
     chunks = chunk_markdown(md, year=args.year, source_file=args.pdf.name)
