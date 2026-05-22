@@ -52,6 +52,11 @@ UPSERT_BATCH = 256
 EMBED_MODEL = "text-embedding-3-small"
 EMBED_DIM = 1536
 
+# Sentinel emitted by Docling between PDF pages when exporting to markdown.
+# We count occurrences before/after a chunk's content to derive page_start
+# / page_end, then strip the sentinel from chunk text before embedding.
+PAGE_BREAK_MARKER = "<!-- page-break -->"
+
 
 # ────────────────────────────────────────────────────────────────────────────
 # Data model
@@ -116,12 +121,35 @@ def parse_pdf(pdf_path: Path, *, force: bool = False) -> str:
     """
     import sys
     PARSED_DIR.mkdir(parents=True, exist_ok=True)
-    cache = PARSED_DIR / f"{pdf_path.stem}.md"
-    if cache.exists() and not force:
-        print(f"[parse] cache hit -> {cache.relative_to(ROOT)}")
-        return cache.read_text(encoding="utf-8")
-    if force and cache.exists():
-        print(f"[parse] --force-reparse: discarding cached {cache.relative_to(ROOT)}")
+    md_cache = PARSED_DIR / f"{pdf_path.stem}.md"
+    json_cache = PARSED_DIR / f"{pdf_path.stem}.docling.json"
+
+    def _export_md(doc) -> str:
+        return doc.export_to_markdown(page_break_placeholder=PAGE_BREAK_MARKER)
+
+    # Fast path 1: md cache exists and has page markers — reuse as-is.
+    if md_cache.exists() and not force:
+        cached = md_cache.read_text(encoding="utf-8")
+        if PAGE_BREAK_MARKER in cached:
+            print(f"[parse] cache hit -> {md_cache.relative_to(ROOT)}")
+            return cached
+        # Old-format cache without markers — fall through to fast path 2 or full parse.
+        print(f"[parse] cached md lacks page markers, refreshing")
+
+    # Fast path 2: docling JSON sidecar exists — re-export md from it (no OCR).
+    if json_cache.exists() and not force:
+        print(f"[parse] loading docling doc from {json_cache.relative_to(ROOT)} "
+              f"(skips OCR)")
+        from docling_core.types.doc import DoclingDocument  # lazy
+        doc = DoclingDocument.load_from_json(json_cache)
+        md = _export_md(doc)
+        md_cache.write_text(md, encoding="utf-8")
+        print(f"[parse] cached -> {md_cache.relative_to(ROOT)} ({len(md):,} chars)")
+        return md
+
+    if force and md_cache.exists():
+        print(f"[parse] --force-reparse: discarding cached "
+              f"{md_cache.relative_to(ROOT)}")
 
     print(f"[parse] Docling parsing {pdf_path.name} (slow; first run also "
           f"downloads layout models)")
@@ -156,9 +184,13 @@ def parse_pdf(pdf_path: Path, *, force: bool = False) -> str:
         },
     )
     result = converter.convert(str(pdf_path))
-    md = result.document.export_to_markdown()
-    cache.write_text(md, encoding="utf-8")
-    print(f"[parse] cached -> {cache.relative_to(ROOT)} ({len(md):,} chars)")
+    # Save structured doc first so future re-exports (different placeholder,
+    # different settings) can skip OCR.
+    result.document.save_as_json(json_cache)
+    print(f"[parse] cached structured doc -> {json_cache.relative_to(ROOT)}")
+    md = _export_md(result.document)
+    md_cache.write_text(md, encoding="utf-8")
+    print(f"[parse] cached -> {md_cache.relative_to(ROOT)} ({len(md):,} chars)")
     return md
 
 
@@ -298,6 +330,98 @@ def chunk_id_for(source_file: str, heading: str, content: str) -> str:
     return h.hexdigest()
 
 
+def _build_stripped_index(md: str) -> Tuple[str, List[int]]:
+    """Return (md_without_markers, idx) where idx[i] is the position in the
+    original `md` of the i-th character of the stripped string. Used to map
+    matches found in marker-stripped text back to original-md offsets so we
+    can count markers preceding them."""
+    mlen = len(PAGE_BREAK_MARKER)
+    out_chars: List[str] = []
+    idx: List[int] = []
+    i = 0
+    n = len(md)
+    while i < n:
+        if md.startswith(PAGE_BREAK_MARKER, i):
+            i += mlen
+        else:
+            out_chars.append(md[i])
+            idx.append(i)
+            i += 1
+    return "".join(out_chars), idx
+
+
+def _marker_offsets(md: str) -> List[int]:
+    offsets: List[int] = []
+    pos = 0
+    mlen = len(PAGE_BREAK_MARKER)
+    while True:
+        i = md.find(PAGE_BREAK_MARKER, pos)
+        if i == -1:
+            break
+        offsets.append(i)
+        pos = i + mlen
+    return offsets
+
+
+def assign_page_ranges(md: str, chunks: List[Chunk]) -> int:
+    """Mutate `chunks` in place, setting page_start/page_end by locating
+    each chunk's content within `md` and counting preceding page markers.
+
+    Strategy: chunks are produced in document order, so we walk them with
+    a forward-only cursor. We use the *last* 60 chars of each chunk's
+    content as a search anchor — first chars often come from the overlap
+    window into the previous chunk, which would match further back in the
+    document. Search runs on a marker-stripped copy of `md`, with an
+    index mapping positions back to the original.
+
+    Returns the number of chunks whose pages could not be resolved (their
+    page_start/page_end stay at -1).
+    """
+    import bisect
+
+    if PAGE_BREAK_MARKER not in md:
+        return len(chunks)
+
+    md_stripped, idx_map = _build_stripped_index(md)
+    marks = _marker_offsets(md)
+
+    def page_at(md_offset: int) -> int:
+        return bisect.bisect_right(marks, md_offset) + 1
+
+    cursor_s = 0
+    unresolved = 0
+    for c in chunks:
+        # Drop the "Year: ... Section: ...\n\n" prefix to get the raw chunk body.
+        if "\n\n" in c.text:
+            body = c.text.split("\n\n", 1)[1]
+        else:
+            body = c.text
+        body = body.strip()
+        if not body:
+            unresolved += 1
+            continue
+        anchor = body[-60:] if len(body) > 60 else body
+        pos_s = md_stripped.find(anchor, cursor_s)
+        if pos_s == -1:
+            # OCR text in chunk differs from md (shouldn't happen since chunk
+            # was derived from md). Leave page=-1 and don't advance cursor.
+            unresolved += 1
+            continue
+        end_s = pos_s + len(anchor)
+        start_s = max(0, end_s - len(body))
+        # Map stripped offsets back to original-md offsets.
+        md_end = idx_map[end_s - 1] + 1 if end_s - 1 < len(idx_map) else len(md)
+        md_start = idx_map[start_s] if start_s < len(idx_map) else md_end
+        c.page_start = page_at(md_start)
+        c.page_end = page_at(md_end)
+        # Advance cursor to the *start* of this match, not the end. Adjacent
+        # chunks share up to `overlap` tokens of content, so their tail
+        # anchors can be within `len(anchor)` chars of each other. Using
+        # pos_s keeps the search forward-only but tolerates that overlap.
+        cursor_s = pos_s
+    return unresolved
+
+
 def chunk_markdown(
     md: str,
     *,
@@ -310,17 +434,24 @@ def chunk_markdown(
     out: List[Chunk] = []
     for heading, body in split_sections(md):
         for piece in token_chunk(body, enc, max_tokens, overlap):
-            prefixed = f"Year: {year}. Section: {heading}.\n\n{piece}"
+            # Markers are an artifact of the markdown export, not content
+            # we want embedded. Strip them from the embedded text but keep
+            # them in `md` (assign_page_ranges below uses the original).
+            clean = piece.replace(PAGE_BREAK_MARKER, "").strip()
+            if not clean:
+                continue
+            prefixed = f"Year: {year}. Section: {heading}.\n\n{clean}"
             out.append(Chunk(
-                chunk_id=chunk_id_for(source_file, heading, piece),
+                chunk_id=chunk_id_for(source_file, heading, clean),
                 text=prefixed,
                 year=year,
                 source_file=source_file,
                 page_start=-1,
                 page_end=-1,
                 section=heading,
-                has_table=bool(TABLE_LINE_RE.search(piece)),
+                has_table=bool(TABLE_LINE_RE.search(clean)),
             ))
+    assign_page_ranges(md, out)
     return out
 
 
