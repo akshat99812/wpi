@@ -170,17 +170,60 @@ HEADING_RE = re.compile(r"^(#{1,3})\s+(.+?)\s*$", re.MULTILINE)
 TABLE_LINE_RE = re.compile(r"^\s*\|.*\|\s*$", re.MULTILINE)
 
 
+_WORD_RE = re.compile(r"[A-Za-z]{3,}")
+_NOISE_HEADINGS = {
+    "note", "notes", "books", "cable", "hoses", "tower", "blade",
+    "example", "examples", "contact", "contact us", "contacts",
+}
+
+
+def is_weak_heading(heading: str) -> bool:
+    """Heading-quality filter for OCR'd marketing-heavy docs.
+
+    Docling promotes any visually-bold line to an H1/H2/H3, which on
+    member-directory PDFs sweeps up stat-card labels ('80 GW', 'Wind'),
+    bullet glyphs ('·', '· ..'), and footnote markers ('Note:'). Those
+    headings fragment chunks into useless one-liners and pollute the
+    'Section:' prefix that gets embedded.
+
+    A heading is weak if any of:
+      - fewer than 6 chars after stripping
+      - contains no 3+ char alphabetic word (pure punctuation/numerics)
+      - matches a small blocklist of known boilerplate labels
+    """
+    stripped = heading.strip()
+    if len(stripped) < 6:
+        return True
+    if not _WORD_RE.search(stripped):
+        return True
+    # Normalize for blocklist: lowercase, collapse internal whitespace,
+    # drop trailing punctuation/whitespace (handles 'Note :' and 'Note  :').
+    normalized = re.sub(r"\s+", " ", stripped.lower()).rstrip(":. ").strip()
+    if normalized in _NOISE_HEADINGS:
+        return True
+    return False
+
+
 def split_sections(md: str) -> List[Tuple[str, str]]:
     """Split markdown on H1/H2/H3 headings into (heading, body) pairs.
-    Content before the first heading is filed under 'Document'."""
+    Content before the first heading is filed under 'Document'.
+
+    Weak headings (see is_weak_heading) are not used to start a new
+    section — the heading line itself stays in the markdown body of the
+    preceding strong-headed section, so OCR boilerplate doesn't
+    fragment chunks.
+    """
     sections: List[Tuple[str, str]] = []
     last_end = 0
     last_heading = "Document"
     for m in HEADING_RE.finditer(md):
+        heading = m.group(2).strip()
+        if is_weak_heading(heading):
+            continue
         body = md[last_end:m.start()].strip()
         if body:
             sections.append((last_heading, body))
-        last_heading = m.group(2).strip()
+        last_heading = heading
         last_end = m.end()
     tail = md[last_end:].strip()
     if tail:
