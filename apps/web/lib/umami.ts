@@ -42,6 +42,30 @@ export interface UmamiMetric {
 
 export type UmamiMetricType = 'url' | 'referrer' | 'country';
 
+// Umami v3 renamed the "url" event column to "path"; "referrer" and
+// "country" kept their names. Stats responses also flattened — flat
+// counts plus a `comparison` sub-object instead of per-field {value, prev}.
+const METRIC_TYPE_MAP: Record<UmamiMetricType, string> = {
+  url: 'path',
+  referrer: 'referrer',
+  country: 'country',
+};
+
+interface UmamiV3StatsRaw {
+  pageviews: number;
+  visitors: number;
+  visits: number;
+  bounces: number;
+  totaltime: number;
+  comparison?: {
+    pageviews?: number;
+    visitors?: number;
+    visits?: number;
+    bounces?: number;
+    totaltime?: number;
+  };
+}
+
 async function login(): Promise<string> {
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: 'POST',
@@ -103,10 +127,16 @@ async function umamiFetch<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export function fetchStats(startAt: number, endAt: number): Promise<UmamiStats> {
-  return umamiFetch<UmamiStats>(
+export async function fetchStats(startAt: number, endAt: number): Promise<UmamiStats> {
+  const raw = await umamiFetch<UmamiV3StatsRaw>(
     `/api/websites/${WEBSITE_ID}/stats?startAt=${startAt}&endAt=${endAt}`,
   );
+  const fields = ['pageviews', 'visitors', 'visits', 'bounces', 'totaltime'] as const;
+  const out = {} as UmamiStats;
+  for (const k of fields) {
+    out[k] = { value: raw[k] ?? 0, prev: raw.comparison?.[k] ?? 0 };
+  }
+  return out;
 }
 
 export function fetchTopMetric(
@@ -115,7 +145,8 @@ export function fetchTopMetric(
   endAt: number,
   limit = 10,
 ): Promise<UmamiMetric[]> {
+  const v3Type = METRIC_TYPE_MAP[type];
   return umamiFetch<UmamiMetric[]>(
-    `/api/websites/${WEBSITE_ID}/metrics?startAt=${startAt}&endAt=${endAt}&type=${type}&limit=${limit}`,
+    `/api/websites/${WEBSITE_ID}/metrics?startAt=${startAt}&endAt=${endAt}&type=${v3Type}&limit=${limit}`,
   );
 }
