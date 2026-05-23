@@ -1,15 +1,25 @@
-// Server-only Umami v2 API client. Reads UMAMI_API_URL / UMAMI_API_TOKEN /
-// NEXT_PUBLIC_UMAMI_WEBSITE_ID from env. Token must never leak to the browser
-// — only call these helpers from Server Components / Route Handlers.
+// Server-only Umami v2 API client. Self-hosted Umami doesn't expose static
+// API keys in the open-source UI, so we authenticate with the admin
+// username/password against /api/auth/login and cache the returned Bearer
+// token in memory. Credentials must never leak to the browser — only call
+// these helpers from Server Components / Route Handlers.
 
 import 'server-only';
 
 const API_URL = (process.env.UMAMI_API_URL ?? '').replace(/\/+$/, '');
-const API_TOKEN = process.env.UMAMI_API_TOKEN ?? '';
+const USERNAME = process.env.UMAMI_USERNAME ?? '';
+const PASSWORD = process.env.UMAMI_PASSWORD ?? '';
 const WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID ?? '';
 
+// Umami tokens are valid for ~24h. Refresh slightly earlier to avoid
+// races, and force-refresh on any 401 below.
+const TOKEN_TTL_MS = 23 * 60 * 60 * 1000;
+
+let tokenCache: { value: string; expiresAt: number } | null = null;
+let inFlightLogin: Promise<string> | null = null;
+
 export function isUmamiConfigured(): boolean {
-  return Boolean(API_URL && API_TOKEN && WEBSITE_ID);
+  return Boolean(API_URL && USERNAME && PASSWORD && WEBSITE_ID);
 }
 
 export interface UmamiStatField {
@@ -32,14 +42,60 @@ export interface UmamiMetric {
 
 export type UmamiMetricType = 'url' | 'referrer' | 'country';
 
-async function umamiFetch<T>(path: string): Promise<T> {
-  if (!isUmamiConfigured()) {
-    throw new Error('Umami not configured (missing API URL, token, or website ID).');
-  }
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` },
+async function login(): Promise<string> {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: USERNAME, password: PASSWORD }),
     cache: 'no-store',
   });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Umami login ${res.status}: ${body.slice(0, 200)}`);
+  }
+  const data = (await res.json()) as { token?: string };
+  if (!data.token) {
+    throw new Error('Umami login returned no token.');
+  }
+  return data.token;
+}
+
+async function getToken(forceRefresh = false): Promise<string> {
+  if (!forceRefresh && tokenCache && tokenCache.expiresAt > Date.now()) {
+    return tokenCache.value;
+  }
+  if (forceRefresh) {
+    tokenCache = null;
+  }
+  if (!inFlightLogin) {
+    inFlightLogin = login()
+      .then(token => {
+        tokenCache = { value: token, expiresAt: Date.now() + TOKEN_TTL_MS };
+        return token;
+      })
+      .finally(() => {
+        inFlightLogin = null;
+      });
+  }
+  return inFlightLogin;
+}
+
+async function umamiFetch<T>(path: string): Promise<T> {
+  if (!isUmamiConfigured()) {
+    throw new Error('Umami not configured (missing API URL, credentials, or website ID).');
+  }
+  let token = await getToken();
+  let res = await fetch(`${API_URL}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (res.status === 401) {
+    token = await getToken(true);
+    res = await fetch(`${API_URL}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+  }
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(`Umami ${res.status} ${path}: ${body.slice(0, 200)}`);
