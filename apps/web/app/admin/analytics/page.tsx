@@ -5,6 +5,7 @@ import {
   isUmamiConfigured,
   type UmamiMetric,
 } from '@/lib/umami';
+import SignOutButton from './SignOutButton';
 
 export const metadata = {
   title: 'Analytics — Wind Power India',
@@ -76,21 +77,24 @@ export default async function AdminAnalyticsPage({
           <h1 className="text-2xl font-semibold">
             windpowerindia.com <span className="text-muted">— analytics</span>
           </h1>
-          <nav className="flex gap-1 rounded-md border border-border bg-panel p-1 text-sm">
-            {(Object.keys(RANGE_LABELS) as Range[]).map((r) => (
-              <Link
-                key={r}
-                href={`/admin/analytics?range=${r}`}
-                className={`rounded px-3 py-1.5 transition ${
-                  r === range
-                    ? 'bg-orange text-[#090d18]'
-                    : 'text-muted hover:text-text'
-                }`}
-              >
-                {RANGE_LABELS[r]}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex items-center gap-3">
+            <nav className="flex gap-1 rounded-md border border-border bg-panel p-1 text-sm">
+              {(Object.keys(RANGE_LABELS) as Range[]).map((r) => (
+                <Link
+                  key={r}
+                  href={`/admin/analytics?range=${r}`}
+                  className={`rounded px-3 py-1.5 transition ${
+                    r === range
+                      ? 'bg-orange text-[#090d18]'
+                      : 'text-muted hover:text-text'
+                  }`}
+                >
+                  {RANGE_LABELS[r]}
+                </Link>
+              ))}
+            </nav>
+            <SignOutButton />
+          </div>
         </header>
 
         {errorMessage ? (
