@@ -42,6 +42,17 @@ export interface UmamiMetric {
 
 export type UmamiMetricType = 'url' | 'referrer' | 'country';
 
+export type UmamiUnit = 'minute' | 'hour' | 'day' | 'month' | 'year';
+
+export interface UmamiBuckets {
+  pageviews: UmamiMetric[];
+  sessions: UmamiMetric[];
+}
+
+export interface UmamiActive {
+  visitors: number;
+}
+
 // Umami v3 renamed the "url" event column to "path"; "referrer" and
 // "country" kept their names. Stats responses also flattened — flat
 // counts plus a `comparison` sub-object instead of per-field {value, prev}.
@@ -149,4 +160,20 @@ export function fetchTopMetric(
   return umamiFetch<UmamiMetric[]>(
     `/api/websites/${WEBSITE_ID}/metrics?startAt=${startAt}&endAt=${endAt}&type=${v3Type}&limit=${limit}`,
   );
+}
+
+export function fetchPageviewBuckets(
+  startAt: number,
+  endAt: number,
+  unit: UmamiUnit,
+  timezone = 'UTC',
+): Promise<UmamiBuckets> {
+  const tz = encodeURIComponent(timezone);
+  return umamiFetch<UmamiBuckets>(
+    `/api/websites/${WEBSITE_ID}/pageviews?startAt=${startAt}&endAt=${endAt}&unit=${unit}&timezone=${tz}`,
+  );
+}
+
+export function fetchActiveUsers(): Promise<UmamiActive> {
+  return umamiFetch<UmamiActive>(`/api/websites/${WEBSITE_ID}/active`);
 }
