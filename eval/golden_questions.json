@@ -1,0 +1,162 @@
+{
+  "_meta": {
+    "description": "Golden eval set for the wind-energy RAG. Each question lists substrings that MUST appear in retrieved chunks (retrieval check) and in the generated answer (answer check). Substrings are matched case-insensitively and ignore comma/space variation in numbers via answer-side normalization in run_eval.py.",
+    "corpus": "Directory Indian Windpower 2025_Open.pdf (year 2025) — only PDF ingested as of 2026-05-25",
+    "schema_version": 1
+  },
+  "questions": [
+    {
+      "id": "top-state-2025",
+      "question": "Which state had the highest installed wind capacity in 2025?",
+      "expect_in_chunks": ["Gujarat", "13450"],
+      "expect_in_answer": ["Gujarat"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "top3-states-2025",
+      "question": "What are the top 3 states by installed wind capacity in 2025?",
+      "expect_in_chunks": ["Gujarat", "Tamil Nadu", "Karnataka"],
+      "expect_in_answer": ["Gujarat", "Tamil Nadu", "Karnataka"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "india-total-capacity-2025",
+      "question": "What was India's total installed wind power capacity as of 31 March 2025?",
+      "_note": "PDF gives 50,038 MW (MNRE canonical) and 50,037.82 MW (state-table sum). Headline-fact chunk uses 50,038 — accept that as canonical.",
+      "expect_in_chunks": ["5003", "31.03.2025"],
+      "expect_in_answer": ["5003"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "manufacturer-count",
+      "question": "How many wind turbine manufacturers were offering WEGs in India as of July 2025?",
+      "_note": "Headline fact chunk phrases it 'exactly 14 wind turbine generator (WEG) manufacturers'. Loosen chunk match to just '14' + 'manufacturer'.",
+      "expect_in_chunks": ["14", "manufacturer", "10.07.2025"],
+      "expect_in_answer": ["14"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "ge-contribution-2024-25",
+      "question": "What was GE's contribution to wind power capacity during 2024-25?",
+      "expect_in_chunks": ["GE", "929"],
+      "expect_in_answer": ["929"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "largest-weg-rating",
+      "question": "What is the largest wind energy generator rating installed in India?",
+      "expect_in_chunks": ["5200", "largest"],
+      "expect_in_answer": ["5200", "5,200"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "niwe-masts",
+      "question": "How many wind monitoring masts has NIWE installed?",
+      "expect_in_chunks": ["NIWE", "996"],
+      "expect_in_answer": ["996"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "wind-generation-2024-25",
+      "question": "How much electricity was generated from wind in 2024-25?",
+      "expect_in_chunks": ["83,347", "2024-25"],
+      "expect_in_answer": ["83,347", "83347"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "non-fossil-share-mar-2025",
+      "question": "What share of India's installed power capacity came from non-fossil sources in March 2025?",
+      "_note": "Model writes '46%' or '46 percent' — keep expectation format-agnostic.",
+      "expect_in_chunks": ["220 GW", "470 GW"],
+      "expect_in_answer": ["46"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "wind-potential-pct-150m",
+      "question": "What percentage of India's 150m wind potential has been realised by 31 March 2025?",
+      "expect_in_chunks": ["23.26", "150"],
+      "expect_in_answer": ["23.26"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "senvion-mp-abbrev",
+      "question": "How many Senvion wind turbines are in MP?",
+      "_note": "Tests state-abbreviation rewriting (MP -> Madhya Pradesh) + table retrieval. Senvion has 0 in MP per the cumulative State & Make table; answer should say so and ideally list states where Senvion DOES operate (Gujarat, Karnataka, Maharashtra, Tamil Nadu).",
+      "expect_in_chunks": ["Senvion", "Madhya Pradesh"],
+      "expect_in_answer": ["Senvion", "Madhya Pradesh"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "senvion-gujarat-cumulative",
+      "question": "How many Senvion turbines are installed in Gujarat?",
+      "_note": "Cumulative table shows Senvion in Gujarat: 212 turbines / 535.6 MW.",
+      "expect_in_chunks": ["Senvion", "212"],
+      "expect_in_answer": ["212"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "suzlon-typo",
+      "question": "What was Suzion's contribution during 2024-25?",
+      "_note": "Tests typo fix Suzion -> Suzlon. Expected: 336 MW (from manufacturer-contribution paragraph).",
+      "expect_in_chunks": ["Suzlon", "336"],
+      "expect_in_answer": ["336", "Suzlon"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "tn-masts-helpful",
+      "question": "How many wind monitoring masts are in Tamil Nadu?",
+      "_note": "No TN-specific mast count in the PDF. Aggregate is 996 NIWE masts nationally + 18 KPCL in Karnataka + 80 NE telecom-tower sites. Helpful answer reports the aggregate AND notes no TN breakdown.",
+      "expect_in_chunks": ["996", "Tamil Nadu"],
+      "expect_in_answer": ["996"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "suzlon-fy2016-17",
+      "question": "How many turbines did Suzlon install in FY 2016-17?",
+      "_note": "Fact-extracted from Make&Year-wise table. Suzlon FY 2016-17: 847 WEGs / 1778.700 MW.",
+      "expect_in_chunks": ["847", "Suzlon", "2016-17"],
+      "expect_in_answer": ["847"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "suzlon-states-2016",
+      "question": "How many turbines did Suzlon install in 2016 and in which states?",
+      "_note": "Ambiguous year mapping. 2016 -> FY 2015-16 (435) OR FY 2016-17 (847). Accept either. Bot should also acknowledge no per-year-per-state breakdown.",
+      "expect_in_chunks": ["Suzlon"],
+      "expect_in_answer": ["Suzlon"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "siemens-gamesa-fy2020-21",
+      "question": "How many WEGs did Siemens Gamesa install in FY 2020-21?",
+      "_note": "Fact-extracted; corpus spells 'Siemense Gamesa' (OCR'd). Expected: 281 WEGs / 606.600 MW.",
+      "expect_in_chunks": ["281", "2020-21"],
+      "expect_in_answer": ["281"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "pioneer-wincon-pre-2010",
+      "question": "How many wind turbines did Pioneer Wincon install upto March 2010 cumulatively?",
+      "_note": "Fact-extracted. Pioneer Wincon Upto Mar 2010: 682 turbines / 170.100 MW.",
+      "expect_in_chunks": ["682", "Pioneer Wincon"],
+      "expect_in_answer": ["682"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "inox-contribution",
+      "question": "How many turbines installed by Inox Wind Ltd?",
+      "_note": "Bot may answer cumulative (1589 from State&Make table) OR FY 2024-25 (98 MW from prose). Both valid. Just check Inox + 'turbine|MW' appears.",
+      "expect_in_chunks": ["Inox"],
+      "expect_in_answer": ["Inox"],
+      "filter": { "year": 2025 }
+    },
+    {
+      "id": "ge-contribution-via-prose",
+      "question": "How much wind capacity did GE add in India?",
+      "_note": "Prose contribution chunk: GE 929 MW in FY 2024-25.",
+      "expect_in_chunks": ["GE", "929"],
+      "expect_in_answer": ["929"],
+      "filter": { "year": 2025 }
+    }
+  ]
+}

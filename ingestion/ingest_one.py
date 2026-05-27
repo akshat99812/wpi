@@ -47,9 +47,16 @@ PARSED_DIR = ROOT / "data" / "parsed"
 
 CHUNK_MAX_TOKENS = 800
 CHUNK_OVERLAP = 100
-EMBED_BATCH = 64
+# OpenAI's embeddings API accepts up to ~2048 inputs and 300k tokens
+# per request. 128 inputs * ~800 tokens = ~100k tokens/req — well
+# under the request cap and large enough to keep per-PDF round-trips
+# in the low double digits.
+EMBED_BATCH = 128
 UPSERT_BATCH = 256
 EMBED_MODEL = "text-embedding-3-small"
+# text-embedding-3-small is natively 1536-d, matching the Qdrant
+# collection in CLAUDE.md. OpenAI returns unit-norm vectors, so no
+# post-hoc L2 normalization is needed.
 EMBED_DIM = 1536
 
 # Sentinel emitted by Docling between PDF pages when exporting to markdown.
@@ -330,6 +337,40 @@ def chunk_id_for(source_file: str, heading: str, content: str) -> str:
     return h.hexdigest()
 
 
+def fact_chunk_id(source_file: str, fact_key: str) -> str:
+    """Deterministic sha1 for synthetic fact chunks. Distinct namespace from
+    chunk_id_for so it can't collide with content-derived ids."""
+    h = hashlib.sha1()
+    h.update(b"fact:")
+    h.update(source_file.encode("utf-8"))
+    h.update(b"\x00")
+    h.update(fact_key.encode("utf-8"))
+    return h.hexdigest()
+
+
+def extract_fact_chunks(md: str, *, year: int, source_file: str) -> List[Chunk]:
+    """Generate synthetic fact-chunks from known reference tables in the
+    markdown. These augment the prose/table chunks from chunk_markdown so
+    queries can find clean per-cell data when Docling collapsed the
+    original table cells (see extract_facts.py docstring)."""
+    from extract_facts import extract_all_facts  # lazy: avoid import cost on --help
+    facts = extract_all_facts(md, year)
+    chunks: List[Chunk] = []
+    for f in facts:
+        prefixed = f"Year: {year}. Section: {f.section}.\n\n{f.text}"
+        chunks.append(Chunk(
+            chunk_id=fact_chunk_id(source_file, f.key),
+            text=prefixed,
+            year=year,
+            source_file=source_file,
+            page_start=-1,
+            page_end=-1,
+            section=f.section,
+            has_table=True,
+        ))
+    return chunks
+
+
 def _build_stripped_index(md: str) -> Tuple[str, List[int]]:
     """Return (md_without_markers, idx) where idx[i] is the position in the
     original `md` of the i-th character of the stripped string. Used to map
@@ -422,6 +463,28 @@ def assign_page_ranges(md: str, chunks: List[Chunk]) -> int:
     return unresolved
 
 
+def extract_table_header(body: str, max_lines: int = 3) -> str:
+    """Return the first table-header block of a body, or '' if no table.
+
+    For markdown tables we keep up to `max_lines` consecutive header rows.
+    Real-world tables in the wind directory often have TWO header rows
+    (e.g. row 1 = state names, row 2 = 'No.' / 'MW' sub-headers), so the
+    default captures both plus the markdown separator row in between.
+    Preserving these is what lets a chunk containing later table rows
+    still be interpretable — without the header, columns are meaningless.
+    """
+    header_lines: List[str] = []
+    for line in body.split("\n"):
+        if TABLE_LINE_RE.match(line):
+            header_lines.append(line)
+            if len(header_lines) >= max_lines:
+                break
+        elif header_lines:
+            # First non-table line after we started collecting → stop.
+            break
+    return "\n".join(header_lines)
+
+
 def chunk_markdown(
     md: str,
     *,
@@ -433,6 +496,11 @@ def chunk_markdown(
     enc = tiktoken.get_encoding("cl100k_base")
     out: List[Chunk] = []
     for heading, body in split_sections(md):
+        # Section-level table header: the first ~3 markdown table lines in
+        # the body. We re-inject these into every chunk that contains table
+        # rows but doesn't already include the header, so column labels stay
+        # attached to the data rows during retrieval.
+        table_header = extract_table_header(body)
         for piece in token_chunk(body, enc, max_tokens, overlap):
             # Markers are an artifact of the markdown export, not content
             # we want embedded. Strip them from the embedded text but keep
@@ -440,8 +508,20 @@ def chunk_markdown(
             clean = piece.replace(PAGE_BREAK_MARKER, "").strip()
             if not clean:
                 continue
-            prefixed = f"Year: {year}. Section: {heading}.\n\n{clean}"
+            has_table = bool(TABLE_LINE_RE.search(clean))
+            inject_header = (
+                has_table
+                and table_header
+                and table_header not in clean
+            )
+            embed_body = (
+                f"{table_header}\n{clean}" if inject_header else clean
+            )
+            prefixed = f"Year: {year}. Section: {heading}.\n\n{embed_body}"
             out.append(Chunk(
+                # Use the original `clean` (without injected header) for the
+                # chunk id, so headers being attached/detached over time
+                # doesn't change ids and force redundant upserts.
                 chunk_id=chunk_id_for(source_file, heading, clean),
                 text=prefixed,
                 year=year,
@@ -449,14 +529,14 @@ def chunk_markdown(
                 page_start=-1,
                 page_end=-1,
                 section=heading,
-                has_table=bool(TABLE_LINE_RE.search(clean)),
+                has_table=has_table,
             ))
     assign_page_ranges(md, out)
     return out
 
 
 # ────────────────────────────────────────────────────────────────────────────
-# Embed — OpenAI
+# Embed — OpenAI (text-embedding-3-small)
 # ────────────────────────────────────────────────────────────────────────────
 
 def embed_chunks(chunks: List[Chunk], openai_api_key: str) -> List[List[float]]:
@@ -465,11 +545,14 @@ def embed_chunks(chunks: List[Chunk], openai_api_key: str) -> List[List[float]]:
 
     @retry(
         stop=stop_after_attempt(5),
-        wait=wait_exponential(multiplier=1, min=2, max=30),
+        wait=wait_exponential(multiplier=2, min=2, max=30),
         reraise=True,
     )
     def call(batch_texts: List[str]) -> List[List[float]]:
-        resp = client.embeddings.create(model=EMBED_MODEL, input=batch_texts)
+        resp = client.embeddings.create(
+            model=EMBED_MODEL,
+            input=batch_texts,
+        )
         return [d.embedding for d in resp.data]
 
     vectors: List[List[float]] = []
@@ -551,10 +634,13 @@ def main() -> None:
     # 1. Parse
     md = parse_pdf(args.pdf, force=args.force_reparse)
 
-    # 2. Chunk
+    # 2. Chunk + synthetic facts
     chunks = chunk_markdown(md, year=args.year, source_file=args.pdf.name)
+    fact_chunks = extract_fact_chunks(md, year=args.year, source_file=args.pdf.name)
+    chunks.extend(fact_chunks)
     print(f"[chunk] produced {len(chunks):,} chunks "
-          f"({sum(c.has_table for c in chunks):,} flagged has_table)")
+          f"({sum(c.has_table for c in chunks):,} flagged has_table; "
+          f"{len(fact_chunks):,} are synthetic facts)")
 
     # 3. Always dump the first 50 chunks for inspection
     sample_path = PARSED_DIR / f"{args.pdf.stem}.chunks.jsonl"

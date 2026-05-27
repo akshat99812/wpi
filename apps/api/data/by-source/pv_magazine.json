@@ -1,29 +1,22 @@
 {
   "source": "pv_magazine",
-  "fetchedAt": "2026-05-19T11:07:50.976Z",
+  "fetchedAt": "2026-05-27T07:43:53.788Z",
   "ok": true,
   "payload": {
     "news": [
       {
-        "headline": "NTPC adds 5,488 MW renewable energy capacity in FY26",
-        "url": "https://www.pv-magazine-india.com/2026/05/18/ntpc-adds-5488-mw-renewable-energy-capacity-in-fy26/",
-        "publishedAt": "2026-05-18T09:53:29.000Z",
+        "headline": "CleanMax secures $575 million for 1 GW renewable energy projects in India",
+        "url": "https://www.pv-magazine-india.com/2026/05/26/cleanmax-secures-575-million-for-1-gw-renewable-energy-projects-in-india/",
+        "publishedAt": "2026-05-26T16:44:11.000Z",
         "source": "PV Magazine India",
-        "summary": "NTPC Group has added 5,488 MW of renewable energy capacity during FY26 across solar, wind and pumped storage projects, strengthening its clean energy portfolio."
+        "summary": "Clean Max Enviro Energy Solutions, a renewable energy solutions provider for the commercial and industrial sector, has raised $575 million to support the development of around 1 GW of solar and wind projects across the Indian states of Rajasthan and Karnataka."
       },
       {
-        "headline": "JSW Energy commissions 250 MW of renewable energy capacity, including hydro, since April 2026",
-        "url": "https://www.pv-magazine-india.com/2026/05/15/jsw-energy-commissions-250-mw-of-renewable-energy-capacity-including-hydro-since-april-2026/",
-        "publishedAt": "2026-05-15T10:09:28.000Z",
+        "headline": "Adani Green Energy commissions 3.37 GWh battery energy storage system at Khavda",
+        "url": "https://www.pv-magazine-india.com/2026/05/26/adani-green-energy-commissions-3-37-gwh-battery-energy-storage-system-at-khavda/",
+        "publishedAt": "2026-05-26T07:15:50.000Z",
         "source": "PV Magazine India",
-        "summary": "JSW Energy has commissioned 250 MW of renewable energy capacity since April 2026, comprising 130 MW of wind, 69.4 MW of solar, and the 50 MW Tidong Hydro Plant. With this addition, its total installed power generation capacity has reached 13.7 GW."
-      },
-      {
-        "headline": "Inox Clean buys US assets of Boviet Solar",
-        "url": "https://www.pv-magazine-india.com/2026/05/15/inox-clean-buys-us-assets-of-boviet-solar/",
-        "publishedAt": "2026-05-15T05:39:27.000Z",
-        "source": "PV Magazine India",
-        "summary": "Through this asset purchase, Inox Clean gains an operational capacity of 3 GW of TOPCon solar module manufacturing in the United States, positioning it in line with the “Make in America, For America” initiative."
+        "summary": "Adani Green Energy Ltd (AGEL) has commissioned a cumulative 3.37 GWh battery energy storage system (BESS) at Khavda, Gujarat, including 1.37 GWh added in March 2026. The company said this is the world’s largest single-location battery storage deployment outside China and among the fastest executed g"
       }
     ]
   }

@@ -25,14 +25,25 @@ logs
 *.pid
 *.seed
 
+# Better Auth SQLite database — never commit (contains password hashes, sessions)
+apps/api/data/auth.sqlite
+apps/api/data/auth.sqlite-journal
+apps/api/data/auth.sqlite-wal
+apps/api/data/auth.sqlite-shm
+
 
 # IDE
 .vscode/
 .idea/
 
+# Python
+__pycache__/
+*.pyc
+
 # RAG ingestion subsystem (Python)
 ingestion/.env
 ingestion/.venv/
 ingestion/data/pdfs/
+ingestion/data/docx/
 ingestion/data/parsed/
 ingestion/qdrant_storage/

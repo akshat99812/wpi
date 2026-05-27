@@ -130,7 +130,7 @@ def build_point(chunk: dict, vec: list[float]):
     md = chunk.get("metadata") or {}
     if md:
         # Promote a small set of useful keys to top-level payload for filtering.
-        for k in ("table_index", "caption", "header_row_count", "rows_from", "rows_to", "of_rows"):
+        for k in ("table_index", "caption", "header_row_count", "rows_from", "rows_to", "of_rows", "states"):
             if k in md:
                 payload[k] = md[k]
     return rest.PointStruct(id=chunk_id_to_uuid(chunk["id"]), vector=vec, payload=payload)

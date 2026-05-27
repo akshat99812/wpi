@@ -1,15 +1,22 @@
 {
   "source": "et_energyworld",
-  "fetchedAt": "2026-05-19T11:07:50.976Z",
+  "fetchedAt": "2026-05-27T07:43:53.788Z",
   "ok": true,
   "payload": {
     "news": [
       {
-        "headline": "Inox Clean Energy powers into top three with ₹25k crore buys, says company official",
-        "url": "https://energy.economictimes.indiatimes.com/news/renewable/inox-clean-energy-joins-top-three-renewable-energy-firms-with-25000-crore-acquisitions/131188717",
-        "publishedAt": "2026-05-19T02:04:38.000Z",
+        "headline": "Adani Green commissions 3.37 GWh battery storage project at Khavda",
+        "url": "https://energy.economictimes.indiatimes.com/news/power/adani-green-energy-launches-worlds-largest-battery-storage-project-in-khavda/131321924",
+        "publishedAt": "2026-05-26T04:55:06.000Z",
         "source": "ETEnergyWorld",
-        "summary": "This strategic move positions the company among the top three renewable energy players in India, with a global footprint across three continents."
+        "summary": "The utility-scale BESS, among the fastest executed globally, can power nearly one million homes for a day and anchors AGEL’s larger storage expansion plans."
+      },
+      {
+        "headline": "ONGC appoints BP unit to boost production from western offshore oil and gas fields",
+        "url": "https://energy.economictimes.indiatimes.com/news/oil-and-gas/ongc-partners-with-bp-unit-to-enhance-oil-and-gas-production/131308081",
+        "publishedAt": "2026-05-25T11:10:42.000Z",
+        "source": "ETEnergyWorld",
+        "summary": "ONGC said the new partnership has the potential to increase crude oil production by around 10.8 per cent over the 10-year contract period, taking output from 46.25 million metric tonnes (MMT) to 51.26 MMT."
       }
     ]
   }

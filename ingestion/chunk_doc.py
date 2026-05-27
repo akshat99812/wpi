@@ -58,6 +58,67 @@ TABLE_SPLIT_ROW_GROUP = 20         # spec rule
 
 DATA_ROW_FIRST_CELL_RE = re.compile(r"^\s*\d+[.)]?\s*$")
 
+# Indian states + UTs as they appear in source docs (uppercase). Used to detect
+# in-table state-divider rows in the WRA mast tables: those tables have NO
+# state column, just a row that says "ANDHRA PRADESH" / "RAJASTHAN" etc. acting
+# as a section divider for the mast records that follow.
+INDIAN_STATES = {
+    "ANDAMAN & NICOBAR ISLANDS", "ANDHRA PRADESH", "ARUNACHAL PRADESH",
+    "ASSAM", "BIHAR", "CHHATTISGARH", "GOA", "GUJARAT", "HARYANA",
+    "HIMACHAL PRADESH", "JAMMU AND KASHMIR", "JAMMU & KASHMIR", "JHARKHAND",
+    "KARNATAKA", "KERALA", "LADAKH", "LAKSHADWEEP", "MADHYA PRADESH",
+    "MAHARASHTRA", "MANIPUR", "MEGHALAYA", "MIZORAM", "NAGALAND",
+    "ODISHA", "ORISSA", "PUDUCHERRY", "PONDICHERRY", "PUNJAB", "RAJASTHAN",
+    "SIKKIM", "TAMIL NADU", "TELANGANA", "TRIPURA", "UTTAR PRADESH",
+    "UTTARAKHAND", "WEST BENGAL", "DAMAN & DIU", "DADRA AND NAGAR HAVELI",
+    "DELHI", "CHANDIGARH", "DADRA & NAGAR HAVELI",
+}
+STATE_CANONICAL = {s: s.title() for s in INDIAN_STATES}
+# Manual fixes for canonical names
+STATE_CANONICAL["TAMIL NADU"] = "Tamil Nadu"
+STATE_CANONICAL["ANDHRA PRADESH"] = "Andhra Pradesh"
+STATE_CANONICAL["MADHYA PRADESH"] = "Madhya Pradesh"
+STATE_CANONICAL["UTTAR PRADESH"] = "Uttar Pradesh"
+STATE_CANONICAL["HIMACHAL PRADESH"] = "Himachal Pradesh"
+STATE_CANONICAL["ARUNACHAL PRADESH"] = "Arunachal Pradesh"
+STATE_CANONICAL["WEST BENGAL"] = "West Bengal"
+STATE_CANONICAL["ANDAMAN & NICOBAR ISLANDS"] = "Andaman & Nicobar Islands"
+STATE_CANONICAL["JAMMU AND KASHMIR"] = "Jammu and Kashmir"
+STATE_CANONICAL["JAMMU & KASHMIR"] = "Jammu and Kashmir"
+STATE_CANONICAL["DAMAN & DIU"] = "Daman & Diu"
+STATE_CANONICAL["DADRA AND NAGAR HAVELI"] = "Dadra and Nagar Haveli"
+STATE_CANONICAL["DADRA & NAGAR HAVELI"] = "Dadra and Nagar Haveli"
+STATE_CANONICAL["PONDICHERRY"] = "Puducherry"
+STATE_CANONICAL["ORISSA"] = "Odisha"
+
+
+def detect_state_marker(row: list[str]) -> str | None:
+    """Return canonical state name if this row is a state-name divider.
+
+    A divider row has its content in 1-3 cells (usually merged) and that
+    content is an all-caps state name. Other cells are blank."""
+    non_empty = [c.strip() for c in row if c and c.strip()]
+    if not non_empty or len(non_empty) > 3:
+        return None
+    for cell in non_empty:
+        candidate = cell.upper().strip()
+        if candidate in INDIAN_STATES:
+            return STATE_CANONICAL[candidate]
+    return None
+
+
+def states_in_rows(rows: list[list[str]]) -> list[str]:
+    """List of states whose divider appears in the given rows. Preserves
+    first-seen order so chunk metadata is stable across re-runs."""
+    seen: list[str] = []
+    seen_set: set[str] = set()
+    for r in rows:
+        s = detect_state_marker(r)
+        if s and s not in seen_set:
+            seen.append(s)
+            seen_set.add(s)
+    return seen
+
 
 # ── ID generation ─────────────────────────────────────────────────────
 def chunk_id(source_file: str, idx: int, text: str) -> str:
@@ -66,13 +127,19 @@ def chunk_id(source_file: str, idx: int, text: str) -> str:
 
 
 # ── Section prefix ─────────────────────────────────────────────────────
-def section_prefix(year: int, section_path: list[str], table_caption: str | None = None) -> str:
+def section_prefix(year: int, section_path: list[str], table_caption: str | None = None, states: list[str] | None = None) -> str:
     section = " / ".join(section_path) if section_path else "(no section)"
+    parts = [f"Year: {year}", f"Section: {section}"]
+    if states:
+        # Surfaced into the embedded text so 'Rajasthan masts' queries can
+        # actually rank these chunks. In WRA mast tables the state is encoded
+        # ONLY as an in-table divider row — without this, the embedder has
+        # no signal connecting 'Rajasthan' to chunks containing its masts.
+        parts.append(f"States: {', '.join(states)}")
     if table_caption:
-        # Caption already includes its own punctuation; strip trailing dot if any.
         cap = table_caption.rstrip(". ")
-        return f"Year: {year}. Section: {section}. Table: {cap}."
-    return f"Year: {year}. Section: {section}."
+        parts.append(f"Table: {cap}")
+    return ". ".join(parts) + "."
 
 
 # ── Table chunking ─────────────────────────────────────────────────────
@@ -94,13 +161,38 @@ def find_header_row_count(rows: list[list[str]], default_header_idx: int) -> int
     return max(1, default_header_idx + 1)
 
 
-def render_table_md(header_rows: list[list[str]], data_rows: list[list[str]]) -> str:
-    """Render with one or more header rows followed by data rows.
+def merge_header_rows(header_rows: list[list[str]]) -> list[str]:
+    """Collapse N header rows into a single column-merged header.
 
-    Markdown only supports a single header row syntactically, so we put the
-    FIRST header row in the markdown header and additional header rows as
-    the first data rows (visually identical to GFM table rendering). The
-    LLM and the embedder read the entire block as a unit anyway."""
+    Source docs frequently use 2-row headers with merged super-columns:
+        row0:  | ... | Latitude   | Latitude | Latitude | Longitude | ... |
+        row1:  | ... | Deg        | Min      | Sec      | Deg       | ... |
+    Naive rendering produces visible duplicates and a phantom 'units' row.
+    Here we join the per-column header values, dropping consecutive
+    duplicates within a column (so "Latitude / Latitude / Deg" becomes
+    "Latitude Deg")."""
+    if not header_rows:
+        return []
+    width = max(len(r) for r in header_rows)
+    merged: list[str] = []
+    for col in range(width):
+        seen: list[str] = []
+        last: str | None = None
+        for r in header_rows:
+            cell = r[col].strip() if col < len(r) else ""
+            if cell and cell != last:
+                seen.append(cell)
+                last = cell
+        merged.append(" ".join(seen))
+    return merged
+
+
+def render_table_md(header_rows: list[list[str]], data_rows: list[list[str]]) -> str:
+    """Render with a single MERGED header row followed by data rows.
+
+    Markdown only supports one header row syntactically, and even visually
+    a 2-row header is confusing for both the LLM and the UI. We collapse
+    multi-row headers via merge_header_rows() first."""
     def esc(s: str) -> str:
         return s.replace("|", "\\|").replace("\n", " ")
     all_rows = header_rows + data_rows
@@ -109,16 +201,54 @@ def render_table_md(header_rows: list[list[str]], data_rows: list[list[str]]) ->
     width = max(len(r) for r in all_rows)
     def pad(r: list[str]) -> list[str]:
         return list(r) + [""] * (width - len(r))
-    out = []
-    # First header row -> markdown header
-    out.append("| " + " | ".join(esc(c) for c in pad(header_rows[0])) + " |")
+    header = merge_header_rows(header_rows) if header_rows else []
+    header = pad(header)
+    out = ["| " + " | ".join(esc(c) for c in header) + " |"]
     out.append("|" + "|".join(["---"] * width) + "|")
-    # Remaining header rows (if any) rendered as the first body rows
-    for hr in header_rows[1:]:
-        out.append("| " + " | ".join(esc(c) for c in pad(hr)) + " |")
     for dr in data_rows:
         out.append("| " + " | ".join(esc(c) for c in pad(dr)) + " |")
     return "\n".join(out)
+
+
+def _row_state_map(rows: list[list[str]], starting_state: str | None = None) -> list[str | None]:
+    """For each row, return the state context (the most recent state marker
+    seen at or before this row). Used so a chunk whose first row is data
+    (not a marker) still knows the state declared in a prior row.
+
+    `starting_state` carries forward from the previous table in the same
+    section — WRA mast tables are split across N tables for one state and
+    only the first table has the marker."""
+    out: list[str | None] = []
+    current: str | None = starting_state
+    for r in rows:
+        s = detect_state_marker(r)
+        if s:
+            current = s
+        out.append(current)
+    return out
+
+
+def _last_state_in_rows(rows: list[list[str]], default: str | None = None) -> str | None:
+    """Last state declared anywhere in `rows`. Used to seed the next table's
+    starting_state."""
+    last = default
+    for r in rows:
+        s = detect_state_marker(r)
+        if s:
+            last = s
+    return last
+
+
+def _states_for_chunk(state_map: list[str | None], lo: int, hi: int) -> list[str]:
+    """Unique states present (in order) across rows [lo:hi]."""
+    seen: list[str] = []
+    seen_set: set[str] = set()
+    for i in range(lo, hi):
+        s = state_map[i]
+        if s and s not in seen_set:
+            seen.append(s)
+            seen_set.add(s)
+    return seen
 
 
 def chunk_table(
@@ -126,10 +256,15 @@ def chunk_table(
     source_file: str,
     year: int,
     next_idx: int,
-) -> tuple[list[dict], int]:
+    starting_state: str | None = None,
+) -> tuple[list[dict], int, str | None]:
     """Convert a `table` element to one or more chunk records.
 
-    Returns (chunks, new_next_idx)."""
+    `starting_state` is the state context carried from the previous table
+    in the same section — used so a Rajasthan continuation table whose
+    first row is just data (no divider) still gets tagged Rajasthan.
+
+    Returns (chunks, new_next_idx, last_state_seen)."""
     all_rows: list[list[str]] = element["rows"]
     header_row_count = find_header_row_count(all_rows, element.get("header_row_index", 0))
     header_rows = all_rows[:header_row_count]
@@ -137,11 +272,17 @@ def chunk_table(
     n_data = len(data_rows)
     caption = element["caption"]
     section_path = element["section_path"]
+    # Build a row→state map across the data rows. WRA mast tables have state
+    # dividers as rows (no state column). For tables without any state markers
+    # this stays all-None and chunks won't get a 'states' tag.
+    state_map = _row_state_map(data_rows, starting_state=starting_state)
+    final_state = state_map[-1] if state_map else starting_state
 
     chunks: list[dict] = []
     if n_data <= TABLE_SINGLE_CHUNK_MAX_ROWS:
+        states = _states_for_chunk(state_map, 0, n_data)
         body = render_table_md(header_rows, data_rows)
-        prefix = section_prefix(year, section_path, caption)
+        prefix = section_prefix(year, section_path, caption, states=states or None)
         text = f"{prefix}\n\n{body}"
         chunks.append({
             "id": chunk_id(source_file, next_idx, text),
@@ -157,9 +298,10 @@ def chunk_table(
                 "data_rows": n_data,
                 "header_row_count": header_row_count,
                 "caption": caption,
+                "states": states,
             },
         })
-        return chunks, next_idx + 1
+        return chunks, next_idx + 1, final_state
 
     # >25 rows → split. Each chunk repeats ALL header rows + a continuation marker.
     n_groups = (n_data + TABLE_SPLIT_ROW_GROUP - 1) // TABLE_SPLIT_ROW_GROUP
@@ -167,9 +309,10 @@ def chunk_table(
         lo = g * TABLE_SPLIT_ROW_GROUP
         hi = min(lo + TABLE_SPLIT_ROW_GROUP, n_data)
         group_rows = data_rows[lo:hi]
+        states = _states_for_chunk(state_map, lo, hi)
         marker = f"(Table continued — data rows {lo + 1}-{hi} of {n_data})"
         body = render_table_md(header_rows, group_rows)
-        prefix = section_prefix(year, section_path, caption)
+        prefix = section_prefix(year, section_path, caption, states=states or None)
         text = f"{prefix}\n{marker}\n\n{body}"
         chunks.append({
             "id": chunk_id(source_file, next_idx, text),
@@ -190,13 +333,14 @@ def chunk_table(
                 "of_groups": n_groups,
                 "header_row_count": header_row_count,
                 "caption": caption,
+                "states": states,
             },
         })
         next_idx += 1
     # First chunk in a split group is a proper "table"; subsequent are "table_continuation".
     if chunks:
         chunks[0]["type"] = "table"
-    return chunks, next_idx
+    return chunks, next_idx, final_state
 
 
 # ── Prose chunking ─────────────────────────────────────────────────────
@@ -289,6 +433,11 @@ def chunk_doc(elements_path: Path, out_path: Path, source_file: str | None = Non
     next_idx = 0
     pending_prose: list[str] = []
     current_section: list[str] = []
+    # State context propagates ACROSS sibling tables (WRA mast tables span
+    # one state across 1-N tables, with the divider only in the first).
+    # Resets when the section path changes.
+    running_state: str | None = None
+    last_section_key: tuple = ()
 
     def flush() -> None:
         nonlocal pending_prose, next_idx
@@ -311,16 +460,20 @@ def chunk_doc(elements_path: Path, out_path: Path, source_file: str | None = Non
             current_section = el["section_path"]
             pending_prose.append(el["text"])
         elif t == "table":
-            # A table's title_context paragraphs are already embedded in the
-            # table chunk's caption. Drop any pending prose that overlaps
-            # with title_context so it doesn't also become its own tiny
-            # prose chunk right before the table.
             tc = set(el.get("title_context") or [])
             if tc and pending_prose:
                 pending_prose = [p for p in pending_prose if p not in tc]
             flush()
             current_section = el["section_path"]
-            tab_chunks, next_idx = chunk_table(el, source_file, year, next_idx)
+            # Reset running_state on section change so a Rajasthan from WRA
+            # doesn't leak into an unrelated section's tables.
+            section_key = tuple(current_section)
+            if section_key != last_section_key:
+                running_state = None
+                last_section_key = section_key
+            tab_chunks, next_idx, running_state = chunk_table(
+                el, source_file, year, next_idx, starting_state=running_state,
+            )
             chunks.extend(tab_chunks)
         # Images: spec says treat as a known limitation, not a chunk.
         # We logged them in the parse_report; nothing to emit here.

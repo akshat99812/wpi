@@ -1,0 +1,479 @@
+{
+  "timestamp": "20260526_153846Z",
+  "force": false,
+  "dry_run": false,
+  "files": [
+    {
+      "filename": "FIN CONTENT - 2025.docx",
+      "parse": {
+        "filename": "FIN CONTENT - 2025.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN CONTENT - 2025.docx",
+        "phase": "chunk",
+        "status": "skipped (cache fresh)",
+        "chunk_count": 11,
+        "total_tokens": 5351,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN CONTENT - 2025.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN CONTENT - 2025.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 1986,
+        "chunks_embedded": 11,
+        "tokens_embedded": 5351,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN OPENING PAGES-2025.docx",
+      "parse": {
+        "filename": "FIN OPENING PAGES-2025.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN OPENING PAGES-2025.docx",
+        "phase": "chunk",
+        "status": "skipped (cache fresh)",
+        "chunk_count": 20,
+        "total_tokens": 9023,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN OPENING PAGES-2025.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN OPENING PAGES-2025.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 2474,
+        "chunks_embedded": 20,
+        "tokens_embedded": 9023,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 1 - 2025 - AN OVERVIEW.docx",
+      "parse": {
+        "filename": "FIN SEC 1 - 2025 - AN OVERVIEW.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 1 - 2025 - AN OVERVIEW.docx",
+        "phase": "chunk",
+        "status": "skipped (cache fresh)",
+        "chunk_count": 111,
+        "total_tokens": 45487,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 1 - 2025 - AN OVERVIEW.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 1 - 2025 - AN OVERVIEW.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 2489,
+        "chunks_embedded": 111,
+        "tokens_embedded": 45487,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 10 - 2025 - SMALL AERO.docx",
+      "parse": {
+        "filename": "FIN SEC 10 - 2025 - SMALL AERO.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 10 - 2025 - SMALL AERO.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 6,
+        "chunk_count": 20,
+        "total_tokens": 10288,
+        "by_type": {
+          "prose": 8,
+          "table": 11,
+          "table_continuation": 1
+        },
+        "token_max": 2257,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 10 - 2025 - SMALL AERO.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 10 - 2025 - SMALL AERO.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 1336,
+        "chunks_embedded": 20,
+        "tokens_embedded": 10288,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 11 - 2025 - OTHEWR INSTI. & PUB.docx",
+      "parse": {
+        "filename": "FIN SEC 11 - 2025 - OTHEWR INSTI. & PUB.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 11 - 2025 - OTHEWR INSTI. & PUB.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 7,
+        "chunk_count": 18,
+        "total_tokens": 13475,
+        "by_type": {
+          "table": 9,
+          "table_continuation": 2,
+          "prose": 7
+        },
+        "token_max": 1886,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 11 - 2025 - OTHEWR INSTI. & PUB.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 11 - 2025 - OTHEWR INSTI. & PUB.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 1287,
+        "chunks_embedded": 18,
+        "tokens_embedded": 13475,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 12 - 2025 - WORLDWIDE.docx",
+      "parse": {
+        "filename": "FIN SEC 12 - 2025 - WORLDWIDE.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 12 - 2025 - WORLDWIDE.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 9,
+        "chunk_count": 35,
+        "total_tokens": 21120,
+        "by_type": {
+          "table": 25,
+          "table_continuation": 9,
+          "prose": 1
+        },
+        "token_max": 1059,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 12 - 2025 - WORLDWIDE.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 12 - 2025 - WORLDWIDE.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 1855,
+        "chunks_embedded": 35,
+        "tokens_embedded": 21120,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 13 - 2025 - MISCE.docx",
+      "parse": {
+        "filename": "FIN SEC 13 - 2025 - MISCE.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 13 - 2025 - MISCE.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 6,
+        "chunk_count": 27,
+        "total_tokens": 10081,
+        "by_type": {
+          "prose": 8,
+          "table": 2,
+          "table_continuation": 17
+        },
+        "token_max": 523,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 13 - 2025 - MISCE.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 13 - 2025 - MISCE.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 1942,
+        "chunks_embedded": 27,
+        "tokens_embedded": 10081,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 2 - 2025 - CENTRAL GOVT.docx",
+      "parse": {
+        "filename": "FIN SEC 2 - 2025 - CENTRAL GOVT.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 2 - 2025 - CENTRAL GOVT.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 65,
+        "chunk_count": 203,
+        "total_tokens": 99036,
+        "by_type": {
+          "prose": 160,
+          "table": 41,
+          "table_continuation": 2
+        },
+        "token_max": 1408,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 2 - 2025 - CENTRAL GOVT.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 2 - 2025 - CENTRAL GOVT.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 5179,
+        "chunks_embedded": 203,
+        "tokens_embedded": 99036,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 3 - 2025 - STATE GOVT.docx",
+      "parse": {
+        "filename": "FIN SEC 3 - 2025 - STATE GOVT.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 3 - 2025 - STATE GOVT.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 63,
+        "chunk_count": 174,
+        "total_tokens": 94133,
+        "by_type": {
+          "table": 64,
+          "table_continuation": 4,
+          "prose": 106
+        },
+        "token_max": 2925,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 3 - 2025 - STATE GOVT.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 3 - 2025 - STATE GOVT.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 7793,
+        "chunks_embedded": 174,
+        "tokens_embedded": 94133,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 4 - 2025 - WRA.docx",
+      "parse": {
+        "filename": "FIN SEC 4 - 2025 - WRA.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 4 - 2025 - WRA.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 41,
+        "chunk_count": 62,
+        "total_tokens": 91164,
+        "by_type": {
+          "table": 33,
+          "table_continuation": 28,
+          "prose": 1
+        },
+        "token_max": 1846,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 4 - 2025 - WRA.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 4 - 2025 - WRA.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 3919,
+        "chunks_embedded": 62,
+        "tokens_embedded": 91164,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 5 - 2025 - WEG MFRS.docx",
+      "parse": {
+        "filename": "FIN SEC 5 - 2025 - WEG MFRS.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 5 - 2025 - WEG MFRS.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 11,
+        "chunk_count": 20,
+        "total_tokens": 16087,
+        "by_type": {
+          "prose": 6,
+          "table": 14
+        },
+        "token_max": 1841,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 5 - 2025 - WEG MFRS.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 5 - 2025 - WEG MFRS.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 1549,
+        "chunks_embedded": 20,
+        "tokens_embedded": 16087,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 6 - 2025 - STATISTICS.docx",
+      "parse": {
+        "filename": "FIN SEC 6 - 2025 - STATISTICS.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 6 - 2025 - STATISTICS.docx",
+        "phase": "chunk",
+        "status": "skipped (cache fresh)",
+        "chunk_count": 59,
+        "total_tokens": 58197,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 6 - 2025 - STATISTICS.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 6 - 2025 - STATISTICS.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 2673,
+        "chunks_embedded": 59,
+        "tokens_embedded": 58197,
+        "stale_points_deleted": 59
+      }
+    },
+    {
+      "filename": "FIN SEC 7 - 2025 - WPP.docx",
+      "parse": {
+        "filename": "FIN SEC 7 - 2025 - WPP.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 7 - 2025 - WPP.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 31,
+        "chunk_count": 51,
+        "total_tokens": 52908,
+        "by_type": {
+          "table": 21,
+          "table_continuation": 30
+        },
+        "token_max": 2099,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 7 - 2025 - WPP.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 7 - 2025 - WPP.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 2091,
+        "chunks_embedded": 51,
+        "tokens_embedded": 52908,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 8 - 2025 - COMPONENT.docx",
+      "parse": {
+        "filename": "FIN SEC 8 - 2025 - COMPONENT.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 8 - 2025 - COMPONENT.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 8,
+        "chunk_count": 58,
+        "total_tokens": 7406,
+        "by_type": {
+          "prose": 58
+        },
+        "token_max": 366,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 8 - 2025 - COMPONENT.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 8 - 2025 - COMPONENT.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 2416,
+        "chunks_embedded": 58,
+        "tokens_embedded": 7406,
+        "stale_points_deleted": 0
+      }
+    },
+    {
+      "filename": "FIN SEC 9 - 2025 - SERVICE.docx",
+      "parse": {
+        "filename": "FIN SEC 9 - 2025 - SERVICE.docx",
+        "phase": "parse",
+        "status": "skipped (cache fresh)"
+      },
+      "chunk": {
+        "filename": "FIN SEC 9 - 2025 - SERVICE.docx",
+        "phase": "chunk",
+        "status": "ok",
+        "elapsed_ms": 4,
+        "chunk_count": 13,
+        "total_tokens": 3967,
+        "by_type": {
+          "prose": 13
+        },
+        "token_max": 560,
+        "chunks_path": "/Users/akshatpatel/Desktop/wind/wce/ingestion/data/parsed/FIN SEC 9 - 2025 - SERVICE.chunks.jsonl"
+      },
+      "embed": {
+        "filename": "FIN SEC 9 - 2025 - SERVICE.docx",
+        "phase": "embed",
+        "status": "ok",
+        "elapsed_ms": 2152,
+        "chunks_embedded": 13,
+        "tokens_embedded": 3967,
+        "stale_points_deleted": 0
+      }
+    }
+  ],
+  "aggregate": {
+    "files": 15,
+    "parse_ok": 0,
+    "parse_skipped": 15,
+    "parse_failed": 0,
+    "total_chunks": 882,
+    "total_tokens": 537723,
+    "estimated_cost_usd": 0.0108,
+    "warnings_per_file": {
+      "FIN CONTENT - 2025.docx": 0,
+      "FIN OPENING PAGES-2025.docx": 0,
+      "FIN SEC 1 - 2025 - AN OVERVIEW.docx": 0,
+      "FIN SEC 10 - 2025 - SMALL AERO.docx": 0,
+      "FIN SEC 11 - 2025 - OTHEWR INSTI. & PUB.docx": 0,
+      "FIN SEC 12 - 2025 - WORLDWIDE.docx": 0,
+      "FIN SEC 13 - 2025 - MISCE.docx": 0,
+      "FIN SEC 3 - 2025 - STATE GOVT.docx": 0,
+      "FIN SEC 2 - 2025 - CENTRAL GOVT.docx": 0,
+      "FIN SEC 4 - 2025 - WRA.docx": 0,
+      "FIN SEC 5 - 2025 - WEG MFRS.docx": 0,
+      "FIN SEC 7 - 2025 - WPP.docx": 0,
+      "FIN SEC 6 - 2025 - STATISTICS.docx": 0,
+      "FIN SEC 8 - 2025 - COMPONENT.docx": 0,
+      "FIN SEC 9 - 2025 - SERVICE.docx": 0
+    }
+  }
+}
