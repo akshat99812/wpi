@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import AboutModal from './AboutModal';
 import PageSwitcher from './PageSwitcher';
+import { useSession, signOut } from '@/lib/auth-client';
 
 // Animation variants
 const containerVariants: Variants = {
@@ -68,9 +70,8 @@ export default function TopBar({
         }}
       >
         {/* Decorative layer — borders + ambient glows. Wrapped in its own
-            overflow-hidden box so the blur stays contained without clipping
-            any absolute-positioned children that hang below the header
-            (e.g. user-menu dropdowns added in later work). */}
+            overflow-hidden box so the glow blur stays contained without
+            clipping the auth-menu dropdown that hangs below the header. */}
         <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
           {/* Animated gradient borders */}
           <div className="absolute inset-x-0 top-0 h-px">
@@ -255,14 +256,14 @@ export default function TopBar({
               className="relative hidden sm:flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-white/[0.03] border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-colors shadow-sm"
               disabled={isRefreshing}
             >
-              <motion.svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
+              <motion.svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="w-4 h-4"
                 animate={isRefreshing ? { rotate: 360 } : { rotate: 0 }}
                 transition={isRefreshing ? { repeat: Infinity, duration: 1, ease: "linear" } : {}}
@@ -272,6 +273,9 @@ export default function TopBar({
               </motion.svg>
             </motion.button>
           )}
+
+          {/* Auth controls — login/signup or user menu */}
+          <AuthControls />
         </motion.div>
       </motion.header>
 
@@ -281,5 +285,112 @@ export default function TopBar({
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+function AuthControls() {
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  // Avoid a flash of "Log in / Sign up" while the session is still loading.
+  if (isPending) return <div className="w-[120px] h-8" aria-hidden />;
+
+  if (!session?.user) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.55, type: 'spring' }}
+        className="flex items-center gap-1.5 lg:gap-2"
+      >
+        <Link
+          href="/login"
+          className="px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg text-[12px] lg:text-[12.5px] font-semibold tracking-tight text-white/85 hover:text-white border border-white/15 hover:border-white/30 bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
+        >
+          Log in
+        </Link>
+        <Link
+          href="/signup"
+          className="px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg text-[12px] lg:text-[12.5px] font-semibold tracking-tight text-[#07090f] bg-orange hover:bg-orange/90 transition-colors shadow-[0_1px_0_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.18)]"
+        >
+          Sign up
+        </Link>
+      </motion.div>
+    );
+  }
+
+  const user = session.user;
+  const displayName = user.name?.split(' ')[0] || user.email.split('@')[0];
+  const initial = (user.name || user.email)[0]?.toUpperCase() ?? '?';
+  const tier = (user as { tier?: string }).tier ?? 'FREE';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.55, type: 'spring' }}
+      className="relative"
+      ref={menuRef}
+    >
+      <button
+        onClick={() => setMenuOpen(v => !v)}
+        className="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-lg border border-white/15 hover:border-white/30 bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
+      >
+        <div className="w-6 h-6 rounded-md bg-orange/25 flex items-center justify-center text-[11px] font-bold text-orange">
+          {initial}
+        </div>
+        <span className="text-[12px] font-semibold text-white/90 hidden sm:block max-w-[90px] truncate">
+          {displayName}
+        </span>
+        {tier === 'PREMIUM' && (
+          <span className="text-[9px] px-1.5 py-0.5 bg-orange/20 text-orange border border-orange/30 rounded font-bold uppercase tracking-wide">
+            Pro
+          </span>
+        )}
+      </button>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.12 }}
+            className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 bg-[#0d1628] border border-[#1e2c44] rounded-xl shadow-2xl p-1.5 flex flex-col gap-0.5"
+          >
+            <div className="px-2.5 py-2 border-b border-[#1e2c44] mb-1">
+              <p className="text-[12px] font-bold text-white truncate">{user.name || displayName}</p>
+              <p className="text-[10px] text-white/55 truncate">{user.email}</p>
+              <p className="text-[9px] text-orange mt-1 font-bold uppercase tracking-wide">
+                {tier} plan
+              </p>
+            </div>
+            <button
+              onClick={async () => {
+                setMenuOpen(false);
+                await signOut();
+                router.push('/');
+                router.refresh();
+              }}
+              className="w-full text-left text-[11px] px-2.5 py-2 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+            >
+              Sign out
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

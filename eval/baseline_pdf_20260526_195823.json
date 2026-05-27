@@ -1,0 +1,127 @@
+{
+  "detail": [
+    {
+      "id": "top-state-2025",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Gujarat had the highest installed wind capacity in 2025, with 13 450.120 MW total [6]."
+    },
+    {
+      "id": "top3-states-2025",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "The top three states by installed wind power capacity in India as on 31.03.2025 are:  \n1. Gujarat \u2013 12 677.48 MW  \n2. Tamil Nadu \u2013 11 739.91 MW  \n3. Karnataka \u2013 7 351.10 MW [9]"
+    },
+    {
+      "id": "india-total-capacity-2025",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "India\u2019s total installed wind power capacity as on 31 March 2025 was 50,038 MW. [1]"
+    },
+    {
+      "id": "manufacturer-count",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "There were exactly 14 wind turbine generator (WEG) manufacturers offering WEGs in India as of 10 July 2025. [1]"
+    },
+    {
+      "id": "ge-contribution-2024-25",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "GE contributed 929 MW of new wind power capacity in India during FY 2024-25. [1]"
+    },
+    {
+      "id": "largest-weg-rating",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "The largest wind\u2010energy generator rating installed in India is 5,200 kW. [1]"
+    },
+    {
+      "id": "niwe-masts",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "NIWE has installed 996 wind monitoring masts across India\u2019s windy states. [1]"
+    },
+    {
+      "id": "wind-generation-2024-25",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Electricity generation from windpower projects in India during FY 2024-25 was 83,347 Million Units (MU). [1][2]"
+    },
+    {
+      "id": "non-fossil-share-mar-2025",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "By March 2025, non-fossil sources totaled 220 GW out of India\u2019s 470 GW of installed capacity, i.e. just over 46 % [5]."
+    },
+    {
+      "id": "wind-potential-pct-150m",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "India has realised 23.26 % of its estimated wind-power potential at 150 m above ground level as on 31 March 2025. [1]"
+    },
+    {
+      "id": "senvion-mp-abbrev",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "The \u201cState & Make-wise WEG Installations\u201d table does list Senvion (SI No. 10) but its Madhya Pradesh columns are blank (no \u201cNo.\u201d or \u201cMW\u201d shown) \u2013 i.e. no Senvion turbines are recorded for Madhya Pradesh in that table [3]."
+    },
+    {
+      "id": "senvion-gujarat-cumulative",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Senvion has installed 212 wind turbines in Gujarat [8]."
+    },
+    {
+      "id": "suzlon-typo",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Suzlon installed 147 wind turbines (WEGs) with a total capacity of 336.200 MW during FY 2024-25 in India. [2]"
+    },
+    {
+      "id": "tn-masts-helpful",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "The provided directory gives only the national total of 996 NIWE wind\u2010monitoring masts and explicitly states that it \u201cdoes not provide a state\u2010by\u2010state breakdown\u201d [1]. No separate count for Tamil Nadu is available in these passages."
+    },
+    {
+      "id": "suzlon-fy2016-17",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Suzlon installed 847 wind turbines in FY 2016-17 in India. [1]"
+    },
+    {
+      "id": "suzlon-states-2016",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Suzlon installed 435 wind turbines in FY 2015-16 [3]. The source does not provide any state-wise breakdown."
+    },
+    {
+      "id": "siemens-gamesa-fy2020-21",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Siemense Gamesa installed 281 WEGs in FY 2020-21. [2]"
+    },
+    {
+      "id": "pioneer-wincon-pre-2010",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Pioneer Wincon had installed 682 wind turbines up to March 2010 cumulatively. [2]"
+    },
+    {
+      "id": "inox-contribution",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "Inox Wind Ltd has installed more than 1,600 wind turbines across India [10]."
+    },
+    {
+      "id": "ge-contribution-via-prose",
+      "retrieval_ok": true,
+      "answer_ok": true,
+      "answer": "GE added 929 MW of new wind-power capacity in India during FY 2024-25. [1]"
+    }
+  ],
+  "retrieval_pass": 20,
+  "answer_pass": 20,
+  "n": 20
+}

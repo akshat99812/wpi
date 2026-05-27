@@ -1,0 +1,179 @@
+[
+  {
+    "table": "Make & Year-wise WEG Installations (Active)",
+    "question": "How many turbines did Suzlon install in FY 2016-17?",
+    "expect": [
+      "847"
+    ],
+    "truth": "Suzlon FY 2016-17: 847 turbines / 1778.700 MW",
+    "status": "PASS",
+    "answer": "Suzlon installed 847 wind turbines (WEGs) in FY 2016-17 in India. [1]"
+  },
+  {
+    "table": "Manufacturer contribution prose (FY 2024-25)",
+    "question": "What was Inox's contribution during 2024-25?",
+    "expect": [
+      "98"
+    ],
+    "truth": "Inox contributed 98 MW in FY 2024-25",
+    "status": "PASS",
+    "answer": "Inox contributed 98 MW of new wind-power capacity during FY 2024-25 [1][2]."
+  },
+  {
+    "table": "State & Make-wise WEG Installations (Active, cumulative)",
+    "question": "How many Suzlon turbines are installed in Tamil Nadu cumulatively?",
+    "expect": [
+      "2065"
+    ],
+    "truth": "Suzlon in Tamil Nadu: 2065 turbines / 2787.5 MW (from cumulative State&Make table)",
+    "status": "FAIL",
+    "answer": "The passages contain no state-wise (Tamil Nadu) breakdown of the number of Suzlon turbines\u2014only a MW figure (93.300 MW) for new capacity in Tamil Nadu for FY 2024-25 [1]. No cumulative turbine count for Tamil Nadu is provided."
+  },
+  {
+    "table": "State & Make-wise Installation during 2024-25",
+    "question": "How much capacity did Senvion install in Gujarat during 2024-25?",
+    "expect": [
+      "290"
+    ],
+    "truth": "Senvion Gujarat 2024-25: 290.600 MW",
+    "status": "PASS",
+    "answer": "Senvion installed 290.600 MW of new wind-power capacity in Gujarat during FY 2024-25 [1][2]."
+  },
+  {
+    "table": "All India State-wise Cumulative Capacity",
+    "question": "What is Gujarat's cumulative installed wind capacity as on 31.03.2025?",
+    "expect": [
+      "13450",
+      "13,450"
+    ],
+    "truth": "Gujarat cumulative: 13,450.120 MW",
+    "status": "PASS",
+    "answer": "Gujarat\u2019s total cumulative installed wind\u2010power capacity as on 31.03.2025 is 13450.120 MW (Commercial: 13432.280 MW + Demonstration: 17.840 MW). [1]"
+  },
+  {
+    "table": "Tamil Nadu cumulative (state-wise)",
+    "question": "What is Tamil Nadu's total installed wind capacity?",
+    "expect": [
+      "11739",
+      "11,739",
+      "11609",
+      "11,609"
+    ],
+    "truth": "Tamil Nadu cumulative: directory has both 11,739.91 MW (state-wise table) and 11,609.575 MW (year-wise growth table)",
+    "status": "PASS",
+    "answer": "Tamil Nadu\u2019s total cumulative installed wind\u2010power capacity as on 31 March 2025 is 11 609.575 MW (Commercial Projects: 11 590.220 MW + Demonstration Projects: 19.355 MW)[1]."
+  },
+  {
+    "table": "Karnataka cumulative",
+    "question": "What is Karnataka's total installed wind capacity?",
+    "expect": [
+      "6869",
+      "6,869"
+    ],
+    "truth": "Karnataka cumulative: 6,869.405 MW",
+    "status": "PASS",
+    "answer": "Karnataka\u2019s total cumulative installed wind\u2010power capacity as on 31.03.2025 is 6 869.405 MW (Commercial: 6 862.330 MW; Demonstration: 7.075 MW) [1]."
+  },
+  {
+    "table": "State & Year-wise Installed Capacity (last 5 years)",
+    "question": "What was Maharashtra's installed wind capacity as on 31 March 2024?",
+    "expect": [
+      "5"
+    ],
+    "truth": "Maharashtra 31.03.2024 \u2014 table has it",
+    "status": "FAIL",
+    "answer": ""
+  },
+  {
+    "table": "Percentage Contribution by States",
+    "question": "What percentage of India's installed wind capacity is in Gujarat?",
+    "expect": [
+      "%"
+    ],
+    "truth": "Gujarat share of total \u2014 should yield a percent",
+    "status": "PASS",
+    "answer": "Gujarat had 12 677.48 MW out of India\u2019s total 50 037.82 MW as on 31.03.2025, i.e. about 25.35 % of the country\u2019s installed wind capacity [2]."
+  },
+  {
+    "table": "Worldwide Windpower Installed Capacity (Global Scenario)",
+    "question": "Which country had the highest installed wind capacity globally as on December 2024?",
+    "expect": [
+      "China"
+    ],
+    "truth": "China rank 1 with 510,266 MW per Worldwide table",
+    "status": "PASS",
+    "answer": "China had the highest installed wind capacity globally as on 31.12.2024, with 510,266 MW [1]."
+  },
+  {
+    "table": "Worldwide table \u2014 total global capacity",
+    "question": "What was the total worldwide installed wind power capacity?",
+    "expect": [
+      "1120072",
+      "1,120,072",
+      "11,20,072"
+    ],
+    "truth": "Worldwide total: 11,20,072 MW (Indian numbering)",
+    "status": "PASS",
+    "answer": "The total worldwide installed wind-power capacity was 11,20,072 MW as of 31 December 2024. [5]"
+  },
+  {
+    "table": "Year & Rating-wise WEG Installations (last 40 years)",
+    "question": "How many 800 kW rating WEGs were installed in FY 2007-08?",
+    "expect": [
+      "363"
+    ],
+    "truth": "From table: 800 kW row, 2007-08 column = 363",
+    "status": "FAIL",
+    "answer": "The provided passages do not include any data on installations of 800 kW-rated WEGs for FY 2007-08."
+  },
+  {
+    "table": "Manufacturer & Rating-wise Number of WEGs (FY 2024-25)",
+    "question": "How many 5200 kW WEGs were installed by Adani Green during 2024-25?",
+    "expect": [
+      "150"
+    ],
+    "truth": "Adani Green 5200 kW row in 2024-25 Manuf-Rating table = 150",
+    "status": "FAIL",
+    "answer": "The provided passages contain no information on Adani Green\u2019s installations, 5200 kW WEGs, or the 2024-25 period. [none]"
+  },
+  {
+    "table": "SECI Tender Results (different tranches)",
+    "question": "How many tranches of SECI wind tenders have been conducted?",
+    "expect": [
+      "tranche"
+    ],
+    "truth": "SECI section lists multiple tranches I, II, III, IV, etc.",
+    "status": "PASS",
+    "answer": "According to MNRE/SECI data, from Feb-2017 to Jun-2025 SECI issued 18 wind-power auction tranches (Tranche I through Tranche XVIII). [12]"
+  },
+  {
+    "table": "State & Month-wise installations during FY 2024-25",
+    "question": "How much capacity was installed in Gujarat in March 2025?",
+    "expect": [
+      "Gujarat"
+    ],
+    "truth": "Gujarat March 2025 entry in State-Month table",
+    "status": "PASS",
+    "answer": "Gujarat\u2019s total cumulative wind\u2010power capacity as on 31.03.2025 was 13 450.120 MW (Commercial: 13 432.280 MW; Demonstration: 17.840 MW)[1]."
+  },
+  {
+    "table": "NIWE wind monitoring masts (headline)",
+    "question": "How many wind monitoring masts has NIWE installed?",
+    "expect": [
+      "996"
+    ],
+    "truth": "NIWE total: 996 masts",
+    "status": "PASS",
+    "answer": "NIWE has installed 996 wind monitoring masts across India.[1]"
+  },
+  {
+    "table": "Total installed capacity headline",
+    "question": "India's total installed wind power capacity as of 31 March 2025?",
+    "expect": [
+      "5003"
+    ],
+    "truth": "50,038 MW per MNRE / 50,037.82 per state sum",
+    "status": "PASS",
+    "answer": "India\u2019s total installed wind\u2010power capacity as on 31 March 2025 is 50 038 MW. [1]"
+  }
+]
