@@ -56,59 +56,65 @@ export default function TopBar({
 
   return (
     <>
-      <motion.header 
+      <motion.header
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="flex-none relative flex items-center justify-between gap-2 px-2.5 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-6 min-h-[52px] lg:h-[68px] overflow-hidden z-30"
-        style={{ 
+        className="flex-none relative flex items-center justify-between gap-2 px-2.5 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-6 min-h-[52px] lg:h-[68px] z-30"
+        style={{
           background: 'linear-gradient(135deg, rgba(6,8,15,0.98) 0%, rgba(12,17,32,0.95) 50%, rgba(10,13,26,0.97) 100%)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)'
         }}
       >
-        {/* Animated gradient borders */}
-        <div className="absolute inset-x-0 top-0 h-px">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-transparent via-orange/60 to-transparent"
-            animate={{ 
-              backgroundPosition: ['200% 0', '-200% 0'],
-            }}
-            transition={{ 
-              duration: 8, 
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-            style={{ backgroundSize: '200% 100%' }}
-          />
-        </div>
-        
-        {/* Bottom border */}
-        <div className="absolute inset-x-0 bottom-0 h-px">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-transparent via-white/12 to-transparent"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </div>
+        {/* Decorative layer — borders + ambient glows. Wrapped in its own
+            overflow-hidden box so the blur stays contained without clipping
+            any absolute-positioned children that hang below the header
+            (e.g. user-menu dropdowns added in later work). */}
+        <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Animated gradient borders */}
+          <div className="absolute inset-x-0 top-0 h-px">
+            <motion.div
+              className="h-full bg-gradient-to-r from-transparent via-orange/60 to-transparent"
+              animate={{
+                backgroundPosition: ['200% 0', '-200% 0'],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: 'linear'
+              }}
+              style={{ backgroundSize: '200% 100%' }}
+            />
+          </div>
 
-        {/* Ambient glow effects */}
-        <motion.div 
-          className="absolute left-0 top-0 w-96 h-full bg-orange/5 blur-3xl pointer-events-none"
-          animate={{ 
-            opacity: [0.3, 0.6, 0.3],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div 
-          className="absolute right-0 top-0 w-96 h-full bg-blue-500/3 blur-3xl pointer-events-none"
-          animate={{ 
-            opacity: [0.2, 0.5, 0.2],
-            scale: [1.1, 1, 1.1]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
+          {/* Bottom border */}
+          <div className="absolute inset-x-0 bottom-0 h-px">
+            <motion.div
+              className="h-full bg-gradient-to-r from-transparent via-white/12 to-transparent"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
+
+          {/* Ambient glow effects */}
+          <motion.div
+            className="absolute left-0 top-0 w-96 h-full bg-orange/5 blur-3xl"
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute right-0 top-0 w-96 h-full bg-blue-500/3 blur-3xl"
+            animate={{
+              opacity: [0.2, 0.5, 0.2],
+              scale: [1.1, 1, 1.1]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </div>
 
         {/* ── Brand ── */}
         <motion.div variants={itemVariants} className="flex items-center gap-1.5 sm:gap-2 lg:gap-4 z-10 min-w-0 flex-1">

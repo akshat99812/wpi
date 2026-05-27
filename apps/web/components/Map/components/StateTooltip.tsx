@@ -25,7 +25,7 @@ function formatRow(key: string, t: TooltipState): string {
 }
 
 const TOOLTIP_W = 220;
-const TOOLTIP_H = 210;
+const TOOLTIP_H = 222;
 
 export function StateTooltip({ tooltip, containerWidth, containerHeight }: Props) {
   const rawLeft = tooltip.x + 18;
@@ -75,12 +75,17 @@ export function StateTooltip({ tooltip, containerWidth, containerHeight }: Props
           ))}
         </div>
 
-        <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-center gap-1.5">
-          <div className="w-1 h-1 rounded-full bg-orange-400" />
-          <span className="text-[9px] text-orange-300 font-bold tracking-widest uppercase">
-            Click to Filter Dashboard
-          </span>
-          <div className="w-1 h-1 rounded-full bg-orange-400" />
+        <div className="mt-3 pt-2.5 border-t border-white/10">
+          <div className="flex items-center justify-center gap-1.5">
+            <div className="w-1 h-1 rounded-full bg-orange-400" />
+            <span className="text-[9px] text-orange-300 font-bold tracking-widest uppercase">
+              Click to Filter Dashboard
+            </span>
+            <div className="w-1 h-1 rounded-full bg-orange-400" />
+          </div>
+          <div className="mt-1.5 text-[7px] leading-[1.25] text-white/25 text-center">
+            Source: MNRE RE-Statistics 2024-25; NIWE &amp; DTU Global Wind Atlas
+          </div>
         </div>
       </div>
     </div>

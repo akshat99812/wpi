@@ -175,6 +175,39 @@ export default function Landing() {
             </div>
           </div>
 
+          {/* Disclaimer — informational status, data provenance, no-affiliation
+              notice. Sits above the copyright strip so the legal context is
+              the last thing a reader sees before they leave the page. */}
+          <div className="pt-5 pb-5 border-t border-[#1a2540]">
+            <p className="text-[10.5px] leading-[1.55] text-muted/55 text-justify">
+              <span className="text-muted/80 font-semibold uppercase tracking-[0.12em] text-[9.5px]">
+                Disclaimer ·{' '}
+              </span>
+              Wind Power India is an independent intelligence portal built by{' '}
+              <a
+                href="https://cecl.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted/80 hover:text-orange/85 transition-colors"
+              >
+                Consolidated Energy Consultants Ltd.
+              </a>
+              {' '}for educational and analytical use. Figures shown across the
+              map, dashboards, and research sections are aggregated from
+              publicly available sources — including{' '}
+              <span className="text-muted/80">MNRE, NIWE, SECI, CEA, POSOCO/Grid-India,
+              state SERCs, state nodal agencies, the DTU Global Wind Atlas, and
+              project-developer disclosures</span> — and are reproduced here for
+              reference. While we strive for accuracy, this portal is{' '}
+              <span className="text-muted/80">not affiliated with, endorsed by, or
+              an official channel of</span> any government body, regulator, or
+              listed entity. Data may lag the underlying source by up to one
+              reporting cycle; users should independently verify any figure
+              against the cited authoritative source before relying on it for
+              investment, regulatory, or commercial decisions.
+            </p>
+          </div>
+
           {/* Bottom strip — © on the left, legal links on the right.
               Stacks vertically on small viewports where the © line is too
               long to share a row with the legal cluster. */}
