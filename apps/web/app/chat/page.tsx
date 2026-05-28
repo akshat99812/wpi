@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useSession, signOut } from "@/lib/auth-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -206,11 +209,25 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090d18] text-text">
-      <header className="border-b border-[#1e2c44] px-5 py-3 flex items-center justify-between">
+    <div className="h-dvh min-h-screen flex flex-col bg-[#090d18] text-text">
+      <header className="flex-none border-b border-[#1e2c44] px-5 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/" className="text-[12px] text-muted/60 hover:text-text">
-            ← Home
+          <Link
+            href="/"
+            aria-label="Home"
+            className="flex items-center gap-2 hover:opacity-90 transition-opacity"
+          >
+            <Image
+              src="/logo.png"
+              alt="CECL"
+              width={28}
+              height={28}
+              className="object-contain"
+              priority
+            />
+            <span className="hidden sm:inline text-[12px] font-bold tracking-tight text-text">
+              CECL
+            </span>
           </Link>
           <span className="text-muted/30">|</span>
           <h1 className="text-[13px] font-bold tracking-wide">
@@ -259,7 +276,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className="border-t border-[#1e2c44] px-4 py-3">
+      <div className="flex-none border-t border-[#1e2c44] bg-[#090d18] px-4 py-3">
         <div className="max-w-3xl mx-auto flex gap-2">
           <textarea
             value={input}
@@ -296,8 +313,10 @@ function MessageView({ message }: { message: Message }) {
   return (
     <div className="flex justify-start">
       <div className="max-w-[85%] w-full">
-        <div className="px-3 py-2 rounded-lg bg-[#0d1628] border border-[#1e2c44] text-[13px] whitespace-pre-wrap text-text">
-          {message.text || (
+        <div className="px-3 py-2 rounded-lg bg-[#0d1628] border border-[#1e2c44] text-[13px] text-text">
+          {message.text ? (
+            <AssistantMarkdown text={message.text} />
+          ) : (
             <span className="text-muted/40 italic">thinking…</span>
           )}
           {message.streaming && message.text && (
@@ -339,6 +358,97 @@ function MessageView({ message }: { message: Message }) {
           </details>
         )}
       </div>
+    </div>
+  );
+}
+
+function AssistantMarkdown({ text }: { text: string }) {
+  return (
+    <div className="assistant-md text-[13px] leading-[1.55] text-text">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          p: ({ children }) => (
+            <p className="my-2 first:mt-0 last:mb-0 whitespace-pre-wrap">{children}</p>
+          ),
+          h1: ({ children }) => (
+            <h1 className="mt-4 mb-2 text-[15px] font-bold tracking-tight text-text">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="mt-4 mb-2 text-[14px] font-bold tracking-tight text-text">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="mt-3 mb-1.5 text-[13px] font-bold tracking-tight text-text">{children}</h3>
+          ),
+          ul: ({ children }) => <ul className="my-2 pl-5 list-disc space-y-1">{children}</ul>,
+          ol: ({ children }) => <ol className="my-2 pl-5 list-decimal space-y-1">{children}</ol>,
+          li: ({ children }) => <li className="leading-[1.5]">{children}</li>,
+          strong: ({ children }) => <strong className="font-bold text-text">{children}</strong>,
+          em: ({ children }) => <em className="italic text-text/90">{children}</em>,
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-orange/85 hover:text-orange underline underline-offset-2"
+            >
+              {children}
+            </a>
+          ),
+          code: ({ children, ...props }) => {
+            const inline = !(props as { className?: string }).className;
+            return inline ? (
+              <code className="px-1 py-0.5 rounded bg-[#07090f] border border-[#1e2c44] text-[11.5px] font-mono text-orange/90">
+                {children}
+              </code>
+            ) : (
+              <code className="block whitespace-pre overflow-x-auto p-3 rounded-lg bg-[#07090f] border border-[#1e2c44] text-[11.5px] font-mono text-text">
+                {children}
+              </code>
+            );
+          },
+          pre: ({ children }) => <pre className="my-2 not-prose">{children}</pre>,
+          blockquote: ({ children }) => (
+            <blockquote className="my-2 pl-3 border-l-2 border-orange/40 text-muted/85">
+              {children}
+            </blockquote>
+          ),
+          hr: () => <hr className="my-3 border-0 border-t border-[#1e2c44]" />,
+          // GFM tables: wrap in a horizontally scrollable container so wide
+          // tables (e.g. mast directories with 15+ columns) don't blow out
+          // the message bubble. Tight padding + small font keeps them readable.
+          table: ({ children }) => (
+            <div className="my-3 -mx-1 overflow-x-auto rounded-lg border border-[#1e2c44]">
+              <table className="min-w-full text-[11.5px] border-collapse">{children}</table>
+            </div>
+          ),
+          thead: ({ children }) => (
+            <thead className="bg-[#07090f] text-muted/85">{children}</thead>
+          ),
+          tbody: ({ children }) => <tbody>{children}</tbody>,
+          tr: ({ children }) => (
+            <tr className="border-b border-[#1e2c44] last:border-b-0">{children}</tr>
+          ),
+          th: ({ children, style }) => (
+            <th
+              style={style}
+              className="px-2 py-1.5 text-left font-bold tracking-tight whitespace-nowrap"
+            >
+              {children}
+            </th>
+          ),
+          td: ({ children, style }) => (
+            <td
+              style={style}
+              className="px-2 py-1.5 align-top text-text/90 whitespace-nowrap tabular-nums"
+            >
+              {children}
+            </td>
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   );
 }
