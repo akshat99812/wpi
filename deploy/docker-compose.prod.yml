@@ -2,11 +2,29 @@ services:
   api:
     ports: !override
       - "127.0.0.1:3005:3005"
+    depends_on:
+      - qdrant
     environment:
       PORT: "3005"
+      NODE_ENV: production
       WPI_ADMIN_TOKEN: ${WPI_ADMIN_TOKEN:-dev-token}
       WPI_CRON_SCHEDULE: "0 1 * * *"
       WPI_ALLOW_ORIGINS: https://windpowerindia.com,https://www.windpowerindia.com
+      # ── Better Auth ──────────────────────────────────────────────────────
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: https://api.windpowerindia.com
+      BETTER_AUTH_TRUSTED_ORIGINS: https://windpowerindia.com,https://www.windpowerindia.com
+      AUTH_COOKIE_DOMAIN: .windpowerindia.com
+      PRO_ALLOWLIST_EMAILS: ${PRO_ALLOWLIST_EMAILS:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-onboarding@resend.dev}
+      # ── RAG (embeddings = OpenAI; generation = Grok→OpenAI fallback) ──────
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      XAI_MODEL: ${XAI_MODEL:-grok-4-fast-reasoning}
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-wind_energy_v1}
 
   web:
     build:
@@ -32,3 +50,19 @@ services:
   umami:
     ports: !override
       - "127.0.0.1:3007:3000"
+
+  # Vector DB for the RAG chatbot. Loopback-only; the API reaches it over the
+  # compose network at http://qdrant:6333. The host port is bound to 127.0.0.1
+  # so the snapshot-restore step (see DEPLOY.md) can curl it locally.
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY}
+    ports:
+      - "127.0.0.1:6333:6333"
+    volumes:
+      - qdrant-storage:/qdrant/storage
+
+volumes:
+  qdrant-storage:

@@ -47,3 +47,6 @@ ingestion/data/pdfs/
 ingestion/data/docx/
 ingestion/data/parsed/
 ingestion/qdrant_storage/
+
+# Qdrant snapshots — large binaries, copied to the VPS via scp (see DEPLOY.md)
+deploy/*.snapshot

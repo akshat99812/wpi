@@ -116,3 +116,121 @@ bash /opt/wce/deploy/update.sh
 **API calls 404 / CORS error.** Hard-refresh the browser; older builds had `NEXT_PUBLIC_API_URL` pointing at a Render fallback. Rebuild the web container: `docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d --build web`.
 
 **Certbot rate-limited.** You hit Let's Encrypt's 5-failures-per-hour limit. Wait an hour, fix the DNS issue, retry.
+
+---
+
+## Deploying the auth + RAG update (to the already-running box)
+
+This adds user accounts (Better Auth), the Pro-gated RAG chat, and a Qdrant
+vector DB to a box that's already serving the site. Run the steps in order.
+
+### Prereqs (on your laptop)
+
+1. **Push the code to `main`** (the VPS pulls `main`):
+   ```bash
+   git push origin main
+   ```
+2. **Have the secrets ready.** Generate fresh ones:
+   ```bash
+   openssl rand -hex 32   # BETTER_AUTH_SECRET
+   openssl rand -hex 32   # QDRANT_API_KEY
+   ```
+   You also need a real `OPENAI_API_KEY` (required — embeddings + generation
+   fallback) and optionally an `XAI_API_KEY` (Grok is the primary generator
+   when set; it auto-falls-back to OpenAI o4-mini on error/rate-limit).
+
+### Step 1 — Copy the Qdrant snapshot to the VPS
+
+The corpus (`wind_energy_v1`, ~882 points) is shipped as a Qdrant snapshot, not
+re-ingested on the box. From your laptop:
+
+```bash
+scp deploy/wind_energy_v1.snapshot root@187.127.169.28:/root/
+```
+
+> The snapshot is regenerated locally with:
+> ```bash
+> QK=$(grep '^QDRANT_API_KEY=' ingestion/.env | cut -d= -f2-)
+> SNAP=$(curl -s -X POST -H "api-key: $QK" \
+>   http://localhost:6333/collections/wind_energy_v1/snapshots \
+>   | grep -o '"name":"[^"]*"' | head -1 | cut -d'"' -f4)
+> curl -s -H "api-key: $QK" \
+>   "http://localhost:6333/collections/wind_energy_v1/snapshots/$SNAP" \
+>   -o deploy/wind_energy_v1.snapshot
+> ```
+
+### Step 2 — Add the new env vars on the VPS
+
+```bash
+ssh root@187.127.169.28
+cd /opt/wce
+nano .env        # append the block below, with real values
+```
+
+```ini
+# Better Auth
+BETTER_AUTH_SECRET=<openssl rand -hex 32>
+PRO_ALLOWLIST_EMAILS=you@example.com        # comma-separated; grants Pro/chat
+RESEND_API_KEY=                              # optional (email flows are off)
+EMAIL_FROM=onboarding@resend.dev
+
+# RAG
+OPENAI_API_KEY=sk-...                        # REQUIRED
+XAI_API_KEY=                                 # optional (Grok primary if set)
+XAI_MODEL=grok-4-fast-reasoning
+QDRANT_API_KEY=<openssl rand -hex 32>
+QDRANT_COLLECTION=wind_energy_v1
+```
+
+`BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`, `AUTH_COOKIE_DOMAIN` and
+`QDRANT_URL` are hard-coded to the prod values in
+`deploy/docker-compose.prod.yml` — don't set them here. `BETTER_AUTH_SECRET`,
+`OPENAI_API_KEY` and `QDRANT_API_KEY` have **no defaults**: if they're missing
+the API container starts broken. Double-check they're set before rebuilding.
+
+### Step 3 — Pull + rebuild (brings up the new Qdrant service)
+
+```bash
+bash /opt/wce/deploy/update.sh
+docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml ps
+# expect: api, web, umami, umami-db, qdrant all "Up"
+```
+
+### Step 4 — Restore the corpus into prod Qdrant
+
+```bash
+QK=$(grep '^QDRANT_API_KEY=' /opt/wce/.env | cut -d= -f2-)
+curl -X POST -H "api-key: $QK" \
+  -F "snapshot=@/root/wind_energy_v1.snapshot" \
+  "http://127.0.0.1:6333/collections/wind_energy_v1/snapshots/upload?priority=snapshot"
+
+# verify — expect "points_count":882
+curl -s -H "api-key: $QK" \
+  http://127.0.0.1:6333/collections/wind_energy_v1 | grep -o '"points_count":[0-9]*'
+```
+
+### Step 5 — Refresh the API nginx vhost (SSE streaming fix)
+
+`update.sh` does **not** touch nginx. The chat stream needs the updated vhost
+(disables proxy buffering, raises the read timeout for reasoning models):
+
+```bash
+cp /opt/wce/deploy/nginx/api.windpowerindia.com.conf /etc/nginx/sites-available/
+nginx -t && systemctl reload nginx
+```
+
+### Step 6 — Smoke test
+
+```bash
+curl -s https://api.windpowerindia.com/api/health           # API up
+```
+
+In a browser:
+- Sign up / log in at `https://windpowerindia.com` — confirm the `wpi.*` session
+  cookie is set on `.windpowerindia.com`.
+- Open the chat (must be a Pro-allowlisted email). Ask a question and confirm
+  the answer **streams** token-by-token (not one big delayed block — that would
+  mean buffering is still on) and that sources are cited.
+- `docker compose ... logs -f api` — a `provider "xai" failed ... falling back`
+  line is expected/healthy if Grok rate-limits; an OpenAI error there means the
+  `OPENAI_API_KEY` is wrong.
