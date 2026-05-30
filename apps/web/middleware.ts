@@ -9,9 +9,11 @@ const ADMIN_PUBLIC_PATHS = new Set([
 ]);
 
 // Better Auth session cookie. With cookiePrefix="wpi" the name is
-// "wpi.session_token". This is a UX-only presence check — the API
-// always re-validates the cookie, so a forged value still gets 401'd there.
-const USER_SESSION_COOKIE = 'wpi.session_token';
+// "wpi.session_token" in dev (http) and "__Secure-wpi.session_token" in
+// prod (https) — Better Auth adds the __Secure- prefix automatically when
+// the cookie is Secure. This is a UX-only presence check; the API always
+// re-validates the cookie, so a forged value still gets 401'd there.
+const USER_SESSION_COOKIES = ['__Secure-wpi.session_token', 'wpi.session_token'];
 
 // Pro-gated UI routes. Real enforcement lives in the API (requirePro
 // middleware); this just bounces unauthed visitors to /login first.
@@ -42,7 +44,7 @@ export async function middleware(req: NextRequest) {
 
   // Pro user area — redirect to /login if no session cookie.
   if (PRO_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-    const hasSession = req.cookies.get(USER_SESSION_COOKIE)?.value;
+    const hasSession = USER_SESSION_COOKIES.some((n) => req.cookies.get(n)?.value);
     if (!hasSession) {
       const url = new URL('/login', req.url);
       url.searchParams.set('next', pathname);
