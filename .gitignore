@@ -31,6 +31,11 @@ apps/api/data/auth.sqlite-journal
 apps/api/data/auth.sqlite-wal
 apps/api/data/auth.sqlite-shm
 
+# Proprietary Pro-map source data — never commit. Shipped out-of-band to the
+# VPS bind-mount dir /opt/wce/data/private/ (boundaries.geojson + wra_masts.csv),
+# which is where the running API actually reads them. See deploy/REFERENCE.md §6.1.
+apps/api/data/private/
+
 
 # IDE
 .vscode/

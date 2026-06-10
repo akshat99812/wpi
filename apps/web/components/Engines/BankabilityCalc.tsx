@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { calculateIRR } from '@/lib/math';
-import MethodologyPanel from '../KnowledgeBank/MethodologyPanel';
 import FinancialSliders from '../ui/Animatedsliders';
+import EngineTitle from '../ui/EngineTitle';
 
 // ── Constants (spec §10.3) ────────────────────────────────────────────────────
 const HOURS  = 8760;
@@ -40,9 +41,30 @@ function Tile({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
+// ── Collapsible result section ────────────────────────────────────────────────
+// `open` is driven by the parent (sections expand once the user hits Calculate)
+// but the user can still toggle each one manually; onToggle keeps local state
+// in sync so the parent and the native <details> don't fight.
+function CollapsibleSection({ title, open, children }: { title: string; open: boolean; children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(open);
+  useEffect(() => { setIsOpen(open); }, [open]);
+  return (
+    <details
+      open={isOpen}
+      onToggle={(e) => setIsOpen((e.currentTarget as HTMLDetailsElement).open)}
+      className="group"
+    >
+      <summary className="flex items-center justify-between cursor-pointer list-none select-none mb-2
+                          text-[9.5px] text-muted uppercase font-bold tracking-wide
+                          hover:text-[#c8d4e8] transition-colors">
+        {title}
+        <span className="text-[10px] text-[#4a5a78] group-open:rotate-180 transition-transform duration-200">▼</span>
+      </summary>
+      {children}
+    </details>
+  );
+}
 
-
-// ── Main DCF calculation ──────────────────────────────────────────────────────
 function runDcf(p: typeof DEFAULTS) {
   const turnkey   = p.wtg + p.bop;
   const capex     = p.size * turnkey;
@@ -148,58 +170,122 @@ function runDcf(p: typeof DEFAULTS) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function BankabilityCalc() {
   const [p, setP] = useState({ ...DEFAULTS });
+  // Results are computed from a committed snapshot, refreshed only when the user
+  // presses Calculate (which shows a brief loading state).
+  const [calcParams, setCalcParams] = useState({ ...DEFAULTS });
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const set = useCallback((key: keyof typeof DEFAULTS) => (v: number) =>
     setP(prev => ({ ...prev, [key]: v })), []);
 
-  const res = useMemo(() => runDcf(p), [p]);
+  const res = useMemo(() => runDcf(calcParams), [calcParams]);
+  const cp = calcParams;
+
+  // Have the live inputs drifted from the last calculated snapshot?
+  const isStale = (Object.keys(p) as (keyof typeof DEFAULTS)[]).some(k => p[k] !== calcParams[k]);
+
+  const handleCalculate = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setIsCalculating(true);
+    timerRef.current = setTimeout(() => {
+      setCalcParams({ ...p });
+      setExpanded(true);
+      setIsCalculating(false);
+      timerRef.current = null;
+    }, 1000); // minimum visible loading time
+  }, [p]);
+
+  const resetAll = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setIsCalculating(false);
+    setExpanded(false);
+    setP({ ...DEFAULTS });
+    setCalcParams({ ...DEFAULTS });
+  }, []);
+
+  // Clear any pending timer on unmount.
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-2">
-        <div className="flex items-center gap-2 text-[10.5px] sm:text-[11px] tracking-[0.9px] sm:tracking-[1.1px] text-orange uppercase font-bold">
-          <div className="w-3.5 h-[2px] rounded bg-gradient-to-r from-orange to-transparent" />
-          25-yr Bankability Calculator
-        </div>
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <EngineTitle title="25-yr Bankability Calculator" />
         <button
-          onClick={() => setP({ ...DEFAULTS })}
+          onClick={resetAll}
           className="text-[9.5px] text-orange hover:underline uppercase tracking-[0.8px] font-bold"
         >
           Reset Defaults
         </button>
       </div>
 
-      {/* ── Sliders (9 inputs) ── */}
-      <FinancialSliders p={p} set={set} />
-
-      {/* ── Derived inputs (4 tiles) ── */}
-      <div>
-        <div className="text-[9.5px] text-muted uppercase font-bold tracking-wide mb-2">Derived Inputs</div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <Tile label="Turnkey CapEx"      value={`₹${res.capex.toFixed(0)} Cr`}   sub={`${(p.wtg + p.bop).toFixed(2)} Cr/MW`} />
-          <Tile label="Equity incl. WC"    value={`₹${res.equityWC.toFixed(0)} Cr`} />
-          <Tile label="Debt"               value={`₹${res.debtAmt.toFixed(0)} Cr`}   sub={`${p.debt}% of CapEx`} />
-          <Tile label="Annual Debt Service" value={`₹${res.annuity.toFixed(1)} Cr`}  sub="Equated annuity" />
-        </div>
+      {/* ── Project Inputs (full width) ── */}
+      <div className="flex flex-col gap-2.5">
+        <div className="text-[9.5px] text-muted uppercase font-bold tracking-wide">Project Inputs</div>
+        <FinancialSliders p={p} set={set} />
       </div>
 
-      {/* ── Year-1 Run Rate (6 tiles) ── */}
-      <div>
-        <div className="text-[9.5px] text-muted uppercase font-bold tracking-wide mb-2">Year-1 Run Rate</div>
+      {/* ── Calculate button ── */}
+      <button
+        type="button"
+        onClick={handleCalculate}
+        disabled={isCalculating}
+        className="self-start inline-flex items-center gap-2 rounded-lg
+                   bg-gradient-to-r from-orange to-[#ffb066] text-[#0a0e18]
+                   px-5 py-2.5 text-[12px] font-black uppercase tracking-[0.6px]
+                   disabled:opacity-70 disabled:cursor-not-allowed
+                   hover:opacity-95 transition-opacity"
+      >
+        {isCalculating ? (
+          <>
+            <span className="h-3.5 w-3.5 rounded-full border-2 border-[#0a0e18]/30 border-t-[#0a0e18] animate-spin" />
+            Calculating…
+          </>
+        ) : (
+          isStale ? 'Recalculate' : 'Calculate Bankability'
+        )}
+      </button>
+      {isStale && !isCalculating && (
+        <div className="-mt-2 text-[10px] text-orange/80 font-semibold">
+          Inputs changed — recalculate to update the results below.
+        </div>
+      )}
+
+      {/* ── Results (shows a ≥1s loading state on calculate) ── */}
+      {isCalculating ? (
+        <div className="min-h-[320px] grid place-items-center rounded-xl border border-[#1e2c44] bg-[#0b0f19]">
+          <div className="flex flex-col items-center gap-3 text-muted">
+            <span className="h-7 w-7 rounded-full border-[3px] border-[#1e2c44] border-t-orange animate-spin" />
+            <span className="text-[11px] uppercase font-bold tracking-wide">Running 25-yr DCF…</span>
+          </div>
+        </div>
+      ) : (
+      <>
+
+      {/* ── Derived inputs (4 tiles) ── */}
+      <CollapsibleSection title="Derived Inputs" open={expanded}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <Tile label="Turnkey CapEx"      value={`₹${res.capex.toFixed(0)} Cr`}   sub={`${(cp.wtg + cp.bop).toFixed(2)} Cr/MW`} />
+          <Tile label="Equity incl. WC"    value={`₹${res.equityWC.toFixed(0)} Cr`} />
+          <Tile label="Debt"               value={`₹${res.debtAmt.toFixed(0)} Cr`}   sub={`${cp.debt}% of CapEx`} />
+          <Tile label="Annual Debt Service" value={`₹${res.annuity.toFixed(1)} Cr`}  sub="Equated annuity" />
+        </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Year-1 Run Rate" open={expanded}>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <Tile label="Generation"    value={`${(p.size * HOURS * p.plf / 100 * (1-AUX) / 1000).toFixed(1)} MU`} />
+          <Tile label="Generation"    value={`${(cp.size * HOURS * cp.plf / 100 * (1-AUX) / 1000).toFixed(1)} MU`} />
           <Tile label="Revenue"       value={`₹${res.revY1.toFixed(1)} Cr`} />
           <Tile label="O&M"           value={`₹${res.omY1.toFixed(1)} Cr`} />
           <Tile label="EBITDA Margin" value={`${res.revY1 > 0 ? ((res.ebitdaY1 / res.revY1) * 100).toFixed(1) : 0}%`} />
           <Tile label="EBITDA Y1"     value={`₹${res.ebitdaY1.toFixed(1)} Cr`} />
           <Tile label="DSCR Y1"       value={`${res.dscrY1.toFixed(2)}×`} sub={res.dscrY1 >= 1.30 ? '✓ Covenant met' : '✗ Below 1.30×'} />
         </div>
-      </div>
+      </CollapsibleSection>
 
-      {/* ── Returns & Coverage (6 tiles) ── */}
-      <div>
-        <div className="text-[9.5px] text-muted uppercase font-bold tracking-wide mb-2">Returns & Coverage</div>
+      <CollapsibleSection title="Returns & Coverage" open={expanded}>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <Tile label="Project IRR"   value={`${res.projIrr.toFixed(1)}%`} />
           <Tile label="Equity IRR"    value={`${res.eqIrr.toFixed(1)}%`} sub={res.eqIrr >= 13 ? '✓ ≥ 13% threshold' : '✗ Below 13%'} />
@@ -208,42 +294,38 @@ export default function BankabilityCalc() {
           <Tile label="Avg DSCR"      value={`${res.avgDscr.toFixed(2)}×`} sub={res.avgDscr >= 1.30 ? '✓ Covenant met' : '✗ Below 1.30×'} />
           <Tile label="Min DSCR"      value={`${res.minDscr.toFixed(2)}×`} />
         </div>
-      </div>
+      </CollapsibleSection>
+
 
       {/* ── Bankability Verdict ── */}
-      <div className={`p-4 rounded-xl border flex justify-between items-center gap-3 ${res.verdictClr}`}>
-        <div className="min-w-0">
-          <div className="text-[9px] uppercase font-extrabold tracking-[1.2px] opacity-70 mb-0.5">Bankability Verdict</div>
-          <div className="text-base sm:text-lg font-black uppercase">{res.verdict}</div>
-          <div className="text-[10px] opacity-60 mt-0.5">
-            {res.verdict === 'Bankable'     ? 'Equity IRR ≥ 13% AND Avg DSCR ≥ 1.30×'
-            : res.verdict === 'Marginal'    ? 'IRR ≥ 11% or DSCR ≥ 1.15× — review assumptions'
-                                           : 'Fails IRR ≥ 13% or DSCR ≥ 1.30× — not financeable at current terms'}
+      <div className={`p-4 rounded-xl border ${res.verdictClr}`}>
+        <div className="flex justify-between items-center gap-3">
+          <div className="min-w-0">
+            <div className="text-[9px] uppercase font-extrabold tracking-[1.2px] opacity-70 mb-0.5">Bankability Verdict</div>
+            <div className="text-base sm:text-lg font-black uppercase">{res.verdict}</div>
+            <div className="text-[10px] opacity-60 mt-0.5">
+              {res.verdict === 'Bankable'     ? 'Equity IRR ≥ 13% AND Avg DSCR ≥ 1.30×'
+              : res.verdict === 'Marginal'    ? 'IRR ≥ 11% or DSCR ≥ 1.15× — review assumptions'
+                                             : 'Fails IRR ≥ 13% or DSCR ≥ 1.30× — not financeable at current terms'}
+            </div>
+          </div>
+          <div className="text-2xl sm:text-3xl shrink-0">
+            {res.verdict === 'Bankable' ? '✅' : res.verdict === 'Marginal' ? '⚠️' : '❌'}
           </div>
         </div>
-        <div className="text-2xl sm:text-3xl shrink-0">
-          {res.verdict === 'Bankable' ? '✅' : res.verdict === 'Marginal' ? '⚠️' : '❌'}
+
+        {/* ── Disclaimer ── */}
+        <div className="mt-3 pt-3 border-t border-current/15 text-[10.5px] opacity-70 leading-relaxed">
+          <b className="block mb-1"> Indicative model — not a bankability certificate</b>
+          This calculator cannot see: mast data · terrain correction · P50/P75/P90 · offtaker credit risk ·
+          evacuation feasibility · land title · environmental clearances · force majeure provisions.
+          Always commission a bankability study before project finance.
         </div>
       </div>
 
-      {/* ── Methodology ── */}
-      <div className="mt-8">
-        <MethodologyPanel />
-      </div>
-      
+      </>
+      )}
 
-      {/* ── Disclaimer ── */}
-      <div className="p-3 rounded-xl bg-[#1a1008] border border-orange/20 text-[10.5px] text-muted leading-relaxed">
-        <b className="text-orange block mb-1">⚠ Indicative model — not a bankability certificate</b>
-        This calculator cannot see: mast data · terrain correction · P50/P75/P90 · offtaker credit risk ·
-        evacuation feasibility · land title · environmental clearances · force majeure provisions.
-        Always commission a bankability study before project finance.
-      </div>
-
-      {/* ── Contact CECL for Bankable Reports ──────────────────────────
-          Sits below the indicative-model disclaimer. Full contact card
-          with title, agency name, contact grid (emails / phones /
-          registered office) and CTA. */}
       <div className="rounded-xl border border-orange/30 overflow-hidden
                       bg-gradient-to-br from-[#1a140a] via-[#0e1422] to-[#090d18]
                       relative">
@@ -254,10 +336,14 @@ export default function BankabilityCalc() {
         />
         <div className="relative p-4 sm:p-5 flex flex-col gap-4">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 grid place-items-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl
-                            bg-gradient-to-br from-orange/30 to-orange/10
-                            border border-orange/45 text-orange">
-              <BriefcaseIcon />
+            <div className="flex-shrink-0 grid place-items-center h-10 w-10 sm:h-11 sm:w-11">
+              <Image
+                src="/logo.png"
+                alt="CECL — Consolidated Energy Consultants Limited"
+                width={44}
+                height={38}
+                className="object-contain w-full h-full"
+              />
             </div>
             <div className="min-w-0">
               <div className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-orange/90">
@@ -365,15 +451,6 @@ function ContactRow({
 }
 
 // ── Icons ──────────────────────────────────────────────────────────────────
-function BriefcaseIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="7" width="20" height="14" rx="2" />
-      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-      <path d="M2 13h20" />
-    </svg>
-  );
-}
 function MailIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -1,8 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import 'maplibre-gl/dist/maplibre-gl.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Belt-and-braces: force maplibre containers to fill their parent. The
+   library's own CSS does this but Next.js component-level imports of
+   library CSS have proved unreliable; this is the explicit guarantee. */
+.maplibregl-map,
+.maplibregl-canvas-container,
+.maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 
 :root {
   --bg: #0b0f19;
@@ -91,4 +102,84 @@ body {
 .marquee-pause:hover .animate-marquee,
 .marquee-pause:hover .animate-marquee-vertical {
   animation-play-state: paused;
+}
+
+/* ── CECL logo loader (Pro map loading screen) ──────────────────────────────
+   The energy "bolt" logo charges in a breathing pulse while a conic ring
+   sweeps around it. */
+@keyframes cecl-charge {
+  0%, 100% { opacity: 0.45; transform: scale(0.94); filter: drop-shadow(0 0 0 rgba(225, 29, 29, 0)); }
+  50%      { opacity: 1;    transform: scale(1.05); filter: drop-shadow(0 0 14px rgba(225, 29, 29, 0.55)); }
+}
+@keyframes cecl-ring-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes cecl-flicker {
+  0%, 100%   { opacity: 1; }
+  47%, 53%   { opacity: 0.6; }
+  50%        { opacity: 0.92; }
+}
+.animate-cecl-charge {
+  animation: cecl-charge 1.6s ease-in-out infinite;
+}
+.animate-cecl-ring {
+  animation: cecl-ring-spin 2.4s linear infinite;
+}
+.animate-cecl-flicker {
+  animation: cecl-flicker 2.2s steps(1, end) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-cecl-charge,
+  .animate-cecl-ring,
+  .animate-cecl-flicker {
+    animation: none;
+  }
+}
+
+/* ── Power-grid popups (Pro map Electricity Grid layer) ──────────────────
+   Dark card matching the portal UI. Content markup is built in
+   components/Map/utils/powerGrid.ts (.pgp-*). */
+.power-grid-popup .maplibregl-popup-content {
+  background: rgba(15, 23, 42, 0.96);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.power-grid-popup .maplibregl-popup-close-button {
+  color: #94a3b8;
+  font-size: 14px;
+  right: 4px;
+  top: 2px;
+}
+.power-grid-popup .maplibregl-popup-close-button:hover {
+  color: #e2e8f0;
+  background: transparent;
+}
+/* The default white tip clashes with the dark card on every anchor side —
+   hide it rather than restyle all eight anchor variants. */
+.power-grid-popup .maplibregl-popup-tip {
+  display: none;
+}
+.pgp-title {
+  font-weight: 600;
+  font-size: 12.5px;
+  margin-bottom: 4px;
+  color: #f1f5f9;
+  padding-right: 14px;
+}
+.pgp-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  line-height: 1.5;
+}
+.pgp-label {
+  color: #94a3b8;
+}
+.pgp-value {
+  color: #e2e8f0;
+  text-align: right;
 }

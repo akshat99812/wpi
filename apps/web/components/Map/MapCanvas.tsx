@@ -8,6 +8,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import type { WpiBundle } from '@/lib/types';
 import type { BasemapId, TooltipState, MapCanvasProps } from './types';
 import { getStyle } from './constants';
+import { loadWindGrid, DEFAULT_WIND_HEIGHT, type WindHeight } from '@/lib/wind/lookup';
 
 // Hooks
 import { useMapInit }         from './hooks/useMapInit';
@@ -19,7 +20,7 @@ import { useWindLayer }       from './hooks/useWindLayer';
 
 // UI
 import { BasemapSwitcher }    from './components/BasemapSwitcher';
-import { WindLegend }         from './components/WindLegend';
+import { WindScale }          from './components/WindScale';
 import { StateTooltip }       from './components/StateTooltip';
 import { CursorReadoutBar }   from './components/CursorReadout';
 import { FullscreenButton }   from './components/FullscreenButton';
@@ -55,6 +56,11 @@ export default function MapCanvas({
   const [mode, setMode]       = useState<BasemapId>(basemap);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [isSwitching, setIsSwitching] = useState(false);
+  // Selected wind hub height (m). Mirrored to a ref so style.load re-installs
+  // the correct height without re-creating applyMode.
+  const [windHeight, setWindHeight] = useState<WindHeight>(DEFAULT_WIND_HEIGHT);
+  const windHeightRef = useRef<WindHeight>(windHeight);
+  useEffect(() => { windHeightRef.current = windHeight; }, [windHeight]);
   // Zoom level — used to suppress the hover tooltip once the user has
   // zoomed past the state-overview range (see TOOLTIP_MAX_ZOOM below).
   const [zoom, setZoom] = useState<number>(4.2);
@@ -67,7 +73,7 @@ export default function MapCanvas({
   // ── Hooks ──────────────────────────────────────────────────────────────
   useMapInit({ containerRef, mapRef, modeRef, initialBasemap: basemap });
   const { isFullscreen, toggle: toggleFs } = useFullscreen(containerRef);
-  const cursor = useCursorTracker(mapRef, mode);
+  const cursor = useCursorTracker(mapRef, mode, windHeight);
 
   const { install: installBoundaries } =
     useStateBoundaries({ mapRef, modeRef, stateRef, selectRef, setTooltip });
@@ -83,7 +89,8 @@ export default function MapCanvas({
     await installBoundaries(m);
     placeTurbines(m);
     if (modeRef.current === 'wind') {
-      installWind(m);
+      installWind(m, windHeightRef.current);
+      void loadWindGrid(windHeightRef.current);
     }
   }, [installBoundaries, placeTurbines, installWind]);
 
@@ -110,6 +117,16 @@ export default function MapCanvas({
     if (!m || !m.isStyleLoaded()) return;
     placeTurbines(m);
   }, [bundle, placeTurbines]);
+
+  // ── Wind height changed → swap raster tiles + load that height's grid ──
+  // Only relevant in wind mode. Entering wind mode is handled by applyMode on
+  // style.load; this covers switching height while already in wind mode.
+  useEffect(() => {
+    if (mode !== 'wind') return;
+    void loadWindGrid(windHeight);
+    const m = mapRef.current;
+    if (m && m.isStyleLoaded()) installWind(m, windHeight);
+  }, [windHeight, mode, installWind]);
 
   // ── Track zoom; clear stale tooltip when zooming in past threshold ────
   // The map fires `zoom` continuously during gestures and `zoomend` once
@@ -176,11 +193,18 @@ export default function MapCanvas({
         }
       />
 
-      {/* Top-left: basemap switcher + (in wind mode) wind legend */}
+      {/* Top-left: basemap switcher */}
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
         <BasemapSwitcher mode={mode} onChange={switchMode} />
-        {mode === 'wind' && <WindLegend />}
       </div>
+
+      {/* Bottom-right (above the nav control): interactive wind legend. Its
+          pointer tracks the cursor's GWA wind value live — see WindScale. */}
+      {mode === 'wind' && (
+        <div className="absolute bottom-28 right-3 z-20">
+          <WindScale wind={cursor?.wind} height={windHeight} onHeightChange={setWindHeight} />
+        </div>
+      )}
 
       {/* Top-right: fullscreen */}
       <div className="absolute top-3 right-12 z-20">

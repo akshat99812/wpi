@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-10T19:17:11.919897+00:00",
+  "attribution": "Wind data: \u00a9 Global Wind Atlas (DTU Wind Energy / World Bank) \u2014 CC BY 4.0",
+  "bounds": [
+    67.0,
+    6.0,
+    98.0,
+    38.0
+  ],
+  "minzoom": 3,
+  "maxzoom": 9,
+  "metrics": {
+    "speed": {
+      "label": "Mean wind speed",
+      "unit": "m/s",
+      "heights": [
+        50,
+        100,
+        150
+      ],
+      "tilePath": "/wind-atlas/{height}/{z}/{x}/{y}.png",
+      "gridPath": "/wind-atlas/grids/{height}m.json",
+      "domain": [
+        4.0,
+        9.0
+      ],
+      "ramp": [
+        {
+          "value": 4.0,
+          "color": "#3d93b5"
+        },
+        {
+          "value": 5.0,
+          "color": "#5aad82"
+        },
+        {
+          "value": 6.0,
+          "color": "#c8e04a"
+        },
+        {
+          "value": 7.0,
+          "color": "#ffc041"
+        },
+        {
+          "value": 8.0,
+          "color": "#ff7a1a"
+        },
+        {
+          "value": 9.0,
+          "color": "#ff1a00"
+        }
+      ]
+    },
+    "density": {
+      "label": "Mean power density",
+      "unit": "W/m\u00b2",
+      "heights": [
+        100,
+        150
+      ],
+      "tilePath": "/wind-atlas/pd/{height}/{z}/{x}/{y}.png",
+      "gridPath": "/wind-atlas/grids/pd-{height}m.json",
+      "domain": [
+        0.0,
+        800.0
+      ],
+      "ramp": [
+        {
+          "value": 0.0,
+          "color": "#3d93b5"
+        },
+        {
+          "value": 160.0,
+          "color": "#5aad82"
+        },
+        {
+          "value": 320.0,
+          "color": "#c8e04a"
+        },
+        {
+          "value": 480.0,
+          "color": "#ffc041"
+        },
+        {
+          "value": 640.0,
+          "color": "#ff7a1a"
+        },
+        {
+          "value": 800.0,
+          "color": "#ff1a00"
+        }
+      ]
+    }
+  }
+}

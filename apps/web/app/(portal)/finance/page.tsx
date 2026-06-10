@@ -1,18 +1,17 @@
 "use client";
 
 import React from 'react';
-import FinanceDashboard from '@/components/Engines/FinanceDashboard';
 import BankabilityCalc from '@/components/Engines/BankabilityCalc';
 
+/**
+ * Finance landing page = the 25-yr Bankability Calculator (the default tool).
+ * The market-benchmarks dashboard lives at /finance/benchmarks. The sidebar
+ * (in the finance layout) switches between the two.
+ */
 export default function FinancePage() {
   return (
-    <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] overflow-y-auto lg:overflow-hidden min-h-0">
-      <section className="bg-[#0a0e18] border-b lg:border-b-0 lg:border-r border-[#1f2740] lg:overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5">
-        <FinanceDashboard />
-      </section>
-      <section className="bg-[#0c1120] lg:overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5">
-        <BankabilityCalc />
-      </section>
-    </main>
+    <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
+      <BankabilityCalc />
+    </div>
   );
 }

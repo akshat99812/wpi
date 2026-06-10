@@ -4,6 +4,7 @@ services:
       - "127.0.0.1:3005:3005"
     depends_on:
       - qdrant
+      - postgis
     environment:
       PORT: "3005"
       NODE_ENV: production
@@ -25,6 +26,9 @@ services:
       QDRANT_URL: http://qdrant:6333
       QDRANT_API_KEY: ${QDRANT_API_KEY}
       QDRANT_COLLECTION: ${QDRANT_COLLECTION:-wind_energy_v1}
+      # ── Pro Map (PostGIS) ────────────────────────────────────────────────
+      DATABASE_URL: postgres://wpi:${POSTGIS_PASSWORD}@postgis:5432/wpi
+      TILE_CACHE_TTL: ${TILE_CACHE_TTL:-3600}
 
   web:
     build:
@@ -63,6 +67,16 @@ services:
       - "127.0.0.1:6333:6333"
     volumes:
       - qdrant-storage:/qdrant/storage
+
+  # Override: in prod don't expose PostGIS to the host. Only the API container
+  # talks to it over the compose network. Ingest is run via
+  # `docker compose exec api bun run apps/api/scripts/ingest-windmills.ts ...`
+  postgis:
+    ports: !override []
+    environment:
+      POSTGRES_DB: wpi
+      POSTGRES_USER: wpi
+      POSTGRES_PASSWORD: ${POSTGIS_PASSWORD}
 
 volumes:
   qdrant-storage:

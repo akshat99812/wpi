@@ -277,6 +277,70 @@ bash deploy/update.sh
 
 ---
 
+## 6.1 Pro Map (PostGIS) — ingest + ops
+
+The Pro wind-farm map at `/geospatial/pro-map` is backed by a `postgis`
+container holding proprietary windmill point data. Tiles and per-point
+details are served by the API behind `requirePro`.
+
+There are TWO datasets:
+- **Windmill points** → PostGIS `windmills` table, ingested from `wra_masts.csv`.
+  Served as MVT tiles (`/api/tiles/...`) + per-pin detail (`/api/windmill/:id`).
+- **Site boundaries** → `boundaries.geojson`, served as-is by `/api/boundaries`.
+  No DB, no ingest — the route just reads the file.
+
+⚠️ **Where the files must live.** The api container mounts host `./data` over
+`/app/data` (see `docker-compose.yml`), which *shadows* anything baked into the
+image under `/app/data`. So the running API reads these from the **bind-mount
+dir on the host**, NOT from `apps/api/data/private/` in the repo:
+
+| File | Put it here on the VPS | Read by |
+|---|---|---|
+| `wra_masts.csv` | `/opt/wce/data/private/wra_masts.csv` | ingest script |
+| `boundaries.geojson` | `/opt/wce/data/private/boundaries.geojson` | `/api/boundaries` route |
+
+Both are gitignored (proprietary) — ship them with `scp`, not `git`.
+
+**One-time on the VPS, after pulling latest code:**
+
+```bash
+# 1. Add to /opt/wce/.env
+POSTGIS_PASSWORD=<openssl rand -hex 16>
+TILE_CACHE_TTL=3600
+
+# 2. From your LAPTOP: ship the proprietary data to the bind-mount dir
+scp apps/api/data/private/{wra_masts.csv,boundaries.geojson} \
+  root@187.127.169.28:/opt/wce/data/private/
+
+# 3. On the VPS: bring the postgis container up
+cd /opt/wce
+docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d postgis
+# migrations/001_windmills.sql runs automatically on FIRST init only
+# (extensions + windmills table + indexes). If postgis was already up before
+# the migration existed, run it by hand (it DROPs+CREATEs, so it's safe):
+#   docker compose exec -T postgis psql -U wpi -d wpi < apps/api/migrations/001_windmills.sql
+
+# 4. Run the windmill ingest from INSIDE the api container.
+#    Container WORKDIR is /app, so the script path is scripts/... (no apps/api prefix).
+#    The CSV path is the in-container bind path (= host /opt/wce/data/private/).
+docker compose exec api bun run scripts/ingest-windmills.ts \
+  --path=/app/data/private/wra_masts.csv --truncate
+# → expect "inserted 1019 mast points"
+
+# 5. Smoke test (both should be 401 = Pro-gated, i.e. wired correctly)
+curl -I https://api.windpowerindia.com/api/boundaries
+curl -I https://api.windpowerindia.com/api/tiles/5/22/13.mvt
+```
+
+**Re-ingesting** (new CSV revision): re-scp the CSV, then re-run step 4 with
+`--truncate` (idempotent — wipes and reloads). For new **boundaries**, just
+re-scp `boundaries.geojson`; the route picks it up on the next container
+restart (it caches the file in memory at first read). Tile cache TTL is
+per-user (`Cache-Control: private`) so browsers may show stale tiles up to
+`TILE_CACHE_TTL` seconds — hard refresh to force.
+
+---
+
 ## 7. Asking Claude for help later
 
 When you want me to make a change, paste:

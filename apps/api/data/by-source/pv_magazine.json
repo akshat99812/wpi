@@ -1,22 +1,30 @@
 {
   "source": "pv_magazine",
-  "fetchedAt": "2026-05-27T07:43:53.788Z",
+  "fetchedAt": "2026-06-09T05:31:48.719Z",
   "ok": true,
+  "fixturesUsed": true,
   "payload": {
     "news": [
       {
-        "headline": "CleanMax secures $575 million for 1 GW renewable energy projects in India",
-        "url": "https://www.pv-magazine-india.com/2026/05/26/cleanmax-secures-575-million-for-1-gw-renewable-energy-projects-in-india/",
-        "publishedAt": "2026-05-26T16:44:11.000Z",
+        "headline": "SECI 1,200 MW Wind-Solar Hybrid Auction Closes at ₹3.39/kWh",
+        "url": "https://www.pv-magazine-india.com/2025/03/seci-wind-solar-hybrid-auction",
+        "publishedAt": "2025-03-22T00:00:00Z",
         "source": "PV Magazine India",
-        "summary": "Clean Max Enviro Energy Solutions, a renewable energy solutions provider for the commercial and industrial sector, has raised $575 million to support the development of around 1 GW of solar and wind projects across the Indian states of Rajasthan and Karnataka."
+        "summary": "Wind-solar hybrid round attracts JSW, ReNew, Adani at competitive L1"
       },
       {
-        "headline": "Adani Green Energy commissions 3.37 GWh battery energy storage system at Khavda",
-        "url": "https://www.pv-magazine-india.com/2026/05/26/adani-green-energy-commissions-3-37-gwh-battery-energy-storage-system-at-khavda/",
-        "publishedAt": "2026-05-26T07:15:50.000Z",
+        "headline": "India FDRE Pipeline Crosses 7 GW with Wind-BESS Awards",
+        "url": "https://www.pv-magazine-india.com/2025/02/india-fdre-pipeline-7gw",
+        "publishedAt": "2025-02-25T00:00:00Z",
         "source": "PV Magazine India",
-        "summary": "Adani Green Energy Ltd (AGEL) has commissioned a cumulative 3.37 GWh battery energy storage system (BESS) at Khavda, Gujarat, including 1.37 GWh added in March 2026. The company said this is the world’s largest single-location battery storage deployment outside China and among the fastest executed g"
+        "summary": "FDRE auctions cumulatively cross 7 GW of contracted capacity"
+      },
+      {
+        "headline": "Tamil Nadu Plans Dhanushkodi 500 MW Offshore Wind Auction",
+        "url": "https://www.pv-magazine-india.com/2025/02/tn-dhanushkodi-offshore-wind",
+        "publishedAt": "2025-02-08T00:00:00Z",
+        "source": "PV Magazine India",
+        "summary": "Tamil Nadu coast offshore wind zone activated for SECI VGF bid"
       }
     ]
   }

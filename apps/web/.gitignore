@@ -9,6 +9,12 @@
 # testing
 /coverage
 
+# playwright e2e artifacts
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+
 # next.js
 /.next/
 /out/
@@ -34,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# wind-atlas pre-bake: ignore the big source COG cache + venv, but commit the
+# generated public/wind-atlas tiles + lib/wind/india-grid.json deliverables.
+/scripts/.cache/
+/scripts/.venv/

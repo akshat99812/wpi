@@ -7,10 +7,19 @@ services:
       PORT: "3005"
       WPI_ADMIN_TOKEN: ${WPI_ADMIN_TOKEN:-dev-token}
       WPI_CRON_SCHEDULE: "0 1 * * *"
+      DATABASE_URL: postgres://wpi:${POSTGIS_PASSWORD:-wpi}@postgis:5432/wpi
+      TILE_CACHE_TTL: ${TILE_CACHE_TTL:-3600}
+      # Disk-backed tile cache (power-grid proxy + windmill tiles). Named
+      # volume below so cached tiles survive container restarts/rebuilds.
+      TILE_CACHE_DIR: /var/cache/tiles
     ports:
       - "3005:3005"
     volumes:
       - ./data:/app/data
+      - tile-cache:/var/cache/tiles
+    depends_on:
+      postgis:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "bun", "-e", "await fetch('http://localhost:3005/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
@@ -18,6 +27,28 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  # Proprietary windmill point data for the Pro map. Only reachable on the
+  # compose network in prod; in dev we bind 127.0.0.1:5432 so the ingest
+  # script can be run from the host.
+  postgis:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: wpi
+      POSTGRES_USER: wpi
+      POSTGRES_PASSWORD: ${POSTGIS_PASSWORD:-wpi}
+    volumes:
+      - postgis-data:/var/lib/postgresql/data
+      - ./apps/api/migrations:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wpi -d wpi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   web:
     build:
@@ -65,3 +96,5 @@ services:
 volumes:
   data:
   umami-db-data:
+  postgis-data:
+  tile-cache:

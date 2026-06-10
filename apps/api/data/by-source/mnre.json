@@ -1,6 +1,6 @@
 {
   "source": "mnre",
-  "fetchedAt": "2026-05-27T07:40:36.546Z",
+  "fetchedAt": "2026-06-09T05:30:57.006Z",
   "ok": true,
   "payload": {
     "fetchedAt": "2026-05-19T11:03:56.884Z",
@@ -14,7 +14,7 @@
     },
     "_cache": {
       "hit": true,
-      "ageMs": 678999698
+      "ageMs": 1794420156
     }
   }
 }

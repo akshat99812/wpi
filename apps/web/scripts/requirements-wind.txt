@@ -1,0 +1,6 @@
+# One-time pre-bake of the GWA wind-speed layer (build_wind_atlas.py).
+# rasterio bundles GDAL incl. the BigTIFF/COG drivers — no system GDAL needed.
+rasterio>=1.3
+numpy>=1.24
+Pillow>=10.0
+scipy>=1.10

@@ -1,22 +1,37 @@
 {
   "source": "et_energyworld",
-  "fetchedAt": "2026-05-27T07:43:53.788Z",
+  "fetchedAt": "2026-06-09T05:31:48.719Z",
   "ok": true,
+  "fixturesUsed": true,
   "payload": {
     "news": [
       {
-        "headline": "Adani Green commissions 3.37 GWh battery storage project at Khavda",
-        "url": "https://energy.economictimes.indiatimes.com/news/power/adani-green-energy-launches-worlds-largest-battery-storage-project-in-khavda/131321924",
-        "publishedAt": "2026-05-26T04:55:06.000Z",
+        "headline": "Wind Power Tariffs Hit ₹3.18/kWh in SECI Tranche XIII",
+        "url": "https://energy.economictimes.indiatimes.com/news/renewable/seci-tranche-xiii-wind-tariff",
+        "publishedAt": "2025-04-02T00:00:00Z",
         "source": "ETEnergyWorld",
-        "summary": "The utility-scale BESS, among the fastest executed globally, can power nearly one million homes for a day and anchors AGEL’s larger storage expansion plans."
+        "summary": "SECI Tranche XIII closes at ₹3.18/kWh L1 for 1,200 MW ISTS wind"
       },
       {
-        "headline": "ONGC appoints BP unit to boost production from western offshore oil and gas fields",
-        "url": "https://energy.economictimes.indiatimes.com/news/oil-and-gas/ongc-partners-with-bp-unit-to-enhance-oil-and-gas-production/131308081",
-        "publishedAt": "2026-05-25T11:10:42.000Z",
+        "headline": "NTPC REL to Float 900 MW Wind Bid for Anantapur Cluster",
+        "url": "https://energy.economictimes.indiatimes.com/news/renewable/ntpc-rel-900mw-wind-anantapur",
+        "publishedAt": "2025-03-18T00:00:00Z",
         "source": "ETEnergyWorld",
-        "summary": "ONGC said the new partnership has the potential to increase crude oil production by around 10.8 per cent over the 10-year contract period, taking output from 46.25 million metric tonnes (MMT) to 51.26 MMT."
+        "summary": "NTPC Renewables targets Anantapur ISTS wind cluster, BoS bids invited"
+      },
+      {
+        "headline": "GE Vernova Eyes India Wind Re-entry with 6 MW Onshore Platform",
+        "url": "https://energy.economictimes.indiatimes.com/news/renewable/ge-vernova-india-wind-reentry",
+        "publishedAt": "2025-03-04T00:00:00Z",
+        "source": "ETEnergyWorld",
+        "summary": "Global OEM signals comeback to India wind market with high-rated turbine"
+      },
+      {
+        "headline": "Gujarat to Hold 1 GW Offshore Wind Auction in Q1 FY26",
+        "url": "https://energy.economictimes.indiatimes.com/news/renewable/gujarat-offshore-wind-auction",
+        "publishedAt": "2025-02-12T00:00:00Z",
+        "source": "ETEnergyWorld",
+        "summary": "Gulf of Kutch offshore wind zone goes to auction with VGF support"
       }
     ]
   }

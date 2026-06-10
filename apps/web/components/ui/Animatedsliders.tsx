@@ -22,6 +22,8 @@ function AnimatedSlider({ id, label, value, min, max, step, unit, onChange, inde
   const [hovered, setHovered] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [ripple, setRipple] = useState<{ x: number; key: number } | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
 
   // Staggered mount animation
   useEffect(() => {
@@ -53,6 +55,20 @@ function AnimatedSlider({ id, label, value, min, max, step, unit, onChange, inde
   };
   const handlePointerUp = () => setDragging(false);
 
+  // Open the inline editor seeded with the current value.
+  const startEditing = () => { setDraft(String(value)); setEditing(true); };
+
+  // Commit a manually-typed value: parse, clamp to [min,max], snap to step.
+  const commitDraft = useCallback(() => {
+    const raw = parseFloat(draft);
+    if (!Number.isNaN(raw)) {
+      const clamped = Math.max(min, Math.min(max, raw));
+      const snapped = Math.round(clamped / step) * step;
+      onChange(parseFloat(snapped.toFixed(4)));
+    }
+    setEditing(false);
+  }, [draft, min, max, step, onChange]);
+
   // Accent color per group
   const accent =
     index < 2 ? '#67e8f9'   // capacity / tariff → cyan
@@ -79,34 +95,61 @@ function AnimatedSlider({ id, label, value, min, max, step, unit, onChange, inde
         >
           {label}
         </label>
-        {/* Value badge */}
-        <div
-          className="relative px-2 py-0.5 rounded-md font-black font-mono text-[11.5px] select-none"
-          style={{
-            background: hovered || dragging ? `${accent}18` : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${hovered || dragging ? `${accent}55` : 'rgba(255,255,255,0.08)'}`,
-            color: hovered || dragging ? accent : 'rgba(255,255,255,0.7)',
-            transition: 'all 0.2s ease',
-            minWidth: 64,
-            textAlign: 'right',
-          }}
-        >
-          {typeof value === 'number'
-            ? value % 1 === 0 ? value : value.toFixed(step < 0.1 ? 2 : 1)
-            : value}
-          <span className="text-[8.5px] font-bold ml-0.5 opacity-70">{unit}</span>
-
-          {/* Tiny flash on value change */}
-          <span
-            key={value}
-            className="absolute inset-0 rounded-md pointer-events-none"
+        {/* Value badge — click to type an exact value */}
+        {editing ? (
+          <input
+            autoFocus
+            type="text"
+            inputMode="decimal"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commitDraft}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commitDraft();
+              else if (e.key === 'Escape') setEditing(false);
+            }}
+            onFocus={(e) => e.currentTarget.select()}
+            aria-label={`${label} value`}
+            className="px-2 py-0.5 rounded-md font-black font-mono text-[11.5px] text-right outline-none"
             style={{
-              background: accent,
-              opacity: 0,
-              animation: 'flashBadge 0.3s ease forwards',
+              width: 72,
+              background: `${accent}18`,
+              border: `1px solid ${accent}99`,
+              color: accent,
             }}
           />
-        </div>
+        ) : (
+          <button
+            type="button"
+            onClick={startEditing}
+            title="Click to type an exact value"
+            className="relative px-2 py-0.5 rounded-md font-black font-mono text-[11.5px] cursor-text"
+            style={{
+              background: hovered || dragging ? `${accent}18` : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${hovered || dragging ? `${accent}55` : 'rgba(255,255,255,0.08)'}`,
+              color: hovered || dragging ? accent : 'rgba(255,255,255,0.7)',
+              transition: 'all 0.2s ease',
+              minWidth: 64,
+              textAlign: 'right',
+            }}
+          >
+            {typeof value === 'number'
+              ? value % 1 === 0 ? value : value.toFixed(step < 0.1 ? 2 : 1)
+              : value}
+            <span className="text-[8.5px] font-bold ml-0.5 opacity-70">{unit}</span>
+
+            {/* Tiny flash on value change */}
+            <span
+              key={value}
+              className="absolute inset-0 rounded-md pointer-events-none"
+              style={{
+                background: accent,
+                opacity: 0,
+                animation: 'flashBadge 0.3s ease forwards',
+              }}
+            />
+          </button>
+        )}
       </div>
 
       {/* Track */}
