@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-10T19:17:11.919897+00:00",
+  "generatedAt": "2026-06-10T19:32:21.765325+00:00",
   "attribution": "Wind data: \u00a9 Global Wind Atlas (DTU Wind Energy / World Bank) \u2014 CC BY 4.0",
   "bounds": [
     67.0,
@@ -21,6 +21,7 @@
       ],
       "tilePath": "/wind-atlas/{height}/{z}/{x}/{y}.png",
       "gridPath": "/wind-atlas/grids/{height}m.json",
+      "fringeTilePath": "/wind-atlas/fringe/speed/{height}/{z}/{x}/{y}.png",
       "domain": [
         4.0,
         9.0
@@ -61,6 +62,7 @@
       ],
       "tilePath": "/wind-atlas/pd/{height}/{z}/{x}/{y}.png",
       "gridPath": "/wind-atlas/grids/pd-{height}m.json",
+      "fringeTilePath": "/wind-atlas/fringe/density/{height}/{z}/{x}/{y}.png",
       "domain": [
         0.0,
         800.0

@@ -180,14 +180,17 @@ MASK_RES  = 0.02          # deg (~2 km) raster for the closing
 CLOSE_DEG = 1.0           # closing radius (~110 km) — fills the full Gulf of
                           # Khambhat mouth + Gulf of Kutch; verified not to blob
                           # into the open Arabian Sea / Bay of Bengal.
-COAST_DEG = 0.23          # outward coastal dilation (~25 km). Two jobs:
-                          # (1) the simplified states GeoJSON undercuts the
-                          # TRUE coastline in places (Gujarat inlets, Konkan
-                          # estuaries) — over satellite imagery uncovered land
-                          # slivers are obvious; (2) a ~20 km nearshore band
-                          # of real GWA offshore values, useful context for
-                          # coastal sites. Baked into the shared tiles, so it
-                          # shows on every basemap.
+COAST_DEG = 0.05          # outward coastal dilation (~5.5 km), nationwide.
+                          # The simplified states GeoJSON undercuts the TRUE
+                          # coastline in places (Gujarat inlets, Konkan
+                          # estuaries) — over satellite imagery uncovered
+                          # land slivers are obvious. Baked into the MAIN
+                          # (shared) tiles.
+FRINGE_DEG = 0.23         # extended nearshore band (~25 km) of real GWA
+                          # offshore values — baked as a SEPARATE small
+                          # pyramid that the frontend overlays only on the
+                          # satellite basemap, restricted to FRINGE_STATES.
+FRINGE_STATES = ["Gujarat", "Maharashtra"]   # ST_NM values in the GeoJSON
 
 OS = math.pi * 6378137.0  # web-mercator origin shift
 
@@ -203,6 +206,10 @@ def tiles_dir_for(metric: str, h: int) -> str:
 
 def grid_path_for(metric: str, h: int) -> str:
     return os.path.join(GRID_DIR, METRICS[metric]["grid_name"].format(h=h))
+
+
+def fringe_dir_for(metric: str, h: int) -> str:
+    return os.path.join(TILES_DIR, "fringe", metric, str(h))
 
 
 # ── India land mask ──────────────────────────────────────────────────────────
@@ -221,8 +228,13 @@ def load_india_geoms():
         gj = json.load(f)
     geoms_4326 = [feat["geometry"] for feat in gj["features"] if feat.get("geometry")]
     geoms_3857 = [transform_geom("EPSG:4326", "EPSG:3857", g) for g in geoms_4326]
-    print(f"India land mask: {len(geoms_4326)} polygons (incl. J&K + Ladakh)")
-    return geoms_4326, geoms_3857
+    fringe_4326 = [
+        feat["geometry"] for feat in gj["features"]
+        if feat.get("geometry") and feat["properties"].get("ST_NM") in FRINGE_STATES
+    ]
+    print(f"India land mask: {len(geoms_4326)} polygons (incl. J&K + Ladakh); "
+          f"fringe states: {len(fringe_4326)}")
+    return geoms_4326, geoms_3857, fringe_4326
 
 
 def build_fill_mask(geoms_4326):
@@ -245,23 +257,39 @@ def build_fill_mask(geoms_4326):
     fill = closed & ~base
     print(f"Gulf fill: closing r={CLOSE_DEG}° added {int(fill.sum())} cells "
           f"(+{100 * fill.sum() / max(1, base.sum()):.1f}% of land)")
-    # Coastal dilation: extend coverage outward everywhere so the simplified
-    # polygon's coastline error never leaves real land uncovered, plus a
-    # nearshore band of real GWA offshore values. CRITICAL: do NOT mask the
-    # dilation with `~base` — `base` here is the COARSE (MASK_RES,
-    # all_touched) land raster, which overhangs the precise per-tile vector
-    # mask by up to a cell (~2 km). Cells in that overhang ring are "land"
-    # here but sea in the per-tile mask; excluding them from the fringe left
+    # Coastal dilation: extend coverage a few km outward everywhere so the
+    # simplified polygon's coastline error never leaves real land uncovered.
+    # CRITICAL: do NOT mask the dilation with `~base` — `base` here is the
+    # COARSE (MASK_RES, all_touched) land raster, which overhangs the precise
+    # per-tile vector mask by up to a cell (~2 km). Cells in that overhang
+    # ring are "land" here but sea in the per-tile mask; excluding them left
     # exactly that ring uncovered along the coast. Including base is
     # harmless: the per-tile vector mask already covers true land crisply.
-    Rc = int(round(COAST_DEG / MASK_RES))
-    yyc, xxc = np.ogrid[-Rc:Rc + 1, -Rc:Rc + 1]
-    sec = (xxc * xxc + yyc * yyc) <= Rc * Rc
-    coast = ndimage.binary_dilation(base, structure=sec)
-    print(f"Coast fringe: dilation r={COAST_DEG}° covers {int(coast.sum())} cells "
+    coast = ndimage.binary_dilation(base, structure=_disc(COAST_DEG))
+    print(f"Coast fix: dilation r={COAST_DEG}° covers {int(coast.sum())} cells "
           f"(+{int((coast & ~base).sum())} beyond coarse land)")
     fill = fill | coast
     return fill, mtf
+
+
+def _disc(radius_deg: float):
+    R = int(round(radius_deg / MASK_RES))
+    yy, xx = np.ogrid[-R:R + 1, -R:R + 1]
+    return (xx * xx + yy * yy) <= R * R
+
+
+def build_fringe_mask(fringe_geoms_4326, fill):
+    """Extended nearshore band (FRINGE_DEG) around FRINGE_STATES only, minus
+    everything the main coverage (`fill` + its own land) already paints —
+    baked as a separate overlay pyramid shown only on the satellite basemap."""
+    cols = int(round((LNG_MAX - LNG_MIN) / MASK_RES))
+    rows = int(round((LAT_MAX - LAT_MIN) / MASK_RES))
+    mtf = transform_from_bounds(LNG_MIN, LAT_MIN, LNG_MAX, LAT_MAX, cols, rows)
+    base_gm = geometry_mask(fringe_geoms_4326, (rows, cols), mtf,
+                            invert=True, all_touched=True)
+    fringe = ndimage.binary_dilation(base_gm, structure=_disc(FRINGE_DEG)) & ~fill & ~base_gm
+    print(f"GM fringe: r={FRINGE_DEG}° → {int(fringe.sum())} cells beyond main coverage")
+    return fringe
 
 
 def sample_fill_3857(fill, xmin, ymin, xmax, ymax, size):
@@ -368,11 +396,13 @@ def colorize(values, valid, lo: float, hi: float):
 
 
 # ── Tile pyramid (per metric × height) ───────────────────────────────────────
-def bake_tiles(metric: str, h: int, geoms_3857, fill):
+def bake_tiles(metric: str, h: int, geoms_3857, mask, out_root: str | None = None,
+               label: str = "tiles"):
+    """Render one XYZ pyramid. Coverage = crisp per-tile vector polygons
+    (geoms_3857, may be empty) OR the coarse `mask` raster. `out_root`
+    overrides the default main-pyramid directory (used for the fringe)."""
     cfg = METRICS[metric]
     lname = gwa_layer(metric, h)
-    # Build the work-list of tiles that actually intersect India land. The
-    # `inside` mask is the crisp per-tile vector polygon OR the coarse gulf-fill.
     work = []          # (z, x, y, tile_transform, inside_mask)
     for z in range(MIN_ZOOM, MAX_ZOOM + 1):
         x0, x1, y0, y1 = india_tile_range(z)
@@ -380,16 +410,18 @@ def bake_tiles(metric: str, h: int, geoms_3857, fill):
             for y in range(y0, y1 + 1):
                 b = tile_bounds_3857(x, y, z)
                 tf = transform_from_bounds(b[0], b[1], b[2], b[3], TILE_SIZE, TILE_SIZE)
-                try:
-                    base_in = geometry_mask(geoms_3857, (TILE_SIZE, TILE_SIZE), tf,
-                                            invert=True, all_touched=True)
-                except ValueError:
-                    base_in = np.zeros((TILE_SIZE, TILE_SIZE), bool)
-                inside = base_in | sample_fill_3857(fill, b[0], b[1], b[2], b[3], TILE_SIZE)
+                base_in = np.zeros((TILE_SIZE, TILE_SIZE), bool)
+                if geoms_3857:
+                    try:
+                        base_in = geometry_mask(geoms_3857, (TILE_SIZE, TILE_SIZE), tf,
+                                                invert=True, all_touched=True)
+                    except ValueError:
+                        pass
+                inside = base_in | sample_fill_3857(mask, b[0], b[1], b[2], b[3], TILE_SIZE)
                 if inside.any():
                     work.append((z, x, y, tf, inside))
-    print(f"  [{metric} {h}m] {len(work)} land tiles to render")
-    prefetch([(lname, z, x, y) for (z, x, y, _, _) in work], f"{metric} {h}m tiles")
+    print(f"  [{metric} {h}m] {len(work)} {label} to render")
+    prefetch([(lname, z, x, y) for (z, x, y, _, _) in work], f"{metric} {h}m {label}")
 
     written = 0
     for (z, x, y, tf, inside) in work:
@@ -401,11 +433,11 @@ def bake_tiles(metric: str, h: int, geoms_3857, fill):
         if not valid.any():
             continue
         rgba = colorize(arr, valid, cfg["lo"], cfg["hi"])
-        out_dir = os.path.join(tiles_dir_for(metric, h), str(z), str(x))
+        out_dir = os.path.join(out_root or tiles_dir_for(metric, h), str(z), str(x))
         os.makedirs(out_dir, exist_ok=True)
         Image.fromarray(rgba, "RGBA").save(os.path.join(out_dir, f"{y}.png"), optimize=True)
         written += 1
-    print(f"  [{metric} {h}m] tiles written: {written}")
+    print(f"  [{metric} {h}m] {label} written: {written}")
 
 
 # ── Value grid (per metric × height) ─────────────────────────────────────────
@@ -510,6 +542,9 @@ def emit_metadata():
                              if cfg["tile_subdir"]
                              else "/wind-atlas/{height}/{z}/{x}/{y}.png"),
                 "gridPath": "/wind-atlas/grids/" + cfg["grid_name"].format(h="{height}"),
+                # Satellite-only extended nearshore band (Gujarat +
+                # Maharashtra) — overlaid above the main pyramid.
+                "fringeTilePath": f"/wind-atlas/fringe/{name}/{{height}}/{{z}}/{{x}}/{{y}}.png",
                 "domain": [cfg["lo"], cfg["hi"]],
                 "ramp": ramp_stops(cfg),
             }
@@ -573,17 +608,22 @@ def main():
 
     grid_only = os.environ.get("WIND_GRID_ONLY") == "1"
     ensure_geojson()
-    geoms_4326, geoms_3857 = load_india_geoms()
+    geoms_4326, geoms_3857, fringe_geoms = load_india_geoms()
     fill, mtf = build_fill_mask(geoms_4326)
+    fringe = build_fringe_mask(fringe_geoms, fill)
     for metric in metrics:
         hs = heights or METRICS[metric]["heights"]
         for h in hs:
             assert h in METRICS[metric]["heights"], \
                 f"height {h} not configured for {metric} (have {METRICS[metric]['heights']})"
             print(f"── {metric} @ {h} m{' (grid only)' if grid_only else ''} ──")
-            bake_grid(metric, h, geoms_4326, fill, mtf)
+            # Grid covers main + fringe so the cursor readout resolves over
+            # the satellite-only band too.
+            bake_grid(metric, h, geoms_4326, fill | fringe, mtf)
             if not grid_only:
                 bake_tiles(metric, h, geoms_3857, fill)
+                bake_tiles(metric, h, [], fringe,
+                           out_root=fringe_dir_for(metric, h), label="fringe tiles")
     emit_metadata()
     emit_report()
     print("Done.")

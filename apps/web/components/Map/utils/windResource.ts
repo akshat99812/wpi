@@ -28,6 +28,8 @@ export interface WindMetricMeta {
   heights: number[];
   tilePath: string;
   gridPath: string;
+  /** Satellite-only extended nearshore band (Gujarat + Maharashtra). */
+  fringeTilePath: string;
   domain: number[];
   ramp: { value: number; color: string }[];
 }
@@ -45,6 +47,14 @@ const ATTRIBUTION_HTML =
 
 const SOURCE_ID = SOURCE_IDS.windAtlas;
 const LAYER_ID = LAYER_IDS.windRaster;
+// Satellite-only nearshore fringe (Gujarat + Maharashtra) — a separate tiny
+// pyramid overlaid above the main raster, added/removed by contrast.
+const FRINGE_SOURCE_ID = 'gwa-wind-fringe';
+const FRINGE_LAYER_ID = 'gwa-wind-fringe-raster';
+
+// The active layer's parameters — needed to (re)build the fringe overlay
+// when the basemap contrast changes after the layer was added.
+let active: { metric: WindMetric; height: number; beforeId?: string } | null = null;
 
 /** Basemap-dependent contrast for the overlay. 'standard' (road / light
  *  basemaps) keeps the translucent blend; 'satellite' goes near-opaque —
@@ -128,16 +138,61 @@ export function addWindResourceLayer(
       },
       beforeId,
     );
+
+    active = { metric, height, beforeId: opts.beforeId };
+    syncFringe(map, opts.contrast ?? 'standard');
   } catch (err) {
     console.error('[wind-resource] could not add layer', err);
   }
 }
 
+/** Add/remove the satellite-only fringe overlay to match the contrast. */
+function syncFringe(map: MlMap, contrast: WindResourceContrast): void {
+  const wantFringe = contrast === 'satellite' && active && map.getLayer(LAYER_ID);
+  if (!wantFringe) {
+    if (map.getLayer(FRINGE_LAYER_ID)) map.removeLayer(FRINGE_LAYER_ID);
+    if (map.getSource(FRINGE_SOURCE_ID)) map.removeSource(FRINGE_SOURCE_ID);
+    return;
+  }
+  if (map.getLayer(FRINGE_LAYER_ID)) return; // already on
+  const meta = WIND_METRICS[active!.metric];
+  map.addSource(FRINGE_SOURCE_ID, {
+    type: 'raster',
+    tiles: [
+      `${window.location.origin}${meta.fringeTilePath.replace('{height}', String(active!.height))}`,
+    ],
+    tileSize: 256,
+    minzoom: metadata.minzoom,
+    maxzoom: metadata.maxzoom,
+    bounds: metadata.bounds as [number, number, number, number],
+    attribution: ATTRIBUTION_HTML,
+  });
+  // Same anchor as the main layer — registered after it, so it sits above.
+  const beforeId =
+    active!.beforeId && map.getLayer(active!.beforeId) ? active!.beforeId : undefined;
+  map.addLayer(
+    {
+      id: FRINGE_LAYER_ID,
+      type: 'raster',
+      source: FRINGE_SOURCE_ID,
+      paint: {
+        'raster-opacity': OPACITY.satellite as never,
+        'raster-resampling': 'linear',
+        'raster-fade-duration': 200,
+      },
+    },
+    beforeId,
+  );
+}
+
 /** Removes the active wind-resource layer + source (idempotent). */
 export function removeWindResourceLayer(map: MlMap): void {
   try {
+    if (map.getLayer(FRINGE_LAYER_ID)) map.removeLayer(FRINGE_LAYER_ID);
+    if (map.getSource(FRINGE_SOURCE_ID)) map.removeSource(FRINGE_SOURCE_ID);
     if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID);
     if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID);
+    active = null;
   } catch (err) {
     console.error('[wind-resource] could not remove layer', err);
   }
@@ -153,6 +208,7 @@ export function setWindResourceContrast(
     if (map.getLayer(LAYER_ID)) {
       map.setPaintProperty(LAYER_ID, 'raster-opacity', OPACITY[contrast] as never);
     }
+    syncFringe(map, contrast);
   } catch (err) {
     console.error('[wind-resource] could not set contrast', err);
   }
@@ -161,8 +217,10 @@ export function setWindResourceContrast(
 /** Show/hide the active layer without tearing it down. */
 export function setWindResourceVisibility(map: MlMap, visible: boolean): void {
   try {
-    if (map.getLayer(LAYER_ID)) {
-      map.setLayoutProperty(LAYER_ID, 'visibility', visible ? 'visible' : 'none');
+    for (const id of [LAYER_ID, FRINGE_LAYER_ID]) {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
+      }
     }
   } catch (err) {
     console.error('[wind-resource] could not set visibility', err);
