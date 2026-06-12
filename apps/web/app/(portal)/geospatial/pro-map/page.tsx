@@ -11,9 +11,22 @@ import { lookupWind, loadWindGrid, DEFAULT_WIND_HEIGHT } from "@/lib/wind/lookup
 import { CursorReadoutBar } from "@/components/Map/components/CursorReadout";
 import { ProSidebar, type ProTool } from "@/components/Map/components/ProSidebar";
 import { MastDataTool, MastIcon } from "@/components/Map/components/MastDataTool";
+import { AnalyzeTool, AnalyzeIcon } from "@/components/Map/components/AnalyzeTool";
+import { useAoiAnalysis } from "@/components/Map/hooks/useAoiAnalysis";
 import { BasemapToggle, type ProBasemap } from "@/components/Map/components/BasemapToggle";
-import { LayersTool, LayersIcon } from "@/components/Map/components/LayersTool";
+import {
+  LayersTool,
+  LayersIcon,
+  type MastHeightCat,
+} from "@/components/Map/components/LayersTool";
+import { WindResourceCard } from "@/components/Map/components/WindResourceCard";
 import { addLightStateBoundaries } from "@/components/Map/utils/stateBoundaries";
+import {
+  addPrivateMasts,
+  setPrivateMastsVisibility,
+  PRIVATE_MASTS_LAYER_ID,
+  PRIVATE_MASTS_HIT_LAYER_ID,
+} from "@/components/Map/utils/privateMasts";
 import { addPowerGrid, setPowerGridVisibility } from "@/components/Map/utils/powerGrid";
 import {
   addWindResourceLayer,
@@ -22,7 +35,7 @@ import {
   snapWindHeight,
   WIND_METRICS,
 } from "@/components/Map/utils/windResource";
-import type { WindMetricChoice } from "@/components/Map/components/LayersTool";
+import type { WindMetricChoice } from "@/components/Map/components/WindResourceCard";
 import { CeclLoader } from "@/components/CeclLoader";
 import type { CursorReadout, Windmill } from "@/components/Map/types";
 
@@ -38,8 +51,9 @@ const SAT_LAYER_ID = "pro-satellite";
 const SAT_FADE_MS = 450;
 
 // Cache-buster for the windmill vector tiles (backend disk cache + browser
-// cache key on the full URL). Bump after each windmill data re-ingestion.
-const WINDMILL_TILES_VERSION = 1;
+// cache key on the full URL). Bump after each windmill data re-ingestion or
+// tile-schema change. v2: tiles gained the `hcat` height-bucket property.
+const WINDMILL_TILES_VERSION = 2;
 
 // Minimum branded "terminal is booting" boot animation, even when the session
 // resolves instantly. Keeps the Pro map entrance consistent with the landing page.
@@ -63,10 +77,11 @@ export default function ProMapPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [readout, setReadout] = useState<CursorReadout | null>(null);
-  // Left-hand tool card — starts collapsed (launcher only) so the map is
-  // unobstructed; clicking a mast auto-opens it to the Masts tool below.
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTool, setActiveTool] = useState("masts");
+  // Left-hand tool card — opens on the Analyze tool by default (product
+  // call: site screening is the primary Pro workflow); clicking a mast pin
+  // still jumps the card to the Masts tool.
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeTool, setActiveTool] = useState("analyze");
   // Right-hand "Layers" card — lets the user show/hide each dataset. Open by
   // default so the toggles are visible on entry; independent of the left card.
   const [layersOpen, setLayersOpen] = useState(true);
@@ -76,10 +91,18 @@ export default function ProMapPage() {
   //   "Windmills" → wind-farm site boundaries · "Masts" → mast points
   const [showWindmills, setShowWindmills] = useState(false);
   const [showMasts, setShowMasts] = useState(true);
+  // Proprietary mast inventory (yellow pins, /api/private-masts).
+  const [showPrivateMasts, setShowPrivateMasts] = useState(true);
   // "Electricity Grid" — OpenInfraMap lines/substations/wind+solar plants,
   // default off. The source + layers are created lazily on first enable
   // (addPowerGrid is idempotent); later toggles only flip visibility.
   const [showPowerGrid, setShowPowerGrid] = useState(false);
+  // Mast measurement-height buckets (tile property `hcat`): all on = no filter.
+  const [mastCats, setMastCats] = useState<Record<MastHeightCat, boolean>>({
+    short: true,
+    mid: true,
+    tall: true,
+  });
   // Wind-resource raster (GWA mean speed / power density) — single active
   // metric × height, default off. Available heights per metric come from the
   // bake-emitted metadata.json; any switch is a remove + re-add.
@@ -90,6 +113,11 @@ export default function ProMapPage() {
   // Branded boot animation — held for at least BOOT_MS so the "Intelligence
   // terminal is booting" screen always plays, even on an instant session.
   const [booting, setBooting] = useState(true);
+  // Site-analysis tool: draw state machine, AOI layers, /api/analyze calls.
+  const aoi = useAoiAnalysis();
+  // Stable across renders; lets the once-registered map handlers read the
+  // current draw-armed state synchronously (heads the click-priority chain).
+  const aoiArmedRef = aoi.armedRef;
 
   useEffect(() => {
     const t = setTimeout(() => setBooting(false), BOOT_MS);
@@ -109,6 +137,20 @@ export default function ProMapPage() {
       setSidebarOpen(true);
     }
   }, [detailLoading, selected, detailError]);
+
+  // Same reveal pattern for the Analyze tool: surface the panel the moment a
+  // run starts (or lands / fails) so results never arrive into a closed card.
+  useEffect(() => {
+    if (
+      aoi.uiState === "loading" ||
+      aoi.uiState === "ok" ||
+      aoi.uiState === "partial" ||
+      aoi.uiState === "error"
+    ) {
+      setActiveTool("analyze");
+      setSidebarOpen(true);
+    }
+  }, [aoi.uiState]);
 
   // Apply the road/satellite toggle by flipping the satellite raster's
   // visibility — no setStyle, so the map and windmill layers stay intact.
@@ -165,10 +207,46 @@ export default function ProMapPage() {
       setVis("windfarm-bnd-line", showWindmills);
       setVis("windmills-pts", showMasts);
       setVis("windmills-hit", showMasts);
+      // Util setter (not setVis) — it also closes an open mast popup on hide.
+      setPrivateMastsVisibility(map, showPrivateMasts);
     };
     if (map.isStyleLoaded()) apply();
     else map.once("load", apply);
-  }, [showWindmills, showMasts]);
+  }, [showWindmills, showMasts, showPrivateMasts]);
+
+  // Mast height-bucket filter on the pin layers. The tiles carry `hcat`
+  // (0 = <50 m · 1 = 50–100 m · 2 = >100 m · −1 = unknown). All buckets on →
+  // no filter at all, so unknown-height masts stay visible by default.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const codes: number[] = [];
+      if (mastCats.short) codes.push(0);
+      if (mastCats.mid) codes.push(1);
+      if (mastCats.tall) codes.push(2);
+      const filter =
+        codes.length === 3
+          ? null
+          : ([
+              "match",
+              ["get", "hcat"],
+              codes.length > 0 ? codes : [-999],
+              true,
+              false,
+            ] as unknown as maplibregl.FilterSpecification);
+      for (const id of [
+        "windmills-pts",
+        "windmills-hit",
+        PRIVATE_MASTS_LAYER_ID,
+        PRIVATE_MASTS_HIT_LAYER_ID,
+      ]) {
+        if (map.getLayer(id)) map.setFilter(id, filter);
+      }
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [mastCats]);
 
   // "Electricity Grid" toggle. First enable lazily creates the source +
   // layers (addPowerGrid is idempotent — re-entry is a no-op); after that
@@ -440,7 +518,46 @@ export default function ProMapPage() {
         });
       }
 
+      // Attach the AOI draw controller now that the pin layer exists (its
+      // layers anchor below windmills-pts, like the farm boundaries).
+      aoi.onMapLoad(map);
+
+      // Private masts (yellow, GeoJSON) — below the public pins so public
+      // clicks win on overlap; clicks are suppressed while AOI draw is armed.
+      // A click opens the SAME MastDataTool card the public masts use, as a
+      // synthetic Windmill record: name + height + sampled elevation, every
+      // attribute the inventory doesn't carry left null (the card renders
+      // those rows blank). No detail fetch — everything is already client-side.
+      addPrivateMasts(map, {
+        isInteractionBlocked: () => Boolean(aoiArmedRef.current),
+        onSelect: (props, lngLat) => {
+          setDetailError(null);
+          setDetailLoading(false);
+          setSelected({
+            // Coordinate-keyed: cleaned display names repeat across distinct
+            // masts (two "Akal"s), so the name can't identify a pin.
+            id: `private:${lngLat.lng.toFixed(6)},${lngLat.lat.toFixed(6)}`,
+            lat: lngLat.lat,
+            lon: lngLat.lng,
+            cum_no: null,
+            state: null,
+            station: props.name,
+            district: null,
+            date_commence: null,
+            date_close: null,
+            mast_height_m: props.heightM,
+            elevation_masl: props.elevationMasl,
+            maws_ms: null,
+            mawpd_wm2: null,
+            coord_complete: null,
+          });
+        },
+      });
+
       map.on("click", "windmills-hit", async (e: MapMouseEvent) => {
+        // Draw-armed heads the click-priority chain: while the user is
+        // placing a point/rectangle/polygon, mast popups must not fire.
+        if (aoiArmedRef.current) return;
         const feat = (e as MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }).features?.[0];
         const id = feat?.properties?.id as string | undefined;
         if (!id) return;
@@ -486,7 +603,7 @@ export default function ProMapPage() {
     };
   }, [isPending, isPro]);
 
-  // Sidebar tools. Just "Mast data" today; add entries here as tools grow.
+  // Sidebar tools: mast detail + site analysis.
   const tools: ProTool[] = [
     {
       id: "masts",
@@ -498,6 +615,25 @@ export default function ProMapPage() {
           selected={selected}
           loading={detailLoading}
           error={detailError}
+        />
+      ),
+    },
+    {
+      id: "analyze",
+      label: "Analyze site",
+      Icon: AnalyzeIcon,
+      badge: aoi.analysis != null,
+      content: (
+        <AnalyzeTool
+          uiState={aoi.uiState}
+          armedMode={aoi.armedMode}
+          liveAreaKm2={aoi.liveAreaKm2}
+          liveOverCap={aoi.liveOverCap}
+          committedAreaKm2={aoi.committedAreaKm2}
+          analysis={aoi.analysis}
+          error={aoi.error}
+          onArm={aoi.arm}
+          onClear={aoi.clearAll}
         />
       ),
     },
@@ -514,15 +650,16 @@ export default function ProMapPage() {
         <LayersTool
           showWindmills={showWindmills}
           showMasts={showMasts}
+          showPrivateMasts={showPrivateMasts}
           showPowerGrid={showPowerGrid}
-          windMetric={windMetric}
-          windHeight={windHeight}
-          windValue={readout?.resource?.value}
+          mastCats={mastCats}
           onToggleWindmills={setShowWindmills}
           onToggleMasts={setShowMasts}
+          onTogglePrivateMasts={setShowPrivateMasts}
           onTogglePowerGrid={setShowPowerGrid}
-          onWindMetricChange={handleWindMetricChange}
-          onWindHeightChange={setWindHeight}
+          onMastCatChange={(cat, next) =>
+            setMastCats((prev) => ({ ...prev, [cat]: next }))
+          }
         />
       ),
     },
@@ -559,9 +696,23 @@ export default function ProMapPage() {
         </div>
       )}
 
+      {/* Wind-resource controls + ramp legend, docked above the bottom-right
+          map attribution so the legend sits where map legends are expected. */}
+      {isPro && (
+        <div className="absolute bottom-8 right-3 z-10">
+          <WindResourceCard
+            metric={windMetric}
+            height={windHeight}
+            value={readout?.resource?.value}
+            onMetricChange={handleWindMetricChange}
+            onHeightChange={setWindHeight}
+          />
+        </div>
+      )}
+
 
       {(isPending || booting) && (
-        <CeclLoader label="Intelligence terminal is booting" />
+        <CeclLoader label="Intelligence Terminal Loading" />
       )}
 
       {!isPending && !user && (

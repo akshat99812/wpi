@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import {
   VOLTAGE_COLORS,
   PLANT_COLORS,
@@ -8,14 +7,17 @@ import {
   LOW_VOLTAGE_VISIBLE_ZOOM,
   EHV_MIN_VOLTAGE,
 } from '../utils/powerGrid';
-import {
-  WIND_METRICS,
-  type WindMetric,
-  type WindMetricMeta,
-} from '../utils/windResource';
+import { PRIVATE_MAST_COLOR } from '../utils/privateMasts';
 
-/** 'off' plus the bake-emitted metrics — the segmented control's value. */
-export type WindMetricChoice = 'off' | WindMetric;
+/** Mast height buckets — mirror the `hcat` property baked into the windmill
+ *  vector tiles (apps/api windmills route): 0 = <50 m, 1 = 50–100 m, 2 = >100 m. */
+export type MastHeightCat = 'short' | 'mid' | 'tall';
+
+export const MAST_CAT_LABELS: Record<MastHeightCat, string> = {
+  short: '<50m',
+  mid: '50–100m',
+  tall: '100–200m',
+};
 
 /** Stacked-layers icon for the Layers card's launcher + header. */
 export function LayersIcon({ className }: { className?: string }) {
@@ -37,20 +39,17 @@ interface Props {
   showWindmills: boolean;
   /** "Masts" = wind-mast measurement points. */
   showMasts: boolean;
+  /** "Private Masts" = proprietary inventory (yellow pins). */
+  showPrivateMasts: boolean;
   /** "Electricity Grid" = OpenInfraMap lines/substations/RE plants. */
   showPowerGrid: boolean;
-  /** Active wind-resource raster — 'off', or a metric from metadata.json. */
-  windMetric: WindMetricChoice;
-  /** Hub height (m) for the active wind-resource metric. */
-  windHeight: number;
-  /** Live value under the cursor for the active metric (drives the legend
-   *  arrow). null/undefined off-map or over no-data. */
-  windValue?: number | null;
+  /** Which mast height buckets are visible (all true = no filtering). */
+  mastCats: Record<MastHeightCat, boolean>;
   onToggleWindmills: (next: boolean) => void;
   onToggleMasts: (next: boolean) => void;
+  onTogglePrivateMasts: (next: boolean) => void;
   onTogglePowerGrid: (next: boolean) => void;
-  onWindMetricChange: (next: WindMetricChoice) => void;
-  onWindHeightChange: (next: number) => void;
+  onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
 }
 
 /**
@@ -64,15 +63,14 @@ interface Props {
 export function LayersTool({
   showWindmills,
   showMasts,
+  showPrivateMasts,
   showPowerGrid,
-  windMetric,
-  windHeight,
-  windValue,
+  mastCats,
   onToggleWindmills,
   onToggleMasts,
+  onTogglePrivateMasts,
   onTogglePowerGrid,
-  onWindMetricChange,
-  onWindHeightChange,
+  onMastCatChange,
 }: Props) {
   return (
     <div className="flex flex-col gap-1 p-3">
@@ -94,6 +92,17 @@ export function LayersTool({
         onChange={onToggleMasts}
       />
       <ToggleRow
+        label="Private Masts"
+        description="Proprietary mast inventory"
+        swatch={PRIVATE_MAST_COLOR}
+        checked={showPrivateMasts}
+        onChange={onTogglePrivateMasts}
+      />
+      {/* Height chips filter BOTH mast layers — show while either is on. */}
+      {(showMasts || showPrivateMasts) && (
+        <MastHeightChips cats={mastCats} onChange={onMastCatChange} />
+      )}
+      <ToggleRow
         label="Electricity Grid"
         description="Transmission lines, substations & RE plants"
         // 400 kV purple — taken from the live palette so it can't drift.
@@ -102,180 +111,55 @@ export function LayersTool({
         onChange={onTogglePowerGrid}
       />
       {showPowerGrid && <PowerGridLegend />}
-      <WindResourceSection
-        metric={windMetric}
-        height={windHeight}
-        value={windValue}
-        onMetricChange={onWindMetricChange}
-        onHeightChange={onWindHeightChange}
-      />
     </div>
   );
 }
 
-/**
- * "Wind resource" segmented control (Off / Speed / Density) + hub-height
- * pills + colour-ramp legend. Heights, units, domains, and ramp colours all
- * come from the bake-emitted metadata.json via WIND_METRICS — nothing here
- * can drift from the baked tiles.
- */
-function WindResourceSection({
-  metric,
-  height,
-  value,
-  onMetricChange,
-  onHeightChange,
+/** Mast measurement-height filter chips, shown while the Masts layer is on. */
+function MastHeightChips({
+  cats,
+  onChange,
 }: {
-  metric: WindMetricChoice;
-  height: number;
-  value?: number | null;
-  onMetricChange: (next: WindMetricChoice) => void;
-  onHeightChange: (next: number) => void;
+  cats: Record<MastHeightCat, boolean>;
+  onChange: (cat: MastHeightCat, next: boolean) => void;
 }) {
-  const options: { id: WindMetricChoice; label: string }[] = [
-    { id: 'off', label: 'Off' },
-    { id: 'speed', label: 'Speed' },
-    { id: 'density', label: 'Density' },
-  ];
-  const active = metric !== 'off' ? WIND_METRICS[metric] : null;
-
   return (
-    <div className="mt-2 border-t border-white/10 px-1 pt-2">
-      <p className="pb-1.5 text-sm font-medium text-slate-100">Wind resource</p>
-      <div
-        role="radiogroup"
-        aria-label="Wind resource layer"
-        className="flex gap-1"
-      >
-        {options.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            role="radio"
-            aria-checked={metric === o.id}
-            onClick={() => onMetricChange(o.id)}
-            className={
-              'flex-1 rounded-md px-2 py-1 text-xs transition-colors ' +
-              (metric === o.id
-                ? 'bg-sky-500/90 text-white'
-                : 'bg-white/5 text-slate-300 hover:bg-white/10')
-            }
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-
-      {active && (
-        <>
-          <div className="flex items-center gap-1.5 pt-2">
-            <span className="text-[11px] text-slate-400">Hub height</span>
-            {ALL_HEIGHTS.map((h) => {
-              const available = active.heights.includes(h);
-              return (
-                <button
-                  key={h}
-                  type="button"
-                  disabled={!available}
-                  aria-pressed={height === h}
-                  title={
-                    available
-                      ? undefined
-                      : `Not available for ${active.label.toLowerCase()}`
-                  }
-                  onClick={() => available && onHeightChange(h)}
-                  className={
-                    'rounded-md px-2 py-0.5 text-[11px] transition-colors ' +
-                    (!available
-                      ? 'cursor-not-allowed bg-white/[0.03] text-slate-600'
-                      : height === h
-                        ? 'bg-white/15 text-white'
-                        : 'bg-white/5 text-slate-400 hover:bg-white/10')
-                  }
-                >
-                  {h} m
-                </button>
-              );
-            })}
-          </div>
-          <RampLegend meta={active} value={value} />
-          <p className="pt-1.5 text-[10px] leading-relaxed text-slate-500">
-            {active.label} · Global Wind Atlas · CC BY 4.0
-          </p>
-        </>
-      )}
-    </div>
-  );
-}
-
-/**
- * Horizontal colour-ramp bar with end labels, from the metadata ramp. A white
- * arrow glides along the band to the cursor's live value (spring tuning
- * matches the main map's WindScale pointer); the value slot is fixed-width so
- * the card never resizes — off-map / no-data hides the arrow and shows "—".
- */
-function RampLegend({
-  meta,
-  value,
-}: {
-  meta: WindMetricMeta;
-  value?: number | null;
-}) {
-  const [lo, hi] = meta.domain as [number, number];
-  const has = value != null && Number.isFinite(value);
-  const frac = has ? Math.min(1, Math.max(0, ((value as number) - lo) / (hi - lo))) : 0;
-  const stops = meta.ramp
-    .map((s) => `${s.color} ${(((s.value - lo) / (hi - lo)) * 100).toFixed(1)}%`)
-    .join(', ');
-  const label = !has
-    ? '—'
-    : meta.unit === 'm/s'
-      ? (value as number).toFixed(1)
-      : String(Math.round(value as number));
-
-  return (
-    <div className="pt-2">
-      <div className="flex items-baseline justify-between pb-0.5">
-        <span className="text-[10px] text-slate-400">Cursor</span>
-        <span className="inline-block w-[11ch] text-right font-mono text-[10px] tabular-nums text-slate-200">
-          {label} {meta.unit}
-        </span>
-      </div>
-      {/* Fixed-height arrow track — constant card size with or without a value. */}
-      <div className="relative h-2">
-        <motion.span
-          aria-hidden
-          className="absolute top-0 block h-0 w-0"
-          initial={false}
-          animate={{ left: `${frac * 100}%`, opacity: has ? 1 : 0 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.4 }}
-          style={{
-            transform: 'translateX(-50%)',
-            borderLeft: '4px solid transparent',
-            borderRight: '4px solid transparent',
-            borderTop: '6px solid #ffffff',
-            filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))',
-          }}
-        />
-      </div>
-      <div
-        className="h-2 rounded-full"
-        style={{ background: `linear-gradient(to right, ${stops})` }}
-      />
-      <div className="flex justify-between pt-0.5 text-[10px] text-slate-400">
-        <span>{lo === 0 ? '0' : `≤${lo}`} {meta.unit}</span>
-        <span>≥{hi} {meta.unit}</span>
+    <div className="mx-2 mb-1 ml-7 rounded-lg border border-slate-700/60 bg-slate-800/40 px-2.5 py-2">
+      <p className="pb-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">
+        Mast height
+      </p>
+      <div className="flex items-center gap-1.5">
+        {(Object.keys(MAST_CAT_LABELS) as MastHeightCat[]).map((cat) => {
+          const on = cats[cat];
+          return (
+            <button
+              key={cat}
+              type="button"
+              aria-pressed={on}
+              onClick={() => onChange(cat, !on)}
+              className={
+                'flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-md border px-1.5 py-1.5 ' +
+                'font-mono text-[11px] tabular-nums transition-all ' +
+                (on
+                  ? 'border-sky-400/60 bg-sky-500/15 text-sky-200 shadow-[0_0_10px_rgba(56,189,248,0.12)]'
+                  : 'border-slate-600/60 bg-transparent text-slate-500 hover:border-slate-500 hover:text-slate-300')
+              }
+            >
+              <span
+                aria-hidden
+                className={
+                  'h-1.5 w-1.5 shrink-0 rounded-full transition-colors ' +
+                  (on ? 'bg-sky-400' : 'bg-slate-600')
+                }
+              />
+              {MAST_CAT_LABELS[cat]}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
-
-// Union of every metric's heights — heights a metric lacks render as blocked
-// pills rather than disappearing (the colour-band legend lives on the map's
-// bottom bar, see WindResourceScale).
-const ALL_HEIGHTS = Array.from(
-  new Set(Object.values(WIND_METRICS).flatMap((m) => m.heights)),
-).sort((a, b) => a - b);
 
 /**
  * Legend for the Electricity Grid layer — built from the same constants the

@@ -37,6 +37,21 @@ type ExpressionSpecification = Extract<
  *    (also coal/hydro/gas/nuclear, which we filter out), `output` is a
  *    STRING in MW, plus `name`, `operator`.
  *  - upstream max served zoom: 17 (z18 → 404).
+ *
+ * India-only clip: OpenInfraMap is global, so the overlay is clipped to a
+ * simplified dissolved India outline (public/india-outline.geojson, ~21 KB,
+ * generated from the same state boundaries the map already draws) via
+ * MapLibre `within` filters, plus a source `bounds` so tiles outside the
+ * country's bbox are never fetched. Known tradeoff: a line SEGMENT that
+ * crosses the border inside one tile fails `within` and drops entirely —
+ * cross-border interconnectors fade out at the border, which is the point.
+ *
+ * Perf: `within` ray-casts every feature against the outline DURING tile
+ * parsing (worker-side), so the outline is deliberately filter-grade —
+ * buffered +2 km, simplified to ~1.3k vertices, islet rings dropped. The
+ * outline is also awaited BEFORE the layers are created, so tiles are laid
+ * out exactly once (adding layers unclipped and re-filtering later would
+ * re-parse every loaded tile — visible as a slow first enable).
  */
 
 // ── Source / layer ids ───────────────────────────────────────────────────
@@ -59,6 +74,14 @@ const PLANT_SOURCE_PROP = 'source';
 export const POWER_TILES_VERSION = 1;
 // Verified upstream max served zoom (z18 → 404); mirrored by the proxy clamp.
 const VERIFIED_MAX_ZOOM = 17;
+
+// India bbox (from india-outline.geojson) — tiles outside are never fetched.
+const INDIA_BOUNDS: [number, number, number, number] = [68.08, 6.74, 97.43, 37.09];
+// How long addPowerGrid waits for the outline before adding the layers
+// unclipped (applyIndiaClip patches the filters when the fetch lands).
+const OUTLINE_WAIT_MS = 1_500;
+// Simplified dissolved India outline used by the `within` clip filters.
+const INDIA_OUTLINE_URL = '/india-outline.geojson';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
 
@@ -228,14 +251,77 @@ function substationIconExpr(): ExpressionSpecification {
   return expr as ExpressionSpecification;
 }
 
+// ── India clip (within-filter) ───────────────────────────────────────────
+// The simplified outline is fetched once per session and cached; until it
+// arrives (or if it 404s) the layers render unclipped — same as before.
+let indiaOutlinePromise: Promise<GeoJSON.Feature | null> | null = null;
+
+function loadIndiaOutline(): Promise<GeoJSON.Feature | null> {
+  if (!indiaOutlinePromise) {
+    indiaOutlinePromise = fetch(INDIA_OUTLINE_URL)
+      .then((res) => (res.ok ? (res.json() as Promise<GeoJSON.Feature>) : null))
+      .catch((err) => {
+        console.error('[power-grid] india outline fetch failed', err);
+        return null;
+      });
+  }
+  return indiaOutlinePromise;
+}
+
+/** `["within", outline]` — true for point/line features fully inside India. */
+function withinIndiaExpr(outline: GeoJSON.Feature): ExpressionSpecification {
+  return ['within', outline] as unknown as ExpressionSpecification;
+}
+
 // Below LOW_VOLTAGE_VISIBLE_ZOOM only EHV (≥220 kV) lines render; from there
 // everything does. ["zoom"] in a filter is only allowed as input to a
-// top-level "step" — which is exactly this shape.
-const lineZoomFilter: FilterSpecification = [
-  'step', ['zoom'],
-  ['>=', voltageKv, EHV_MIN_VOLTAGE],
-  LOW_VOLTAGE_VISIBLE_ZOOM, true,
-] as ExpressionSpecification;
+// top-level "step" — which is exactly this shape; that constraint is also why
+// the India clip is embedded in the step's BRANCHES rather than wrapped in an
+// outer ["all", …] (which would demote the zoom step and fail validation).
+function lineFilter(outline: GeoJSON.Feature | null): FilterSpecification {
+  if (!outline) {
+    return [
+      'step', ['zoom'],
+      ['>=', voltageKv, EHV_MIN_VOLTAGE],
+      LOW_VOLTAGE_VISIBLE_ZOOM, true,
+    ] as ExpressionSpecification;
+  }
+  const within = withinIndiaExpr(outline);
+  return [
+    'step', ['zoom'],
+    ['all', ['>=', voltageKv, EHV_MIN_VOLTAGE], within],
+    LOW_VOLTAGE_VISIBLE_ZOOM, within,
+  ] as ExpressionSpecification;
+}
+
+/** Wind/solar-only plants filter, optionally also clipped to India. */
+function plantFilter(outline: GeoJSON.Feature | null): FilterSpecification {
+  const bySource: unknown = [
+    'in',
+    ['get', PLANT_SOURCE_PROP],
+    ['literal', [...PLANT_SOURCES]],
+  ];
+  if (!outline) return bySource as FilterSpecification;
+  return ['all', bySource, withinIndiaExpr(outline)] as ExpressionSpecification;
+}
+
+/** Re-filters all grid layers to India once the outline arrives. */
+async function applyIndiaClip(map: MlMap): Promise<void> {
+  const outline = await loadIndiaOutline();
+  if (!outline) return; // unclipped fallback, already logged
+  try {
+    if (!map.getCanvas()) return; // map was destroyed while fetching
+    const clippedLine = lineFilter(outline);
+    if (map.getLayer(LAYER_CASING)) map.setFilter(LAYER_CASING, clippedLine);
+    if (map.getLayer(LAYER_LINES)) map.setFilter(LAYER_LINES, clippedLine);
+    if (map.getLayer(LAYER_SUBSTATIONS)) {
+      map.setFilter(LAYER_SUBSTATIONS, withinIndiaExpr(outline) as FilterSpecification);
+    }
+    if (map.getLayer(LAYER_PLANTS)) map.setFilter(LAYER_PLANTS, plantFilter(outline));
+  } catch (err) {
+    console.error('[power-grid] could not apply india clip', err);
+  }
+}
 
 // ── Per-map listener registry (for clean removal) ────────────────────────
 interface GridHandlers {
@@ -249,141 +335,170 @@ const registry = new WeakMap<MlMap, GridHandlers>();
 
 // ── Public API ───────────────────────────────────────────────────────────
 
+// The caller's latest intent per map — lets a toggle-off that lands while
+// addPowerGrid is still awaiting the outline win over the deferred layer add.
+const desiredVisible = new WeakMap<MlMap, boolean>();
+// Maps with an addPowerGrid layer-add already in flight or done (idempotency
+// across the await; the getSource check alone can't see an in-flight add).
+const addStarted = new WeakSet<MlMap>();
+
 /**
  * Adds the power-grid source + layers (idempotent) and wires interactivity.
  * Layers are inserted below the mast pins (`windmills-pts`) so existing mast
  * interactions always win.
+ *
+ * Async inside: waits up to OUTLINE_WAIT_MS for the India outline so the
+ * layers are born with their final clip filters (single tile layout pass).
+ * Public signature stays sync — callers fire-and-forget, and visibility set
+ * via setPowerGridVisibility in the meantime is applied after the add.
  */
 export function addPowerGrid(map: MlMap): void {
-  try {
-    if (!map.getCanvas()) return;
-
-    if (!map.getSource(SOURCE_ID)) {
-      map.addSource(SOURCE_ID, {
-        type: 'vector',
-        tiles: [
-          `${API_URL}/api/tiles/power/{z}/{x}/{y}.pbf?v=${POWER_TILES_VERSION}`,
-        ],
-        maxzoom: VERIFIED_MAX_ZOOM,
-        attribution:
-          '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · ' +
-          '<a href="https://openinframap.org" target="_blank" rel="noopener">OpenInfraMap</a>',
-      });
-    }
-
-    // Insert below the mast pins when they exist so pins always render (and
-    // click) above the grid.
-    const before = map.getLayer('windmills-pts') ? 'windmills-pts' : undefined;
-
-    if (!map.getLayer(LAYER_CASING)) {
-      map.addLayer(
-        {
-          id: LAYER_CASING,
-          type: 'line',
-          source: SOURCE_ID,
-          'source-layer': SRC_LAYER_LINES,
-          filter: lineZoomFilter,
-          layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: {
-            'line-color': CASING_COLOR,
-            'line-opacity': CASING_OPACITY,
-            'line-width': lineWidthExpr(CASING_EXTRA_WIDTH),
-          },
-        },
-        before,
-      );
-    }
-
-    if (!map.getLayer(LAYER_LINES)) {
-      map.addLayer(
-        {
-          id: LAYER_LINES,
-          type: 'line',
-          source: SOURCE_ID,
-          'source-layer': SRC_LAYER_LINES,
-          filter: lineZoomFilter,
-          layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: {
-            'line-color': voltageColorExpr(),
-            'line-width': lineWidthExpr(),
-          },
-        },
-        before,
-      );
-    }
-
-    if (!map.getLayer(LAYER_SUBSTATIONS)) {
-      // Bolt-badge icon (canvas-drawn, one per voltage colour — see
-      // ensureSubstationIcons). Same voltage cascade as the lines.
-      ensureSubstationIcons(map);
-      map.addLayer(
-        {
-          id: LAYER_SUBSTATIONS,
-          type: 'symbol',
-          source: SOURCE_ID,
-          'source-layer': SRC_LAYER_SUBSTATIONS,
-          minzoom: SUBSTATION_MIN_ZOOM,
-          layout: {
-            'icon-image': substationIconExpr(),
-            // Icons are drawn 40 px @2x (20 px base): ~11 px at z8 growing
-            // to ~22 px at z14.
-            'icon-size': [
-              'interpolate', ['linear'], ['zoom'],
-              SUBSTATION_MIN_ZOOM, 0.55,
-              14, 1.1,
-            ],
-            // Substations must always render, like the dots did — never
-            // drop them to symbol collision.
-            'icon-allow-overlap': true,
-            'icon-ignore-placement': true,
-          },
-        },
-        before,
-      );
-    }
-
-    if (!map.getLayer(LAYER_PLANTS)) {
-      // Factory-badge icon in the source colour (see ensurePlantIcons).
-      ensurePlantIcons(map);
-      map.addLayer(
-        {
-          id: LAYER_PLANTS,
-          type: 'symbol',
-          source: SOURCE_ID,
-          'source-layer': SRC_LAYER_PLANTS,
-          minzoom: PLANT_MIN_ZOOM,
-          // Wind and solar only — coal/hydro/gas/nuclear excluded.
-          filter: [
-            'in',
-            ['get', PLANT_SOURCE_PROP],
-            ['literal', [...PLANT_SOURCES]],
-          ],
-          layout: {
-            // The filter guarantees wind|solar; match still needs a default.
-            'icon-image': [
-              'match', ['get', PLANT_SOURCE_PROP],
-              'wind', plantIconId('wind'),
-              plantIconId('solar'),
-            ],
-            // Slightly larger than substations so the two read differently.
-            'icon-size': [
-              'interpolate', ['linear'], ['zoom'],
-              PLANT_MIN_ZOOM, 0.6,
-              14, 1.15,
-            ],
-            // Plants must always render — never drop to symbol collision.
-            'icon-allow-overlap': true,
-            'icon-ignore-placement': true,
-          },
-        },
-        before,
-      );
-    }
-
-    installInteractivity(map);
-  } catch (err) {
+  if (addStarted.has(map)) return;
+  addStarted.add(map);
+  void addPowerGridImpl(map).catch((err) => {
+    addStarted.delete(map); // allow a retry on the next toggle
     console.error('[power-grid] could not add power grid layers', err);
+  });
+}
+
+async function addPowerGridImpl(map: MlMap): Promise<void> {
+  const outline = await Promise.race([
+    loadIndiaOutline(),
+    new Promise<null>((r) => setTimeout(() => r(null), OUTLINE_WAIT_MS)),
+  ]);
+  if (!map.getCanvas()) return;
+
+  if (!map.getSource(SOURCE_ID)) {
+    map.addSource(SOURCE_ID, {
+      type: 'vector',
+      tiles: [
+        `${API_URL}/api/tiles/power/{z}/{x}/{y}.pbf?v=${POWER_TILES_VERSION}`,
+      ],
+      maxzoom: VERIFIED_MAX_ZOOM,
+      bounds: INDIA_BOUNDS,
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · ' +
+        '<a href="https://openinframap.org" target="_blank" rel="noopener">OpenInfraMap</a>',
+    });
   }
+
+  // Insert below the mast pins when they exist so pins always render (and
+  // click) above the grid.
+  const before = map.getLayer('windmills-pts') ? 'windmills-pts' : undefined;
+
+  if (!map.getLayer(LAYER_CASING)) {
+    map.addLayer(
+      {
+        id: LAYER_CASING,
+        type: 'line',
+        source: SOURCE_ID,
+        'source-layer': SRC_LAYER_LINES,
+        filter: lineFilter(outline),
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': CASING_COLOR,
+          'line-opacity': CASING_OPACITY,
+          'line-width': lineWidthExpr(CASING_EXTRA_WIDTH),
+        },
+      },
+      before,
+    );
+  }
+
+  if (!map.getLayer(LAYER_LINES)) {
+    map.addLayer(
+      {
+        id: LAYER_LINES,
+        type: 'line',
+        source: SOURCE_ID,
+        'source-layer': SRC_LAYER_LINES,
+        filter: lineFilter(outline),
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': voltageColorExpr(),
+          'line-width': lineWidthExpr(),
+        },
+      },
+      before,
+    );
+  }
+
+  if (!map.getLayer(LAYER_SUBSTATIONS)) {
+    // Bolt-badge icon (canvas-drawn, one per voltage colour — see
+    // ensureSubstationIcons). Same voltage cascade as the lines.
+    ensureSubstationIcons(map);
+    map.addLayer(
+      {
+        id: LAYER_SUBSTATIONS,
+        type: 'symbol',
+        source: SOURCE_ID,
+        'source-layer': SRC_LAYER_SUBSTATIONS,
+        minzoom: SUBSTATION_MIN_ZOOM,
+        ...(outline ? { filter: withinIndiaExpr(outline) as FilterSpecification } : {}),
+        layout: {
+          'icon-image': substationIconExpr(),
+          // Icons are drawn 40 px @2x (20 px base): ~11 px at z8 growing
+          // to ~22 px at z14.
+          'icon-size': [
+            'interpolate', ['linear'], ['zoom'],
+            SUBSTATION_MIN_ZOOM, 0.55,
+            14, 1.1,
+          ],
+          // Substations must always render, like the dots did — never
+          // drop them to symbol collision.
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+        },
+      },
+      before,
+    );
+  }
+
+  if (!map.getLayer(LAYER_PLANTS)) {
+    // Factory-badge icon in the source colour (see ensurePlantIcons).
+    ensurePlantIcons(map);
+    map.addLayer(
+      {
+        id: LAYER_PLANTS,
+        type: 'symbol',
+        source: SOURCE_ID,
+        'source-layer': SRC_LAYER_PLANTS,
+        minzoom: PLANT_MIN_ZOOM,
+        // Wind and solar only — coal/hydro/gas/nuclear excluded.
+        filter: plantFilter(outline),
+        layout: {
+          // The filter guarantees wind|solar; match still needs a default.
+          'icon-image': [
+            'match', ['get', PLANT_SOURCE_PROP],
+            'wind', plantIconId('wind'),
+            plantIconId('solar'),
+          ],
+          // Slightly larger than substations so the two read differently.
+          'icon-size': [
+            'interpolate', ['linear'], ['zoom'],
+            PLANT_MIN_ZOOM, 0.6,
+            14, 1.15,
+          ],
+          // Plants must always render — never drop to symbol collision.
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+        },
+      },
+      before,
+    );
+  }
+
+  installInteractivity(map);
+
+  // Outline missed the deadline → layers went up unclipped; patch the
+  // filters in place when the fetch lands (one extra layout pass, but only
+  // on this slow path).
+  if (!outline) void applyIndiaClip(map);
+
+  // Honor a toggle that flipped while we awaited the outline — the
+  // caller's setPowerGridVisibility was a no-op before the layers existed.
+  const visible = desiredVisible.get(map);
+  if (visible !== undefined) setPowerGridVisibility(map, visible);
 }
 
 /** Removes layers, source, listeners, and any open popup. */

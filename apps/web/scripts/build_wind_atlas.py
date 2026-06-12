@@ -191,6 +191,11 @@ FRINGE_DEG = 0.23         # extended nearshore band (~25 km) of real GWA
                           # pyramid that the frontend overlays only on the
                           # satellite basemap, restricted to FRINGE_STATES.
 FRINGE_STATES = ["Gujarat", "Maharashtra"]   # ST_NM values in the GeoJSON
+FADE_DEG = 0.08           # edge feather (~9 km): tile alpha ramps 0→1 over
+                          # this distance inside the coverage boundary, so
+                          # the raster fades out instead of hard-cutting at
+                          # the India border. Computed on the global MASK_RES
+                          # grid (distance transform) — seam-free across tiles.
 
 OS = math.pi * 6378137.0  # web-mercator origin shift
 
@@ -290,6 +295,38 @@ def build_fringe_mask(fringe_geoms_4326, fill):
     fringe = ndimage.binary_dilation(base_gm, structure=_disc(FRINGE_DEG)) & ~fill & ~base_gm
     print(f"GM fringe: r={FRINGE_DEG}° → {int(fringe.sum())} cells beyond main coverage")
     return fringe
+
+
+def build_alpha_grid(geoms_4326, coverage_extra):
+    """Edge-feather alpha over the MASK_RES grid: 0 at/outside the coverage
+    boundary, ramping to 1 over FADE_DEG inside it. `coverage_extra` is OR'd
+    onto the rasterized land mask (pass `fill` for the main pyramid,
+    `fill | fringe` for the fringe one). Float32, row 0 = LAT_MAX."""
+    cols = int(round((LNG_MAX - LNG_MIN) / MASK_RES))
+    rows = int(round((LAT_MAX - LAT_MIN) / MASK_RES))
+    mtf = transform_from_bounds(LNG_MIN, LAT_MIN, LNG_MAX, LAT_MAX, cols, rows)
+    base = geometry_mask(geoms_4326, (rows, cols), mtf, invert=True, all_touched=True)
+    coverage = base | coverage_extra
+    # Distance (in cells) from each inside cell to the nearest outside cell.
+    dist = ndimage.distance_transform_edt(coverage)
+    alpha = np.clip(dist / (FADE_DEG / MASK_RES), 0.0, 1.0).astype("float32")
+    print(f"Alpha grid: fade {FADE_DEG}° → "
+          f"{int(((alpha > 0) & (alpha < 1)).sum())} feathered cells")
+    return alpha
+
+
+def sample_alpha_3857(alpha, xmin, ymin, xmax, ymax, size):
+    """Bilinear-sample the alpha grid (4326, row 0 = north) onto a size²
+    EPSG:3857 tile. Out-of-grid samples are 0 (fully transparent)."""
+    ax = xmin + (np.arange(size) + 0.5) / size * (xmax - xmin)
+    ay = ymax - (np.arange(size) + 0.5) / size * (ymax - ymin)
+    lng = ax / OS * 180.0
+    lat = np.degrees(2 * np.arctan(np.exp(ay / 6378137.0)) - math.pi / 2)
+    # Cell-center float indices for map_coordinates (order=1 = bilinear).
+    col_f = (lng - LNG_MIN) / MASK_RES - 0.5
+    row_f = (LAT_MAX - lat) / MASK_RES - 0.5
+    rr, cc = np.meshgrid(row_f, col_f, indexing="ij")
+    return ndimage.map_coordinates(alpha, [rr, cc], order=1, mode="constant", cval=0.0)
 
 
 def sample_fill_3857(fill, xmin, ymin, xmax, ymax, size):
@@ -396,11 +433,12 @@ def colorize(values, valid, lo: float, hi: float):
 
 
 # ── Tile pyramid (per metric × height) ───────────────────────────────────────
-def bake_tiles(metric: str, h: int, geoms_3857, mask, out_root: str | None = None,
-               label: str = "tiles"):
+def bake_tiles(metric: str, h: int, geoms_3857, mask, alpha_grid=None,
+               out_root: str | None = None, label: str = "tiles"):
     """Render one XYZ pyramid. Coverage = crisp per-tile vector polygons
-    (geoms_3857, may be empty) OR the coarse `mask` raster. `out_root`
-    overrides the default main-pyramid directory (used for the fringe)."""
+    (geoms_3857, may be empty) OR the coarse `mask` raster. `alpha_grid`
+    (build_alpha_grid output) feathers the coverage edge; None = hard cut.
+    `out_root` overrides the default main-pyramid directory (fringe)."""
     cfg = METRICS[metric]
     lname = gwa_layer(metric, h)
     work = []          # (z, x, y, tile_transform, inside_mask)
@@ -433,6 +471,14 @@ def bake_tiles(metric: str, h: int, geoms_3857, mask, out_root: str | None = Non
         if not valid.any():
             continue
         rgba = colorize(arr, valid, cfg["lo"], cfg["hi"])
+        if alpha_grid is not None:
+            # Feather the coverage edge: scale the binary alpha by the
+            # global fade field (bilinear, seam-free across tiles).
+            tb = tile_bounds_3857(x, y, z)
+            af = sample_alpha_3857(alpha_grid, tb[0], tb[1], tb[2], tb[3], TILE_SIZE)
+            rgba[..., 3] = np.round(rgba[..., 3].astype("float32") * af).astype(np.uint8)
+            if rgba[..., 3].max() == 0:
+                continue
         out_dir = os.path.join(out_root or tiles_dir_for(metric, h), str(z), str(x))
         os.makedirs(out_dir, exist_ok=True)
         Image.fromarray(rgba, "RGBA").save(os.path.join(out_dir, f"{y}.png"), optimize=True)
@@ -611,6 +657,11 @@ def main():
     geoms_4326, geoms_3857, fringe_geoms = load_india_geoms()
     fill, mtf = build_fill_mask(geoms_4326)
     fringe = build_fringe_mask(fringe_geoms, fill)
+    # Edge-feather fields: main pyramid fades at the land+fill boundary; the
+    # fringe pyramid fades at the OUTER edge of land+fill+fringe (its inner
+    # edge abuts opaque main coverage, so it stays solid there).
+    alpha_main = None if grid_only else build_alpha_grid(geoms_4326, fill)
+    alpha_fringe = None if grid_only else build_alpha_grid(geoms_4326, fill | fringe)
     for metric in metrics:
         hs = heights or METRICS[metric]["heights"]
         for h in hs:
@@ -621,8 +672,8 @@ def main():
             # the satellite-only band too.
             bake_grid(metric, h, geoms_4326, fill | fringe, mtf)
             if not grid_only:
-                bake_tiles(metric, h, geoms_3857, fill)
-                bake_tiles(metric, h, [], fringe,
+                bake_tiles(metric, h, geoms_3857, fill, alpha_grid=alpha_main)
+                bake_tiles(metric, h, [], fringe, alpha_grid=alpha_fringe,
                            out_root=fringe_dir_for(metric, h), label="fringe tiles")
     emit_metadata()
     emit_report()

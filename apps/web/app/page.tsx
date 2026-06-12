@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import TopBar from "@/components/TopBar";
-import { CeclBootScreen } from "@/components/CeclBootScreen";
 import { TypingAnimation } from "@/registry/magicui/typing-animation";
 import { Marquee } from "@/registry/magicui/marquee";
 
@@ -59,7 +58,6 @@ const HERO_STATS: HeroStat[] = [
 export default function Landing() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#090d18] text-text flex flex-col">
-      <CeclBootScreen label="Intelligence terminal is booting" />
       <TopBar showEngines={false} showAbout={false} />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import BankabilityCalc from '@/components/Engines/BankabilityCalc';
+import { CeclBootScreen } from '@/components/CeclBootScreen';
 
 /**
  * Finance landing page = the 25-yr Bankability Calculator (the default tool).
@@ -11,6 +12,7 @@ import BankabilityCalc from '@/components/Engines/BankabilityCalc';
 export default function FinancePage() {
   return (
     <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
+      <CeclBootScreen label="Intelligence Terminal Loading" />
       <BankabilityCalc />
     </div>
   );
