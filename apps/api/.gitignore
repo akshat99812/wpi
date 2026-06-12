@@ -27,6 +27,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .cache
 *.tsbuildinfo
 
+# GWA Weibull country COGs (~390 MB total) — fetched by scripts/fetch-weibull-cogs.ts
+data/gwa/
+
 # IntelliJ based IDEs
 .idea
 

@@ -13,6 +13,8 @@ import mastRoutes from './routes/mast';
 import windmillsRoutes from './routes/windmills';
 import powerTilesRoutes from './routes/powerTiles';
 import boundariesRoutes from './routes/boundaries';
+import privateMastsRoutes from './routes/privateMasts';
+import analyzeRoutes from './routes/analyze';
 import { setupScheduler } from './services/scheduler';
 import { runOrchestrator } from './orchestrator';
 import fs from 'fs';
@@ -64,6 +66,8 @@ app.use('/api', mastRoutes);
 app.use('/api', windmillsRoutes);
 app.use('/api', powerTilesRoutes);
 app.use('/api', boundariesRoutes);
+app.use('/api', privateMastsRoutes);
+app.use('/api', analyzeRoutes);
 
 // Setup node-cron
 setupScheduler();

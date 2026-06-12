@@ -49,8 +49,9 @@ const detailLimiter = rateLimit({
 // each re-ingest, so 24 h of staleness is safe.
 const WINDMILL_TILE_DISK_TTL_MS = 24 * 3600 * 1000;
 
-// Vector tile endpoint. Tiles ship ONLY id + geometry — no attributes, ever.
-// Proprietary attributes are exposed one record at a time via /windmill/:id.
+// Vector tile endpoint. Tiles ship ONLY id + geometry + the coarse `hcat`
+// height bucket (filter affordance — not the raw value). All other
+// proprietary attributes are exposed one record at a time via /windmill/:id.
 //
 // Middleware order matters: requirePro runs BEFORE tileCache, so auth always
 // executes and the cache only skips the PostGIS query. One cached file serves
@@ -91,6 +92,15 @@ router.get(
         SELECT ST_AsMVT(t, 'windmills') AS mvt FROM (
           SELECT
             id::text AS id,
+            -- Height BUCKET only (the raw mast_height_m stays per-record via
+            -- /windmill/:id): -1 unknown · 0 <50 m · 1 50–100 m · 2 >100 m.
+            -- Drives the Layers-card height filter client-side.
+            CASE
+              WHEN mast_height_m IS NULL OR mast_height_m <= 0 THEN -1
+              WHEN mast_height_m < 50 THEN 0
+              WHEN mast_height_m <= 100 THEN 1
+              ELSE 2
+            END AS hcat,
             ST_AsMVTGeom(ST_Transform(geom, 3857), bounds.b) AS geom
           FROM windmills, bounds
           WHERE geom && ST_Transform(bounds.b, 4326)
