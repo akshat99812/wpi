@@ -42,12 +42,25 @@ export function MastDataTool({ selected, loading, error }: Props) {
     return <EmptyState />;
   }
 
+  // Private-inventory pins are coordinate-keyed with a "private:" id prefix
+  // (set in pro-map page.tsx); everything else comes from the NIWE dataset.
+  const isPrivateMast = selected.id.startsWith('private:');
+
   return (
     <div className="px-4 py-4">
       {/* ── Header ── */}
       <header>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-400/80">
+        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-400/80">
           Wind monitoring mast
+          <span
+            className={`rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wider ${
+              isPrivateMast
+                ? 'border border-amber-400/30 bg-amber-400/10 text-amber-300'
+                : 'border border-sky-400/30 bg-sky-400/10 text-sky-300'
+            }`}
+          >
+            {isPrivateMast ? 'PVT' : 'NIWE'}
+          </span>
         </p>
         <h3 className="mt-1 text-lg font-semibold leading-tight tracking-tight text-white">
           {selected.station || 'Unnamed mast'}

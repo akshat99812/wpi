@@ -62,6 +62,11 @@ const LAYER_SUBSTATIONS = 'power-substations';
 const LAYER_PLANTS = 'power-plants';
 const ALL_LAYER_IDS = [LAYER_CASING, LAYER_LINES, LAYER_SUBSTATIONS, LAYER_PLANTS];
 
+// Snap targets for the measure tool (queryRenderedFeatures needs the ids).
+export const POWER_LINES_LAYER_ID = LAYER_LINES;
+export const POWER_LINES_CASING_LAYER_ID = LAYER_CASING;
+export const POWER_SUBSTATIONS_LAYER_ID = LAYER_SUBSTATIONS;
+
 // Source-layer names inside the tiles (verified — see header comment).
 const SRC_LAYER_LINES = 'power_line';
 const SRC_LAYER_SUBSTATIONS = 'power_substation_point';
@@ -342,6 +347,12 @@ const desiredVisible = new WeakMap<MlMap, boolean>();
 // across the await; the getSource check alone can't see an in-flight add).
 const addStarted = new WeakSet<MlMap>();
 
+export interface PowerGridOptions {
+  /** Synchronous veto for the popup click handler — true while another tool
+   *  (AOI draw, measure) is armed and owns map clicks. */
+  isInteractionBlocked?: () => boolean;
+}
+
 /**
  * Adds the power-grid source + layers (idempotent) and wires interactivity.
  * Layers are inserted below the mast pins (`windmills-pts`) so existing mast
@@ -352,16 +363,16 @@ const addStarted = new WeakSet<MlMap>();
  * Public signature stays sync — callers fire-and-forget, and visibility set
  * via setPowerGridVisibility in the meantime is applied after the add.
  */
-export function addPowerGrid(map: MlMap): void {
+export function addPowerGrid(map: MlMap, opts: PowerGridOptions = {}): void {
   if (addStarted.has(map)) return;
   addStarted.add(map);
-  void addPowerGridImpl(map).catch((err) => {
+  void addPowerGridImpl(map, opts).catch((err) => {
     addStarted.delete(map); // allow a retry on the next toggle
     console.error('[power-grid] could not add power grid layers', err);
   });
 }
 
-async function addPowerGridImpl(map: MlMap): Promise<void> {
+async function addPowerGridImpl(map: MlMap, opts: PowerGridOptions): Promise<void> {
   const outline = await Promise.race([
     loadIndiaOutline(),
     new Promise<null>((r) => setTimeout(() => r(null), OUTLINE_WAIT_MS)),
@@ -488,7 +499,7 @@ async function addPowerGridImpl(map: MlMap): Promise<void> {
     );
   }
 
-  installInteractivity(map);
+  installInteractivity(map, opts);
 
   // Outline missed the deadline → layers went up unclipped; patch the
   // filters in place when the fetch lands (one extra layout pass, but only
@@ -539,10 +550,12 @@ export function setPowerGridVisibility(map: MlMap, visible: boolean): void {
 
 // ── Interactivity ────────────────────────────────────────────────────────
 
-function installInteractivity(map: MlMap): void {
+function installInteractivity(map: MlMap, opts: PowerGridOptions): void {
   if (registry.has(map)) return;
 
   const onClick = (e: MapMouseEvent) => {
+    // 0. An armed tool (AOI draw / measure) owns every map click — no popups.
+    if (opts.isInteractionBlocked?.()) return;
     // Priority chain via explicit layer ids — never iterate all features.
     // 1. Masts (existing proprietary pins): if present at the point, bail
     //    entirely; their own layer-scoped handler owns the click.

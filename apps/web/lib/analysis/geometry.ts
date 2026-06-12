@@ -53,3 +53,17 @@ export function closeRing(ring: [number, number][]): [number, number][] {
   const [lx, ly] = ring[ring.length - 1];
   return fx === lx && fy === ly ? ring : [...ring, [fx, fy]];
 }
+
+/** Mean Earth radius (km), IUGG value — standard for haversine. */
+const EARTH_RADIUS_KM = 6371.0088;
+
+/** Great-circle distance between two [lon, lat] points, in km (haversine). */
+export function haversineKm(a: [number, number], b: [number, number]): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b[1] - a[1]);
+  const dLon = toRad(b[0] - a[0]);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a[1])) * Math.cos(toRad(b[1])) * Math.sin(dLon / 2) ** 2;
+  return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
+}

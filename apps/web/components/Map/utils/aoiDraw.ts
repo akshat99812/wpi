@@ -39,6 +39,8 @@ export interface AoiDrawCallbacks {
 const COMMITTED_SOURCE = "aoi-committed";
 const COMMITTED_FILL = "aoi-fill";
 const COMMITTED_LINE = "aoi-line";
+/** Committed-AOI fill layer id — a snap target for the measure tool. */
+export const AOI_COMMITTED_FILL_LAYER_ID = COMMITTED_FILL;
 const GHOST_SOURCE = "aoi-ghost";
 const GHOST_FILL = "aoi-ghost-fill";
 const GHOST_LINE = "aoi-ghost-line";

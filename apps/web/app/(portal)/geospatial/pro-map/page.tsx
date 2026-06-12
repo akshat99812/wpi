@@ -9,17 +9,20 @@ import { useSession } from "@/lib/auth-client";
 import { lookupElevation } from "@/lib/elevation/lookup";
 import { lookupWind, loadWindGrid, DEFAULT_WIND_HEIGHT } from "@/lib/wind/lookup";
 import { CursorReadoutBar } from "@/components/Map/components/CursorReadout";
-import { ProSidebar, type ProTool } from "@/components/Map/components/ProSidebar";
+import { ProSidebar, ToolsIcon, type ProTool } from "@/components/Map/components/ProSidebar";
 import { MastDataTool, MastIcon } from "@/components/Map/components/MastDataTool";
 import { AnalyzeTool, AnalyzeIcon } from "@/components/Map/components/AnalyzeTool";
+import { MeasureTool } from "@/components/Map/components/MeasureTool";
 import { useAoiAnalysis } from "@/components/Map/hooks/useAoiAnalysis";
+import { useMeasureDistance } from "@/components/Map/hooks/useMeasureDistance";
+import type { AoiDrawMode } from "@/components/Map/utils/aoiDraw";
 import { BasemapToggle, type ProBasemap } from "@/components/Map/components/BasemapToggle";
 import {
   LayersTool,
   LayersIcon,
   type MastHeightCat,
 } from "@/components/Map/components/LayersTool";
-import { WindResourceCard } from "@/components/Map/components/WindResourceCard";
+import { WindResourceCard, WindIcon } from "@/components/Map/components/WindResourceCard";
 import { addLightStateBoundaries } from "@/components/Map/utils/stateBoundaries";
 import {
   addPrivateMasts,
@@ -77,14 +80,14 @@ export default function ProMapPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [readout, setReadout] = useState<CursorReadout | null>(null);
-  // Left-hand tool card — opens on the Analyze tool by default (product
-  // call: site screening is the primary Pro workflow); clicking a mast pin
-  // still jumps the card to the Masts tool.
+  // Left-hand DATA card — mast detail + site-analysis results. Opens on the
+  // analysis tab by default; clicking a mast pin jumps it to the Masts tab.
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTool, setActiveTool] = useState("analyze");
-  // Right-hand "Layers" card — lets the user show/hide each dataset. Open by
-  // default so the toggles are visible on entry; independent of the left card.
-  const [layersOpen, setLayersOpen] = useState(true);
+  const [activeTool, setActiveTool] = useState("analysis");
+  // Right-hand TOOLS card — one stacked panel: site-screening draw controls,
+  // wind-resource layer controls, then dataset visibility toggles, one below
+  // the other (no tabs). Independent of the left card.
+  const [rightOpen, setRightOpen] = useState(true);
   // Layer visibility (labels per product spec; see the visibility effect for
   // the label → map-layer mapping). Default view = masts only; the user can
   // enable the wind-farm boundaries from the Layers card.
@@ -118,6 +121,24 @@ export default function ProMapPage() {
   // Stable across renders; lets the once-registered map handlers read the
   // current draw-armed state synchronously (heads the click-priority chain).
   const aoiArmedRef = aoi.armedRef;
+  // Measure-distance tool: arm/click state machine + measurement layers.
+  const measure = useMeasureDistance();
+  const measureArmedRef = measure.armedRef;
+
+  // The two click-owning tools are mutually exclusive: arming one disarms
+  // the other, so they never both own the next map click.
+  const armAoi = (mode: AoiDrawMode) => {
+    measure.disarm();
+    aoi.arm(mode);
+  };
+  const toggleMeasure = () => {
+    if (measure.armed) {
+      measure.disarm();
+    } else {
+      aoi.disarm();
+      measure.arm();
+    }
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setBooting(false), BOOT_MS);
@@ -138,8 +159,9 @@ export default function ProMapPage() {
     }
   }, [detailLoading, selected, detailError]);
 
-  // Same reveal pattern for the Analyze tool: surface the panel the moment a
-  // run starts (or lands / fails) so results never arrive into a closed card.
+  // Same reveal pattern for analysis results: surface the left data panel the
+  // moment a run starts (or lands / fails) so results never arrive into a
+  // closed card. The draw controls live in the right tools bar.
   useEffect(() => {
     if (
       aoi.uiState === "loading" ||
@@ -147,7 +169,7 @@ export default function ProMapPage() {
       aoi.uiState === "partial" ||
       aoi.uiState === "error"
     ) {
-      setActiveTool("analyze");
+      setActiveTool("analysis");
       setSidebarOpen(true);
     }
   }, [aoi.uiState]);
@@ -257,7 +279,11 @@ export default function ProMapPage() {
     if (!map) return;
     const apply = () => {
       if (showPowerGrid) {
-        addPowerGrid(map);
+        // Grid popups stand down while a click-owning tool is armed.
+        addPowerGrid(map, {
+          isInteractionBlocked: () =>
+            Boolean(aoiArmedRef.current || measureArmedRef.current),
+        });
         setPowerGridVisibility(map, true);
       } else {
         setPowerGridVisibility(map, false);
@@ -508,7 +534,12 @@ export default function ProMapPage() {
       // If the grid toggle was already on when the map (re)loaded — e.g. the
       // map instance was re-created after a session refresh — re-add it now
       // that the mast layers exist (the grid inserts itself below them).
-      if (showPowerGridRef.current) addPowerGrid(map);
+      if (showPowerGridRef.current) {
+        addPowerGrid(map, {
+          isInteractionBlocked: () =>
+            Boolean(aoiArmedRef.current || measureArmedRef.current),
+        });
+      }
 
       // Likewise re-add an active wind-resource raster on map re-creation.
       if (windMetricRef.current !== "off") {
@@ -522,6 +553,10 @@ export default function ProMapPage() {
       // layers anchor below windmills-pts, like the farm boundaries).
       aoi.onMapLoad(map);
 
+      // Measure-distance tool — its layers are created lazily on first arm
+      // and sit ABOVE the pins (transient tooling, never data).
+      measure.onMapLoad(map);
+
       // Private masts (yellow, GeoJSON) — below the public pins so public
       // clicks win on overlap; clicks are suppressed while AOI draw is armed.
       // A click opens the SAME MastDataTool card the public masts use, as a
@@ -529,7 +564,8 @@ export default function ProMapPage() {
       // attribute the inventory doesn't carry left null (the card renders
       // those rows blank). No detail fetch — everything is already client-side.
       addPrivateMasts(map, {
-        isInteractionBlocked: () => Boolean(aoiArmedRef.current),
+        isInteractionBlocked: () =>
+          Boolean(aoiArmedRef.current || measureArmedRef.current),
         onSelect: (props, lngLat) => {
           setDetailError(null);
           setDetailLoading(false);
@@ -555,9 +591,10 @@ export default function ProMapPage() {
       });
 
       map.on("click", "windmills-hit", async (e: MapMouseEvent) => {
-        // Draw-armed heads the click-priority chain: while the user is
-        // placing a point/rectangle/polygon, mast popups must not fire.
-        if (aoiArmedRef.current) return;
+        // Armed tools head the click-priority chain: while the user is
+        // drawing an AOI or measuring, mast popups must not fire (a measure
+        // click on a mast snaps to it instead).
+        if (aoiArmedRef.current || measureArmedRef.current) return;
         const feat = (e as MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }).features?.[0];
         const id = feat?.properties?.id as string | undefined;
         if (!id) return;
@@ -603,7 +640,8 @@ export default function ProMapPage() {
     };
   }, [isPending, isPro]);
 
-  // Sidebar tools: mast detail + site analysis.
+  // Left DATA bar: mast detail + site-analysis results. Tools live on the
+  // right; everything that *renders data* stays here.
   const tools: ProTool[] = [
     {
       id: "masts",
@@ -619,12 +657,13 @@ export default function ProMapPage() {
       ),
     },
     {
-      id: "analyze",
-      label: "Analyze site",
+      id: "analysis",
+      label: "Site analysis",
       Icon: AnalyzeIcon,
       badge: aoi.analysis != null,
       content: (
         <AnalyzeTool
+          section="results"
           uiState={aoi.uiState}
           armedMode={aoi.armedMode}
           liveAreaKm2={aoi.liveAreaKm2}
@@ -632,35 +671,78 @@ export default function ProMapPage() {
           committedAreaKm2={aoi.committedAreaKm2}
           analysis={aoi.analysis}
           error={aoi.error}
-          onArm={aoi.arm}
+          onArm={armAoi}
           onClear={aoi.clearAll}
         />
       ),
     },
   ];
 
-  // Right-hand "Layers" card — a single tool whose content is the dataset
-  // visibility toggles (Windmills = farm boundaries, Masts = mast points).
-  const layerTools: ProTool[] = [
+  // Right TOOLS bar: ONE panel stacking all the tools one below the other —
+  // site-screening draw controls, wind-resource layer controls (moved in from
+  // the old floating bottom-right card), then the dataset visibility toggles.
+  const rightTools: ProTool[] = [
     {
-      id: "layers",
-      label: "Layers",
-      Icon: LayersIcon,
+      id: "tools",
+      label: "Map tools",
+      Icon: ToolsIcon,
+      badge: windMetric !== "off",
       content: (
-        <LayersTool
-          showWindmills={showWindmills}
-          showMasts={showMasts}
-          showPrivateMasts={showPrivateMasts}
-          showPowerGrid={showPowerGrid}
-          mastCats={mastCats}
-          onToggleWindmills={setShowWindmills}
-          onToggleMasts={setShowMasts}
-          onTogglePrivateMasts={setShowPrivateMasts}
-          onTogglePowerGrid={setShowPowerGrid}
-          onMastCatChange={(cat, next) =>
-            setMastCats((prev) => ({ ...prev, [cat]: next }))
-          }
-        />
+        <div className="divide-y divide-slate-700/70">
+          <AnalyzeTool
+            section="controls"
+            uiState={aoi.uiState}
+            armedMode={aoi.armedMode}
+            liveAreaKm2={aoi.liveAreaKm2}
+            liveOverCap={aoi.liveOverCap}
+            committedAreaKm2={aoi.committedAreaKm2}
+            analysis={aoi.analysis}
+            error={aoi.error}
+            onArm={armAoi}
+            onClear={aoi.clearAll}
+          />
+          <MeasureTool
+            phase={measure.phase}
+            pointA={measure.pointA}
+            pointB={measure.pointB}
+            liveDistanceKm={measure.liveDistanceKm}
+            distanceKm={measure.distanceKm}
+            onToggle={toggleMeasure}
+            onClear={measure.clear}
+          />
+          <section>
+            <SectionLabel icon={<WindIcon className="h-3.5 w-3.5" />}>
+              Wind resource
+            </SectionLabel>
+            <WindResourceCard
+              embedded
+              metric={windMetric}
+              height={windHeight}
+              value={readout?.resource?.value}
+              onMetricChange={handleWindMetricChange}
+              onHeightChange={setWindHeight}
+            />
+          </section>
+          <section>
+            <SectionLabel icon={<LayersIcon className="h-3.5 w-3.5" />}>
+              Layers
+            </SectionLabel>
+            <LayersTool
+              showWindmills={showWindmills}
+              showMasts={showMasts}
+              showPrivateMasts={showPrivateMasts}
+              showPowerGrid={showPowerGrid}
+              mastCats={mastCats}
+              onToggleWindmills={setShowWindmills}
+              onToggleMasts={setShowMasts}
+              onTogglePrivateMasts={setShowPrivateMasts}
+              onTogglePowerGrid={setShowPowerGrid}
+              onMastCatChange={(cat, next) =>
+                setMastCats((prev) => ({ ...prev, [cat]: next }))
+              }
+            />
+          </section>
+        </div>
       ),
     },
   ];
@@ -695,21 +777,6 @@ export default function ProMapPage() {
           />
         </div>
       )}
-
-      {/* Wind-resource controls + ramp legend, docked above the bottom-right
-          map attribution so the legend sits where map legends are expected. */}
-      {isPro && (
-        <div className="absolute bottom-8 right-3 z-10">
-          <WindResourceCard
-            metric={windMetric}
-            height={windHeight}
-            value={readout?.resource?.value}
-            onMetricChange={handleWindMetricChange}
-            onHeightChange={setWindHeight}
-          />
-        </div>
-      )}
-
 
       {(isPending || booting) && (
         <CeclLoader label="Intelligence Terminal Loading" />
@@ -748,15 +815,32 @@ export default function ProMapPage() {
           />
           <ProSidebar
             side="right"
-            tools={layerTools}
-            activeId="layers"
-            open={layersOpen}
+            tools={rightTools}
+            activeId="tools"
+            open={rightOpen}
             onActiveChange={() => {}}
-            onOpenChange={setLayersOpen}
+            onOpenChange={setRightOpen}
           />
         </>
       )}
     </div>
+  );
+}
+
+/** Mono section heading inside the stacked Map-tools panel — matches the
+ *  "SITE SCREENING" status-rail typography of the Analyze section above it. */
+function SectionLabel({
+  icon,
+  children,
+}: {
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <p className="flex items-center gap-1.5 px-4 pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">
+      {icon}
+      {children}
+    </p>
   );
 }
 

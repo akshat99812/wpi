@@ -46,6 +46,9 @@ export interface AoiAnalysis {
   /** Call inside map.on("load") — attaches the draw controller. */
   onMapLoad: (map: MlMap) => void;
   arm: (mode: AoiDrawMode) => void;
+  /** Cancel an armed draw without touching a committed AOI / results
+   *  (what Esc does — also used when another map tool takes the clicks). */
+  disarm: () => void;
   clearAll: () => void;
 }
 
@@ -142,6 +145,13 @@ export function useAoiAnalysis(): AoiAnalysis {
     setError(null);
   }, []);
 
+  const disarm = useCallback(() => {
+    controllerRef.current?.disarm();
+    armedRef.current = null;
+    setArmedMode(null);
+    setUiState((prev) => (prev === "drawing" ? "idle" : prev));
+  }, []);
+
   const clearAll = useCallback(() => {
     abortRef.current?.abort();
     requestSeqRef.current++;
@@ -165,14 +175,11 @@ export function useAoiAnalysis(): AoiAnalysis {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       e.preventDefault();
-      controllerRef.current?.disarm();
-      armedRef.current = null;
-      setArmedMode(null);
-      setUiState((prev) => (prev === "drawing" ? "idle" : prev));
+      disarm();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [armedMode]);
+  }, [armedMode, disarm]);
 
   // Unmount: abort in-flight work and tear the controller down.
   useEffect(() => {
@@ -194,6 +201,7 @@ export function useAoiAnalysis(): AoiAnalysis {
     error,
     onMapLoad,
     arm,
+    disarm,
     clearAll,
   };
 }

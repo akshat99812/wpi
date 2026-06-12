@@ -7,6 +7,11 @@ import type { AnalysisUiState } from "@/components/Map/hooks/useAoiAnalysis";
 import type { AnalysisResponse } from "@/lib/analysis/types";
 import { AOI_MAX_KM2 } from "@/lib/analysis/geometry";
 import { AnalysisResults } from "./AnalysisResults";
+import {
+  CornerBrackets,
+  StatusIndicator,
+  type ToolStatus,
+} from "./toolChrome";
 
 /**
  * "Analyze" tool card content, styled as an information-terminal module:
@@ -19,6 +24,11 @@ import { AnalysisResults } from "./AnalysisResults";
  * Behavioral contract (e2e + parent depend on it): the three mode buttons
  * keep the accessible names "Point" / "Rectangle" / "Polygon", the clear
  * button keeps "Clear selection", and the Props shape is unchanged.
+ *
+ * `section` splits the card across the two sidebars: 'controls' renders the
+ * status rail + draw buttons (right-hand tools bar), 'results' renders the
+ * loading / error / results data states (left-hand data bar). Omitting it
+ * renders everything, preserving the original single-card behavior.
  */
 
 interface Props {
@@ -31,6 +41,7 @@ interface Props {
   error: string | null;
   onArm: (mode: AoiDrawMode) => void;
   onClear: () => void;
+  section?: 'controls' | 'results';
 }
 
 const MODES: { id: AoiDrawMode; label: string; hint: string }[] = [
@@ -43,7 +54,7 @@ const MODES: { id: AoiDrawMode; label: string; hint: string }[] = [
 function statusFor(
   uiState: AnalysisUiState,
   armedMode: AoiDrawMode | null,
-): { text: string; dot: string; textColor: string; pulse: boolean } {
+): ToolStatus {
   if (uiState === "loading")
     return { text: "SCANNING", dot: "bg-sky-400", textColor: "text-sky-300", pulse: true };
   if (uiState === "error")
@@ -72,56 +83,52 @@ export function AnalyzeTool({
   error,
   onArm,
   onClear,
+  section,
 }: Props) {
   const hasAnything = uiState !== "idle";
   const status = statusFor(uiState, armedMode);
+  const showControls = section !== "results";
+  const showResults = section !== "controls";
 
   return (
     <div className="flex flex-col gap-3 p-4 text-sm">
       {/* ── Status rail ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.18em]">
-        <span className="text-slate-500">SITE SCREENING</span>
-        <span className={`flex items-center gap-1.5 ${status.textColor}`}>
-          <motion.span
-            className={`h-1.5 w-1.5 rounded-full ${status.dot}`}
-            animate={status.pulse ? { opacity: [1, 0.25, 1] } : { opacity: 1 }}
-            transition={
-              status.pulse
-                ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
-                : { duration: 0.2 }
-            }
-          />
-          {status.text}
+        <span className="text-slate-500">
+          {section === "results" ? "SCREENING RESULTS" : "SITE SCREENING"}
         </span>
+        <StatusIndicator status={status} />
       </div>
 
       {/* ── Mode buttons ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-1.5">
-        {MODES.map((m) => {
-          const active = armedMode === m.id;
-          return (
-            <motion.button
-              key={m.id}
-              type="button"
-              title={m.hint}
-              onClick={() => onArm(m.id)}
-              whileTap={{ scale: 0.96 }}
-              className={
-                "relative flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-xs font-medium transition-colors " +
-                (active
-                  ? "border-sky-400/60 bg-sky-500/15 text-sky-200 shadow-[0_0_14px_rgba(56,189,248,0.18)]"
-                  : "border-slate-700 text-slate-300 hover:border-slate-500 hover:bg-white/5 hover:text-slate-100")
-              }
-            >
-              {active && <CornerBrackets />}
-              <ModeGlyph mode={m.id} className="h-4 w-4" />
-              {m.label}
-            </motion.button>
-          );
-        })}
-      </div>
+      {showControls && (
+        <div className="grid grid-cols-3 gap-1.5">
+          {MODES.map((m) => {
+            const active = armedMode === m.id;
+            return (
+              <motion.button
+                key={m.id}
+                type="button"
+                title={m.hint}
+                onClick={() => onArm(m.id)}
+                whileTap={{ scale: 0.96 }}
+                className={
+                  "relative flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-xs font-medium transition-colors " +
+                  (active
+                    ? "border-sky-400/60 bg-sky-500/15 text-sky-200 shadow-[0_0_14px_rgba(56,189,248,0.18)]"
+                    : "border-slate-700 text-slate-300 hover:border-slate-500 hover:bg-white/5 hover:text-slate-100")
+                }
+              >
+                {active && <CornerBrackets />}
+                <ModeGlyph mode={m.id} className="h-4 w-4" />
+                {m.label}
+              </motion.button>
+            );
+          })}
+        </div>
+      )}
 
-      {hasAnything && (
+      {showControls && hasAnything && (
         <button
           type="button"
           onClick={onClear}
@@ -133,7 +140,7 @@ export function AnalyzeTool({
 
       {/* ── State machine ────────────────────────────────────────────── */}
       <AnimatePresence mode="popLayout" initial={false}>
-        {armedMode && (
+        {showControls && armedMode && (
           <motion.div
             key={`armed-${armedMode}`}
             initial={{ opacity: 0, y: 6 }}
@@ -167,7 +174,7 @@ export function AnalyzeTool({
           </motion.div>
         )}
 
-        {uiState === "idle" && !armedMode && (
+        {showControls && uiState === "idle" && !armedMode && (
           <motion.p
             key="idle"
             initial={{ opacity: 0 }}
@@ -182,7 +189,22 @@ export function AnalyzeTool({
           </motion.p>
         )}
 
-        {uiState === "loading" && (
+        {section === "results" && uiState === "idle" && (
+          <motion.p
+            key="results-idle"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-xs leading-relaxed text-slate-400"
+          >
+            <span className="font-mono text-sky-400/80">&gt; </span>
+            No screening yet — pick Point / Rectangle / Polygon in the tools panel on
+            the right and the analysis will land here.
+            <Caret />
+          </motion.p>
+        )}
+
+        {showResults && uiState === "loading" && (
           <motion.div
             key="loading"
             initial={{ opacity: 0, y: 6 }}
@@ -204,7 +226,7 @@ export function AnalyzeTool({
           </motion.div>
         )}
 
-        {uiState === "error" && error && (
+        {showResults && uiState === "error" && error && (
           <motion.div
             key="error"
             initial={{ opacity: 0, x: -6 }}
@@ -220,7 +242,7 @@ export function AnalyzeTool({
           </motion.div>
         )}
 
-        {(uiState === "ok" || uiState === "partial") && analysis && (
+        {showResults && (uiState === "ok" || uiState === "partial") && analysis && (
           <motion.div
             key="results"
             initial={{ opacity: 0, y: 10 }}
@@ -296,25 +318,6 @@ function AreaCapBar({
         transition={{ duration: 0.15, ease: "linear" }}
       />
     </div>
-  );
-}
-
-/** Corner brackets framing the active mode button (target-lock affordance). */
-function CornerBrackets() {
-  const corner = "absolute h-2 w-2 border-sky-300/90";
-  return (
-    <motion.span
-      aria-hidden
-      initial={{ opacity: 0, scale: 1.15 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.18 }}
-      className="pointer-events-none absolute inset-0.5"
-    >
-      <span className={`${corner} left-0 top-0 border-l border-t`} />
-      <span className={`${corner} right-0 top-0 border-r border-t`} />
-      <span className={`${corner} bottom-0 left-0 border-b border-l`} />
-      <span className={`${corner} bottom-0 right-0 border-b border-r`} />
-    </motion.span>
   );
 }
 

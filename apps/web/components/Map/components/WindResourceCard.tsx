@@ -10,10 +10,13 @@ import {
 export type WindMetricChoice = 'off' | WindMetric;
 
 /**
- * Floating wind-resource card, docked bottom-right next to the map legend /
- * attribution: Off / Speed / Density segmented control, hub-height pills,
- * and the colour-ramp legend with the live cursor arrow. Extracted from the
- * LayersTool card so the ramp sits where map legends are expected.
+ * Wind-resource controls: Off / Speed / Density segmented control, hub-height
+ * pills, and the colour-ramp legend with the live cursor arrow.
+ *
+ * Two render modes:
+ *  - default  → standalone floating card (own border / width / backdrop);
+ *  - embedded → bare panel content for a ProSidebar tool (the sidebar supplies
+ *    the chrome and the "Wind resource" header, so both are dropped).
  *
  * Heights, units, domains, and ramp colours all come from the bake-emitted
  * metadata.json via WIND_METRICS — nothing here can drift from the tiles.
@@ -24,12 +27,14 @@ export function WindResourceCard({
   value,
   onMetricChange,
   onHeightChange,
+  embedded = false,
 }: {
   metric: WindMetricChoice;
   height: number;
   value?: number | null;
   onMetricChange: (next: WindMetricChoice) => void;
   onHeightChange: (next: number) => void;
+  embedded?: boolean;
 }) {
   const options: { id: WindMetricChoice; label: string }[] = [
     { id: 'off', label: 'Off' },
@@ -39,8 +44,16 @@ export function WindResourceCard({
   const active = metric !== 'off' ? WIND_METRICS[metric] : null;
 
   return (
-    <div className="pointer-events-auto w-60 rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2.5 shadow-2xl backdrop-blur">
-      <p className="pb-1.5 text-sm font-medium text-slate-100">Wind resource</p>
+    <div
+      className={
+        embedded
+          ? 'px-4 py-3'
+          : 'pointer-events-auto w-60 rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2.5 shadow-2xl backdrop-blur'
+      }
+    >
+      {!embedded && (
+        <p className="pb-1.5 text-sm font-medium text-slate-100">Wind resource</p>
+      )}
       <div
         role="radiogroup"
         aria-label="Wind resource layer"
@@ -166,6 +179,21 @@ function RampLegend({
         <span>≥{hi} {meta.unit}</span>
       </div>
     </div>
+  );
+}
+
+/** Wind-gust launcher icon for the ProSidebar, matching the MastIcon convention. */
+export function WindIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+      className={className} aria-hidden
+    >
+      <path d="M3 8h9a2.5 2.5 0 1 0-2.4-3.2" />
+      <path d="M3 12h13.5a2.5 2.5 0 1 1-2.4 3.2" />
+      <path d="M3 16h6a2 2 0 1 1-1.9 2.6" />
+    </svg>
   );
 }
 
