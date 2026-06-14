@@ -61,6 +61,30 @@ export interface Windmill {
   coord_complete: boolean | null;
 }
 
+// ── Individual wind turbine (Pro map) ───────────────────────────────────────
+// Full per-record attributes returned by GET /api/turbine/:id. Source is OSM /
+// OpenInfraMap (power=generator + generator:source=wind). Numeric fields are
+// `number | string | null` because pg returns NUMERIC as a string; the
+// formatters in utils/format.ts coerce defensively.
+export interface Turbine {
+  id: string;
+  osm_type: string;
+  osm_id: number | string;
+  lat: number;
+  lon: number;
+  name: string | null;
+  operator: string | null;
+  manufacturer: string | null;
+  model: string | null;
+  rated_power_kw: number | string | null;
+  rated_power_raw: string | null;
+  hub_height_m: number | string | null;
+  rotor_diameter_m: number | string | null;
+  start_date: string | null;
+  ele_m: number | string | null;
+  ref: string | null;
+}
+
 export interface MapCanvasProps {
   bundle?: WpiBundle;
   selectedState?: string | null;

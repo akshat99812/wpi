@@ -36,6 +36,10 @@ apps/api/data/auth.sqlite-shm
 # which is where the running API actually reads them. See deploy/REFERENCE.md §6.1.
 apps/api/data/private/
 
+# Regenerable Overpass tile-ingest cache (raw OSM JSON for the wind_turbines
+# table) — never commit; re-created by scripts/ingest-turbines.ts.
+apps/api/data/cache/
+
 
 # IDE
 .vscode/

@@ -7,7 +7,45 @@ import {
   LOW_VOLTAGE_VISIBLE_ZOOM,
   EHV_MIN_VOLTAGE,
 } from '../utils/powerGrid';
-import { PRIVATE_MAST_COLOR } from '../utils/privateMasts';
+
+// The map dots are near-black (utils/turbines TURBINE_COLOR); on the dark
+// sidebar that's invisible, so the toggle's glyph is tinted a legible light
+// slate instead. The black symbol lives on the (light) map, where it reads.
+const TURBINE_SWATCH = '#e2e8f0';
+
+/** Three-blade turbine glyph for the "Wind turbines" layer toggle. */
+function TurbineGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"
+      className={className} aria-hidden
+    >
+      <circle cx="12" cy="9" r="1.4" />
+      <path d="M12 7.6V3" />
+      <path d="M13.2 9.7l3.9 2.3" />
+      <path d="M10.8 9.7l-3.9 2.3" />
+      <path d="M11 10.3 11 21h2l-1-10.7" />
+      <path d="M9.5 21h5" />
+    </svg>
+  );
+}
+/** Grid/transmission-tower icon for the Electricity Grid layer toggle. */
+function GridIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+      className={className} aria-hidden
+    >
+      {/* transmission tower: tapered legs, two cross-arms, ground line */}
+      <path d="M8 21 12 3l4 18" />
+      <path d="M9.3 12h5.4M8.6 16h6.8" />
+      <path d="M5 8h14" />
+      <path d="M5 8 9 6M19 8l-4-2" />
+    </svg>
+  );
+}
 
 /** Mast height buckets — mirror the `hcat` property baked into the windmill
  *  vector tiles (apps/api windmills route): 0 = <50 m, 1 = 50–100 m, 2 = >100 m. */
@@ -35,40 +73,36 @@ export function LayersIcon({ className }: { className?: string }) {
 }
 
 interface Props {
-  /** "Windmills" = wind-farm site boundaries. */
-  showWindmills: boolean;
-  /** "Masts" = wind-mast measurement points. */
+  /** "Wind turbines" = individual OSM/OpenInfraMap turbine points (black dots). */
+  showTurbines: boolean;
+  /** "Masts" = all wind-mast points (public NIWE + private inventory). */
   showMasts: boolean;
-  /** "Private Masts" = proprietary inventory (yellow pins). */
-  showPrivateMasts: boolean;
   /** "Electricity Grid" = OpenInfraMap lines/substations/RE plants. */
   showPowerGrid: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
   mastCats: Record<MastHeightCat, boolean>;
-  onToggleWindmills: (next: boolean) => void;
+  onToggleTurbines: (next: boolean) => void;
   onToggleMasts: (next: boolean) => void;
-  onTogglePrivateMasts: (next: boolean) => void;
   onTogglePowerGrid: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
 }
 
 /**
- * Content of the right-hand "Layers" card: one toggle per dataset so the user
- * can show the wind-farm boundaries ("Wind Turbines" — internally still
- * `showWindmills` for historical reasons), the mast points ("Masts"), the
- * electricity grid, any, or all. Swatch colours mirror the map layers exactly
- * (orange #ff8a1f boundaries, blue #1d9bf0 mast points, purple 400 kV grid
- * lines).
+ * Content of the right-hand "Layers" card: one toggle per dataset. Three
+ * datasets, top to bottom:
+ *   "Wind turbines"    → showTurbines  (individual OSM turbine dots, near-black)
+ *   "Masts"            → showMasts     (NIWE blue + private inventory points)
+ *   "Electricity Grid" → showPowerGrid (OpenInfraMap lines/substations/plants)
+ * Swatch colours mirror the map layers (the turbine glyph is tinted light for
+ * legibility on the dark card — its map dots are near-black).
  */
 export function LayersTool({
-  showWindmills,
+  showTurbines,
   showMasts,
-  showPrivateMasts,
   showPowerGrid,
   mastCats,
-  onToggleWindmills,
+  onToggleTurbines,
   onToggleMasts,
-  onTogglePrivateMasts,
   onTogglePowerGrid,
   onMastCatChange,
 }: Props) {
@@ -78,28 +112,22 @@ export function LayersTool({
         Choose which datasets to show on the map.
       </p>
       <ToggleRow
-        label="Wind Turbines"
-        description="Wind-farm site boundaries"
-        swatch="#ff8a1f"
-        checked={showWindmills}
-        onChange={onToggleWindmills}
+        label="Wind turbines"
+        description="Individual turbines (OpenStreetMap)"
+        swatch={TURBINE_SWATCH}
+        icon={<TurbineGlyph className="h-3.5 w-3.5" />}
+        checked={showTurbines}
+        onChange={onToggleTurbines}
       />
       <ToggleRow
         label="Masts"
-        description="Wind-mast measurement points"
+        description="Wind-mast points (NIWE + private inventory)"
         swatch="#1d9bf0"
         checked={showMasts}
         onChange={onToggleMasts}
       />
-      <ToggleRow
-        label="Private Masts"
-        description="Proprietary mast inventory"
-        swatch={PRIVATE_MAST_COLOR}
-        checked={showPrivateMasts}
-        onChange={onTogglePrivateMasts}
-      />
-      {/* Height chips filter BOTH mast layers — show while either is on. */}
-      {(showMasts || showPrivateMasts) && (
+      {/* Height chips filter the mast layers — show while masts are on. */}
+      {showMasts && (
         <MastHeightChips cats={mastCats} onChange={onMastCatChange} />
       )}
       <ToggleRow
@@ -107,6 +135,7 @@ export function LayersTool({
         description="Transmission lines, substations & RE plants"
         // 400 kV purple — taken from the live palette so it can't drift.
         swatch={VOLTAGE_COLORS.find(([kv]) => kv === 400)?.[1] ?? VOLTAGE_COLORS[0][1]}
+        icon={<GridIcon className="h-3.5 w-3.5" />}
         checked={showPowerGrid}
         onChange={onTogglePowerGrid}
       />
@@ -213,12 +242,15 @@ function ToggleRow({
   label,
   description,
   swatch,
+  icon,
   checked,
   onChange,
 }: {
   label: string;
   description: string;
   swatch: string;
+  /** Optional glyph shown instead of the plain colour dot, tinted with `swatch`. */
+  icon?: React.ReactNode;
   checked: boolean;
   onChange: (next: boolean) => void;
 }) {
@@ -231,10 +263,16 @@ function ToggleRow({
       onClick={() => onChange(!checked)}
       className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/5"
     >
-      <span
-        className="h-3 w-3 shrink-0 rounded-full ring-2 ring-white/10"
-        style={{ backgroundColor: swatch }}
-      />
+      {icon ? (
+        <span className="grid h-3.5 w-3.5 shrink-0 place-items-center" style={{ color: swatch }}>
+          {icon}
+        </span>
+      ) : (
+        <span
+          className="h-3 w-3 shrink-0 rounded-full ring-2 ring-white/10"
+          style={{ backgroundColor: swatch }}
+        />
+      )}
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-medium text-slate-100">{label}</span>
         <span className="block truncate text-xs text-slate-400">{description}</span>

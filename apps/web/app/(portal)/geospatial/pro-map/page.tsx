@@ -11,6 +11,7 @@ import { lookupWind, loadWindGrid, DEFAULT_WIND_HEIGHT } from "@/lib/wind/lookup
 import { CursorReadoutBar } from "@/components/Map/components/CursorReadout";
 import { ProSidebar, ToolsIcon, type ProTool } from "@/components/Map/components/ProSidebar";
 import { MastDataTool, MastIcon } from "@/components/Map/components/MastDataTool";
+import { TurbineDataTool, TurbineIcon } from "@/components/Map/components/TurbineDataTool";
 import { AnalyzeTool, AnalyzeIcon } from "@/components/Map/components/AnalyzeTool";
 import { MeasureTool } from "@/components/Map/components/MeasureTool";
 import { useAoiAnalysis } from "@/components/Map/hooks/useAoiAnalysis";
@@ -29,8 +30,15 @@ import {
   setPrivateMastsVisibility,
   PRIVATE_MASTS_LAYER_ID,
   PRIVATE_MASTS_HIT_LAYER_ID,
+  PRIVATE_MAST_COLOR,
 } from "@/components/Map/utils/privateMasts";
 import { addPowerGrid, setPowerGridVisibility } from "@/components/Map/utils/powerGrid";
+import {
+  addTurbines,
+  setTurbinesVisibility,
+  TURBINES_LAYER_ID,
+  TURBINES_HIT_LAYER_ID,
+} from "@/components/Map/utils/turbines";
 import {
   addWindResourceLayer,
   removeWindResourceLayer,
@@ -40,7 +48,7 @@ import {
 } from "@/components/Map/utils/windResource";
 import type { WindMetricChoice } from "@/components/Map/components/WindResourceCard";
 import { CeclLoader } from "@/components/CeclLoader";
-import type { CursorReadout, Windmill } from "@/components/Map/types";
+import type { CursorReadout, Windmill, Turbine } from "@/components/Map/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005";
 
@@ -71,14 +79,19 @@ export default function ProMapPage() {
   const basemapRef = useRef<ProBasemap>("road");
   // Mirror layer-visibility toggles so the map-load closure can set the right
   // initial visibility when it adds the layers (same pattern as basemapRef).
-  const showWindmillsRef = useRef(false);
   const showMastsRef = useRef(true);
+  const showTurbinesRef = useRef(false);
   const showPowerGridRef = useRef(false);
   const windMetricRef = useRef<WindMetricChoice>("off");
   const windHeightRef = useRef<number>(DEFAULT_WIND_HEIGHT);
   const [selected, setSelected] = useState<Windmill | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+  // Individual OSM wind-turbine selection — its own card (TurbineDataTool),
+  // independent of the mast `selected` above.
+  const [selectedTurbine, setSelectedTurbine] = useState<Turbine | null>(null);
+  const [turbineLoading, setTurbineLoading] = useState(false);
+  const [turbineError, setTurbineError] = useState<string | null>(null);
   const [readout, setReadout] = useState<CursorReadout | null>(null);
   // Left-hand DATA card — mast detail + site-analysis results. Opens on the
   // analysis tab by default; clicking a mast pin jumps it to the Masts tab.
@@ -89,13 +102,14 @@ export default function ProMapPage() {
   // the other (no tabs). Independent of the left card.
   const [rightOpen, setRightOpen] = useState(true);
   // Layer visibility (labels per product spec; see the visibility effect for
-  // the label → map-layer mapping). Default view = masts only; the user can
-  // enable the wind-farm boundaries from the Layers card.
-  //   "Windmills" → wind-farm site boundaries · "Masts" → mast points
-  const [showWindmills, setShowWindmills] = useState(false);
+  // the label → map-layer mapping). Default view = masts only.
+  // Single "Masts" toggle drives BOTH datasets: the public NIWE mast points
+  // and the proprietary inventory (yellow pins, /api/private-masts).
   const [showMasts, setShowMasts] = useState(true);
-  // Proprietary mast inventory (yellow pins, /api/private-masts).
-  const [showPrivateMasts, setShowPrivateMasts] = useState(true);
+  // "Wind turbines" — individual OSM/OpenInfraMap turbine points (black dots),
+  // /api/tiles/turbines MVT. Off by default; enable from the Layers card. The
+  // visible dots appear from low zoom and gain full fidelity when zoomed in.
+  const [showTurbines, setShowTurbines] = useState(false);
   // "Electricity Grid" — OpenInfraMap lines/substations/wind+solar plants,
   // default off. The source + layers are created lazily on first enable
   // (addPowerGrid is idempotent); later toggles only flip visibility.
@@ -159,6 +173,15 @@ export default function ProMapPage() {
     }
   }, [detailLoading, selected, detailError]);
 
+  // Same reveal pattern for an individual turbine: clicking a black dot jumps
+  // the left card to the Turbine-data tool and expands the panel.
+  useEffect(() => {
+    if (turbineLoading || selectedTurbine || turbineError) {
+      setActiveTool("turbines");
+      setSidebarOpen(true);
+    }
+  }, [turbineLoading, selectedTurbine, turbineError]);
+
   // Same reveal pattern for analysis results: surface the left data panel the
   // moment a run starts (or lands / fails) so results never arrive into a
   // closed card. The draw controls live in the right tools bar.
@@ -209,13 +232,11 @@ export default function ProMapPage() {
     else map.once("load", apply);
   }, [basemap]);
 
-  // Show/hide each dataset's map layers when the user toggles them in the
-  // right-hand Layers card. Label → layer mapping (the point layer is
-  // internally named "windmills" for historical reasons):
-  //   "Windmills" toggle → wind-farm boundary polygons (windfarm-bnd-*)
-  //   "Masts"     toggle → mast measurement points    (windmills-pts/hit)
+  // Show/hide the mast layers when the user toggles them in the right-hand
+  // Layers card. The "Masts" toggle drives the mast measurement points
+  // (windmills-pts/hit — internally named "windmills" for historical reasons)
+  // plus the private-inventory pins.
   useEffect(() => {
-    showWindmillsRef.current = showWindmills;
     showMastsRef.current = showMasts;
     const map = mapRef.current;
     if (!map) return;
@@ -225,16 +246,26 @@ export default function ProMapPage() {
           map.setLayoutProperty(id, "visibility", show ? "visible" : "none");
         }
       };
-      setVis("windfarm-bnd-fill", showWindmills);
-      setVis("windfarm-bnd-line", showWindmills);
       setVis("windmills-pts", showMasts);
       setVis("windmills-hit", showMasts);
       // Util setter (not setVis) — it also closes an open mast popup on hide.
-      setPrivateMastsVisibility(map, showPrivateMasts);
+      // Private masts share the single "Masts" toggle.
+      setPrivateMastsVisibility(map, showMasts);
     };
     if (map.isStyleLoaded()) apply();
     else map.once("load", apply);
-  }, [showWindmills, showMasts, showPrivateMasts]);
+  }, [showMasts]);
+
+  // "Wind turbines" toggle — flips the black-dot layers (added in the load
+  // handler). Separate effect so it can't interfere with the mast toggles.
+  useEffect(() => {
+    showTurbinesRef.current = showTurbines;
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => setTurbinesVisibility(map, showTurbines);
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [showTurbines]);
 
   // Mast height-bucket filter on the pin layers. The tiles carry `hcat`
   // (0 = <50 m · 1 = 50–100 m · 2 = >100 m · −1 = unknown). All buckets on →
@@ -489,45 +520,13 @@ export default function ProMapPage() {
       // swallowing a pin click. Fire-and-forget: fetches GeoJSON, then adds.
       void addLightStateBoundaries(map, { beforeId: "windmills-pts" });
 
-      // Proprietary wind-farm site boundaries (Pro-gated GeoJSON). The map's
-      // transformRequest attaches the auth cookie for API_URL requests, so this
-      // source fetch is authenticated. Faint orange fill + outline, below pins.
-      map.addSource("windfarm-bnd", {
-        type: "geojson",
-        data: `${API_URL}/api/boundaries`,
-      });
-      map.addLayer(
-        {
-          id: "windfarm-bnd-fill",
-          type: "fill",
-          source: "windfarm-bnd",
-          // Light-orange fill so each wind-farm boundary reads clearly against
-          // both basemaps (was 0.07 — too faint to see).
-          paint: { "fill-color": "#ff8a1f", "fill-opacity": 0.2 },
-        },
-        "windmills-pts",
-      );
-      map.addLayer(
-        {
-          id: "windfarm-bnd-line",
-          type: "line",
-          source: "windfarm-bnd",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: { "line-color": "#ff8a1f", "line-width": 1.4, "line-opacity": 0.9 },
-        },
-        "windmills-pts",
-      );
-
       // Apply the current Layers-card visibility to the freshly-added layers
-      // (defaults are both visible; this also restores the user's choice if
-      // the map is ever re-created).
+      // (this also restores the user's choice if the map is ever re-created).
       const initVis = (id: string, show: boolean) => {
         if (map.getLayer(id)) {
           map.setLayoutProperty(id, "visibility", show ? "visible" : "none");
         }
       };
-      initVis("windfarm-bnd-fill", showWindmillsRef.current);
-      initVis("windfarm-bnd-line", showWindmillsRef.current);
       initVis("windmills-pts", showMastsRef.current);
       initVis("windmills-hit", showMastsRef.current);
 
@@ -589,6 +588,45 @@ export default function ProMapPage() {
           });
         },
       });
+
+      // Individual OSM/OpenInfraMap wind turbines (black dots, MVT). Added
+      // after the mast layers so the dots render on top; the turbine click
+      // handler yields to mast pins where the two overlap. A click fetches
+      // GET /api/turbine/:id and opens the TurbineDataTool card, mirroring the
+      // mast click flow below.
+      addTurbines(map, {
+        isInteractionBlocked: () =>
+          Boolean(aoiArmedRef.current || measureArmedRef.current),
+        onSelect: async (id) => {
+          setSelectedTurbine(null);
+          setTurbineError(null);
+          setTurbineLoading(true);
+          try {
+            const res = await fetch(`${API_URL}/api/turbine/${id}`, {
+              credentials: "include",
+            });
+            if (res.status === 401 || res.status === 403) {
+              setTurbineError("Your Pro session ended — please sign in again.");
+              return;
+            }
+            if (res.status === 429) {
+              setTurbineError("Slow down a bit — too many requests.");
+              return;
+            }
+            if (!res.ok) {
+              setTurbineError(`Lookup failed (${res.status})`);
+              return;
+            }
+            setSelectedTurbine((await res.json()) as Turbine);
+          } catch {
+            setTurbineError("Network error");
+          } finally {
+            setTurbineLoading(false);
+          }
+        },
+      });
+      initVis(TURBINES_LAYER_ID, showTurbinesRef.current);
+      initVis(TURBINES_HIT_LAYER_ID, showTurbinesRef.current);
 
       map.on("click", "windmills-hit", async (e: MapMouseEvent) => {
         // Armed tools head the click-priority chain: while the user is
@@ -653,6 +691,19 @@ export default function ProMapPage() {
           selected={selected}
           loading={detailLoading}
           error={detailError}
+        />
+      ),
+    },
+    {
+      id: "turbines",
+      label: "Turbine data",
+      Icon: TurbineIcon,
+      badge: selectedTurbine != null,
+      content: (
+        <TurbineDataTool
+          selected={selectedTurbine}
+          loading={turbineLoading}
+          error={turbineError}
         />
       ),
     },
@@ -728,14 +779,12 @@ export default function ProMapPage() {
               Layers
             </SectionLabel>
             <LayersTool
-              showWindmills={showWindmills}
+              showTurbines={showTurbines}
               showMasts={showMasts}
-              showPrivateMasts={showPrivateMasts}
               showPowerGrid={showPowerGrid}
               mastCats={mastCats}
-              onToggleWindmills={setShowWindmills}
+              onToggleTurbines={setShowTurbines}
               onToggleMasts={setShowMasts}
-              onTogglePrivateMasts={setShowPrivateMasts}
               onTogglePowerGrid={setShowPowerGrid}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
@@ -777,6 +826,10 @@ export default function ProMapPage() {
           />
         </div>
       )}
+
+      {/* Top-left mast colour key — only meaningful while the Masts layer is on.
+          Offset clears the left sidebar (≈320px open · ≈60px collapsed rail). */}
+      {isPro && showMasts && <MastLegend offsetLeft={sidebarOpen ? 344 : 72} />}
 
       {(isPending || booting) && (
         <CeclLoader label="Intelligence Terminal Loading" />
@@ -841,6 +894,35 @@ function SectionLabel({
       {icon}
       {children}
     </p>
+  );
+}
+
+/** NIWE mast point colour — mirrors the "windmills-pts" map layer + LayersTool. */
+const NIWE_MAST_COLOR = "#1d9bf0";
+
+/** Compact top-left colour key for the two mast datasets. `offsetLeft` keeps it
+ *  clear of the left sidebar, which changes width when opened/collapsed. */
+function MastLegend({ offsetLeft }: { offsetLeft: number }) {
+  return (
+    <div
+      className="pointer-events-none absolute top-3 z-10 flex flex-col gap-1 rounded-lg border border-slate-700 bg-slate-900/85 px-3 py-2 text-[11px] text-slate-200 shadow-lg backdrop-blur transition-[left] duration-200"
+      style={{ left: offsetLeft }}
+    >
+      <LegendRow color={NIWE_MAST_COLOR} label="NIWE masts" />
+      <LegendRow color={PRIVATE_MAST_COLOR} label="Private masts" />
+    </div>
+  );
+}
+
+function LegendRow({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="flex items-center gap-2">
+      <span
+        className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-white/10"
+        style={{ backgroundColor: color }}
+      />
+      {label}
+    </span>
   );
 }
 
