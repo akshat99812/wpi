@@ -186,16 +186,29 @@ COAST_DEG = 0.05          # outward coastal dilation (~5.5 km), nationwide.
                           # estuaries) — over satellite imagery uncovered
                           # land slivers are obvious. Baked into the MAIN
                           # (shared) tiles.
-FRINGE_DEG = 0.23         # extended nearshore band (~25 km) of real GWA
+FRINGE_DEG = 0.9          # extended offshore band (~100 km) of real GWA
                           # offshore values — baked as a SEPARATE small
                           # pyramid that the frontend overlays only on the
                           # satellite basemap, restricted to FRINGE_STATES.
-FRINGE_STATES = ["Gujarat", "Maharashtra"]   # ST_NM values in the GeoJSON
-FADE_DEG = 0.08           # edge feather (~9 km): tile alpha ramps 0→1 over
-                          # this distance inside the coverage boundary, so
-                          # the raster fades out instead of hard-cutting at
-                          # the India border. Computed on the global MASK_RES
-                          # grid (distance transform) — seam-free across tiles.
+# Every coastal state/UT + the island groups, so the offshore band wraps the
+# WHOLE Indian coastline. ST_NM values verified against the states GeoJSON.
+FRINGE_STATES = [
+    "Gujarat", "Maharashtra", "Goa", "Karnataka", "Kerala",
+    "Tamil Nadu", "Andhra Pradesh", "Odisha", "West Bengal",
+    "Puducherry", "Dadra and Nagar Haveli and Daman and Diu",
+    "Andaman & Nicobar", "Lakshadweep",
+]
+FADE_DEG = 0.08           # edge feather (~9 km) for the MAIN pyramid: tile
+                          # alpha ramps 0→1 over this distance inside the
+                          # coverage boundary, so the raster fades out instead
+                          # of hard-cutting at the India border. Kept short so
+                          # the coastal LAND edge stays crisp. Computed on the
+                          # global MASK_RES grid (distance transform) — seam-free.
+FRINGE_FADE_DEG = 0.7     # edge feather (~78 km) for the FRINGE pyramid only:
+                          # the offshore band fades GRADUALLY from the coast out
+                          # to ~0 near the 100 km edge, so it no longer cuts off
+                          # sharply over open water. Long fade here is safe — it
+                          # only touches the offshore band, never coastal land.
 
 OS = math.pi * 6378137.0  # web-mercator origin shift
 
@@ -297,11 +310,13 @@ def build_fringe_mask(fringe_geoms_4326, fill):
     return fringe
 
 
-def build_alpha_grid(geoms_4326, coverage_extra):
+def build_alpha_grid(geoms_4326, coverage_extra, fade_deg=FADE_DEG):
     """Edge-feather alpha over the MASK_RES grid: 0 at/outside the coverage
-    boundary, ramping to 1 over FADE_DEG inside it. `coverage_extra` is OR'd
+    boundary, ramping to 1 over `fade_deg` inside it. `coverage_extra` is OR'd
     onto the rasterized land mask (pass `fill` for the main pyramid,
-    `fill | fringe` for the fringe one). Float32, row 0 = LAT_MAX."""
+    `fill | fringe` for the fringe one). `fade_deg` defaults to FADE_DEG (crisp
+    coast) — the fringe passes FRINGE_FADE_DEG for a long, gentle offshore fade.
+    Float32, row 0 = LAT_MAX."""
     cols = int(round((LNG_MAX - LNG_MIN) / MASK_RES))
     rows = int(round((LAT_MAX - LAT_MIN) / MASK_RES))
     mtf = transform_from_bounds(LNG_MIN, LAT_MIN, LNG_MAX, LAT_MAX, cols, rows)
@@ -309,8 +324,8 @@ def build_alpha_grid(geoms_4326, coverage_extra):
     coverage = base | coverage_extra
     # Distance (in cells) from each inside cell to the nearest outside cell.
     dist = ndimage.distance_transform_edt(coverage)
-    alpha = np.clip(dist / (FADE_DEG / MASK_RES), 0.0, 1.0).astype("float32")
-    print(f"Alpha grid: fade {FADE_DEG}° → "
+    alpha = np.clip(dist / (fade_deg / MASK_RES), 0.0, 1.0).astype("float32")
+    print(f"Alpha grid: fade {fade_deg}° → "
           f"{int(((alpha > 0) & (alpha < 1)).sum())} feathered cells")
     return alpha
 
@@ -653,6 +668,7 @@ def main():
         return
 
     grid_only = os.environ.get("WIND_GRID_ONLY") == "1"
+    fringe_only = os.environ.get("WIND_FRINGE_ONLY") == "1"
     ensure_geojson()
     geoms_4326, geoms_3857, fringe_geoms = load_india_geoms()
     fill, mtf = build_fill_mask(geoms_4326)
@@ -661,7 +677,8 @@ def main():
     # fringe pyramid fades at the OUTER edge of land+fill+fringe (its inner
     # edge abuts opaque main coverage, so it stays solid there).
     alpha_main = None if grid_only else build_alpha_grid(geoms_4326, fill)
-    alpha_fringe = None if grid_only else build_alpha_grid(geoms_4326, fill | fringe)
+    alpha_fringe = (None if grid_only else
+                    build_alpha_grid(geoms_4326, fill | fringe, fade_deg=FRINGE_FADE_DEG))
     for metric in metrics:
         hs = heights or METRICS[metric]["heights"]
         for h in hs:
@@ -672,7 +689,12 @@ def main():
             # the satellite-only band too.
             bake_grid(metric, h, geoms_4326, fill | fringe, mtf)
             if not grid_only:
-                bake_tiles(metric, h, geoms_3857, fill, alpha_grid=alpha_main)
+                # WIND_FRINGE_ONLY=1 skips the (unchanged) main pyramid and
+                # rebakes only the offshore fringe — used after tuning
+                # FRINGE_DEG / FRINGE_FADE_DEG, so the all-India main tiles
+                # aren't needlessly regenerated.
+                if not fringe_only:
+                    bake_tiles(metric, h, geoms_3857, fill, alpha_grid=alpha_main)
                 bake_tiles(metric, h, [], fringe, alpha_grid=alpha_fringe,
                            out_root=fringe_dir_for(metric, h), label="fringe tiles")
     emit_metadata()
