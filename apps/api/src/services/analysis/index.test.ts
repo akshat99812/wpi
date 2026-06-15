@@ -30,10 +30,10 @@ const LAYER_VALUES: Record<string, number> = {
 };
 
 /** Score expected from LAYER_VALUES with the 404-for-power fetcher:
- *  resource (8−5)/4 = 0.75 → 33.75 · cf clamp((0.5−0.15)/0.30)=1 → 25 ·
- *  grid raw null (no power features) → 0 · terrain: flat constant elevation
- *  → slope 0° ≤ 5° → normalized 1 → 10 → round(68.75) = 69. */
-const EXPECTED_SCORE = 69;
+ *  resource (8−4.5)/3 = 1.167 → clamp 1 → 45 · cf clamp((0.5−0.12)/0.26)=1
+ *  → 25 · grid raw null (no power features) → 0 · terrain: flat constant
+ *  elevation → slope 0° ≤ 5° → normalized 1 → 10 → round(80) = 80. */
+const EXPECTED_SCORE = 80;
 
 async function encodeFloat32Tile(value: number): Promise<ArrayBuffer> {
   const metadata = {
@@ -150,7 +150,7 @@ test("wires resource, grid and terrain into the score; confidence mirrors valida
   // Assert — deterministic components first.
   const byKey = Object.fromEntries(response.score.components.map((c) => [c.key, c]));
   expect(byKey.resource?.raw).toBe(8);
-  expect(byKey.resource?.points).toBeCloseTo(33.8, 1);
+  expect(byKey.resource?.points).toBeCloseTo(45, 1); // (8−4.5)/3 clamps to 1
   expect(byKey.cf?.raw).toBe(0.5);
   expect(byKey.cf?.points).toBe(25);
   // 404-everywhere power fetcher → no EHV anywhere → conservative 0.

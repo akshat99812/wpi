@@ -12,10 +12,10 @@
  *   headline is exact and never drifts from per-component display rounding by
  *   more than the rounding slack. Golden tests recompute value from
  *   `components[]` within ±0.5.
- * - The plan §3 example response (7.4 m/s, cf 0.34, 8.2 km, 3.1°) is
- *   internally inconsistent: its own components sum to ~72.8 (cf normalizes
- *   to 0.633 → 15.8 points), so the formula yields value 73, not the 82 shown
- *   in the example envelope. The §2.6 formulas govern; 73 is correct.
+ * - The plan §3 example inputs (7.4 m/s, cf 0.34, 8.2 km, 3.1°) yield value
+ *   95 under the v2 India-calibrated breakpoints below (resource 43.5 + cf
+ *   21.2 + grid 20 + terrain 10). Under the original v1 breakpoints the same
+ *   inputs gave 73; the recalibration (see below) is the only change.
  *
  * Missing data decision: a null (or non-finite) raw input → normalized 0,
  * points 0, raw null. Conservative screening default when a data section is
@@ -42,15 +42,23 @@ export interface ScoreInputs {
 
 export type ScoreConfidence = AnalysisScore["confidence"];
 
-// ── Normalization breakpoints (plan §2.6, v1 — tune later) ─────────────────
+// ── Normalization breakpoints (plan §2.6, v2 — calibrated to India) ────────
+//
+// v1 anchored "full credit" to offshore-class wind (9 m/s, CF 0.45). Against
+// the real India ws@100m distribution (data/analysis/india-ws100-cdf.json)
+// that ceiling sits beyond the 99.5th percentile — median 4.5, q90 6.0,
+// q95 6.5, q98 7.4, q99 8.2 m/s — so even genuine top sites saturated near
+// the middle of the scale. v2 re-anchors the curve to the achievable Indian
+// onshore range so the windiest ~2% of sites approach full marks, matching
+// the codebase's own SITE_CLASS_BANDS (excellent ≥8, good ≥7, moderate ≥6).
 
-/** Resource: 0 at ≤5 m/s, 1 at ≥9 m/s, linear between. */
-const RESOURCE_ZERO_SPEED_MS = 5;
-const RESOURCE_FULL_SPEED_MS = 9;
+/** Resource: 0 at ≤4.5 m/s (India median), 1 at ≥7.5 m/s (≈q98). */
+const RESOURCE_ZERO_SPEED_MS = 4.5;
+const RESOURCE_FULL_SPEED_MS = 7.5;
 
-/** CF: 0 at ≤0.15, 1 at ≥0.45, linear between. */
-const CF_ZERO_FRACTION = 0.15;
-const CF_FULL_FRACTION = 0.45;
+/** CF: 0 at ≤0.12, 1 at ≥0.38 (best Indian onshore IEC-III), linear between. */
+const CF_ZERO_FRACTION = 0.12;
+const CF_FULL_FRACTION = 0.38;
 
 /** Grid: 1 at ≤10 km from EHV, 0 at ≥50 km, linear between. */
 const GRID_FULL_DISTANCE_KM = 10;

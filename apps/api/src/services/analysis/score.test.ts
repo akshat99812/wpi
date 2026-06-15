@@ -37,15 +37,15 @@ function componentByKey(
   return component;
 }
 
-// ── Resource normalization: clamp((meanSpeed − 5) / 4) ─────────────────────
+// ── Resource normalization: clamp((meanSpeed − 4.5) / 3) ───────────────────
 
 describe("resource normalization breakpoints", () => {
   const cases: { label: string; meanSpeed: number; normalized: number }[] = [
     { label: "below floor (4 m/s)", meanSpeed: 4, normalized: 0 },
-    { label: "at floor (5 m/s)", meanSpeed: 5, normalized: 0 },
-    { label: "midpoint (7 m/s)", meanSpeed: 7, normalized: 0.5 },
-    { label: "at ceiling (9 m/s)", meanSpeed: 9, normalized: 1 },
-    { label: "above ceiling (11 m/s)", meanSpeed: 11, normalized: 1 },
+    { label: "at floor (4.5 m/s)", meanSpeed: 4.5, normalized: 0 },
+    { label: "midpoint (6 m/s)", meanSpeed: 6, normalized: 0.5 },
+    { label: "at ceiling (7.5 m/s)", meanSpeed: 7.5, normalized: 1 },
+    { label: "above ceiling (9 m/s)", meanSpeed: 9, normalized: 1 },
   ];
 
   for (const { label, meanSpeed, normalized } of cases) {
@@ -64,15 +64,15 @@ describe("resource normalization breakpoints", () => {
   }
 });
 
-// ── CF normalization: clamp((cfIec3 − 0.15) / 0.30) ────────────────────────
+// ── CF normalization: clamp((cfIec3 − 0.12) / 0.26) ────────────────────────
 
 describe("cf normalization breakpoints", () => {
   const cases: { label: string; cfIec3: number; normalized: number }[] = [
     { label: "below floor (0.10)", cfIec3: 0.1, normalized: 0 },
-    { label: "at floor (0.15)", cfIec3: 0.15, normalized: 0 },
-    { label: "midpoint (0.30)", cfIec3: 0.3, normalized: 0.5 },
-    { label: "at ceiling (0.45)", cfIec3: 0.45, normalized: 1 },
-    { label: "above ceiling (0.60)", cfIec3: 0.6, normalized: 1 },
+    { label: "at floor (0.12)", cfIec3: 0.12, normalized: 0 },
+    { label: "midpoint (0.25)", cfIec3: 0.25, normalized: 0.5 },
+    { label: "at ceiling (0.38)", cfIec3: 0.38, normalized: 1 },
+    { label: "above ceiling (0.50)", cfIec3: 0.5, normalized: 1 },
   ];
 
   for (const { label, cfIec3, normalized } of cases) {
@@ -148,23 +148,23 @@ describe("terrain normalization breakpoints", () => {
 // ── Plan §3 example reproduction ────────────────────────────────────────────
 
 describe("plan §3 example reproduction", () => {
-  test("computes 27 / 15.8 / 20 / 10 points and value 73 for the example inputs", () => {
+  test("computes 43.5 / 21.2 / 20 / 10 points and value 95 for the example inputs", () => {
     // Arrange — plan §3 example: 7.4 m/s, cf 0.34, EHV 8.2 km, slope 3.1°.
-    // The plan's example envelope shows value 82, but its own components sum
-    // to ~72.8 (cf 0.34 → normalized 0.633 → 15.8 points; 27+15.8+20+10).
-    // The §2.6 formulas govern: the correct headline is 73, not 82.
+    // Under the v2 India-calibrated breakpoints:
+    //   resource (7.4−4.5)/3 = 0.9667 → 43.5 · cf (0.34−0.12)/0.26 = 0.8462
+    //   → 21.2 · grid 20 · terrain 10 → round(94.65) = 95.
 
     // Act
     const score = computeScore(BASE_INPUTS, "high");
 
     // Assert — per-component breakdown
     const resource = componentByKey(score, "resource");
-    expect(resource.normalized).toBeCloseTo(0.6, FLOAT_PRECISION_DIGITS);
-    expect(resource.points).toBe(27);
+    expect(resource.normalized).toBeCloseTo(0.9666666667, 8);
+    expect(resource.points).toBe(43.5);
 
     const cf = componentByKey(score, "cf");
-    expect(cf.normalized).toBeCloseTo(0.6333333333, 8);
-    expect(cf.points).toBe(15.8);
+    expect(cf.normalized).toBeCloseTo(0.8461538462, 8);
+    expect(cf.points).toBe(21.2);
 
     const grid = componentByKey(score, "grid");
     expect(grid.normalized).toBe(1);
@@ -174,8 +174,8 @@ describe("plan §3 example reproduction", () => {
     expect(terrain.normalized).toBe(1);
     expect(terrain.points).toBe(10);
 
-    // Assert — headline rounds the unrounded total (72.83… → 73)
-    expect(score.value).toBe(73);
+    // Assert — headline rounds the unrounded total (94.65… → 95)
+    expect(score.value).toBe(95);
   });
 
   test("echoes weights from SCORE_WEIGHTS in contract order", () => {
@@ -232,7 +232,7 @@ describe("missing inputs", () => {
     expect(cf.raw).toBeNull();
     expect(cf.normalized).toBe(0);
     expect(cf.points).toBe(0);
-    expect(score.value).toBe(57); // 27 + 0 + 20 + 10
+    expect(score.value).toBe(74); // round(43.5 + 0 + 20 + 10)
   });
 
   test("treats a non-finite input as missing (raw null, zero points)", () => {
@@ -344,7 +344,7 @@ describe("input immutability", () => {
     const score = computeScore(frozenInputs, "high");
 
     // Assert
-    expect(score.value).toBe(73);
+    expect(score.value).toBe(95);
     expect(frozenInputs).toEqual(snapshot);
   });
 });
