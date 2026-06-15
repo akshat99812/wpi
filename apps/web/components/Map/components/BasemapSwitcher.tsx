@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BASEMAP_LABELS, ENABLED_BASEMAPS, LOCKED_BASEMAPS } from '../constants';
 import { BASEMAP_ICONS } from './BasemapIcons';
 import type { BasemapId } from '../types';
+import { useSession } from '@/lib/auth-client';
+
+// Pro map lives at this route; the locked "Pro" tile opens it for PREMIUM users.
+const PRO_MAP_PATH = '/geospatial/pro-map';
 
 interface Props {
   mode: BasemapId;
@@ -15,10 +20,15 @@ const ACTIVE_GLOW: Partial<Record<BasemapId, { from: string; to: string; text: s
   satellite: { from: '#ff9a3c', to: '#ff7a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.55)' },
   terrain:   { from: '#ffb066', to: '#ff8a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.50)' },
   wind:      { from: '#67e8f9', to: '#22d3ee', text: '#06121a', shadow: 'rgba(34,211,238,0.60)' },
+  windflow:  { from: '#a5f3fc', to: '#22d3ee', text: '#06121a', shadow: 'rgba(34,211,238,0.55)' },
   street:    { from: '#ffd0a0', to: '#ff8a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.50)' },
 };
 
 export function BasemapSwitcher({ mode, onChange }: Props) {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const isPro = (session?.user as { tier?: string | null } | undefined)?.tier === 'PREMIUM';
+
   // Toast shown when a locked basemap (e.g., Pro) is clicked. Auto-dismisses.
   const [showLockedToast, setShowLockedToast] = useState(false);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,26 +80,34 @@ export function BasemapSwitcher({ mode, onChange }: Props) {
         const glow     = ACTIVE_GLOW[id];
 
         if (isLocked) {
+          // PREMIUM users open the Pro map; everyone else gets the upsell toast.
           return (
             <motion.button
               key={id}
               type="button"
-              onClick={flashLockedToast}
+              onClick={isPro ? () => router.push(PRO_MAP_PATH) : flashLockedToast}
               whileTap={{ scale: 0.94 }}
-              aria-disabled
-              className="relative z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold
-                         select-none cursor-pointer
-                         text-white/35 hover:text-white/65
-                         border border-white/[0.08] hover:border-orange/30
-                         bg-white/[0.02] hover:bg-orange/[0.06]
-                         transition-colors"
+              aria-disabled={!isPro}
+              title={isPro ? 'Open the Pro map' : 'Pro feature — upgrade to unlock'}
+              className={
+                'relative z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold ' +
+                'select-none cursor-pointer border transition-colors ' +
+                (isPro
+                  ? 'text-white/80 hover:text-white border-cyan-400/30 hover:border-cyan-400/60 bg-cyan-400/[0.06] hover:bg-cyan-400/[0.12]'
+                  : 'text-white/35 hover:text-white/65 border-white/[0.08] hover:border-orange/30 bg-white/[0.02] hover:bg-orange/[0.06]')
+              }
             >
               <Icon />
               <span className="hidden sm:inline">{BASEMAP_LABELS[id]}</span>
-              <span className="hidden sm:inline text-[8px] uppercase tracking-wider ml-0.5
-                               px-1 py-[1px] rounded
-                               bg-orange/15 text-orange border border-orange/30">
-                Pro
+              <span
+                className={
+                  'hidden sm:inline text-[8px] uppercase tracking-wider ml-0.5 px-1 py-[1px] rounded border ' +
+                  (isPro
+                    ? 'bg-cyan-400/15 text-cyan-200 border-cyan-400/30'
+                    : 'bg-orange/15 text-orange border-orange/30')
+                }
+              >
+                {isPro ? 'Open' : 'Pro'}
               </span>
             </motion.button>
           );

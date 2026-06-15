@@ -45,6 +45,14 @@ const ATTRIBUTION_HTML =
   'Wind: © <a href="https://globalwindatlas.info" target="_blank" rel="noopener">Global Wind Atlas</a> ' +
   '(DTU Wind Energy / World Bank, CC BY 4.0)';
 
+// Cache-bust for the baked wind-atlas tiles. The tile URLs are otherwise
+// stable, so browsers/CDNs serve stale PNGs after a re-bake — bump this after
+// running scripts/build_wind_atlas.py so every client refetches.
+// v2: 2026-06-15 — fringe extended to ~100 km offshore + softer (~78 km) fade.
+// v3: 2026-06-15 — fringe extended to the whole Indian coastline (all coastal
+//     states/UTs + island groups).
+const WIND_ATLAS_VERSION = '3';
+
 const SOURCE_ID = SOURCE_IDS.windAtlas;
 const LAYER_ID = LAYER_IDS.windRaster;
 // Satellite-only nearshore fringe (Gujarat + Maharashtra) — a separate tiny
@@ -76,6 +84,32 @@ const OPACITY: Record<WindResourceContrast, unknown> = {
     10, 0.9,
   ],
 };
+
+const clampOpacity = (x: number): number => Math.min(1, Math.max(0, x));
+
+// User-controlled master opacity (0–1), multiplied onto the contrast curve
+// above. Module-level so it survives the remove + re-add that every metric/
+// height switch performs — the re-added layer keeps the chosen opacity.
+// `activeContrast` tracks the curve currently in use so an opacity change can
+// re-derive the right expression without the caller passing the basemap.
+let userOpacity = 1;
+let activeContrast: WindResourceContrast = 'standard';
+
+/**
+ * The contrast opacity curve scaled by the current user opacity. Keeps the
+ * top-level `interpolate` form (raster-opacity only accepts zoom expressions)
+ * and scales each zoom stop's OUTPUT: index 0 is 'interpolate', 1 is
+ * ['linear'], 2 is ['zoom'], then alternating zoom/opacity pairs — the opacity
+ * outputs sit at even indices ≥ 4. At full opacity the base expression is
+ * returned untouched.
+ */
+function opacityExpr(contrast: WindResourceContrast): unknown {
+  const base = OPACITY[contrast] as unknown[];
+  if (userOpacity >= 1) return base;
+  return base.map((tok, i) =>
+    i >= 4 && i % 2 === 0 ? (tok as number) * userOpacity : tok,
+  );
+}
 
 /** Nearest configured height for a metric (for snapping on metric switch). */
 export function snapWindHeight(metric: WindMetric, desired: number): number {
@@ -111,7 +145,7 @@ export function addWindResourceLayer(
     map.addSource(SOURCE_ID, {
       type: 'raster',
       tiles: [
-        `${window.location.origin}${meta.tilePath.replace('{height}', String(height))}`,
+        `${window.location.origin}${meta.tilePath.replace('{height}', String(height))}?v=${WIND_ATLAS_VERSION}`,
       ],
       tileSize: 256,
       minzoom: metadata.minzoom,
@@ -131,7 +165,7 @@ export function addWindResourceLayer(
         type: 'raster',
         source: SOURCE_ID,
         paint: {
-          'raster-opacity': OPACITY[opts.contrast ?? 'standard'] as never,
+          'raster-opacity': opacityExpr(opts.contrast ?? 'standard') as never,
           'raster-resampling': 'linear',
           'raster-fade-duration': 200,
         },
@@ -140,6 +174,7 @@ export function addWindResourceLayer(
     );
 
     active = { metric, height, beforeId: opts.beforeId };
+    activeContrast = opts.contrast ?? 'standard';
     syncFringe(map, opts.contrast ?? 'standard');
   } catch (err) {
     console.error('[wind-resource] could not add layer', err);
@@ -159,7 +194,7 @@ function syncFringe(map: MlMap, contrast: WindResourceContrast): void {
   map.addSource(FRINGE_SOURCE_ID, {
     type: 'raster',
     tiles: [
-      `${window.location.origin}${meta.fringeTilePath.replace('{height}', String(active!.height))}`,
+      `${window.location.origin}${meta.fringeTilePath.replace('{height}', String(active!.height))}?v=${WIND_ATLAS_VERSION}`,
     ],
     tileSize: 256,
     minzoom: metadata.minzoom,
@@ -176,7 +211,7 @@ function syncFringe(map: MlMap, contrast: WindResourceContrast): void {
       type: 'raster',
       source: FRINGE_SOURCE_ID,
       paint: {
-        'raster-opacity': OPACITY.satellite as never,
+        'raster-opacity': opacityExpr('satellite') as never,
         'raster-resampling': 'linear',
         'raster-fade-duration': 200,
       },
@@ -205,12 +240,32 @@ export function setWindResourceContrast(
   contrast: WindResourceContrast,
 ): void {
   try {
+    activeContrast = contrast;
     if (map.getLayer(LAYER_ID)) {
-      map.setPaintProperty(LAYER_ID, 'raster-opacity', OPACITY[contrast] as never);
+      map.setPaintProperty(LAYER_ID, 'raster-opacity', opacityExpr(contrast) as never);
     }
     syncFringe(map, contrast);
   } catch (err) {
     console.error('[wind-resource] could not set contrast', err);
+  }
+}
+
+/**
+ * Master user opacity (0–1) applied on top of the basemap contrast curve.
+ * Persists across metric/height switches (module-level), so a re-added layer
+ * keeps the chosen opacity. No-op when no layer is on.
+ */
+export function setWindResourceOpacity(map: MlMap, factor: number): void {
+  userOpacity = clampOpacity(factor);
+  try {
+    if (map.getLayer(LAYER_ID)) {
+      map.setPaintProperty(LAYER_ID, 'raster-opacity', opacityExpr(activeContrast) as never);
+    }
+    if (map.getLayer(FRINGE_LAYER_ID)) {
+      map.setPaintProperty(FRINGE_LAYER_ID, 'raster-opacity', opacityExpr('satellite') as never);
+    }
+  } catch (err) {
+    console.error('[wind-resource] could not set opacity', err);
   }
 }
 

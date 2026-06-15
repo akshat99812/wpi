@@ -18,9 +18,33 @@ const SOURCE_ID = 'turbines';
 export const TURBINES_LAYER_ID = 'turbines-pts';
 export const TURBINES_HIT_LAYER_ID = 'turbines-hit';
 
-// Near-black — matches the existing turbine SVG marker colour, reads as a black
-// dot on the light road basemap and (with the light stroke) on satellite too.
+// Near-black — matches the existing turbine SVG marker colour, reads as a dark
+// glyph on the light road basemap and (with the white halo) on satellite too.
 export const TURBINE_COLOR = '#0b0f17';
+
+// Registered map image id for the little turbine glyph drawn at each point.
+const TURBINE_ICON_ID = 'turbine-glyph';
+
+// A compact wind-turbine silhouette: tapered tower + hub + three blades, with a
+// white outline baked in so it separates from dark satellite tiles. Rendered at
+// 2x and registered via map.addImage so a single symbol layer can stamp it at
+// every turbine point (38k+ records — far cheaper than per-point DOM markers).
+const TURBINE_ICON_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g fill="none" stroke="#ffffff" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M18.7 36 L20 19 L21.3 36 Z"/>
+    <path d="M20 18 L20 6"/>
+    <path d="M20 18 L30.4 24"/>
+    <path d="M20 18 L9.6 24"/>
+  </g>
+  <g fill="${TURBINE_COLOR}" stroke="none">
+    <path d="M18.7 36 L20 19 L21.3 36 Z"/>
+    <path d="M19 6 a1 1 0 0 1 2 0 l-0.4 11 a0.6 0.6 0 0 1 -1.2 0 Z"/>
+    <path d="M30.4 23 a1 1 0 0 1 -1 1.7 l-9.6 -5.7 a0.6 0.6 0 0 1 0.6 -1 Z"/>
+    <path d="M9.6 24.7 a1 1 0 0 1 -1 -1.7 l9.9 -5 a0.6 0.6 0 0 1 0.6 1 Z"/>
+  </g>
+  <circle cx="20" cy="18" r="2.6" fill="${TURBINE_COLOR}" stroke="#ffffff" stroke-width="1.4"/>
+</svg>`;
 
 // Bump to bust the backend disk cache + browser cache after a re-ingestion or
 // tile-schema change (mirrors WINDMILL_TILES_VERSION).
@@ -54,6 +78,25 @@ const registry = new WeakMap<MlMap, Handlers>();
  * await. Layers go on top so the dots are always visible; the click handler
  * yields to mast pins where they overlap.
  */
+/**
+ * Registers the turbine glyph as a map image (idempotent). addImage needs a
+ * decoded raster, so we rasterise the inline SVG via an <img>; the symbol layer
+ * references the id immediately and MapLibre repaints the glyphs in once the
+ * async decode lands. pixelRatio:2 keeps it crisp on retina + when scaled up.
+ */
+function registerTurbineIcon(map: MlMap): void {
+  if (map.hasImage(TURBINE_ICON_ID)) return;
+  const img = new Image(40, 40);
+  img.onload = () => {
+    if (!map.hasImage(TURBINE_ICON_ID)) {
+      map.addImage(TURBINE_ICON_ID, img, { pixelRatio: 2 });
+    }
+  };
+  img.onerror = (err) =>
+    console.error('[turbines] turbine icon failed to load', err);
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(TURBINE_ICON_SVG)}`;
+}
+
 export function addTurbines(map: MlMap, opts: TurbinesOptions = {}): void {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
@@ -69,32 +112,29 @@ export function addTurbines(map: MlMap, opts: TurbinesOptions = {}): void {
     });
   }
 
+  registerTurbineIcon(map);
+
   if (!map.getLayer(TURBINES_LAYER_ID)) {
     map.addLayer({
       id: TURBINES_LAYER_ID,
-      type: 'circle',
+      type: 'symbol',
       source: SOURCE_ID,
       'source-layer': 'turbines',
-      paint: {
+      layout: {
+        'icon-image': TURBINE_ICON_ID,
         // Smaller than the mast pins — turbines are far more numerous, so a
-        // slimmer dot keeps dense corridors (TN/GJ) readable.
-        'circle-radius': [
+        // compact glyph keeps dense corridors (TN/GJ) readable.
+        'icon-size': [
           'interpolate', ['linear'], ['zoom'],
-          4, 2,
-          10, 3.5,
-          16, 6.5,
+          4, 0.6,
+          10, 1.1,
+          16, 1.9,
         ],
-        'circle-color': TURBINE_COLOR,
-        // Light hairline so the black dot separates from dark satellite tiles
-        // and from clustered neighbours.
-        'circle-stroke-color': 'rgba(255,255,255,0.85)',
-        'circle-stroke-width': [
-          'interpolate', ['linear'], ['zoom'],
-          4, 0.4,
-          10, 0.8,
-          16, 1.2,
-        ],
-        'circle-opacity': 0.95,
+        // Show every turbine — no collision-hiding — and anchor the tower base
+        // on the point so the glyph "stands" where the turbine is.
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+        'icon-anchor': 'bottom',
       },
     });
   }

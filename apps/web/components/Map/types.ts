@@ -2,7 +2,7 @@ import type { WpiBundle } from '@/lib/types';
 
 // ── Basemap modes ──────────────────────────────────────────────────────────
 // 'pro' is intentionally kept in the type but disabled in the switcher UI.
-export type BasemapId = 'satellite' | 'terrain' | 'wind' | 'street' | 'pro';
+export type BasemapId = 'satellite' | 'terrain' | 'wind' | 'windflow' | 'street' | 'pro';
 
 export interface StateMeta {
   lon: number;

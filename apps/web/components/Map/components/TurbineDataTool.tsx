@@ -1,14 +1,15 @@
 import React from 'react';
 import type { Turbine } from '../types';
-import { fmtCoords, fmtNum } from '../utils/format';
+import { fmtCoords } from '../utils/format';
 
 /**
  * "Turbine data" — Pro-map sidebar tool for an individual wind turbine.
  *
  * Renders the currently-selected turbine's attributes (OSM / OpenInfraMap
  * power=generator + generator:source=wind, fetched per-click via
- * GET /api/turbine/:id). Parallels MastDataTool but with turbine-specific
- * fields: rated power, hub height, rotor diameter, manufacturer, model.
+ * GET /api/turbine/:id). OSM rarely carries turbine specs (rated power, hub
+ * height, model, …), so the card shows only the fields we reliably have —
+ * name/operator + coordinates + the OSM link — rather than a wall of "—".
  * Handles loading / error / loaded / empty states, like the mast card.
  */
 
@@ -32,14 +33,6 @@ interface Props {
   selected: Turbine | null;
   loading: boolean;
   error: string | null;
-}
-
-/** Rated power in the most readable unit: ≥1 MW shows MW, else kW. */
-function fmtRatedPower(kw: Turbine['rated_power_kw']): string | null {
-  if (kw == null || kw === '') return null;
-  const v = typeof kw === 'number' ? kw : Number(kw);
-  if (!Number.isFinite(v) || v <= 0) return null;
-  return v >= 1000 ? fmtNum(v / 1000, 'MW', 2) : fmtNum(v, 'kW', 0);
 }
 
 export function TurbineDataTool({ selected, loading, error }: Props) {
@@ -78,19 +71,9 @@ export function TurbineDataTool({ selected, loading, error }: Props) {
 
       <div className="my-3 h-px bg-slate-700/70" />
 
-      {/* ── Headline stats ── */}
-      <div className="grid grid-cols-2 gap-2">
-        <Stat label="Rated power" value={fmtRatedPower(selected.rated_power_kw)} />
-        <Stat label="Hub height" value={fmtNum(selected.hub_height_m, 'm', 1)} />
-      </div>
-
-      {/* ── Detail grid ── */}
-      <dl className="mt-3 divide-y divide-slate-800 text-sm">
-        <Row label="Manufacturer" value={selected.manufacturer} />
-        <Row label="Model" value={selected.model} />
-        <Row label="Rotor diameter" value={fmtNum(selected.rotor_diameter_m, 'm', 1)} />
-        <Row label="Commissioned" value={selected.start_date} />
-        <Row label="Elevation" value={fmtNum(selected.ele_m, 'm a.s.l.', 0)} />
+      {/* OSM rarely carries turbine specs (rated power, hub height, model, …),
+          so we show only the fields we reliably have rather than a wall of "—". */}
+      <dl className="divide-y divide-slate-800 text-sm">
         <Row label="Coordinates" value={fmtCoords(selected.lat, selected.lon)} />
       </dl>
 
@@ -113,15 +96,6 @@ function EmptyState() {
       <p className="text-sm text-slate-400">
         Select a wind turbine on the map to view its details.
       </p>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div className="rounded-md border border-slate-700/60 bg-slate-800/40 px-3 py-2">
-      <dt className="text-[10px] font-medium uppercase tracking-wide text-slate-400">{label}</dt>
-      <dd className="mt-0.5 text-base font-semibold tabular-nums text-white">{value || '—'}</dd>
     </div>
   );
 }

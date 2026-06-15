@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   VOLTAGE_COLORS,
+  VOLTAGE_BANDS,
   PLANT_COLORS,
   SUBSTATION_MIN_ZOOM,
   PLANT_MIN_ZOOM,
@@ -81,10 +82,14 @@ interface Props {
   showPowerGrid: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
   mastCats: Record<MastHeightCat, boolean>;
+  /** Which grid line-voltage bands are visible, keyed by band-min kV as a
+   *  string (all true = no filtering). */
+  voltageBands: Record<string, boolean>;
   onToggleTurbines: (next: boolean) => void;
   onToggleMasts: (next: boolean) => void;
   onTogglePowerGrid: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
+  onVoltageBandChange: (kv: string, next: boolean) => void;
 }
 
 /**
@@ -101,10 +106,12 @@ export function LayersTool({
   showMasts,
   showPowerGrid,
   mastCats,
+  voltageBands,
   onToggleTurbines,
   onToggleMasts,
   onTogglePowerGrid,
   onMastCatChange,
+  onVoltageBandChange,
 }: Props) {
   return (
     <div className="flex flex-col gap-1 p-3">
@@ -139,6 +146,10 @@ export function LayersTool({
         checked={showPowerGrid}
         onChange={onTogglePowerGrid}
       />
+      {/* Voltage chips isolate the grid LINES — show while the grid is on. */}
+      {showPowerGrid && (
+        <VoltageChips bands={voltageBands} onChange={onVoltageBandChange} />
+      )}
       {showPowerGrid && <PowerGridLegend />}
     </div>
   );
@@ -191,28 +202,65 @@ function MastHeightChips({
 }
 
 /**
+ * Voltage-band filter chips for the grid LINES — one per VOLTAGE_BANDS entry.
+ * Doubles as the interactive line-voltage legend (the colours match the map).
+ * Toggling a chip isolates the lines to the selected bands; all on = no filter.
+ */
+function VoltageChips({
+  bands,
+  onChange,
+}: {
+  bands: Record<string, boolean>;
+  onChange: (kv: string, next: boolean) => void;
+}) {
+  return (
+    <div className="mx-2 mb-1 ml-7 rounded-lg border border-slate-700/60 bg-slate-800/40 px-2.5 py-2">
+      <p className="pb-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">
+        Line voltage
+      </p>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {VOLTAGE_BANDS.map(({ kv, color }) => {
+          const key = String(kv);
+          const on = bands[key] ?? true;
+          return (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={on}
+              onClick={() => onChange(key, !on)}
+              className={
+                'flex items-center gap-1 whitespace-nowrap rounded-md border px-1.5 py-1 ' +
+                'font-mono text-[11px] tabular-nums transition-all ' +
+                (on
+                  ? 'border-slate-500 bg-white/10 text-slate-100'
+                  : 'border-slate-700/60 bg-transparent text-slate-500 hover:border-slate-500 hover:text-slate-300')
+              }
+            >
+              <span
+                aria-hidden
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ backgroundColor: on ? color : '#475569' }}
+              />
+              {kv}
+            </button>
+          );
+        })}
+        <span className="text-[10px] text-slate-500">kV</span>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Legend for the Electricity Grid layer — built from the same constants the
  * map layers use (utils/powerGrid.ts), so it can never drift from the map.
+ * The line-voltage colours live in the interactive VoltageChips above; this
+ * covers the plants legend + the zoom-visibility notes.
  */
 function PowerGridLegend() {
   return (
     <div className="mt-1 rounded-lg bg-white/5 px-3 py-2">
-      <p className="pb-1 text-[11px] font-medium text-slate-300">
-        Lines &amp; substations
-      </p>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        {VOLTAGE_COLORS.map(([kv, color]) => (
-          <span key={kv} className="flex items-center gap-1 text-[11px] text-slate-300">
-            <span
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: color }}
-            />
-            {kv}
-          </span>
-        ))}
-        <span className="text-[11px] text-slate-400">kV</span>
-      </div>
-      <p className="pb-1 pt-2 text-[11px] font-medium text-slate-300">Plants</p>
+      <p className="pb-1 text-[11px] font-medium text-slate-300">Plants</p>
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1 text-[11px] text-slate-300">
           <span

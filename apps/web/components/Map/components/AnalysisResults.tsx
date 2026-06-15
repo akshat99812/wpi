@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useMemo, useState } from "react";
 import type {
   AnalysisResponse,
@@ -42,6 +43,18 @@ const COMPONENT_LABEL: Record<ScoreComponent["key"], string> = {
   cf: "Capacity factor",
   grid: "Grid access",
   terrain: "Terrain",
+};
+
+/**
+ * Plain-language breakpoints shown in the methodology popover. These MIRROR
+ * the server normalization ramps in
+ * apps/api/src/services/analysis/score.ts — keep both in sync if either moves.
+ */
+const COMPONENT_METHOD: Record<ScoreComponent["key"], string> = {
+  resource: "Mean wind speed @100 m — 0 pts at ≤4.5 m/s, rising to full at ≥7.5 m/s.",
+  cf: "IEC-III capacity factor — 0 pts at ≤0.12, rising to full at ≥0.38.",
+  grid: "Distance to EHV grid — full credit at ≤10 km, falling to 0 at ≥50 km.",
+  terrain: "90th-percentile slope — full credit at ≤5°, falling to 0 at ≥20°.",
 };
 
 export function AnalysisResults({ analysis, onMastSelect }: Props) {
@@ -100,9 +113,7 @@ export function AnalysisResults({ analysis, onMastSelect }: Props) {
         <WeibullChart A={resource.weibull.A} k={resource.weibull.k} mean={resource.meanSpeed} />
       )}
 
-      {resource?.indiaPercentile != null && (
-        <PercentileBar pct={resource.indiaPercentile} />
-      )}
+      {resource && <SpatialSpreadChart resource={resource} />}
 
       {/* Validation row */}
       {validation?.nearestMast && (
@@ -181,6 +192,79 @@ export function AnalysisResults({ analysis, onMastSelect }: Props) {
       {sections.validation.status === "unavailable" && <UnavailableNote label="Mast validation" />}
       {sections.grid.status === "unavailable" && <UnavailableNote label="Grid proximity" />}
       {sections.context.status === "unavailable" && <UnavailableNote label="Site context & sizing" />}
+
+      <ReportDisclaimer />
+    </div>
+  );
+}
+
+// ── Report disclaimer + CECL contact card ────────────────────────────────────
+
+function ReportDisclaimer() {
+  return (
+    <div className="mt-1 space-y-3 rounded-lg border border-slate-700/60 bg-slate-800/30 px-3 py-3">
+      <div className="flex items-center gap-2.5">
+        <Image
+          src="/logo.png"
+          alt="CECL"
+          width={36}
+          height={36}
+          className="h-9 w-9 flex-shrink-0 object-contain"
+        />
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold text-slate-200">CECL Advisory</p>
+          <p className="text-[10px] text-slate-500">
+            Consolidated Energy Consultants Limited
+          </p>
+        </div>
+      </div>
+
+      <p className="text-[10px] leading-relaxed text-slate-500">
+        Screening estimate for early-stage site comparison only — not a bankable
+        energy assessment. Contact CECL for bankable reports.
+      </p>
+
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[10px]">
+        <dt className="text-slate-500">Email</dt>
+        <dd>
+          <a
+            href="mailto:info@cecl.in"
+            className="text-slate-300 underline decoration-slate-600 underline-offset-2 hover:text-white"
+          >
+            info@cecl.in
+          </a>
+        </dd>
+
+        <dt className="text-slate-500">Alt. Email</dt>
+        <dd>
+          <a
+            href="mailto:conenergy@gmail.com"
+            className="text-slate-300 underline decoration-slate-600 underline-offset-2 hover:text-white"
+          >
+            conenergy@gmail.com
+          </a>
+        </dd>
+
+        <dt className="text-slate-500">Phone</dt>
+        <dd>
+          <a href="tel:+9107552600241" className="text-slate-300 hover:text-white">
+            +91-0755-2600241
+          </a>
+        </dd>
+
+        <dt className="text-slate-500">Phone</dt>
+        <dd>
+          <a href="tel:+9107554058931" className="text-slate-300 hover:text-white">
+            +91-0755-4058931
+          </a>
+        </dd>
+
+        <dt className="text-slate-500">Office</dt>
+        <dd className="text-slate-400">
+          ‘Energy Tower’, 64-B Sector, Kasturba Nagar, Bhopal 462023, Madhya
+          Pradesh, India
+        </dd>
+      </dl>
     </div>
   );
 }
@@ -197,29 +281,47 @@ function ScoreHeader({
   components: ScoreComponent[];
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [showMethod, setShowMethod] = useState(false);
   return (
     <div className="rounded-xl border border-slate-700 bg-slate-800/60 p-3">
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between gap-2"
-        aria-expanded={expanded}
-      >
-        <div className="flex items-baseline gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-baseline gap-2 text-left"
+          aria-expanded={expanded}
+        >
           <span className="text-3xl font-semibold tracking-tight text-white">
             {value}
           </span>
           <span className="text-xs text-slate-400">/ 100 screening score</span>
+        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowMethod((v) => !v)}
+            className={
+              "grid h-5 w-5 place-items-center rounded-full border text-[11px] font-semibold italic transition " +
+              (showMethod
+                ? "border-sky-400/70 text-sky-300"
+                : "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-slate-200")
+            }
+            aria-expanded={showMethod}
+            aria-label="How the screening score is calculated"
+            title="How the screening score is calculated"
+          >
+            i
+          </button>
+          <span
+            className={
+              "rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide " +
+              CONFIDENCE_STYLE[confidence]
+            }
+          >
+            {confidence}
+          </span>
         </div>
-        <span
-          className={
-            "rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide " +
-            CONFIDENCE_STYLE[confidence]
-          }
-        >
-          {confidence}
-        </span>
-      </button>
+      </div>
       {expanded && (
         <ul className="mt-2 space-y-1 border-t border-slate-700/60 pt-2">
           {components.map((c) => (
@@ -238,6 +340,40 @@ function ScoreHeader({
           ))}
         </ul>
       )}
+      {showMethod && <ScoreMethodology components={components} />}
+    </div>
+  );
+}
+
+/**
+ * "How the score works" popover (toggled by the ⓘ button). Explains the
+ * weighted-sum formula and the per-factor breakpoints (COMPONENT_METHOD,
+ * which mirrors the server ramps), and clarifies that the confidence chip
+ * never feeds the score.
+ */
+function ScoreMethodology({ components }: { components: ScoreComponent[] }) {
+  return (
+    <div className="mt-2 space-y-2 border-t border-slate-700/60 pt-2 text-[11px] leading-relaxed text-slate-400">
+      <p>
+        A 0–100 screening score. Each factor is scored 0–1 on a linear ramp
+        between the breakpoints below, multiplied by its weight, then summed.
+      </p>
+      <ul className="space-y-1.5">
+        {components.map((c) => (
+          <li key={c.key}>
+            <span className="font-medium text-slate-300">
+              {COMPONENT_LABEL[c.key]}
+            </span>
+            <span className="ml-1 text-slate-500">· weight {c.weight}</span>
+            <div className="text-slate-400">{COMPONENT_METHOD[c.key]}</div>
+          </li>
+        ))}
+      </ul>
+      <p className="text-slate-500">
+        Breakpoints are calibrated to India&apos;s wind distribution, so the
+        windiest ~2% of sites approach a full resource score. The confidence
+        chip reflects met-mast validation only and never affects the score.
+      </p>
     </div>
   );
 }
@@ -380,28 +516,205 @@ function WeibullChart({ A, k, mean }: { A: number; k: number; mean: number }) {
   );
 }
 
-// ── India percentile context bar ─────────────────────────────────────────────
+// ── Spatial speed-spread strip (pure SVG) ────────────────────────────────────
 
-function PercentileBar({ pct }: { pct: number }) {
-  const clamped = Math.min(100, Math.max(0, pct));
+// Fixed m/s window so a tight LOW site reads as genuinely small near the left,
+// never auto-zoomed to fill the card (which would make a poor site look healthy
+// and identical to a wide-spread one). Keeps spreads comparable across AOIs.
+const SPREAD_CHART_H = 88;
+const SPREAD_AXIS_MIN = 3;
+const SPREAD_AXIS_MAX = 12;
+const SPREAD_MIN_BOX_PX = 6; // floor so a degenerate IQR (p25 ≈ p75) stays visible
+const SPREAD_TIGHT_MS = 0.3; // (p75 − p25) below this ⇒ "tight spread"
+const SPREAD_WIDE_MS = 1.0; //  (p75 − p25) ≥ this ⇒ "varies across site"
+const SPREAD_AXIS_TICKS = [3, 6, 9];
+
+/**
+ * Horizontal box-and-whisker of the AOI's SPATIAL wind-speed spread — per-pixel
+ * order statistics (min · p25–p75 IQR box · median · max whiskers) with a dashed
+ * amber spatial-mean tick. Complements WeibullChart, which shows the modeled
+ * TEMPORAL distribution from {A, k}: this shows how speed varies across the
+ * site's area (micro-siting uniformity), a different question and data source.
+ *
+ * Fixed 3–12 m/s axis (never auto-zoomed) keeps magnitude honest. The
+ * areaExceedance90 figure is intentionally NOT charted (plan hard rule — it is
+ * a stat line only; see the file-header note).
+ */
+function SpatialSpreadChart({ resource }: { resource: ResourceData }) {
+  const {
+    minSpeed: min,
+    p25Speed: p25,
+    p50Speed: p50,
+    p75Speed: p75,
+    maxSpeed: max,
+    meanSpeed: mean,
+  } = resource;
+
+  const geom = useMemo(() => {
+    const plotLeft = CHART_PAD;
+    const plotRight = CHART_W - CHART_PAD;
+    const plotW = plotRight - plotLeft;
+    const xOf = (v: number) => {
+      const c = Math.min(SPREAD_AXIS_MAX, Math.max(SPREAD_AXIS_MIN, v));
+      return plotLeft + ((c - SPREAD_AXIS_MIN) / (SPREAD_AXIS_MAX - SPREAD_AXIS_MIN)) * plotW;
+    };
+    // Guard out-of-order percentiles (bad data) without masking a real bug:
+    // order the quartiles and clamp the median between them.
+    const q1 = Math.min(p25, p75);
+    const q3 = Math.max(p25, p75);
+    const med = Math.min(q3, Math.max(q1, p50));
+    const xP25 = xOf(q1);
+    const xP75 = xOf(q3);
+    const isFloored = xP75 - xP25 < SPREAD_MIN_BOX_PX;
+    const xP50 = xOf(med);
+    const iqr = q3 - q1;
+    return {
+      plotLeft,
+      plotRight,
+      xOf,
+      xMin: xOf(min),
+      xMax: xOf(max),
+      xP50,
+      xMean: xOf(mean),
+      boxL: isFloored ? xP50 - SPREAD_MIN_BOX_PX / 2 : xP25,
+      boxR: isFloored ? xP50 + SPREAD_MIN_BOX_PX / 2 : xP75,
+      isFloored,
+      verdict:
+        iqr < SPREAD_TIGHT_MS
+          ? '· tight spread'
+          : iqr >= SPREAD_WIDE_MS
+            ? '· varies across site'
+            : '',
+    };
+  }, [min, p25, p50, p75, max, mean]);
+
+  // Empty AOI ⇒ resource.ts writes NaN to these; show a note, not a broken SVG.
+  if (![min, p25, p50, p75, max, mean].every(Number.isFinite)) {
+    return <UnavailableNote label="Spatial speed spread" />;
+  }
+
+  const { plotLeft, plotRight, xOf, xMin, xMax, xP50, xMean, boxL, boxR, isFloored, verdict } = geom;
+  const laneY = 30;
+  const boxHalfH = 9;
+  const capHalfH = 6;
+  const axisY = 66;
+
+  // Edge-aware anchor so the min/max numeric caps never clip the 272px card.
+  // `preferred` lets near-colliding caps fan apart instead of stacking.
+  const capAt = (
+    x: number,
+    preferred: 'start' | 'middle' | 'end' = 'middle',
+  ): { x: number; anchor: 'start' | 'middle' | 'end' } =>
+    x < plotLeft + 10
+      ? { x: plotLeft, anchor: 'start' }
+      : x > plotRight - 10
+        ? { x: plotRight, anchor: 'end' }
+        : { x, anchor: preferred };
+  // A near-uniform AOI (min ≈ max) would stack the two numeric caps: collapse
+  // to one centred label when they round equal, else fan them apart.
+  const capsSameLabel = min.toFixed(1) === max.toFixed(1);
+  const capsClose = !capsSameLabel && Math.abs(xMax - xMin) < 14;
+  const minCap = capAt(xMin, capsClose ? 'end' : 'middle');
+  const maxCap = capAt(xMax, capsClose ? 'start' : 'middle');
+  const showMeanLabel = Math.abs(xMean - xP50) >= 14; // only when skew is visible
+  const meanLabelX = Math.min(plotRight - 18, Math.max(plotLeft + 18, xMean));
+
   return (
     <div className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-2.5 py-2">
-      <p className="text-[10px] uppercase tracking-wide text-slate-500">
-        vs. all of India
+      <p className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">
+        Spatial speed spread
+        <span className="ml-1 normal-case text-slate-600">{verdict}</span>
       </p>
-      <div className="relative mt-1.5 h-2 rounded-full bg-slate-700/60">
-        <div
-          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-sky-500 to-orange-400"
-          style={{ width: `${clamped}%` }}
+      <svg
+        width={CHART_W}
+        height={SPREAD_CHART_H}
+        className="max-w-full"
+        role="img"
+        aria-label={`Spatial wind speed spread across the AOI: median ${p50.toFixed(1)} m/s, interquartile ${p25.toFixed(1)} to ${p75.toFixed(1)} m/s, range ${min.toFixed(1)} to ${max.toFixed(1)} m/s`}
+      >
+        {/* Axis baseline + fixed-domain ticks */}
+        <line x1={plotLeft} y1={axisY} x2={plotRight} y2={axisY} stroke="#334155" strokeWidth="1" />
+        {SPREAD_AXIS_TICKS.map((t) => (
+          <g key={t}>
+            <line x1={xOf(t)} y1={axisY} x2={xOf(t)} y2={axisY + 3} stroke="#475569" strokeWidth="1" />
+            <text x={xOf(t)} y={axisY + 13} fill="#64748b" fontSize="8" textAnchor="middle">
+              {t}
+            </text>
+          </g>
+        ))}
+        <text x={plotRight} y={axisY + 13} fill="#64748b" fontSize="8" textAnchor="end">
+          12 m/s
+        </text>
+
+        {/* Whisker spine (skip when zero-length) + end caps / clamp chevrons */}
+        {xMax - xMin >= 0.05 && (
+          <line x1={xMin} y1={laneY} x2={xMax} y2={laneY} stroke="#64748b" strokeWidth="1" />
+        )}
+        {min <= SPREAD_AXIS_MIN ? (
+          <text x={xMin} y={laneY + 3.5} fill="#64748b" fontSize="10" textAnchor="middle">
+            ‹
+          </text>
+        ) : (
+          <line x1={xMin} y1={laneY - capHalfH} x2={xMin} y2={laneY + capHalfH} stroke="#64748b" strokeWidth="1" />
+        )}
+        {max >= SPREAD_AXIS_MAX ? (
+          <text x={xMax} y={laneY + 3.5} fill="#64748b" fontSize="10" textAnchor="middle">
+            ›
+          </text>
+        ) : (
+          <line x1={xMax} y1={laneY - capHalfH} x2={xMax} y2={laneY + capHalfH} stroke="#64748b" strokeWidth="1" />
+        )}
+
+        {/* IQR box (dashed when floored to the minimum width) */}
+        <rect
+          x={boxL}
+          y={laneY - boxHalfH}
+          width={boxR - boxL}
+          height={2 * boxHalfH}
+          rx="2"
+          fill="#38bdf8"
+          fillOpacity="0.18"
+          stroke="#38bdf8"
+          strokeWidth="1.2"
+          strokeDasharray={isFloored ? '3 2' : undefined}
         />
-        <div
-          className="absolute -top-0.5 h-3 w-0.5 rounded bg-white"
-          style={{ left: `${clamped}%` }}
+        {/* Median tick (brightest) */}
+        <line x1={xP50} y1={laneY - boxHalfH} x2={xP50} y2={laneY + boxHalfH} stroke="#38bdf8" strokeWidth="2" />
+        {/* Spatial-mean tick — amber dashed, matching WeibullChart's mean convention */}
+        <line
+          x1={xMean}
+          y1={laneY - boxHalfH - 3}
+          x2={xMean}
+          y2={laneY + boxHalfH + 3}
+          stroke="#f59e0b"
+          strokeWidth="1"
+          strokeDasharray="3 2"
         />
-      </div>
-      <p className="mt-1 text-[11px] text-slate-300">
-        Windier than {Math.round(clamped)}% of India&apos;s land area
-      </p>
+
+        {/* Min / max numeric caps (carry absolute magnitude). A near-uniform
+            AOI collapses them to a single centred label. */}
+        {capsSameLabel ? (
+          <text x={(xMin + xMax) / 2} y={laneY - capHalfH - 4} fill="#64748b" fontSize="8" textAnchor="middle">
+            {min.toFixed(1)}
+          </text>
+        ) : (
+          <>
+            <text x={minCap.x} y={laneY - capHalfH - 4} fill="#64748b" fontSize="8" textAnchor={minCap.anchor}>
+              {min.toFixed(1)}
+            </text>
+            <text x={maxCap.x} y={laneY - capHalfH - 4} fill="#64748b" fontSize="8" textAnchor={maxCap.anchor}>
+              {max.toFixed(1)}
+            </text>
+          </>
+        )}
+        {/* Mean label only when visibly separated from the median */}
+        {showMeanLabel && (
+          <text x={meanLabelX} y={52} fill="#f59e0b" fontSize="9" textAnchor="middle">
+            mean {mean.toFixed(1)}
+          </text>
+        )}
+      </svg>
     </div>
   );
 }
+

@@ -41,6 +41,18 @@ export const WindIcon = () => (
   </svg>
 );
 
+export const WindFlowIcon = () => (
+  <svg {...baseProps}>
+    {/* Streaming flow lines with leading particle dots */}
+    <path d="M3 7h9" />
+    <path d="M3 12h13" />
+    <path d="M3 17h7" />
+    <circle cx="14" cy="7" r="1.1" fill="currentColor" stroke="none" />
+    <circle cx="18" cy="12" r="1.1" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="17" r="1.1" fill="currentColor" stroke="none" />
+  </svg>
+);
+
 export const StreetIcon = () => (
   <svg {...baseProps}>
     {/* Folded map */}
@@ -64,6 +76,7 @@ export const BASEMAP_ICONS: Record<BasemapId, React.FC> = {
   satellite: SatelliteIcon,
   terrain:   TerrainIcon,
   wind:      WindIcon,
+  windflow:  WindFlowIcon,
   street:    StreetIcon,
   pro:       ProIcon,
 };

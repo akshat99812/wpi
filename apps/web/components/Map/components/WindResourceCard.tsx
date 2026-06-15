@@ -25,15 +25,21 @@ export function WindResourceCard({
   metric,
   height,
   value,
+  opacity = 1,
   onMetricChange,
   onHeightChange,
+  onOpacityChange,
   embedded = false,
 }: {
   metric: WindMetricChoice;
   height: number;
   value?: number | null;
+  /** Layer opacity, 0–1. Defaults to 1 (fully opaque). */
+  opacity?: number;
   onMetricChange: (next: WindMetricChoice) => void;
   onHeightChange: (next: number) => void;
+  /** When provided, an opacity slider is shown while a metric is active. */
+  onOpacityChange?: (next: number) => void;
   embedded?: boolean;
 }) {
   const options: { id: WindMetricChoice; label: string }[] = [
@@ -111,6 +117,9 @@ export function WindResourceCard({
             })}
           </div>
           <RampLegend meta={active} value={value} />
+          {onOpacityChange && (
+            <OpacitySlider value={opacity} onChange={onOpacityChange} />
+          )}
           <p className="pt-1.5 text-[10px] leading-relaxed text-slate-500">
             {active.label} · Global Wind Atlas · CC BY 4.0
           </p>
@@ -178,6 +187,36 @@ function RampLegend({
         <span>{lo === 0 ? '0' : `≤${lo}`} {meta.unit}</span>
         <span>≥{hi} {meta.unit}</span>
       </div>
+    </div>
+  );
+}
+
+/** Layer-opacity slider (0–100%). Drives the raster `raster-opacity` via the
+ *  parent's onOpacityChange — the value is a 0–1 fraction. */
+function OpacitySlider({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (next: number) => void;
+}) {
+  const pct = Math.round(Math.min(1, Math.max(0, value)) * 100);
+  return (
+    <div className="pt-2.5">
+      <div className="flex items-baseline justify-between pb-1">
+        <span className="text-[11px] text-slate-400">Layer opacity</span>
+        <span className="font-mono text-[10px] tabular-nums text-slate-200">{pct}%</span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={1}
+        value={pct}
+        onChange={(e) => onChange(Number(e.target.value) / 100)}
+        aria-label="Wind layer opacity"
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-sky-500"
+      />
     </div>
   );
 }

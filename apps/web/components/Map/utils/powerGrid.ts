@@ -107,6 +107,12 @@ export const VOLTAGE_COLORS: [number, string][] = [
 ];
 export const VOLTAGE_UNKNOWN = '#7A7A85';
 
+/** Voltage bands exposed as isolatable chips in the Layers card — one per
+ *  VOLTAGE_COLORS entry, highest kV first. Selecting a subset isolates the
+ *  grid LINES to those bands (see setPowerGridVoltageFilter). */
+export const VOLTAGE_BANDS: { kv: number; color: string }[] =
+  VOLTAGE_COLORS.map(([kv, color]) => ({ kv, color }));
+
 export const LOW_VOLTAGE_VISIBLE_ZOOM = 10;
 export const EHV_MIN_VOLTAGE = 220; // kV
 
@@ -278,25 +284,67 @@ function withinIndiaExpr(outline: GeoJSON.Feature): ExpressionSpecification {
   return ['within', outline] as unknown as ExpressionSpecification;
 }
 
+// ── Voltage-band isolation ───────────────────────────────────────────────
+// null = all bands (no restriction — identical to the legacy behaviour,
+// including unknown-voltage lines). Otherwise the set of selected band-min kV
+// from VOLTAGE_BANDS; a strict subset isolates the LINES to those bands.
+// Module-level so addPowerGrid / applyIndiaClip rebuild filters with the
+// current selection, and a selection set before the layers exist is honoured.
+let selectedBandKvs: Set<number> | null = null;
+
+function normalizeBandSelection(selected: Set<number> | null): Set<number> | null {
+  if (selected === null) return null;
+  if (selected.size >= VOLTAGE_COLORS.length) return null; // all → no restriction
+  return new Set(selected);
+}
+
+/** Filter for the selected voltage bands: `true` (all → no restriction),
+ *  `false` (none → hide every line), or `["any", …ranges]`. The bands
+ *  partition (0, ∞) exactly as voltageColorExpr colours them — the lowest is
+ *  the ">0" catch-all (the blue bucket), each higher band is [min, nextMin). */
+function voltageBandFilterExpr(): unknown {
+  if (selectedBandKvs === null) return true;
+  if (selectedBandKvs.size === 0) return false;
+  const ranges: unknown[] = ['any'];
+  for (let i = 0; i < VOLTAGE_COLORS.length; i++) {
+    const min = VOLTAGE_COLORS[i][0];
+    if (!selectedBandKvs.has(min)) continue;
+    const isLast = i === VOLTAGE_COLORS.length - 1;
+    const lower = isLast ? ['>', voltageKv, 0] : ['>=', voltageKv, min];
+    ranges.push(
+      i === 0 ? lower : ['all', lower, ['<', voltageKv, VOLTAGE_COLORS[i - 1][0]]],
+    );
+  }
+  return ranges;
+}
+
+/** ["all", …conds] dropping literal `true`s; one condition returns bare, an
+ *  empty set collapses to `true`. A literal `false` is KEPT, so a branch with a
+ *  false condition evaluates false (the "no bands selected" case). */
+function allOf(...conds: unknown[]): unknown {
+  const real = conds.filter((c) => c !== true);
+  if (real.length === 0) return true;
+  if (real.length === 1) return real[0];
+  return ['all', ...real];
+}
+
 // Below LOW_VOLTAGE_VISIBLE_ZOOM only EHV (≥220 kV) lines render; from there
 // everything does. ["zoom"] in a filter is only allowed as input to a
-// top-level "step" — which is exactly this shape; that constraint is also why
-// the India clip is embedded in the step's BRANCHES rather than wrapped in an
-// outer ["all", …] (which would demote the zoom step and fail validation).
-function lineFilter(outline: GeoJSON.Feature | null): FilterSpecification {
-  if (!outline) {
-    return [
-      'step', ['zoom'],
-      ['>=', voltageKv, EHV_MIN_VOLTAGE],
-      LOW_VOLTAGE_VISIBLE_ZOOM, true,
-    ] as ExpressionSpecification;
-  }
-  const within = withinIndiaExpr(outline);
+// top-level "step", so the India clip AND the voltage-band filter live INSIDE
+// the step's branches rather than wrapped in an outer ["all", …] (which would
+// demote the zoom step and fail validation).
+function lineFilter(
+  outline: GeoJSON.Feature | null,
+  bandExpr: unknown = voltageBandFilterExpr(),
+): FilterSpecification {
+  const within: unknown = outline ? withinIndiaExpr(outline) : true;
+  const lowZoom = allOf(['>=', voltageKv, EHV_MIN_VOLTAGE], within, bandExpr);
+  const highZoom = allOf(within, bandExpr);
   return [
     'step', ['zoom'],
-    ['all', ['>=', voltageKv, EHV_MIN_VOLTAGE], within],
-    LOW_VOLTAGE_VISIBLE_ZOOM, within,
-  ] as ExpressionSpecification;
+    lowZoom,
+    LOW_VOLTAGE_VISIBLE_ZOOM, highZoom,
+  ] as unknown as FilterSpecification;
 }
 
 /** Wind/solar-only plants filter, optionally also clipped to India. */
@@ -546,6 +594,34 @@ export function setPowerGridVisibility(map: MlMap, visible: boolean): void {
   } catch (err) {
     console.error('[power-grid] could not set power grid visibility', err);
   }
+}
+
+/** Re-applies the current voltage-band selection to the line + casing layers,
+ *  preserving the India clip (the cached outline). No-op if the layers aren't
+ *  added yet — addPowerGrid reads `selectedBandKvs` when it builds them. */
+async function applyLineFilter(map: MlMap): Promise<void> {
+  const outline = await loadIndiaOutline();
+  try {
+    if (!map.getCanvas()) return; // map destroyed while awaiting
+    const f = lineFilter(outline);
+    if (map.getLayer(LAYER_CASING)) map.setFilter(LAYER_CASING, f);
+    if (map.getLayer(LAYER_LINES)) map.setFilter(LAYER_LINES, f);
+  } catch (err) {
+    console.error('[power-grid] could not apply voltage filter', err);
+  }
+}
+
+/**
+ * Isolate the grid LINES to a set of voltage bands (band-min kV values from
+ * VOLTAGE_BANDS). `null` or a full set = no restriction (show all). Only the
+ * line + casing layers are filtered — substations and plants are unaffected.
+ */
+export function setPowerGridVoltageFilter(
+  map: MlMap,
+  selected: Set<number> | null,
+): void {
+  selectedBandKvs = normalizeBandSelection(selected);
+  void applyLineFilter(map);
 }
 
 // ── Interactivity ────────────────────────────────────────────────────────

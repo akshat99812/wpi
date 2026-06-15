@@ -32,7 +32,12 @@ import {
   PRIVATE_MASTS_HIT_LAYER_ID,
   PRIVATE_MAST_COLOR,
 } from "@/components/Map/utils/privateMasts";
-import { addPowerGrid, setPowerGridVisibility } from "@/components/Map/utils/powerGrid";
+import {
+  addPowerGrid,
+  setPowerGridVisibility,
+  setPowerGridVoltageFilter,
+  VOLTAGE_BANDS,
+} from "@/components/Map/utils/powerGrid";
 import {
   addTurbines,
   setTurbinesVisibility,
@@ -43,6 +48,7 @@ import {
   addWindResourceLayer,
   removeWindResourceLayer,
   setWindResourceContrast,
+  setWindResourceOpacity,
   snapWindHeight,
   WIND_METRICS,
 } from "@/components/Map/utils/windResource";
@@ -58,6 +64,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005";
 const SATELLITE_TILES =
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const SAT_LAYER_ID = "pro-satellite";
+// Masts cut off below this zoom: the backend tile route returns 204 for z<4
+// (an anti-scrape guard — see windmills.ts), so the vector source is minzoom 4.
+// The map's minZoom is floored here too, so the dots can never scroll into the
+// empty zone and "disappear" on zoom-out.
+const MAST_MIN_ZOOM = 4;
 // Cross-fade duration (ms) when switching road ↔ satellite.
 const SAT_FADE_MS = 450;
 
@@ -120,11 +131,20 @@ export default function ProMapPage() {
     mid: true,
     tall: true,
   });
+  // Grid line-voltage bands (band-min kV → on). All on = no filter, so
+  // unknown-voltage lines stay visible by default.
+  const [voltageBands, setVoltageBands] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(VOLTAGE_BANDS.map((b) => [String(b.kv), true])),
+  );
   // Wind-resource raster (GWA mean speed / power density) — single active
   // metric × height, default off. Available heights per metric come from the
   // bake-emitted metadata.json; any switch is a remove + re-add.
   const [windMetric, setWindMetric] = useState<WindMetricChoice>("off");
   const [windHeight, setWindHeight] = useState<number>(DEFAULT_WIND_HEIGHT);
+  // User opacity (0–1) for the wind-resource raster, on top of the basemap
+  // contrast curve. Persisted in the layer module so metric/height re-adds keep
+  // it; this effect re-applies it whenever the slider moves.
+  const [windOpacity, setWindOpacity] = useState<number>(1);
   // Basemap: dark road map by default; satellite swaps an Esri raster on.
   const [basemap, setBasemap] = useState<ProBasemap>("road");
   // Branded boot animation — held for at least BOOT_MS so the "Intelligence
@@ -301,6 +321,24 @@ export default function ProMapPage() {
     else map.once("idle", apply);
   }, [mastCats]);
 
+  // Grid line-voltage filter. All bands on → no restriction (the setter
+  // normalizes a full set to "show all", so unknown-voltage lines stay
+  // visible). Applying while the grid is off is a harmless no-op — the layers
+  // don't exist yet, and addPowerGrid honours the current selection when it
+  // lazily creates them.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const selected = new Set(
+        VOLTAGE_BANDS.filter((b) => voltageBands[String(b.kv)]).map((b) => b.kv),
+      );
+      setPowerGridVoltageFilter(map, selected);
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [voltageBands]);
+
   // "Electricity Grid" toggle. First enable lazily creates the source +
   // layers (addPowerGrid is idempotent — re-entry is a no-op); after that
   // the toggle only flips layer visibility.
@@ -360,6 +398,13 @@ export default function ProMapPage() {
     else map.once("idle", apply);
   }, [windMetric, windHeight]);
 
+  // User opacity → live raster-opacity. The layer module persists the factor,
+  // so a no-op when no layer is on is fine (it applies on the next add).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) setWindResourceOpacity(map, windOpacity);
+  }, [windOpacity]);
+
   // Metric switch handler — snaps the height to the nearest one available
   // for the new metric (e.g. speed @ 50 m → density snaps to 100 m).
   const handleWindMetricChange = (next: WindMetricChoice) => {
@@ -382,7 +427,9 @@ export default function ProMapPage() {
       style: "https://tiles.openfreemap.org/styles/liberty",
       center: [78.9629, 22.5937],
       zoom: 4.4,
-      minZoom: 3,
+      // Floor the zoom at the mast cutoff so the dots never vanish on zoom-out
+      // (below this the backend withholds mast tiles — see windmills.ts 204).
+      minZoom: MAST_MIN_ZOOM,
       maxZoom: 17,
       // Better Auth cookie is httpOnly + Domain=.windpowerindia.com in prod;
       // forcing credentials on every API tile fetch ensures the cookie ships.
@@ -467,7 +514,7 @@ export default function ProMapPage() {
         // ?v= busts the backend disk cache + browser cache — bump after each
         // windmill data re-ingestion (UUIDs change).
         tiles: [`${API_URL}/api/tiles/{z}/{x}/{y}.mvt?v=${WINDMILL_TILES_VERSION}`],
-        minzoom: 4,
+        minzoom: MAST_MIN_ZOOM,
         maxzoom: 16,
       });
 
@@ -770,8 +817,10 @@ export default function ProMapPage() {
               metric={windMetric}
               height={windHeight}
               value={readout?.resource?.value}
+              opacity={windOpacity}
               onMetricChange={handleWindMetricChange}
               onHeightChange={setWindHeight}
+              onOpacityChange={setWindOpacity}
             />
           </section>
           <section>
@@ -783,11 +832,15 @@ export default function ProMapPage() {
               showMasts={showMasts}
               showPowerGrid={showPowerGrid}
               mastCats={mastCats}
+              voltageBands={voltageBands}
               onToggleTurbines={setShowTurbines}
               onToggleMasts={setShowMasts}
               onTogglePowerGrid={setShowPowerGrid}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
+              }
+              onVoltageBandChange={(kv, next) =>
+                setVoltageBands((prev) => ({ ...prev, [kv]: next }))
               }
             />
           </section>

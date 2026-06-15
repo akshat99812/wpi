@@ -94,6 +94,17 @@ export function MastDataTool({ selected, loading, error }: Props) {
           Position is approximate
         </p>
       )}
+
+      <p className="mt-3 border-t border-slate-800 pt-3 text-[11px] leading-relaxed text-slate-500">
+        For measured mast data, contact{' '}
+        <a
+          href="mailto:info@cecl.in?subject=Mast%20data%20request"
+          className="text-slate-300 underline decoration-slate-600 underline-offset-2 hover:text-white"
+        >
+          CECL
+        </a>
+        .
+      </p>
     </div>
   );
 }
