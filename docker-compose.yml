@@ -28,6 +28,34 @@ services:
       retries: 5
       start_period: 10s
 
+  # FastAPI port of the site-analysis engine (parity migration — Phase 2 scaffold).
+  # Internal-only: no published ports; reachable on the compose network as
+  # http://site-analysis:8000. Express proxies to it (RUNBOOK_v3 §2.6). Reads the
+  # SAME PostGIS and the SAME rasters (read-only) as the legacy engine.
+  site-analysis:
+    build:
+      context: ./services/site-analysis
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://wpi:${POSTGIS_PASSWORD:-wpi}@postgis:5432/wpi
+      ANALYSIS_DATA_DIR: /app/data
+      GWA_TILER_BASE: ${GWA_TILER_BASE:-https://tiles-stag.ramtt.xyz/titiler/gwa4}
+      SITE_ANALYSIS_BACKEND: ${SITE_ANALYSIS_BACKEND:-legacy}
+    expose:
+      - "8000"
+    volumes:
+      - ./apps/api/data:/app/data:ro
+    depends_on:
+      postgis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   # Proprietary windmill point data for the Pro map. Only reachable on the
   # compose network in prod; in dev we bind 127.0.0.1:5432 so the ingest
   # script can be run from the host.

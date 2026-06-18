@@ -1,0 +1,1 @@
+400 SELF_INTERSECTING (bowtie)

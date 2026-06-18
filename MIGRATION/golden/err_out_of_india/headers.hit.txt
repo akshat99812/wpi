@@ -1,0 +1,11 @@
+HTTP/1.1 400 Bad Request
+Vary: Origin, Accept-Encoding
+Access-Control-Allow-Credentials: true
+Content-Type: application/json; charset=utf-8
+Date: Thu, 18 Jun 2026 13:55:25 GMT
+Content-Length: 91
+ETag: W/"5b-0AiTZaTfZS+ra8c3i6gheMV2q8g"
+X-Powered-By: Express
+RateLimit-Policy: 20;w=60
+RateLimit: limit=20, remaining=6, reset=35
+
