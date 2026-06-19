@@ -40,11 +40,6 @@ apps/api/data/private/
 # table) — never commit; re-created by scripts/ingest-turbines.ts.
 apps/api/data/cache/
 
-# Source wind-exclusion KMZ SuperOverlays (~33 MB). Baked into the committed
-# XYZ pyramid apps/web/public/exclusions/ by scripts/build_exclusions.py — the
-# baked tiles ship in the repo (like wind-atlas), the bulky source does not.
-apps/api/data/exclusion/
-
 
 # IDE
 .vscode/
