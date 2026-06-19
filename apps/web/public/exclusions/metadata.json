@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-19T17:17:17.726724+00:00",
+  "attribution": "Wind-exclusion zones \u2014 state SuperOverlay data (2024)",
+  "bounds": [
+    68.153374,
+    7.218716,
+    85.882248,
+    30.994019
+  ],
+  "minzoom": 3,
+  "maxzoom": 10,
+  "tilePath": "/exclusions/{z}/{x}/{y}.png",
+  "tileVersion": "2",
+  "tileCount": 999,
+  "states": [
+    {
+      "name": "AP state March 2024",
+      "bounds": [
+        75.601764,
+        11.881156,
+        85.882248,
+        19.890967
+      ]
+    },
+    {
+      "name": "Karnataka state Feb 2024",
+      "bounds": [
+        70.730191,
+        10.850333,
+        81.80873,
+        19.479365
+      ]
+    },
+    {
+      "name": "Maharastra state March 2024",
+      "bounds": [
+        71.66347,
+        14.891933,
+        82.022357,
+        22.735941
+      ]
+    },
+    {
+      "name": "MP state March 2024",
+      "bounds": [
+        73.175333,
+        19.899919,
+        83.669384,
+        28.03099
+      ]
+    },
+    {
+      "name": "Rajasthan state March 2024",
+      "bounds": [
+        68.153374,
+        22.278989,
+        79.358451,
+        30.994019
+      ]
+    },
+    {
+      "name": "TamilNadu state Feb 2024",
+      "bounds": [
+        73.767417,
+        7.218716,
+        82.614632,
+        14.026891
+      ]
+    },
+    {
+      "name": "Telangana state March 2024",
+      "bounds": [
+        76.013109,
+        15.222444,
+        82.886225,
+        20.574681
+      ]
+    }
+  ]
+}

@@ -52,6 +52,10 @@ import {
   snapWindHeight,
   WIND_METRICS,
 } from "@/components/Map/utils/windResource";
+import {
+  addExclusion,
+  setExclusionVisibility,
+} from "@/components/Map/utils/exclusion";
 import type { WindMetricChoice } from "@/components/Map/components/WindResourceCard";
 import { CeclLoader } from "@/components/CeclLoader";
 import type { CursorReadout, Windmill, Turbine } from "@/components/Map/types";
@@ -93,6 +97,7 @@ export default function ProMapPage() {
   const showMastsRef = useRef(true);
   const showTurbinesRef = useRef(false);
   const showPowerGridRef = useRef(false);
+  const showExclusionRef = useRef(false);
   const windMetricRef = useRef<WindMetricChoice>("off");
   const windHeightRef = useRef<number>(DEFAULT_WIND_HEIGHT);
   const [selected, setSelected] = useState<Windmill | null>(null);
@@ -125,6 +130,11 @@ export default function ProMapPage() {
   // default off. The source + layers are created lazily on first enable
   // (addPowerGrid is idempotent); later toggles only flip visibility.
   const [showPowerGrid, setShowPowerGrid] = useState(false);
+  // "Exclusion zones" — all state wind-exclusion SuperOverlay rasters shown as
+  // one toggle (single button = all exclusion data). The raster source + layer
+  // are created lazily on first enable (addExclusion is idempotent); later
+  // toggles only flip visibility.
+  const [showExclusion, setShowExclusion] = useState(false);
   // Mast measurement-height buckets (tile property `hcat`): all on = no filter.
   const [mastCats, setMastCats] = useState<Record<MastHeightCat, boolean>>({
     short: true,
@@ -368,6 +378,31 @@ export default function ProMapPage() {
     else map.once("idle", apply);
   }, [showPowerGrid]);
 
+  // "Exclusion zones" toggle. First enable lazily creates the raster source +
+  // layer (addExclusion is idempotent); after that the toggle only flips layer
+  // visibility. Inserted below the state boundaries / pins (same beforeId the
+  // wind-resource raster uses) so those overlays stay on top. Same once("idle")
+  // rationale as the grid effect above.
+  useEffect(() => {
+    showExclusionRef.current = showExclusion;
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      if (showExclusion) {
+        addExclusion(map, {
+          beforeId: ["pro-state-casing", "windmills-pts"].find((id) =>
+            map.getLayer(id),
+          ),
+        });
+        setExclusionVisibility(map, true);
+      } else {
+        setExclusionVisibility(map, false);
+      }
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [showExclusion]);
+
   // Wind-resource raster. Off → remove; metric/height change → remove +
   // re-add (raster sources can't swap tile templates in place). Inserted
   // below the state-boundary lines (or the mast pins as fallback) so every
@@ -585,6 +620,16 @@ export default function ProMapPage() {
           isInteractionBlocked: () =>
             Boolean(aoiArmedRef.current || measureArmedRef.current),
         });
+      }
+
+      // Likewise re-add the exclusion raster on map re-creation if it was on.
+      if (showExclusionRef.current) {
+        addExclusion(map, {
+          beforeId: ["pro-state-casing", "windmills-pts"].find((id) =>
+            map.getLayer(id),
+          ),
+        });
+        setExclusionVisibility(map, true);
       }
 
       // Likewise re-add an active wind-resource raster on map re-creation.
@@ -831,11 +876,13 @@ export default function ProMapPage() {
               showTurbines={showTurbines}
               showMasts={showMasts}
               showPowerGrid={showPowerGrid}
+              showExclusion={showExclusion}
               mastCats={mastCats}
               voltageBands={voltageBands}
               onToggleTurbines={setShowTurbines}
               onToggleMasts={setShowMasts}
               onTogglePowerGrid={setShowPowerGrid}
+              onToggleExclusion={setShowExclusion}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
               }
@@ -883,6 +930,10 @@ export default function ProMapPage() {
       {/* Top-left mast colour key — only meaningful while the Masts layer is on.
           Offset clears the left sidebar (≈320px open · ≈60px collapsed rail). */}
       {isPro && showMasts && <MastLegend offsetLeft={sidebarOpen ? 344 : 72} />}
+
+      {/* Bottom-right floating legend for the wind-exclusion overlay — only
+          while the layer is on. */}
+      {isPro && showExclusion && <ExclusionLegend />}
 
       {(isPending || booting) && (
         <CeclLoader label="Intelligence Terminal Loading" />
@@ -963,6 +1014,27 @@ function MastLegend({ offsetLeft }: { offsetLeft: number }) {
     >
       <LegendRow color={NIWE_MAST_COLOR} label="NIWE masts" />
       <LegendRow color={PRIVATE_MAST_COLOR} label="Private masts" />
+    </div>
+  );
+}
+
+/** Wind-exclusion zone fill colour — matches the dominant green zone fill in
+ *  the baked exclusion tiles. */
+const EXCLUSION_SWATCH = "#46a915";
+
+/** Bottom-right floating legend shown while the Exclusion-zones layer is on. */
+function ExclusionLegend() {
+  return (
+    <div className="pointer-events-none absolute bottom-8 right-3 z-10 rounded-lg border border-slate-700 bg-slate-900/85 px-3 py-2 text-[11px] text-slate-200 shadow-lg backdrop-blur">
+      <p className="pb-1 font-medium">Wind-exclusion zones</p>
+      <span className="flex items-center gap-2">
+        <span
+          className="h-2.5 w-2.5 shrink-0 rounded-sm ring-1 ring-white/20"
+          style={{ backgroundColor: EXCLUSION_SWATCH }}
+        />
+        Restricted / exclusion areas
+      </span>
+      <p className="pt-1 text-[10px] text-slate-400">Official state maps 2024 · 7 states</p>
     </div>
   );
 }

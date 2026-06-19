@@ -48,6 +48,20 @@ function GridIcon({ className }: { className?: string }) {
   );
 }
 
+/** "No-go" ban glyph for the wind-exclusion zones layer toggle. */
+function ExclusionGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"
+      className={className} aria-hidden
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M5.6 5.6l12.8 12.8" />
+    </svg>
+  );
+}
+
 /** Mast height buckets — mirror the `hcat` property baked into the windmill
  *  vector tiles (apps/api windmills route): 0 = <50 m, 1 = 50–100 m, 2 = >100 m. */
 export type MastHeightCat = 'short' | 'mid' | 'tall';
@@ -80,6 +94,8 @@ interface Props {
   showMasts: boolean;
   /** "Electricity Grid" = OpenInfraMap lines/substations/RE plants. */
   showPowerGrid: boolean;
+  /** "Exclusion zones" = all state wind-exclusion SuperOverlay rasters. */
+  showExclusion: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
   mastCats: Record<MastHeightCat, boolean>;
   /** Which grid line-voltage bands are visible, keyed by band-min kV as a
@@ -88,6 +104,7 @@ interface Props {
   onToggleTurbines: (next: boolean) => void;
   onToggleMasts: (next: boolean) => void;
   onTogglePowerGrid: (next: boolean) => void;
+  onToggleExclusion: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
   onVoltageBandChange: (kv: string, next: boolean) => void;
 }
@@ -105,11 +122,13 @@ export function LayersTool({
   showTurbines,
   showMasts,
   showPowerGrid,
+  showExclusion,
   mastCats,
   voltageBands,
   onToggleTurbines,
   onToggleMasts,
   onTogglePowerGrid,
+  onToggleExclusion,
   onMastCatChange,
   onVoltageBandChange,
 }: Props) {
@@ -151,6 +170,14 @@ export function LayersTool({
         <VoltageChips bands={voltageBands} onChange={onVoltageBandChange} />
       )}
       {showPowerGrid && <PowerGridLegend />}
+      <ToggleRow
+        label="Exclusion zones"
+        description="State wind-exclusion maps (all states)"
+        swatch="#f59e0b"
+        icon={<ExclusionGlyph className="h-3.5 w-3.5" />}
+        checked={showExclusion}
+        onChange={onToggleExclusion}
+      />
     </div>
   );
 }
