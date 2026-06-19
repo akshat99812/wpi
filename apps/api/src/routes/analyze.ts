@@ -13,14 +13,7 @@ import {
   putCachedResult,
   resultCacheKey,
 } from "../services/analysis/resultCache";
-import {
-  GeometryError,
-  type GeoJsonPolygon,
-  type ValidatedAoi,
-} from "../services/analysis/types";
-import { getSiteAnalysisBackend, isShadowEnabled } from "../services/analysis/backendFlag";
-import { analyzeViaService } from "../services/analysis/serviceClient";
-import { runShadowComparison } from "../services/analysis/shadowDiff";
+import { GeometryError, type ValidatedAoi } from "../services/analysis/types";
 
 const router = Router();
 
@@ -60,7 +53,6 @@ router.post(
   analyzeLimiter,
   async (req: Request, res: Response) => {
     let aoi: ValidatedAoi;
-    let geometry: GeoJsonPolygon;
     try {
       const parsed = analyzeRequestSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -70,8 +62,7 @@ router.post(
         });
         return;
       }
-      geometry = parsed.data.geometry;
-      aoi = validateAoi(geometry);
+      aoi = validateAoi(parsed.data.geometry);
     } catch (err) {
       if (err instanceof GeometryError) {
         res.status(400).json({ error: err.message, code: err.code });
@@ -105,26 +96,9 @@ router.post(
         });
         return;
       }
-      // Restart-free backend selector (RUNBOOK_v3 §2.7/§5). Default "legacy"
-      // is the unchanged in-process engine. "service" proxies to the FastAPI
-      // port, falling back to legacy on any service error so a paying user is
-      // never affected by a service hiccup.
-      const backend = getSiteAnalysisBackend();
       let response;
       try {
-        if (backend === "service") {
-          try {
-            response = await analyzeViaService(geometry);
-          } catch (err) {
-            console.warn("[analyze] service backend failed; falling back to legacy engine", err);
-            response = await analyzeAoi(aoi);
-          }
-        } else {
-          response = await analyzeAoi(aoi);
-          // Shadow mode: serve legacy now, async-diff the service in the
-          // background (RUNBOOK_v3 §5). Never touches this response.
-          if (isShadowEnabled()) void runShadowComparison(geometry, response);
-        }
+        response = await analyzeAoi(aoi);
       } finally {
         slot.release();
       }

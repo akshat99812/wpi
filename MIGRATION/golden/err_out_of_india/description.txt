@@ -1,1 +1,0 @@
-400 OUT_OF_INDIA (vertex lon>98)
