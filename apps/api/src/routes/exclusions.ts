@@ -24,6 +24,7 @@ import { pool, dbAvailable } from "../lib/db";
 const router = Router();
 
 const TILE_TTL = Number(process.env.TILE_CACHE_TTL || 86400);
+const MIN_TILE_ZOOM = 4; // bake minzoom; matches the map's min zoom so zones show when zoomed out.
 const MAX_TILE_ZOOM = 14; // bake maxzoom; the client overzooms 14 → 16.
 const PMTILES_PATH = path.resolve(import.meta.dir, "../../data/by-source/exclusions.pmtiles");
 
@@ -96,7 +97,7 @@ router.get(
       res.status(400).end();
       return;
     }
-    if (z < 5 || z > MAX_TILE_ZOOM) {
+    if (z < MIN_TILE_ZOOM || z > MAX_TILE_ZOOM) {
       res.status(204).end();
       return;
     }

@@ -29,12 +29,12 @@ if (!DB) {
 // One GeoJSON Feature per row; props kept tiny (lc/cls/legal/src/kind). 6-dp
 // geometry (~0.1 m) keeps the export small without visible loss.
 const COPY_SQL = `\\copy (
-  SELECT json_build_object('type','Feature','geometry',ST_AsGeoJSON(geom,6)::json,
+  SELECT json_build_object('type','Feature','geometry',ST_AsGeoJSON(geom,5)::json,
     'properties',json_build_object('lc',layer_code,'cls',class,
       'legal',COALESCE((attrs->>'is_legal_boundary')::boolean,false),'src',source_id,'kind','zone'))::text
   FROM wce.excl_polygon
   UNION ALL
-  SELECT json_build_object('type','Feature','geometry',ST_AsGeoJSON(geom,6)::json,
+  SELECT json_build_object('type','Feature','geometry',ST_AsGeoJSON(geom,5)::json,
     'properties',json_build_object('lc',layer_code,'cls',class,'legal',false,'src',source_id,'kind','buffer'))::text
   FROM wce.excl_buffer
 ) TO STDOUT`;
@@ -42,8 +42,10 @@ const COPY_SQL = `\\copy (
 console.log("[bake] exporting features → geojsonl…");
 await $`psql ${DB} -v ON_ERROR_STOP=1 -c ${COPY_SQL} > ${GEOJSONL}`;
 
-console.log("[bake] tippecanoe → exclusions.pmtiles (z5–14)…");
-await $`tippecanoe -o ${PMTILES} -l exclusions -Z5 -z14 \
+// -Z4 so zones still show when zoomed out to the map's min zoom (MAST_MIN_ZOOM=4);
+// --coalesce-smallest-as-needed merges dense features into visible regions at low z.
+console.log("[bake] tippecanoe → exclusions.pmtiles (z4–14)…");
+await $`tippecanoe -o ${PMTILES} -l exclusions -Z4 -z14 \
   --drop-densest-as-needed --coalesce-smallest-as-needed --extend-zooms-if-still-dropping \
   --simplification=10 --force ${GEOJSONL}`;
 
