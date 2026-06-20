@@ -130,7 +130,9 @@ router.get(
       const raw = Buffer.from(tile.data);
       const alreadyGz = raw[0] === 0x1f && raw[1] === 0x8b;
       res.setHeader("Content-Encoding", "gzip");
-      res.send(alreadyGz ? raw : Bun.gzipSync(raw));
+      // Must be a Buffer — Express JSON-serializes a bare Uint8Array (which is
+      // what Bun.gzipSync returns), corrupting the tile into `{"0":31,...}`.
+      res.send(alreadyGz ? raw : Buffer.from(Bun.gzipSync(raw)));
     } catch (err) {
       console.error("[exclusion-tiles] pmtiles read failed", err);
       res.status(500).json({ error: "Tile read failed" });
