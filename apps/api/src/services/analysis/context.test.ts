@@ -9,6 +9,7 @@ import {
   terrainStats,
   type CapacityRow,
 } from "./context";
+import { developableFraction } from "./developable";
 import { buildAoiMask, type PatchFrame } from "./mask";
 import { patchPixelCenterLngLat } from "./mercator";
 import type { AoiMask, LayerPatch, ValidatedAoi } from "./types";
@@ -262,29 +263,60 @@ describe("terrainStats", () => {
   });
 });
 
-describe("computeSizing", () => {
-  test("plan §2.5 formulas, verbatim", () => {
-    // 100 km² · (1 − 0.18) · 0.7 = 57.4 km² → 287 MW → 287·8.76·0.34 ≈ 854.8
-    const sizing = computeSizing(100, 0.18, 0.34);
+describe("computeSizing (CF-engine Phase A developable model)", () => {
+  test("no exclusions/slope → packing-only developable fraction (0.85)", () => {
+    // 100 · (1 − 0.18) · [(1−0)·(1−0)·0.85] = 69.7 km² → 348.5 MW →
+    // 348.5 · 8.76 · 0.34 ≈ 1038.2
+    const sizing = computeSizing(100, 0.18, 0.34, null, null);
 
-    expect(sizing.capacityMw).toBeCloseTo(287, 0);
-    expect(sizing.energyGwh).toBeCloseTo(854.8, 0);
+    expect(sizing.developableFraction).toBeCloseTo(0.85, 3);
+    expect(sizing.usableKm2).toBeCloseTo(69.7, 1);
+    expect(sizing.capacityMw).toBeCloseTo(348.5, 0);
+    expect(sizing.energyGwh).toBeCloseTo(1038.2, 0);
+    expect(sizing.excludedFraction).toBeNull();
+    expect(sizing.steepFraction).toBeNull();
     expect(sizing.assumptions).toContain("5 MW/km² density");
-    expect(sizing.assumptions).toContain("existing wind-farm area excluded");
+    expect(sizing.assumptions).toContain("legal exclusions unavailable (not subtracted)");
+  });
+
+  test("exclusions + slope shrink the developable fraction", () => {
+    // devFrac = (1−0.2)·(1−0.1)·0.85 = 0.612 → usable 61.2 → 306 MW
+    const sizing = computeSizing(100, 0, 0.34, 0.2, 0.1);
+
+    expect(sizing.developableFraction).toBeCloseTo(0.612, 3);
+    expect(sizing.capacityMw).toBeCloseTo(306, 0);
+    expect(sizing.excludedFraction).toBe(0.2);
+    expect(sizing.steepFraction).toBe(0.1);
+    expect(sizing.assumptions).toContain("hard (red) legal exclusions removed");
   });
 
   test("AOI fully inside existing farms → ~0 MW, not an error", () => {
-    const sizing = computeSizing(25, 1, 0.6);
+    const sizing = computeSizing(25, 1, 0.6, 0.3, 0.05);
 
     expect(sizing.capacityMw).toBe(0);
     expect(sizing.energyGwh).toBe(0);
   });
 
   test("null cfIec3 → zero energy, capacity unaffected", () => {
-    const sizing = computeSizing(100, 0, null);
+    const sizing = computeSizing(100, 0, null, null, null);
 
-    expect(sizing.capacityMw).toBe(350);
+    expect(sizing.capacityMw).toBe(425); // 100 · 0.85 · 5
     expect(sizing.energyGwh).toBe(0);
+  });
+});
+
+describe("developableFraction (CF-engine Phase A)", () => {
+  test("null inputs degrade to packing-only (DB down / no slope)", () => {
+    expect(developableFraction(null, null)).toBeCloseTo(0.85, 5);
+  });
+
+  test("exclusion + slope compound multiplicatively", () => {
+    expect(developableFraction(0.5, 0.5)).toBeCloseTo(0.5 * 0.5 * 0.85, 5);
+  });
+
+  test("clamps out-of-range inputs", () => {
+    expect(developableFraction(1.5, -0.2)).toBe(0); // excl≥1 → 0 developable
+    expect(developableFraction(0, 0)).toBeCloseTo(0.85, 5);
   });
 });
 
@@ -324,6 +356,7 @@ describe("computeContext (injected deps)", () => {
             { geometry: { type: "Polygon" as const, coordinates: [aoiRing] } },
           ],
         }),
+        loadExclusionCoverage: async () => ({ excludedKm2: 5, excludedFraction: 0.1 }),
       },
     );
 
@@ -334,6 +367,8 @@ describe("computeContext (injected deps)", () => {
     expect(result.windfarms.overlapFraction).toBeCloseTo(1, 2);
     expect(result.terrain?.elevMean).toBe(100);
     expect(result.slope90thDeg).toBe(0);
+    // Injected exclusion coverage flows through to sizing.
+    expect(result.sizing.excludedFraction).toBe(0.1);
     // Full overlap → sizing collapses to ~0 (the §2.5 farm-covered case).
     expect(result.sizing.capacityMw).toBeCloseTo(0, 1);
   });
@@ -346,6 +381,7 @@ describe("computeContext (injected deps)", () => {
         loadStatesGeo: async () => null,
         loadCapacityRows: async () => null,
         loadFarmsGeo: async () => null,
+        loadExclusionCoverage: async () => null,
       },
     );
 

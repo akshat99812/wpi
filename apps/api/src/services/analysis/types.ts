@@ -157,6 +157,14 @@ export interface ContextData {
     capacityMw: number;
     energyGwh: number;
     assumptions: string[];
+    /** Buildable area after exclusions + slope + packing + existing farms (km²). */
+    usableKm2: number;
+    /** Applied developable fraction (0..1): (1−excl)·(1−steep)·packing. */
+    developableFraction: number;
+    /** Hard (red) legal exclusions ∩ AOI ÷ AOI area; null when the DB is down. */
+    excludedFraction: number | null;
+    /** In-mask pixels steeper than the slope cutoff ÷ total; null if no slope. */
+    steepFraction: number | null;
   };
 }
 

@@ -86,7 +86,15 @@ export interface ContextData {
     slopeMeanDeg: number;
     slopeSteep10Deg: number;
   } | null;
-  sizing: { capacityMw: number; energyGwh: number; assumptions: string[] };
+  sizing: {
+    capacityMw: number;
+    energyGwh: number;
+    assumptions: string[];
+    usableKm2: number;
+    developableFraction: number;
+    excludedFraction: number | null;
+    steepFraction: number | null;
+  };
 }
 
 export interface ScoreComponent {

@@ -173,6 +173,20 @@ export function AnalysisResults({ analysis, onMastSelect }: Props) {
             Indicative sizing: ~{Math.round(context.sizing.capacityMw)} MW ·{" "}
             ~{Math.round(context.sizing.energyGwh)} GWh/yr
           </p>
+          <p className="mt-0.5">
+            ~{context.sizing.usableKm2.toFixed(1)} km² developable
+            {" "}({(context.sizing.developableFraction * 100).toFixed(0)}% of area)
+          </p>
+          {(context.sizing.excludedFraction != null ||
+            context.sizing.steepFraction != null) && (
+            <p className="mt-0.5 text-slate-400">
+              {context.sizing.excludedFraction != null
+                ? `${(context.sizing.excludedFraction * 100).toFixed(0)}% legal exclusions`
+                : "exclusions unavailable"}
+              {context.sizing.steepFraction != null &&
+                ` · ${(context.sizing.steepFraction * 100).toFixed(0)}% too steep`}
+            </p>
+          )}
           {context.windfarms.overlapFraction > 0 && (
             <p className="mt-0.5">
               {(context.windfarms.overlapFraction * 100).toFixed(0)}% of the

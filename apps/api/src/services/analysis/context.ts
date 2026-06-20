@@ -26,10 +26,15 @@ import { promises as fs } from "fs";
 import path from "path";
 import { pool, dbAvailable } from "../../lib/db";
 import {
-  SIZING_ASSUMPTIONS,
+  DEVELOPABLE_MAX_SLOPE_DEG,
+  DEVELOPABLE_PACKING_FACTOR,
   SIZING_MW_PER_KM2,
-  SIZING_USABLE_LAND_FRACTION,
 } from "./constants";
+import {
+  developableFraction as computeDevelopableFraction,
+  queryExclusionCoverageDefault,
+  type LoadExclusionCoverage,
+} from "./developable";
 import { patchPixelCenterLngLat } from "./mercator";
 import { buildAoiMask, type PatchFrame } from "./mask";
 import type { AoiMask, ContextData, LayerPatch, ValidatedAoi } from "./types";
@@ -89,6 +94,7 @@ export interface ContextDeps {
   loadStatesGeo?: () => Promise<FeatureCollection<StatesFeature> | null>;
   loadCapacityRows?: () => Promise<CapacityRow[] | null>;
   loadFarmsGeo?: () => Promise<FeatureCollection<FarmsFeature> | null>;
+  loadExclusionCoverage?: LoadExclusionCoverage;
 }
 
 export interface ContextInputs {
@@ -250,7 +256,12 @@ function ringBboxIntersects(
 export function terrainStats(
   elevation: LayerPatch,
   mask: AoiMask,
-): { terrain: ContextData["terrain"]; slope90thDeg: number | null } {
+): {
+  terrain: ContextData["terrain"];
+  slope90thDeg: number | null;
+  /** Fraction of in-mask slope samples steeper than DEVELOPABLE_MAX_SLOPE_DEG. */
+  steepFraction: number | null;
+} {
   const { widthPx, heightPx, data } = elevation;
   const elevations: number[] = [];
   const slopes: number[] = [];
@@ -294,7 +305,7 @@ export function terrainStats(
 
   if (elevations.length === 0) {
     console.warn("[context] elevation layer empty in-mask; terrain unavailable");
-    return { terrain: null, slope90thDeg: null };
+    return { terrain: null, slope90thDeg: null, steepFraction: null };
   }
 
   const sortedSlopes = [...slopes].sort((a, b) => a - b);
@@ -302,6 +313,11 @@ export function terrainStats(
     sortedSlopes.length === 0 ? null : quantileSorted(sortedSlopes, SLOPE_90TH_QUANTILE);
   const meanSlope =
     slopes.length === 0 ? 0 : slopes.reduce((a, b) => a + b, 0) / slopes.length;
+  // Share of buildable footprint lost to terrain too steep to develop.
+  const steepFraction =
+    slopes.length === 0
+      ? null
+      : slopes.filter((s) => s > DEVELOPABLE_MAX_SLOPE_DEG).length / slopes.length;
 
   return {
     terrain: {
@@ -312,6 +328,7 @@ export function terrainStats(
       slopeSteep10Deg: slope90th === null ? 0 : Math.round(slope90th * 10) / 10,
     },
     slope90thDeg: slope90th === null ? null : Math.round(slope90th * 10) / 10,
+    steepFraction,
   };
 }
 
@@ -324,17 +341,46 @@ function quantileSorted(sorted: readonly number[], q: number): number {
   return loV + (hiV - loV) * (pos - lo);
 }
 
-/** Plan §2.5, verbatim formulas. cfIec3 null → 0 GWh (no CF, no energy). */
+/**
+ * CF-engine Phase A sizing. usable = area · (1 − farmOverlap) · developable,
+ * where developable = (1 − redExclusionFraction) · (1 − steepFraction) · packing
+ * (developable.ts). Replaces the legacy flat 0.7 usable fraction. Null inputs
+ * (DB down / no slope) degrade to "not subtracted" inside developableFraction.
+ * cfIec3 null → 0 GWh (no CF, no energy) — energy still uses the GWA CF until
+ * the power-curve CF lands in Phase B.
+ */
 export function computeSizing(
   areaKm2: number,
   overlapFraction: number,
   cfIec3: number | null,
+  excludedFraction: number | null,
+  steepFraction: number | null,
 ): ContextData["sizing"] {
-  const usableKm2 = areaKm2 * (1 - overlapFraction) * SIZING_USABLE_LAND_FRACTION;
+  const devFrac = computeDevelopableFraction(excludedFraction, steepFraction);
+  const usableKm2 = areaKm2 * (1 - overlapFraction) * devFrac;
   const capacityMw = Math.round(usableKm2 * SIZING_MW_PER_KM2 * 10) / 10;
   const energyGwh =
     Math.round(capacityMw * HOURS_PER_YEAR_OVER_1000 * (cfIec3 ?? 0) * 10) / 10;
-  return { capacityMw, energyGwh, assumptions: [...SIZING_ASSUMPTIONS] };
+  const round3 = (x: number | null): number | null =>
+    x === null ? null : Math.round(x * 1000) / 1000;
+  return {
+    capacityMw,
+    energyGwh,
+    usableKm2: Math.round(usableKm2 * 100) / 100,
+    developableFraction: Math.round(devFrac * 1000) / 1000,
+    excludedFraction: round3(excludedFraction),
+    steepFraction: round3(steepFraction),
+    assumptions: [
+      `${SIZING_MW_PER_KM2} MW/km² density`,
+      `${DEVELOPABLE_PACKING_FACTOR} packing factor (setbacks/roads)`,
+      excludedFraction === null
+        ? "legal exclusions unavailable (not subtracted)"
+        : "hard (red) legal exclusions removed",
+      `slopes steeper than ${DEVELOPABLE_MAX_SLOPE_DEG}° removed`,
+      "existing wind-farm area excluded",
+      "IEC-III capacity factor",
+    ],
+  };
 }
 
 // ── Default loaders (disk / network / DB) ───────────────────────────────────
@@ -460,27 +506,40 @@ export async function computeContext(
   const loadStates = deps.loadStatesGeo ?? loadStatesGeoDefault;
   const loadCapacity = deps.loadCapacityRows ?? loadCapacityRowsDefault;
   const loadFarms = deps.loadFarmsGeo ?? loadFarmsGeoDefault;
+  const loadExclusions = deps.loadExclusionCoverage ?? queryExclusionCoverageDefault;
 
-  const [statesGeo, capacityRows, farmsGeo] = await Promise.all([
+  const [statesGeo, capacityRows, farmsGeo, exclusionCoverage] = await Promise.all([
     loadStates(),
     loadCapacity(),
     loadFarms(),
+    loadExclusions(aoi),
   ]);
 
   const stateNames = statesGeo ? statesForAoi(aoi, statesGeo) : [];
   if (!statesGeo) console.warn("[context] states list degraded to []");
+  if (!exclusionCoverage)
+    console.warn("[context] exclusion coverage unavailable; not subtracted from sizing");
 
   const windfarms = farmsGeo
     ? farmOverlap(aoi, farmsGeo, inputs.elevation, inputs.aoiMask)
     : { count: 0, overlapFraction: 0 };
 
-  const { terrain, slope90thDeg } = terrainStats(inputs.elevation, inputs.aoiMask);
+  const { terrain, slope90thDeg, steepFraction } = terrainStats(
+    inputs.elevation,
+    inputs.aoiMask,
+  );
 
   return {
     states: joinStateCapacities(stateNames, capacityRows),
     windfarms,
     terrain,
-    sizing: computeSizing(aoi.areaKm2, windfarms.overlapFraction, inputs.cfIec3),
+    sizing: computeSizing(
+      aoi.areaKm2,
+      windfarms.overlapFraction,
+      inputs.cfIec3,
+      exclusionCoverage?.excludedFraction ?? null,
+      steepFraction,
+    ),
     slope90thDeg,
   };
 }

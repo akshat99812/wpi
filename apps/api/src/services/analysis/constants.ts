@@ -8,8 +8,10 @@
 
 /** Bump on ANY algorithm change — keys the result cache and the response.
  *  10.1.0: Phase 2 sections went live (validation/grid/context + flag-gated
- *  climate); score now receives real grid + terrain inputs. */
-export const ANALYSIS_VERSION = "10.1.0";
+ *  climate); score now receives real grid + terrain inputs.
+ *  10.2.0: CF-engine Phase A — sizing's flat 0.7 usable fraction replaced by a
+ *  real developable area (legal red exclusions ∩ AOI + steep-slope mask). */
+export const ANALYSIS_VERSION = "10.2.0";
 
 /**
  * Sampling zoom for all GWA raster layers. Verified: z9 gives only 256 valid
@@ -62,6 +64,19 @@ export const GEOMETRY_HASH_DECIMALS = 6;
 /** Sizing assumptions (plan §2.5) — must be echoed in every response. */
 export const SIZING_MW_PER_KM2 = 5;
 export const SIZING_USABLE_LAND_FRACTION = 0.7;
+
+/**
+ * Developable-area model (CF-engine Phase A). Replaces the flat 0.7 fudge:
+ *   developableFraction = (1 − redExclusionFraction) · (1 − steepFraction) · PACKING
+ * - MAX_SLOPE_DEG: terrain steeper than this is treated as non-buildable
+ *   (≈27% grade; the score already treats 20° as prohibitive). Per-pixel slope
+ *   already exists in context.terrainStats.
+ * - PACKING_FACTOR: residual intra-site setbacks/roads/spacing AFTER exclusions
+ *   + slope are removed. Higher than the old 0.7 because land-use exclusion is
+ *   now handled explicitly by the wce.* layers, not lumped into this factor.
+ */
+export const DEVELOPABLE_MAX_SLOPE_DEG = 15;
+export const DEVELOPABLE_PACKING_FACTOR = 0.85;
 export const SIZING_ASSUMPTIONS = [
   "5 MW/km² density",
   "0.7 usable-land fraction",
