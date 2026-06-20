@@ -35,6 +35,19 @@ export interface ResourceData {
   cfIec2: number | null;
   /** Power-curve CF (shadow) from the AOI Weibull + air density, per IEC class. */
   cfPowerCurve: { iec1: number; iec2: number; iec3: number } | null;
+  /** Net CF (shadow): gross·(1−wake)·Π(1−lossᵢ) off IEC-III + loss waterfall. */
+  cfNet: {
+    grossCf: number;
+    wakeLossFraction: number;
+    otherLossFraction: number;
+    lossBuckets: {
+      availability: number;
+      electrical: number;
+      soiling: number;
+      curtailment: number;
+    };
+    netCf: number;
+  } | null;
   shearAlpha: number;
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;

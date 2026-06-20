@@ -167,7 +167,7 @@ Live PyWake per request is too slow and would drag Python into the path. Instead
 
 ## 8. Phased roadmap (each phase shippable)
 
-> **Build status (2026-06-21).** Phase A **shipped** (`a86e901`): developable area from `wce.*` red exclusions + slope (`developable.ts`, `ANALYSIS_VERSION` 10.2.0). Phase B **shipped as shadow** (`energy.ts`, 10.3.0): power-curve CF from the AOI Weibull + air density, computed for IEC I/II/III in `resource.cfPowerCurve` and shadow-logged next to GWA `cf_iec3`; headline CF unchanged.
+> **Build status (2026-06-21).** Phase A **shipped** (`a86e901`): developable area from `wce.*` red exclusions + slope (`developable.ts`, `ANALYSIS_VERSION` 10.2.0). Phase B **shipped as shadow** (`energy.ts`, 10.3.0): power-curve CF from the AOI Weibull + air density, computed for IEC I/II/III in `resource.cfPowerCurve` and shadow-logged next to GWA `cf_iec3`; headline CF unchanged. Phase C **shipped as shadow** (`losses.ts`, 10.4.0): net CF = gross·(1−wake)·Π(1−lossᵢ) in `resource.cfNet` with the loss waterfall (wake = density surrogate; IEC-61400-15 buckets). Still shadow; headline unchanged.
 > **Deliberate Phase B pivot:** rather than the Python `build_cf_rasters.py` → 500 MB CF-COG bake first, the CF is convolved in the request path off the AOI's *area-mean* Weibull (no Python, no COG, no large artifact). The per-cell CF COG (convolution per pixel, then area-weight) stays as a later precision upgrade for spatially heterogeneous AOIs.
 
 

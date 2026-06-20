@@ -12,8 +12,10 @@
  *  10.2.0: CF-engine Phase A — sizing's flat 0.7 usable fraction replaced by a
  *  real developable area (legal red exclusions ∩ AOI + steep-slope mask).
  *  10.3.0: CF-engine Phase B (shadow) — power-curve CF from the AOI Weibull +
- *  air density (resource.cfPowerCurve), computed alongside GWA cf_iec3. */
-export const ANALYSIS_VERSION = "10.3.0";
+ *  air density (resource.cfPowerCurve), computed alongside GWA cf_iec3.
+ *  10.4.0: CF-engine Phase C (shadow) — net CF = gross·(1−wake)·Π(1−lossᵢ)
+ *  (resource.cfNet) with the loss waterfall. */
+export const ANALYSIS_VERSION = "10.4.0";
 
 /**
  * Sampling zoom for all GWA raster layers. Verified: z9 gives only 256 valid

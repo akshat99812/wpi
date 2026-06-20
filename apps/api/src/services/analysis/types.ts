@@ -103,6 +103,20 @@ export interface ResourceData {
   /** CF-engine Phase B (shadow): power-curve CF from the AOI Weibull + air
    *  density, per representative IEC class. null when no Weibull distribution. */
   cfPowerCurve: { iec1: number; iec2: number; iec3: number } | null;
+  /** CF-engine Phase C (shadow): net CF = gross·(1−wake)·Π(1−lossᵢ) off the
+   *  IEC-III gross, with the loss waterfall. null when no power-curve CF. */
+  cfNet: {
+    grossCf: number;
+    wakeLossFraction: number;
+    otherLossFraction: number;
+    lossBuckets: {
+      availability: number;
+      electrical: number;
+      soiling: number;
+      curtailment: number;
+    };
+    netCf: number;
+  } | null;
   shearAlpha: number;
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;

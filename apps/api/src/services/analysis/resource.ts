@@ -8,8 +8,9 @@
  * barometric formula, shear ln-ratio least-squares method).
  */
 
-import { SITE_CLASS_BANDS } from "./constants";
+import { SITE_CLASS_BANDS, SIZING_MW_PER_KM2 } from "./constants";
 import { computePowerCurveCfs } from "./energy";
+import { computeNetCf } from "./losses";
 import { indiaPercentileOf } from "./indiaCdf";
 import type { AoiMask, LayerPatch, ResourceData, SiteClass } from "./types";
 
@@ -281,6 +282,19 @@ export function computeResource(
     );
   }
 
+  // CF-engine Phase C (shadow): net CF = gross · (1 − wake) · Π(1 − lossᵢ),
+  // wake from the layout density. Built off the comparable IEC-III gross.
+  const cfNetRaw =
+    cfPowerCurve === null ? null : computeNetCf(cfPowerCurve.iec3, SIZING_MW_PER_KM2);
+  if (cfNetRaw) {
+    console.log(
+      `[resource] CF net (shadow) — gross_iec3=${cfNetRaw.grossCf.toFixed(4)} ` +
+        `wake=${(cfNetRaw.wakeLossFraction * 100).toFixed(1)}% ` +
+        `other=${(cfNetRaw.otherLossFraction * 100).toFixed(1)}% ` +
+        `net=${cfNetRaw.netCf.toFixed(4)}`,
+    );
+  }
+
   const indiaPercentile = indiaPercentileOf(meanSpeed);
 
   return {
@@ -306,6 +320,16 @@ export function computeResource(
             iec1: roundTo(cfPowerCurve.iec1, CF_DECIMALS),
             iec2: roundTo(cfPowerCurve.iec2, CF_DECIMALS),
             iec3: roundTo(cfPowerCurve.iec3, CF_DECIMALS),
+          },
+    cfNet:
+      cfNetRaw === null
+        ? null
+        : {
+            grossCf: roundTo(cfNetRaw.grossCf, CF_DECIMALS),
+            wakeLossFraction: roundTo(cfNetRaw.wakeLossFraction, CF_DECIMALS),
+            otherLossFraction: roundTo(cfNetRaw.otherLossFraction, CF_DECIMALS),
+            lossBuckets: cfNetRaw.lossBuckets,
+            netCf: roundTo(cfNetRaw.netCf, CF_DECIMALS),
           },
     shearAlpha: roundTo(shearAlpha, SHEAR_DECIMALS),
     weibull: weibull === null ? null : { A: weibull.A, k: weibull.k },
