@@ -80,6 +80,8 @@ interface Props {
   showMasts: boolean;
   /** "Electricity Grid" = OpenInfraMap lines/substations/RE plants. */
   showPowerGrid: boolean;
+  /** "Exclusion zones" = legal exclusion polygons (red hard / amber verify). */
+  showExclusions: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
   mastCats: Record<MastHeightCat, boolean>;
   /** Which grid line-voltage bands are visible, keyed by band-min kV as a
@@ -88,6 +90,7 @@ interface Props {
   onToggleTurbines: (next: boolean) => void;
   onToggleMasts: (next: boolean) => void;
   onTogglePowerGrid: (next: boolean) => void;
+  onToggleExclusions: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
   onVoltageBandChange: (kv: string, next: boolean) => void;
 }
@@ -105,11 +108,13 @@ export function LayersTool({
   showTurbines,
   showMasts,
   showPowerGrid,
+  showExclusions,
   mastCats,
   voltageBands,
   onToggleTurbines,
   onToggleMasts,
   onTogglePowerGrid,
+  onToggleExclusions,
   onMastCatChange,
   onVoltageBandChange,
 }: Props) {
@@ -151,6 +156,39 @@ export function LayersTool({
         <VoltageChips bands={voltageBands} onChange={onVoltageBandChange} />
       )}
       {showPowerGrid && <PowerGridLegend />}
+      <ToggleRow
+        label="Exclusion zones"
+        description="Legal no-go / verify areas (CRZ, forest, PA, ESZ…)"
+        swatch={EXCL_RED_SWATCH}
+        checked={showExclusions}
+        onChange={onToggleExclusions}
+      />
+      {showExclusions && <ExclusionLegend />}
+    </div>
+  );
+}
+
+// Map fill colours (mirror utils/exclusions EXCL_RED / EXCL_AMBER).
+const EXCL_RED_SWATCH = '#dc2626';
+const EXCL_AMBER_SWATCH = '#d97706';
+
+/** Legend for the exclusion-zone layer: red = hard, amber = verify. */
+function ExclusionLegend() {
+  return (
+    <div className="mx-2 mb-1 ml-7 rounded-lg border border-slate-700/60 bg-slate-800/40 px-2.5 py-2">
+      <div className="flex flex-col gap-1.5">
+        <span className="flex items-center gap-2 text-[11px] text-slate-300">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: EXCL_RED_SWATCH }} />
+          Hard exclusion (no-go)
+        </span>
+        <span className="flex items-center gap-2 text-[11px] text-slate-300">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: EXCL_AMBER_SWATCH }} />
+          Verify before use
+        </span>
+      </div>
+      <p className="pt-2 text-[10px] leading-relaxed text-slate-500">
+        Click a zone for its source &amp; legal status. Visible from zoom 5.
+      </p>
     </div>
   );
 }

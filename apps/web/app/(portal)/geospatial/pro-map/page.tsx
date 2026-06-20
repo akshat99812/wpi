@@ -14,8 +14,10 @@ import { MastDataTool, MastIcon } from "@/components/Map/components/MastDataTool
 import { TurbineDataTool, TurbineIcon } from "@/components/Map/components/TurbineDataTool";
 import { AnalyzeTool, AnalyzeIcon } from "@/components/Map/components/AnalyzeTool";
 import { MeasureTool } from "@/components/Map/components/MeasureTool";
+import { TerrainTool, TerrainIcon } from "@/components/Map/components/TerrainTool";
 import { useAoiAnalysis } from "@/components/Map/hooks/useAoiAnalysis";
 import { useMeasureDistance } from "@/components/Map/hooks/useMeasureDistance";
+import { useTerrain } from "@/components/Map/hooks/useTerrain";
 import type { AoiDrawMode } from "@/components/Map/utils/aoiDraw";
 import { BasemapToggle, type ProBasemap } from "@/components/Map/components/BasemapToggle";
 import {
@@ -44,6 +46,12 @@ import {
   TURBINES_LAYER_ID,
   TURBINES_HIT_LAYER_ID,
 } from "@/components/Map/utils/turbines";
+import {
+  addExclusions,
+  setExclusionsVisibility,
+  EXCL_FILL_LAYER_ID,
+  EXCL_OUTLINE_LAYER_ID,
+} from "@/components/Map/utils/exclusions";
 import {
   addWindResourceLayer,
   removeWindResourceLayer,
@@ -92,6 +100,7 @@ export default function ProMapPage() {
   // initial visibility when it adds the layers (same pattern as basemapRef).
   const showMastsRef = useRef(true);
   const showTurbinesRef = useRef(false);
+  const showExclusionsRef = useRef(false);
   const showPowerGridRef = useRef(false);
   const windMetricRef = useRef<WindMetricChoice>("off");
   const windHeightRef = useRef<number>(DEFAULT_WIND_HEIGHT);
@@ -121,6 +130,9 @@ export default function ProMapPage() {
   // /api/tiles/turbines MVT. Off by default; enable from the Layers card. The
   // visible dots appear from low zoom and gain full fidelity when zoomed in.
   const [showTurbines, setShowTurbines] = useState(false);
+  // "Exclusion zones" — legal exclusion polygons (red = hard, amber = verify),
+  // /api/tiles/exclusions MVT. Off by default; fills sit below the point layers.
+  const [showExclusions, setShowExclusions] = useState(false);
   // "Electricity Grid" — OpenInfraMap lines/substations/wind+solar plants,
   // default off. The source + layers are created lazily on first enable
   // (addPowerGrid is idempotent); later toggles only flip visibility.
@@ -158,6 +170,8 @@ export default function ProMapPage() {
   // Measure-distance tool: arm/click state machine + measurement layers.
   const measure = useMeasureDistance();
   const measureArmedRef = measure.armedRef;
+  // 3D terrain + hypsometric elevation tint, over one shared DEM source.
+  const terrain = useTerrain();
 
   // The two click-owning tools are mutually exclusive: arming one disarms
   // the other, so they never both own the next map click.
@@ -286,6 +300,17 @@ export default function ProMapPage() {
     if (map.isStyleLoaded()) apply();
     else map.once("idle", apply);
   }, [showTurbines]);
+
+  // "Exclusion zones" toggle — flips the legal-exclusion fills (added in the
+  // load handler). Separate effect, mirrors the turbine toggle.
+  useEffect(() => {
+    showExclusionsRef.current = showExclusions;
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => setExclusionsVisibility(map, showExclusions);
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [showExclusions]);
 
   // Mast height-bucket filter on the pin layers. The tiles carry `hcat`
   // (0 = <50 m · 1 = 50–100 m · 2 = >100 m · −1 = unknown). All buckets on →
@@ -459,7 +484,9 @@ export default function ProMapPage() {
         lng,
         lat,
         zoom: map.getZoom(),
-        elevation: lookupElevation(lat, lng),
+        // Exact DEM elevation when 3D terrain is on (queryTerrainElevation),
+        // else the pre-baked SRTM grid — same synchronous, free lookup.
+        elevation: terrain.sampleElevation(map, e.lngLat) ?? lookupElevation(lat, lng),
         wind: lookupWind(lat, lng, DEFAULT_WIND_HEIGHT),
         // Mirror the ACTIVE wind-resource layer (metric + height) so the bar
         // reads exactly what the choropleth shows.
@@ -603,6 +630,11 @@ export default function ProMapPage() {
       // and sit ABOVE the pins (transient tooling, never data).
       measure.onMapLoad(map);
 
+      // 3D terrain + elevation tint — registers the DEM protocol and re-applies
+      // any active terrain/tint if the map was re-created (session refresh).
+      // Default state is off, so this is a no-op on first load.
+      terrain.onMapLoad(map);
+
       // Private masts (yellow, GeoJSON) — below the public pins so public
       // clicks win on overlap; clicks are suppressed while AOI draw is armed.
       // A click opens the SAME MastDataTool card the public masts use, as a
@@ -674,6 +706,16 @@ export default function ProMapPage() {
       });
       initVis(TURBINES_LAYER_ID, showTurbinesRef.current);
       initVis(TURBINES_HIT_LAYER_ID, showTurbinesRef.current);
+
+      // Legal exclusion-zone fills (red/amber polygons, MVT). Inserted BELOW the
+      // mast pins so masts/turbines stay clickable on top. Off by default.
+      addExclusions(map, {
+        isInteractionBlocked: () =>
+          Boolean(aoiArmedRef.current || measureArmedRef.current),
+        beforeId: "windmills-pts",
+      });
+      initVis(EXCL_FILL_LAYER_ID, showExclusionsRef.current);
+      initVis(EXCL_OUTLINE_LAYER_ID, showExclusionsRef.current);
 
       map.on("click", "windmills-hit", async (e: MapMouseEvent) => {
         // Armed tools head the click-priority chain: while the user is
@@ -784,7 +826,7 @@ export default function ProMapPage() {
       id: "tools",
       label: "Map tools",
       Icon: ToolsIcon,
-      badge: windMetric !== "off",
+      badge: windMetric !== "off" || terrain.enabled || terrain.tintEnabled,
       content: (
         <div className="divide-y divide-slate-700/70">
           <AnalyzeTool
@@ -824,6 +866,21 @@ export default function ProMapPage() {
             />
           </section>
           <section>
+            <SectionLabel icon={<TerrainIcon className="h-3.5 w-3.5" />}>
+              Terrain (3D)
+            </SectionLabel>
+            <TerrainTool
+              enabled={terrain.enabled}
+              exaggeration={terrain.exaggeration}
+              tintEnabled={terrain.tintEnabled}
+              tintOpacity={terrain.tintOpacity}
+              onToggle3D={terrain.setEnabled}
+              onExaggerationChange={terrain.setExaggeration}
+              onToggleTint={terrain.setTintEnabled}
+              onTintOpacityChange={terrain.setTintOpacity}
+            />
+          </section>
+          <section>
             <SectionLabel icon={<LayersIcon className="h-3.5 w-3.5" />}>
               Layers
             </SectionLabel>
@@ -831,11 +888,13 @@ export default function ProMapPage() {
               showTurbines={showTurbines}
               showMasts={showMasts}
               showPowerGrid={showPowerGrid}
+              showExclusions={showExclusions}
               mastCats={mastCats}
               voltageBands={voltageBands}
               onToggleTurbines={setShowTurbines}
               onToggleMasts={setShowMasts}
               onTogglePowerGrid={setShowPowerGrid}
+              onToggleExclusions={setShowExclusions}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
               }

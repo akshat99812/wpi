@@ -6,7 +6,6 @@ import { calculateIRR } from '@/lib/math';
 import FinancialSliders from '../ui/Animatedsliders';
 import EngineTitle from '../ui/EngineTitle';
 
-// ── Constants (spec §10.3) ────────────────────────────────────────────────────
 const HOURS  = 8760;
 const AUX    = 0.005;
 const DEGRAD = 0.005;
@@ -17,7 +16,6 @@ const TAX    = 0.25168;
 const SALV   = 0.05;
 const LIFE   = 25;
 
-// ── Defaults ──────────────────────────────────────────────────────────────────
 const DEFAULTS = {
   size:    100,
   wtg:     6.5,
@@ -41,10 +39,6 @@ function Tile({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-// ── Collapsible result section ────────────────────────────────────────────────
-// `open` is driven by the parent (sections expand once the user hits Calculate)
-// but the user can still toggle each one manually; onToggle keeps local state
-// in sync so the parent and the native <details> don't fight.
 function CollapsibleSection({ title, open, children }: { title: string; open: boolean; children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(open);
   useEffect(() => { setIsOpen(open); }, [open]);
@@ -170,8 +164,6 @@ function runDcf(p: typeof DEFAULTS) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function BankabilityCalc() {
   const [p, setP] = useState({ ...DEFAULTS });
-  // Results are computed from a committed snapshot, refreshed only when the user
-  // presses Calculate (which shows a brief loading state).
   const [calcParams, setCalcParams] = useState({ ...DEFAULTS });
   const [isCalculating, setIsCalculating] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -183,7 +175,6 @@ export default function BankabilityCalc() {
   const res = useMemo(() => runDcf(calcParams), [calcParams]);
   const cp = calcParams;
 
-  // Have the live inputs drifted from the last calculated snapshot?
   const isStale = (Object.keys(p) as (keyof typeof DEFAULTS)[]).some(k => p[k] !== calcParams[k]);
 
   const handleCalculate = useCallback(() => {
@@ -194,7 +185,7 @@ export default function BankabilityCalc() {
       setExpanded(true);
       setIsCalculating(false);
       timerRef.current = null;
-    }, 1000); // minimum visible loading time
+    }, 1000);
   }, [p]);
 
   const resetAll = useCallback(() => {
@@ -205,7 +196,6 @@ export default function BankabilityCalc() {
     setCalcParams({ ...DEFAULTS });
   }, []);
 
-  // Clear any pending timer on unmount.
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   return (

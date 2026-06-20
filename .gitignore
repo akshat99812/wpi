@@ -31,6 +31,12 @@ apps/api/data/auth.sqlite-journal
 apps/api/data/auth.sqlite-wal
 apps/api/data/auth.sqlite-shm
 
+# Root runtime data dir — this is the API's live bind mount (`./data:/app/data`
+# in docker-compose.yml). It holds auth.sqlite + scraped/cached JSON, all
+# runtime/regenerable. Committing it would break `git pull` on the VPS (it would
+# clobber the live production data dir) and leak the auth DB. Never commit.
+/data/
+
 # Proprietary Pro-map source data — never commit. Shipped out-of-band to the
 # VPS bind-mount dir /opt/wce/data/private/ (boundaries.geojson + wra_masts.csv),
 # which is where the running API actually reads them. See deploy/REFERENCE.md §6.1.
