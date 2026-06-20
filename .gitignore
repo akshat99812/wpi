@@ -40,6 +40,11 @@ apps/api/data/private/
 # table) — never commit; re-created by scripts/ingest-turbines.ts.
 apps/api/data/cache/
 
+# Exclusion-zone working data — large downloaded archives + extracted GIS, all
+# regenerable via scripts/ingest-exclusions.ts. Keep only the LICENSES manifest.
+apps/api/data/by-source/*
+!apps/api/data/by-source/LICENSES.md
+
 
 # IDE
 .vscode/
