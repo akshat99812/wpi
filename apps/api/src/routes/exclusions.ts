@@ -1,40 +1,38 @@
 import { Router, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { PMTiles, type RangeResponse, type Source } from "pmtiles";
 import { requirePro } from "../middleware/requirePro";
-import { tileCache } from "../middleware/tileCache";
 import { pool, dbAvailable } from "../lib/db";
 
 /**
  * Legal exclusion-zone layer for the Pro map (red = hard exclusion, amber =
- * verify-before-use). Polygons live in wce.excl_polygon (downloaded legal
- * boundaries) + wce.excl_buffer (derived ESZ-default / ASI / settlement),
- * loaded by scripts/ingest-exclusions.ts. Mirrors the turbines route: a
- * Pro-gated, disk-cached MVT endpoint. Tiles ship light props (layer_code,
- * class, legal flag, source) so the popup can explain "why" without a second
- * round-trip; full per-source provenance comes from /exclusion-sources.
+ * verify-before-use). Served from a pre-baked PMTiles pyramid (tippecanoe), NOT
+ * live SQL: the 721k-polygon corpus (incl. 422k RFA forest compartments) only
+ * changes on quarterly re-ingest, so generating tiles per request was the wrong
+ * model (a cold z6 tile was ~3 MB / 15 s). The bake handles low-zoom
+ * coalescing/dropping; serving is now a static byte-range read (~ms, no DB).
+ *
+ * Re-bake after re-ingest:  bun run scripts/bake-exclusions-pmtiles.ts
+ *
+ * Still Pro-gated + rate-limited (the .pmtiles is read server-side, never handed
+ * to the client directly, so auth holds). /exclusion-sources stays DB-backed for
+ * the click-to-inspect provenance popup.
  */
 
 const router = Router();
 
-const TILE_TTL = Number(process.env.TILE_CACHE_TTL || 3600);
-const TILE_EXTENT = 4096; // MVT default; matches ST_AsMVTGeom default extent.
-const WEB_MERCATOR_SPAN_M = 40075016.685578488;
-// At/above this zoom every polygon is emitted; below it, sub-N-pixel polygons
-// are dropped + geometry simplified so a regional tile over dense RFA forest
-// (422k compartment polys) stays light.
-const EXCL_FULL_ZOOM = 11;
-const EXCL_TILE_DISK_TTL_MS = 24 * 3600 * 1000;
-// Approx m² per degree² at ~22°N (India centroid) — used only for a cheap
-// planar sliver filter, where exactness doesn't matter.
-const APPROX_M2_PER_DEG2 = 1.1e10;
-const DEG_METERS = 111320; // metres per degree of latitude (for the simplify tol).
+const TILE_TTL = Number(process.env.TILE_CACHE_TTL || 86400);
+const MAX_TILE_ZOOM = 14; // bake maxzoom; the client overzooms 14 → 16.
+const PMTILES_PATH = path.resolve(import.meta.dir, "../../data/by-source/exclusions.pmtiles");
 
 const userKey = (req: Request): string =>
   (req.user?.id as string | undefined) || req.ip || "anon";
 
 const tilesLimiter = rateLimit({
   windowMs: 60_000,
-  limit: 600,
+  limit: 1200, // static reads are cheap — generous ceiling for bursty panning.
   keyGenerator: userKey,
   standardHeaders: "draft-7",
   legacyHeaders: false,
@@ -52,19 +50,42 @@ const sourcesLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+/** Local-file Source for the pmtiles reader — ranged reads via Bun.file (lazy). */
+class FileSource implements Source {
+  constructor(private readonly filePath: string) {}
+  getKey(): string {
+    return this.filePath;
+  }
+  async getBytes(offset: number, length: number): Promise<RangeResponse> {
+    const data = await Bun.file(this.filePath)
+      .slice(offset, offset + length)
+      .arrayBuffer();
+    return { data };
+  }
+}
+
+// Lazy singleton — opens the archive once; pmtiles caches header + directories.
+let pmInstance: PMTiles | null = null;
+function getPM(): PMTiles | null {
+  if (pmInstance) return pmInstance;
+  if (!existsSync(PMTILES_PATH)) return null;
+  pmInstance = new PMTiles(new FileSource(PMTILES_PATH));
+  return pmInstance;
+}
+
 /**
- * Vector tile endpoint. One source-layer 'exclusions' carries both downloaded
- * zones and derived buffers, tagged by `kind`. Props are lightweight; geometry
- * is clipped to the tile and (below EXCL_FULL_ZOOM) simplified + sliver-dropped.
+ * Vector tile endpoint — reads z/x/y straight from the PMTiles archive. tippecanoe
+ * stores gzipped MVT, so we forward Content-Encoding: gzip when the bytes are
+ * gzip-magic'd (the browser inflates; MapLibre can't inflate itself).
  */
 router.get(
   "/tiles/exclusions/:z/:x/:y.mvt",
   ...requirePro,
   tilesLimiter,
-  tileCache("exclusions", EXCL_TILE_DISK_TTL_MS),
   async (req: Request, res: Response) => {
-    if (!dbAvailable()) {
-      res.status(503).json({ error: "Map data offline" });
+    const pm = getPM();
+    if (!pm) {
+      res.status(503).json({ error: "Exclusion tiles not baked — run bake-exclusions-pmtiles.ts" });
       return;
     }
 
@@ -75,8 +96,7 @@ router.get(
       res.status(400).end();
       return;
     }
-    // Below z=5 a tile would emit national-scale polygons; above z=16 sub-pixel.
-    if (z < 5 || z > 16) {
+    if (z < 5 || z > MAX_TILE_ZOOM) {
       res.status(204).end();
       return;
     }
@@ -93,69 +113,27 @@ router.get(
       return;
     }
 
-    // Tile metres-per-pixel → simplify tolerance (~1.5 px). Sliver filter +
-    // per-tile feature cap keep dense tiles light (RFA = 422k tiny compartments,
-    // so a raw z6 forest tile is ~35k features / 3 MB without these guards).
-    // The cap is the hard guarantee: largest-area polygons win, capped count.
-    const pxMeters = WEB_MERCATOR_SPAN_M / gridSize / TILE_EXTENT;
-    // Cheap Douglas-Peucker simplify (~1.5 px) in 4326 BEFORE transform — plain
-    // ST_Simplify, not PreserveTopology (which is ~10x slower and pointless at
-    // tile resolution). Tolerance shrinks with zoom, so high zooms stay crisp.
-    const simplifyTolDeg = (pxMeters * 1.5) / DEG_METERS;
-    // Sliver threshold in deg² (cheap planar area, no transform). Within a single
-    // tile latitude is ~constant, so planar-area ordering == true-area ordering.
-    const minAreaDeg = z >= EXCL_FULL_ZOOM ? 0 : (pxMeters * 6) ** 2 / APPROX_M2_PER_DEG2;
-    const featureCap = z >= EXCL_FULL_ZOOM ? 12000 : 4000;
-
     try {
-      const sql = `
-        WITH bounds AS (SELECT ST_TileEnvelope($1,$2,$3) AS b),
-        cand AS (
-          SELECT id, lc, cls, legal, src, kind, geom
-          FROM (
-            SELECT id, lc, cls, legal, src, kind, geom, ST_Area(geom) AS a
-            FROM (
-              SELECT e.id::text AS id, e.layer_code AS lc, e.class AS cls,
-                     COALESCE((e.attrs->>'is_legal_boundary')::boolean, false) AS legal,
-                     e.source_id AS src, 'zone' AS kind, e.geom
-              FROM wce.excl_polygon e, bounds
-              WHERE e.geom && ST_Transform(bounds.b, 4326)
-              UNION ALL
-              SELECT b.id::text, b.layer_code, b.class, false, b.source_id, 'buffer', b.geom
-              FROM wce.excl_buffer b, bounds
-              WHERE b.geom && ST_Transform(bounds.b, 4326)
-            ) u
-          ) z
-          WHERE $5::float8 = 0 OR a > $5::float8
-          ORDER BY a DESC
-          LIMIT $6::int
-        )
-        SELECT ST_AsMVT(t,'exclusions') AS mvt FROM (
-          SELECT id, lc, cls, legal, src, kind,
-                 ST_AsMVTGeom(
-                   ST_Transform(ST_Simplify(geom, $4::float8), 3857),
-                   (SELECT b FROM bounds)
-                 ) AS geom
-          FROM cand
-        ) t
-        WHERE t.geom IS NOT NULL
-      `;
-      const { rows } = await pool.query<{ mvt: Buffer }>(sql, [z, x, y, simplifyTolDeg, minAreaDeg, featureCap]);
-      const mvt = rows[0]?.mvt;
-
+      const tile = await pm.getZxy(z, x, y);
       res.setHeader("Content-Type", "application/vnd.mapbox-vector-tile");
       res.setHeader(
         "Cache-Control",
         process.env.NODE_ENV === "production" ? `private, max-age=${TILE_TTL}` : "no-store",
       );
-      if (!mvt || mvt.length === 0) {
+      if (!tile || !tile.data || tile.data.byteLength === 0) {
         res.status(204).end();
         return;
       }
-      res.send(mvt);
+      // The pmtiles lib returns the tile DECOMPRESSED; gzip it for the wire (MVTs
+      // compress ~3x — a z6 tile is ~1.5 MB raw / ~0.5 MB gzipped — and the
+      // browser inflates transparently). Pass through if it's already gzipped.
+      const raw = Buffer.from(tile.data);
+      const alreadyGz = raw[0] === 0x1f && raw[1] === 0x8b;
+      res.setHeader("Content-Encoding", "gzip");
+      res.send(alreadyGz ? raw : Bun.gzipSync(raw));
     } catch (err) {
-      console.error("[exclusion-tiles] query failed", err);
-      res.status(500).json({ error: "Tile generation failed" });
+      console.error("[exclusion-tiles] pmtiles read failed", err);
+      res.status(500).json({ error: "Tile read failed" });
     }
   },
 );
