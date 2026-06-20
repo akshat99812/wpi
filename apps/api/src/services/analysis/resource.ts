@@ -9,6 +9,7 @@
  */
 
 import { SITE_CLASS_BANDS } from "./constants";
+import { computePowerCurveCfs } from "./energy";
 import { indiaPercentileOf } from "./indiaCdf";
 import type { AoiMask, LayerPatch, ResourceData, SiteClass } from "./types";
 
@@ -269,6 +270,17 @@ export function computeResource(
   }
   const cfIec2 = meanCapacityFactor(patches.cfIec2, mask);
 
+  // CF-engine Phase B (shadow): power-curve CF from the AOI Weibull + air
+  // density, computed alongside the GWA cf_iec3 headline for comparison.
+  const cfPowerCurve = computePowerCurveCfs(weibull, power.airDensity);
+  if (cfPowerCurve && cfIec3 !== null) {
+    console.log(
+      `[resource] CF shadow — gwa_cf_iec3=${cfIec3.toFixed(4)} ` +
+        `powercurve_iec3=${cfPowerCurve.iec3.toFixed(4)} ` +
+        `(Δ=${((cfPowerCurve.iec3 - cfIec3) * 100).toFixed(1)}pp)`,
+    );
+  }
+
   const indiaPercentile = indiaPercentileOf(meanSpeed);
 
   return {
@@ -287,6 +299,14 @@ export function computeResource(
     airDensity: power.airDensity,
     cfIec3: cfIec3 === null ? null : roundTo(cfIec3, CF_DECIMALS),
     cfIec2: cfIec2 === null ? null : roundTo(cfIec2, CF_DECIMALS),
+    cfPowerCurve:
+      cfPowerCurve === null
+        ? null
+        : {
+            iec1: roundTo(cfPowerCurve.iec1, CF_DECIMALS),
+            iec2: roundTo(cfPowerCurve.iec2, CF_DECIMALS),
+            iec3: roundTo(cfPowerCurve.iec3, CF_DECIMALS),
+          },
     shearAlpha: roundTo(shearAlpha, SHEAR_DECIMALS),
     weibull: weibull === null ? null : { A: weibull.A, k: weibull.k },
     indiaPercentile: indiaPercentile === null ? null : Math.round(indiaPercentile),

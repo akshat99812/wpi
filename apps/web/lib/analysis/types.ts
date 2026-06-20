@@ -33,6 +33,8 @@ export interface ResourceData {
   /** null when the CF layer was entirely empty in-AOI. */
   cfIec3: number | null;
   cfIec2: number | null;
+  /** Power-curve CF (shadow) from the AOI Weibull + air density, per IEC class. */
+  cfPowerCurve: { iec1: number; iec2: number; iec3: number } | null;
   shearAlpha: number;
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;

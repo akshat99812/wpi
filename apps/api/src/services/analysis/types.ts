@@ -100,6 +100,9 @@ export interface ResourceData {
   /** null when the CF layer is entirely empty in-mask. */
   cfIec3: number | null;
   cfIec2: number | null;
+  /** CF-engine Phase B (shadow): power-curve CF from the AOI Weibull + air
+   *  density, per representative IEC class. null when no Weibull distribution. */
+  cfPowerCurve: { iec1: number; iec2: number; iec3: number } | null;
   shearAlpha: number;
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;
