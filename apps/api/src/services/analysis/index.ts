@@ -23,6 +23,7 @@ import {
   CLIMATE_SECTION_ENABLED,
   GWA_LAYERS,
 } from "./constants";
+import { applyCalibration } from "./calibration";
 import { computeClimate } from "./climate";
 import { computeContext } from "./context";
 import { computeGrid } from "./grid";
@@ -270,6 +271,19 @@ export async function analyzeAoi(
     // Mirrors the mast badge ONLY — never part of the arithmetic (plan §6).
     validation.data?.confidence ?? "low",
   );
+
+  // CF-engine Phase E (shadow): per-state calibration of the net CF vs actuals.
+  // No-op (identity) until the CEA/SLDC table is ingested — logged for now.
+  const netCfForCal = resourceData?.cfNet?.netCf ?? null;
+  if (netCfForCal !== null) {
+    const calStates = (contextSection.data?.states ?? []).map((s) => s.name);
+    const cal = applyCalibration(netCfForCal, calStates);
+    console.log(
+      `[analysis] CF calibration (shadow) — states=[${calStates.join(", ")}] ` +
+        `factor=${cal.factor.toFixed(3)} net=${netCfForCal.toFixed(4)} ` +
+        `calibrated=${cal.calibratedCf.toFixed(4)} (${cal.basis})`,
+    );
+  }
 
   return {
     analysisVersion: ANALYSIS_VERSION,
