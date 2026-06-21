@@ -48,6 +48,13 @@ export interface ResourceData {
     };
     netCf: number;
   } | null;
+  /** P50/P75/P90 exceedance of the net CF + combined relative σ (shadow). */
+  cfExceedance: {
+    p50: number;
+    p75: number;
+    p90: number;
+    sigmaTotal: number;
+  } | null;
   shearAlpha: number;
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;

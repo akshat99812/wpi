@@ -117,6 +117,14 @@ export interface ResourceData {
     };
     netCf: number;
   } | null;
+  /** CF-engine Phase D (shadow): P50/P75/P90 exceedance of the net CF + the
+   *  combined relative σ. null when no net CF. */
+  cfExceedance: {
+    p50: number;
+    p75: number;
+    p90: number;
+    sigmaTotal: number;
+  } | null;
   shearAlpha: number;
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;

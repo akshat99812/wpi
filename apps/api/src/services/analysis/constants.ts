@@ -14,8 +14,10 @@
  *  10.3.0: CF-engine Phase B (shadow) — power-curve CF from the AOI Weibull +
  *  air density (resource.cfPowerCurve), computed alongside GWA cf_iec3.
  *  10.4.0: CF-engine Phase C (shadow) — net CF = gross·(1−wake)·Π(1−lossᵢ)
- *  (resource.cfNet) with the loss waterfall. */
-export const ANALYSIS_VERSION = "10.4.0";
+ *  (resource.cfNet) with the loss waterfall.
+ *  10.5.0: CF-engine Phase D (shadow) — P50/P75/P90 exceedance of the net CF
+ *  (resource.cfExceedance) from an engineering σ budget. */
+export const ANALYSIS_VERSION = "10.5.0";
 
 /**
  * Sampling zoom for all GWA raster layers. Verified: z9 gives only 256 valid

@@ -11,6 +11,7 @@
 import { SITE_CLASS_BANDS, SIZING_MW_PER_KM2 } from "./constants";
 import { computePowerCurveCfs } from "./energy";
 import { computeNetCf } from "./losses";
+import { computeExceedance } from "./uncertainty";
 import { indiaPercentileOf } from "./indiaCdf";
 import type { AoiMask, LayerPatch, ResourceData, SiteClass } from "./types";
 
@@ -295,6 +296,16 @@ export function computeResource(
     );
   }
 
+  // CF-engine Phase D (shadow): P50/P75/P90 exceedance of the net CF.
+  const cfExceedance = cfNetRaw === null ? null : computeExceedance(cfNetRaw.netCf);
+  if (cfExceedance) {
+    console.log(
+      `[resource] CF exceedance (shadow) — P50=${cfExceedance.p50.toFixed(4)} ` +
+        `P75=${cfExceedance.p75.toFixed(4)} P90=${cfExceedance.p90.toFixed(4)} ` +
+        `σ=${cfExceedance.sigmaTotal.toFixed(3)}`,
+    );
+  }
+
   const indiaPercentile = indiaPercentileOf(meanSpeed);
 
   return {
@@ -330,6 +341,15 @@ export function computeResource(
             otherLossFraction: roundTo(cfNetRaw.otherLossFraction, CF_DECIMALS),
             lossBuckets: cfNetRaw.lossBuckets,
             netCf: roundTo(cfNetRaw.netCf, CF_DECIMALS),
+          },
+    cfExceedance:
+      cfExceedance === null
+        ? null
+        : {
+            p50: roundTo(cfExceedance.p50, CF_DECIMALS),
+            p75: roundTo(cfExceedance.p75, CF_DECIMALS),
+            p90: roundTo(cfExceedance.p90, CF_DECIMALS),
+            sigmaTotal: roundTo(cfExceedance.sigmaTotal, CF_DECIMALS),
           },
     shearAlpha: roundTo(shearAlpha, SHEAR_DECIMALS),
     weibull: weibull === null ? null : { A: weibull.A, k: weibull.k },
