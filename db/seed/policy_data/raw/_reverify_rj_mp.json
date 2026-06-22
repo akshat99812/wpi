@@ -1,0 +1,398 @@
+[
+  {
+    "jurisdiction": "Rajasthan, India",
+    "verifications": [
+      {
+        "dimension_key": "tariff_mode",
+        "claimed_value": "competitive_bidding enum",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://allaboutrenewables.com/renewable-energy-policy/rajasthan-wind-and-hybrid-energy-policy-2019/358",
+        "note": "2019 policy (and 2023 RE Policy cl 7, verified in primary PDF) procure wind via tariff-based competitive bidding; no FiT. Independent source: 'Sale of power to DISCOM/RUVNL using competitive bidding mechanism.' Confirmed."
+      },
+      {
+        "dimension_key": "preferential_tariff",
+        "claimed_value": "no current generic preferential tariff; legacy Rs 2.44/kWh (competitively-discovered) INR/kWh",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://allaboutrenewables.com/renewable-energy-policy/rajasthan-wind-and-hybrid-energy-policy-2019/358",
+        "note": "No generic preferential/FiT for wind under 2019 policy (independent source confirms 'no preferential or feed-in tariff'). Rs 2.44/kWh is the SECI-discovered competitive rate referenced in the 01.08.2025 PPA-extension order. Confirmed."
+      },
+      {
+        "dimension_key": "third_party_sale",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://jmkresearch.com/blogs/rajasthan-wind-solar-hybrid-policy-2019/",
+        "note": "Third-party sale of wind (within/outside state) explicitly permitted under 2019 policy; JMK and allaboutrenewables both confirm 'captive consumption/third party sale within or outside Rajasthan'. Note: cited clause 8.2.1 not independently verified verbatim but substance confirmed."
+      },
+      {
+        "dimension_key": "captive_use",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://jmkresearch.com/blogs/rajasthan-wind-solar-hybrid-policy-2019/",
+        "note": "Captive use of wind permitted (capacity capped at contract demand for captive). Confirmed by JMK and allaboutrenewables ('captive consumption/third party sale within or outside Rajasthan')."
+      },
+      {
+        "dimension_key": "geoa_threshold_kw",
+        "claimed_value": "100 kW",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://urjadaily.com/rajasthan-rolls-out-2025-regulations-for-green-energy-open-access/",
+        "note": "RERC GEOA Regulations 2025 (notified 21.05.2025): consumers with contract demand/sanctioned load >=100 kW eligible; no minimum for captive. Confirmed by REAR, urjadaily and energetica. Confirmed."
+      },
+      {
+        "dimension_key": "wheeling_charge",
+        "claimed_value": "0.01 (EHV/132kV+), 0.15 (33 kV), 0.79 (11 kV) INR/kWh",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://sldc.rajasthan.gov.in/rrvpnl/public/download/download-3.pdf",
+        "note": "Verified verbatim in the SLDC FY2023-24 OA-charges sheet itself (Distribution Petition dated 31.03.2023): EHV 0.01, 33kV 0.15, 11kV 0.79 Rs/kWh. This is the latest sheet on the SLDC page (prior 2022-23 had 0.16/0.77). Confirmed and current."
+      },
+      {
+        "dimension_key": "wheeling_concession",
+        "claimed_value": "no general % concession; storage-paired 75-100%; green H2 50% %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.energetica-india.net/news/rajasthan-unveils-green-energy-open-access-rules-to-boost-re-adoption",
+        "note": "GEOA 2025: storage/BESS-paired get 75% transmission+wheeling exemption for 7 yrs (up to 100% for BESS peak supply up to 2000 MW); green hydrogen/ammonia 50% transmission+wheeling waiver to 2030. Confirmed by energetica, urjadaily and REAR. (Hybrid wind-solar separately get 15%.)"
+      },
+      {
+        "dimension_key": "css_applicable",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://urjadaily.com/rajasthan-rolls-out-2025-regulations-for-green-energy-open-access/",
+        "note": "CSS applies to GEOA consumers (capped at 20% of avg cost of supply); waivers only for specific categories (captive/green-H2/WtE). Confirmed by urjadaily and search of RERC GEOA 2025. Confirmed."
+      },
+      {
+        "dimension_key": "css_concession",
+        "claimed_value": "50 %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://urjadaily.com/rajasthan-rolls-out-2025-regulations-for-green-energy-open-access/",
+        "note": "GEOA 2025: CSS increase 'capped at 50 per cent of the surcharge set in the year of commissioning' for 12 years. Confirmed by urjadaily and energetica. The 50% is a cap on increase, not a flat 50% rebate - note nuance. Confirmed."
+      },
+      {
+        "dimension_key": "additional_surcharge",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.rear.org.in/green-energy-open-access",
+        "note": "Additional surcharge is among the charges payable by GEOA consumers (Transmission, SLDC, Wheeling, CSS, Additional Surcharge, Banking). REAR billing summary and search confirm applicability. Confirmed."
+      },
+      {
+        "dimension_key": "transmission_loss",
+        "claimed_value": "4.5 %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://sldc.rajasthan.gov.in/rrvpnl/public/download/download-3.pdf",
+        "note": "Verified verbatim in SLDC FY2023-24 OA sheet: Transmission Losses 4.5% (Petition RERC/2075/23 dated 08.06.2023), up from 3.80% in 2022-23. Matches cited date. This is the latest published sheet. Confirmed and current."
+      },
+      {
+        "dimension_key": "banking_allowed",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.energetica-india.net/news/rajasthan-unveils-green-energy-open-access-rules-to-boost-re-adoption",
+        "note": "GEOA 2025 permits banking (for captive consumers). Confirmed by energetica, REAR, resiindia. Confirmed - though scope is captive-only (see banking_third_party)."
+      },
+      {
+        "dimension_key": "banking_period",
+        "claimed_value": "annual enum",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.energetica-india.net/news/rajasthan-unveils-green-energy-open-access-rules-to-boost-re-adoption",
+        "note": "GEOA 2025: solar and wind bank annually (April-March); hybrids 6 months; biomass 1 month. So for wind, annual is correct. Confirmed by energetica. (Monthly 25%/30% injection limits also apply within the annual cycle.)"
+      },
+      {
+        "dimension_key": "banking_charge",
+        "claimed_value": "8 %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.energetica-india.net/news/rajasthan-unveils-green-energy-open-access-rules-to-boost-re-adoption",
+        "note": "GEOA 2025: banking charges set at 8% of surplus/banked energy (deducted before withdrawal). Confirmed by energetica, saurenergy and REAR ('banking allowed with 8% deduction'). Confirmed."
+      },
+      {
+        "dimension_key": "banking_third_party",
+        "claimed_value": "false boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.resiindia.org/post/rajasthan-s-green-energy-open-access-regulations-2025-bess-mandate-and-incentives-for-captive-rene",
+        "note": "GEOA 2025: 'Banking is not allowed for RE plants under third-party open access or behind-the-meter setups' - permitted only for captive within state. So banking_third_party=false is correct. Confirmed by resiindia and REAR."
+      },
+      {
+        "dimension_key": "rpo_wind",
+        "claimed_value": "2.46 (FY2024-25); 3.36 (FY2025-26); to 3.48 by FY2029-30 %",
+        "verdict": "uncertain",
+        "corrected_value": "",
+        "second_source_url": "https://jmkresearch.com/wp-content/uploads/2026/03/rerc.pdf",
+        "note": "Numbers are EXACT per the DRAFT regulation table I extracted from the primary PDF (Wind RPO 2024-25=2.46%, 2025-26=3.36%, 2029-30=3.48%). BUT this is a DRAFT (First Amendment) Regs 2026, effective only from FY2026-27 onward and NOT YET NOTIFIED. Per instruction, draft trajectories are not in force -> uncertain until final notification. (One secondary site misreported wind as 0.81%/1.6%; the primary PDF refutes that, supporting the claimed figures, but draft status keeps this uncertain.)"
+      },
+      {
+        "dimension_key": "rpo_total",
+        "claimed_value": "29.91 (FY2024-25); 33.01 (FY2025-26); 43.33 by FY2029-30 %",
+        "verdict": "uncertain",
+        "corrected_value": "",
+        "second_source_url": "https://indianinfrastructure.com/2026/03/16/rerc-issues-draft-rerc-renewable-purchase-obligation-first-amendment-regulations-2026/",
+        "note": "Total RPO 29.91% / 33.01% / 43.33% match the primary DRAFT PDF table exactly (also 35.95% FY26-27, 38.81% FY27-28, 41.36% FY28-29) and are corroborated by Indian Infrastructure/Power Line. But same DRAFT caveat: First Amendment Regs 2026 not yet notified; FY24-25/25-26 figures derive from MoP trajectory adopted by RERC. Flag uncertain pending final notification."
+      },
+      {
+        "dimension_key": "must_run",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/wp-content/uploads/2023/10/Rajasthan-Policy-2023.pdf",
+        "note": "Verified verbatim in 2023 RE Policy PDF cl 30(ii): 'SLDC will ensure MUST RUN Status of RE Plants in the State.' Cited source is the 2023 policy URL (not 2019 cl 33) but the cited URL itself confirms it. Confirmed."
+      },
+      {
+        "dimension_key": "repowering_incentive",
+        "claimed_value": "Repowering promoted for turbines >=10 years; extra generation for captive/3rd-party; land lease extended text",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/wp-content/uploads/2023/10/Rajasthan-Policy-2023.pdf",
+        "note": "Verified verbatim in 2023 RE Policy cl 12.3/12.3.1/12.3.2: repowering promoted for turbines completing >=10 yrs; baseline (avg of last 3 yrs) on existing PPA, additional generation at competitive-bid tariff and usable for captive/3rd-party sale. Substance confirmed. (No explicit 'land lease extended' clause found - that sub-phrase unverified.)"
+      },
+      {
+        "dimension_key": "land_allotment",
+        "claimed_value": "Govt land up to 3 ha/MW; Rs 1 lakh/MW security; private agri land without conversion text",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/wp-content/uploads/2023/10/Rajasthan-Policy-2023.pdf",
+        "note": "Verified verbatim in 2023 RE Policy cl 18.3 (Max land for Wind Plant = 3 Hect/MW), cl 18.2 (security Rs 1 Lac/MW), cl 18.4.1 (private agri land without conversion). Values confirmed. Caveat: cited as '2019 policy cl 13' but the matching primary text is the 2023 policy cl 18; the 2012 policy had 5 Hect cap, so use the 2023 figures."
+      },
+      {
+        "dimension_key": "gram_panchayat_noc",
+        "claimed_value": "false boolean",
+        "verdict": "uncertain",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/wp-content/uploads/2023/10/Rajasthan-Policy-2023.pdf",
+        "note": "The only NOC-waiver text found (2023 policy cl 12.5.3, and 2012 policy cl 17.3) waives Gram Panchayat NOC specifically for WIND MONITORING STATION land, not for project land generally. No clause found broadly establishing 'no GP NOC required' for wind project land, nor a 2019 cl 19.3 verbatim. So a blanket false is not independently corroborated -> uncertain."
+      },
+      {
+        "dimension_key": "electricity_duty_exemption",
+        "claimed_value": "Captive wind/hybrid consumption within State exempt from Electricity Duty text",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/wp-content/uploads/2023/10/Rajasthan-Policy-2023.pdf",
+        "note": "Verified in 2023 RE Policy cl 19.4: ED exemption/relaxation for captive use within State 'under prevailing RIPS'; wind projects exempted per GoR notifications under Rajasthan Electricity (Duty) Act. Also 2012 policy cl 9.1 exempts captive ED. Confirmed (exemption is subject to RIPS/notifications, not unconditional)."
+      },
+      {
+        "dimension_key": "single_window",
+        "claimed_value": "partial - RREC online portal (no statutory cross-department single-window) boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/wp-content/uploads/2023/10/Rajasthan-Policy-2023.pdf",
+        "note": "Verified verbatim in 2023 RE Policy cl 21.5: 'RREC will develop an online portal for sanction/approval of the proposals of RE Projects' through which RVPN/DISCOMs communicate clearances. This is an online facilitation portal, not a statutory single-window - matches the 'partial' characterization. Confirmed."
+      },
+      {
+        "dimension_key": "green_energy_cess",
+        "claimed_value": "none for wind; RREDF applies only to solar capacity of hybrid INR/kWh",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/wp-content/uploads/2023/10/Rajasthan-Policy-2023.pdf",
+        "note": "Verified in 2023 RE Policy cl 24 (REDFC): facilitation charge 'deposited by power producer towards Solar components of the project' at Rs 50,000/Hectare/Year (or 7% free power), applies to sale to non-DISCOM parties; exemptions for solar-to-DISCOM/captive. Levy is on solar component - so effectively none on the wind portion. Note: charge is per Hectare/Year, not INR/kWh as the unit label implies. Substance confirmed."
+      }
+    ],
+    "overall_confidence_note": "21 of 24 claims independently confirmed against a second source; 3 flagged uncertain. Key cautions for a legally-defensible tool: (1) rpo_wind and rpo_total - the claimed percentages EXACTLY match the primary draft PDF table I extracted (jmkresearch.com/.../2026/03/rerc.pdf), so they are not refuted, but they come from the RERC RPO (First Amendment) Regulations 2026 which is a DRAFT effective only FY2026-27 onward and not yet notified; do not treat as in force. A secondary site (saurenergy) misreported wind as 0.81%/1.6% - that is wrong; the primary PDF supports the claimed 2.46%/3.36%/3.48%. (2) gram_panchayat_noc=false is uncertain: the only NOC-waiver provision found applies narrowly to wind MONITORING STATION land, not project land; the broad 'no NOC' reading and the cited 2019 cl 19.3 could not be corroborated. (3) Source/clause attribution drift: several policy claims cite the '2019 Wind & Hybrid Policy' with clause numbers (8.1, 8.2.1, 9, 13, 19.3, 33, 34.4, 29), but the verbatim matching text lives in the Rajasthan Renewable Energy Policy 2023 (cl 7, 12.3, 18, 24, 19.4, 21.5, 30) - the SUBSTANTIVE values (3 ha/MW, Rs 1 lakh/MW, must-run, ED exemption, REDFC-on-solar) are confirmed in primary PDFs, but the clause citations should be corrected to the 2023 policy. Also note: the official environment.rajasthan.gov.in PDF link did not resolve (returned HTML); the 2012 policy PDF on cbip.org is a different/older document (5 Hect cap), so do not cite it for 2019/2023 values. CSS '50%' and ED exemption are conditional (cap on increase / subject to RIPS) - phrasing matters legally. SLDC wheeling (0.01/0.15/0.79) and transmission loss (4.5%) were verified verbatim in the SLDC FY2023-24 sheet itself and are the latest published figures."
+  },
+  {
+    "jurisdiction": "Madhya Pradesh, India",
+    "overall_confidence_note": "Verified against downloaded primary documents (MPERC RE Tariff Reg 2024 G-43(I); MPERC ARR & RST Orders FY2025-26 [PNo via 29/03/2025] and the now-current FY2026-27 [PNo 140/2025]; MPERC GEOA order PNo 42/2024 quoting the GEOA Methodology Regs 2023; MP RE Policy 2025 Notification No.108 of 04/04/2025, OCR'd from the official invest.mp.gov.in PDF) plus independent secondary corroboration (SolarQuarter, Mercom, Down To Earth, Saur Energy, Power Line, Renewable Watch, MoP RPO/RCO trajectory, BEE/AIDA decks). TWO numeric claims are now stale: as of today (2026-06-21) FY2026-27 is the live financial year, and the FY2026-27 order supersedes the FY2025-26 figures the claims cite — 33kV wheeling fell from 0.19 to 0.17 INR/kWh and intra-state transmission loss fell from 2.61% to 2.60%. Both were correct for FY2025-26 but are no longer current. Two claims are flagged uncertain: css_concession (the '100% waived' framing is broader than the policy's verbatim Green-Zone wording, and the cited energetica URL is actually about net-metering, i.e. mis-cited) and banking_third_party (the GEOA framework restricts banking to captive consumption and bars it for third-party open-access supply, so 'true' is doubtful). The RPO claims correctly distinguish the current MoP Oct-2023 category figures (wind 1.45%, total 33.01%) from the superseded July-2022 / MP-draft figures (wind 3.36%, total 30.97%); MP's own MPERC RPO regulation alignment was still in draft (5th amendment) as of late 2025.",
+    "verifications": [
+      {
+        "dimension_key": "preferential_tariff",
+        "claimed_value": "none (project-specific or competitively-bid) INR/kWh",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/2024/09/03/mperc-announces-new-tariff-regulations-2024-for-renewable-energy-projects-in-madhya-pradesh/",
+        "note": "Primary MPERC RE Tariff (Revision-I) Regs 2024 G-43(I): Reg 6 'Generic Tariff' list does NOT include wind (only small hydro, biomass, bagasse cogen, biogas, MSW). Wind >=10 MW = adopted via competitive bidding under Sec 63 (Reg 4.2(a)); wind below threshold = project-specific case-to-case (Reg 7). So no preferential generic wind feed-in tariff. SolarQuarter independently confirms wind tariff via competitive bidding for larger projects, project-specific below threshold."
+      },
+      {
+        "dimension_key": "tariff_mode",
+        "claimed_value": "project_specific enum",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://solarquarter.com/2024/09/03/mperc-announces-new-tariff-regulations-2024-for-renewable-energy-projects-in-madhya-pradesh/",
+        "note": "Reg 7 of RE Tariff Regs 2024 lists 'Wind Power Projects' under Project Specific Tariff (case-to-case) for capacities below the competitive-bidding threshold; above threshold tariff is bid-discovered (Sec 63). Both primary text and SolarQuarter agree there is no generic wind tariff, so project_specific (or bid) is the correct mode."
+      },
+      {
+        "dimension_key": "third_party_sale",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.mercomindia.com/madhya-pradesh-no-banking-facility-discom-registered-captive-renewable-projects",
+        "note": "Confirmed by Mercom (MPERC regs) and MPERC PNo 42/2024 context: 'Captive RE Generation Plant is eligible to sale its surplus power to any 3rd party subject to limits'; PPA on mutually agreed rates for third-party sale/captive/inter-state. Note the claim's cited cbip.org URL is a generic cogeneration summary, not the specific open-access instrument, but the value itself is correct."
+      },
+      {
+        "dimension_key": "captive_use",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.mercomindia.com/madhya-pradesh-no-banking-facility-discom-registered-captive-renewable-projects",
+        "note": "Captive RE generation explicitly defined and permitted in MPERC GEOA/Cogen regs; captive consumers may sell surplus to discom and avoid CSS/wheeling. Confirmed by Mercom and MPERC GEOA order PNo 42/2024 (banking clause is framed around 'Renewable Energy Captive Generating Station')."
+      },
+      {
+        "dimension_key": "geoa_threshold_kw",
+        "claimed_value": "100 kW",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://feeds.optenpower.com/blog/power-utilities-must-produce-renewable-sources",
+        "note": "GEOA eligibility threshold of 100 kW (contract demand/sanctioned load, individually or aggregated across connections in same division) is the MoP Green Energy Open Access Rules 2022 framework adopted by MP via MPERC GEOA Methodology Regs 2023. Independently corroborated ('open access threshold cut from 1 MW to 100 kW'). The cited teamleaseregtech article (22269) confirms the regulation exists (Notification MPERC-2023-497, 09/03/2023) but is paywalled on the 100kW figure."
+      },
+      {
+        "dimension_key": "wheeling_charge",
+        "claimed_value": "0.19 INR/kWh",
+        "verdict": "refuted",
+        "corrected_value": "0.17 INR/kWh (33 kV, FY2026-27 current); 0.19 was FY2025-26",
+        "second_source_url": "https://mperc.in/uploads/petition_order_document/MPERC_Pno_140_2025_State_DISCOMs_ARR_RST__ORDER_FY_2026_27_FINAL.pdf",
+        "note": "0.19 INR/kWh is correct for the FY2025-26 order (Table 88, Commission-approved 33kV wheeling). BUT as of 2026-06-21 the live FY is 2026-27 and the FY2026-27 order (PNo 140/2025) Table 89 sets the Commission-approved 33kV wheeling charge at 0.17 INR/kWh. The cited FY2025-26 value is now superseded/stale. (Mercom's 0.18 reflects the petitioners' FY2025-26 submission, not the approved figure.)"
+      },
+      {
+        "dimension_key": "wheeling_concession",
+        "claimed_value": "50 %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.teamleaseregtech.com/updates/article/41389/madhya-pradesh-renewable-energy-policy-2025/",
+        "note": "Confirmed verbatim from the primary MP RE Policy 2025 PDF (OCR): '50% waiver on wheeling charges shall be applicable... This waiver shall be applicable for 5 years from COD.' TeamLease independently states '50% waiver on wheeling charges for five years.' Note the duration (5 years from COD) is a material qualifier the dimension value omits."
+      },
+      {
+        "dimension_key": "css_applicable",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://mperc.in/uploads/petition_order_document/MPERC_Pno_140_2025_State_DISCOMs_ARR_RST__ORDER_FY_2026_27_FINAL.pdf",
+        "note": "CSS is applicable to open-access consumers per Tariff Policy 2016 formula, capped at 20% of category tariff. Confirmed in the FY2025-26 order (Table 89) AND still applicable in the current FY2026-27 order (Table 90). Note the cited cbip.org URL is a generic cogeneration summary, not the RST order, but the boolean is correct."
+      },
+      {
+        "dimension_key": "css_concession",
+        "claimed_value": "100 (waived) for Green Zone/captive; else 0 %",
+        "verdict": "uncertain",
+        "corrected_value": "",
+        "second_source_url": "https://myrsolar.com/mp-renewable-energy-policy-2025",
+        "note": "MP RE Policy 2025 (primary OCR) grants Green-Zone incentives (100% ED for 10yr, 50% stamp, 50% circle-rate land) and a 'no open access charges for 10 years' benefit for RE-powered EV charging (subject to MPERC). A full '100% CSS waiver for Green Zone/captive' is asserted by secondary source myrsolar ('CSS Rs0.20/kWh waived for Green Zone plants') but is NOT stated verbatim as a blanket 100% CSS waiver in the policy text. The cited source (energetica MPERC net-metering article) is mis-cited and does not address CSS. Cannot fully corroborate the exact framing -> uncertain."
+      },
+      {
+        "dimension_key": "additional_surcharge",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://mperc.in/uploads/petition_order_document/MPERC_Pno_140_2025_State_DISCOMs_ARR_RST__ORDER_FY_2026_27_FINAL.pdf",
+        "note": "Additional Surcharge is applicable to OA consumers: Commission determined Rs.1.24/unit in FY2025-26 (Table 97) and Rs.1.18/unit in the current FY2026-27 order (Table). Boolean 'true' confirmed in both the cited primary order and the newer order; only the amount changes by FY."
+      },
+      {
+        "dimension_key": "transmission_loss",
+        "claimed_value": "2.61 %",
+        "verdict": "refuted",
+        "corrected_value": "2.60 % (FY2026-27 current); 2.61% was FY2025-26",
+        "second_source_url": "https://mperc.in/uploads/petition_order_document/MPERC_Pno_140_2025_State_DISCOMs_ARR_RST__ORDER_FY_2026_27_FINAL.pdf",
+        "note": "2.61% (intra-state transmission loss, based on FY2023-24 actuals) is correct for the FY2025-26 order. BUT the current FY2026-27 order (PNo 140/2025) uses 2.60% (based on FY2024-25 actuals) - lines 'Intra State Transmission loss (%) 2.60%'. The cited FY2025-26 value is now superseded."
+      },
+      {
+        "dimension_key": "banking_allowed",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://mperc.in/uploads/petition_order_document/MPERC_PNo_42_2024_Final_Order_05_11_2024.pdf",
+        "note": "Confirmed by primary MPERC order PNo 42/2024 quoting GEOA Methodology Regs 2023 Reg 11: 'Banking shall be permitted at least on a monthly basis.' Nuance (per Mercom 2024 amendment): banking is NOT available to RE captive plants registered with the discom, and is for captive consumption. So banking is allowed generally but with carve-outs."
+      },
+      {
+        "dimension_key": "banking_period",
+        "claimed_value": "monthly enum",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.mercomindia.com/madhya-pradesh-no-banking-facility-discom-registered-captive-renewable-projects",
+        "note": "Primary MPERC order PNo 42/2024, GEOA Reg 11(f): 'Banking shall be permitted at least on a monthly basis'; credit 'shall not be carried forward to subsequent banking cycles... adjusted during the same banking cycle' / 'not be carried forward to next month'. Mercom independently confirms monthly basis per calendar month with no carry-forward."
+      },
+      {
+        "dimension_key": "banking_charge",
+        "claimed_value": "8 %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.mercomindia.com/madhya-pradesh-no-banking-facility-discom-registered-captive-renewable-projects",
+        "note": "Primary MPERC order PNo 42/2024, GEOA Reg 11(d): 'The Banking Charges shall be adjusted in each month in kind @ 8% of the total energy banked.' Independently corroborated by Mercom: 'banking charges are adjusted in kind at 8% of the energy banked.' 8% in-kind confirmed."
+      },
+      {
+        "dimension_key": "banking_third_party",
+        "claimed_value": "true boolean",
+        "verdict": "uncertain",
+        "corrected_value": "",
+        "second_source_url": "https://www.mercomindia.com/madhya-pradesh-no-banking-facility-discom-registered-captive-renewable-projects",
+        "note": "Evidence points AGAINST third-party banking: the GEOA Methodology banking provision is framed for captive consumption, and the standard GEOA proviso bars banking for 'RE plants supplying power to third party under open access' and behind-the-meter. The cited source (energetica net-metering article) does not support banking for third party. Could not independently corroborate that banking is allowed for third-party sale in MP -> marked uncertain (leaning false)."
+      },
+      {
+        "dimension_key": "rpo_wind",
+        "claimed_value": "1.45 (FY2025-26, MoP-aligned) | conflicting 3.36 %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://feeds.optenpower.com/blog/power-utilities-must-produce-renewable-sources",
+        "note": "Both figures verified and the framing is accurate. MoP's revised category-wise RPO/RCO notification (Oct 2023, applicable FY2024-25 onward) sets FY2025-26 Wind = 1.45% (corroborated by optenpower, AIDA/BEE decks). The earlier MoP July-2022 notification (and MP's own present RPO regulation per Prayas) used Wind = 3.36% for FY2025-26 - the 'conflicting' value. 1.45% is the current MoP-aligned figure; 3.36% is superseded at MoP level but may still appear in MP's not-yet-amended state regulation."
+      },
+      {
+        "dimension_key": "rpo_total",
+        "claimed_value": "33.01 (FY2025-26, MoP-aligned) | conflicting 30.97 %",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://renewablewatch.in/2023/12/18/rpo-trajectory-mop-notifies-targets-up-to-financial-year-2030/",
+        "note": "MoP total RPO/RCO for FY2025-26 = 33.01% - confirmed by multiple independent sources (MoP notification, Power Line, Renewable Watch, optenpower, AIDA/BEE). Renewable Watch: total unchanged from July-2022 (33.01%) with revised category splits in Dec-2023. The 30.97% 'conflicting' value is MP's own present-regulation total (per Prayas comments table), which MPERC's draft 5th amendment was still seeking to align to MoP as of late 2025. Framing accurate."
+      },
+      {
+        "dimension_key": "must_run",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://mperc.in/uploads/petition_order_document/MPERC_PNo_42_2024_Final_Order_05_11_2024.pdf",
+        "note": "RE has must-run status: central Electricity (Promotion of Generation from Must-Run Power Plant) Rules 2021 treat wind/solar/hybrid with a sale agreement as must-run, not subject to merit-order curtailment except for grid technical/security reasons. MPERC PNo 42/2024 itself references 'the must run status of RE projects.' Note: the cited RE Tariff Reg 2024 does not itself assert must-run (Reg 12.4 defers merit-order applicability to Cogen Rev-II 2021 regs); and a 2017 MP draft to scrap must-run was never notified. Value correct, source attribution imprecise."
+      },
+      {
+        "dimension_key": "repowering_incentive",
+        "claimed_value": "PPA continued at pre-agreed rate for avg of last 3yrs; land facilitation; LUPA extended; NRED guidelines text",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.downtoearth.org.in/renewable-energy/madhya-pradesh-renewable-energy-policy-2025-is-betting-on-winds-can-repowering-unleash-1562-mw-of-clean-energy",
+        "note": "Confirmed by primary MP RE Policy 2025 (OCR shows repowering chapter) and independently by Down To Earth / Saur Energy: discom to 'continue procuring power equivalent to the average generation over the last three years' before repowering (with PPA extension); 'LUPA may be extended for the revised useful life'; case-by-case additional land facilitation; NRED to release detailed repowering guidelines. All four elements corroborated."
+      },
+      {
+        "dimension_key": "land_allotment",
+        "claimed_value": "Govt land 50% rebate on circle rate; 50% stamp-duty reimbursement; online portal + DLICs text",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.novergysolar.com/madhya-pradesh-unveils-ambitious-renewable-energy-policy/",
+        "note": "Confirmed verbatim from primary MP RE Policy 2025 (OCR): 'Government land, if available, shall be provided on concessional rate (rebate of 50% on circle rate)' and '50% reimbursement on stamp duty on purchase of private land.' Novergy/energetica independently confirm '50% Rebate on Circle Rates for Government Land' and '50% Reimbursement on Stamp Duty.' District Level Implementation Committees and single-window/online processes also present in policy."
+      },
+      {
+        "dimension_key": "gram_panchayat_noc",
+        "claimed_value": "not specified boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.energetica-india.net/news/madhya-pradesh-re-policy-2025-green-cities-jobs-and-innovation",
+        "note": "Confirmed: the primary MP RE Policy 2025 text (full OCR) mentions 'gram panchayat' ONLY as an eligible community RE/biogas developer, never as a No-Objection-Certificate requirement. No gram-panchayat NOC is specified for RE projects. Energetica coverage likewise does not mention any gram-panchayat NOC requirement. 'Not specified' is accurate."
+      },
+      {
+        "dimension_key": "electricity_duty_exemption",
+        "claimed_value": "100% exemption for 10 years from COD text",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.teamleaseregtech.com/updates/article/41389/madhya-pradesh-renewable-energy-policy-2025/",
+        "note": "Confirmed verbatim from primary MP RE Policy 2025 (OCR): 'projects shall be entitled to receive hundred percent (100%) exemption from payment of Electricity Duty on generation... for period of ten (10) years from the date of COD' (per MP Vidyut Shulk Adhiniyam 2012). TeamLease independently: 'full electricity duty exemption for ten years from project commissioning.'"
+      },
+      {
+        "dimension_key": "green_energy_cess",
+        "claimed_value": "0 (no Energy Development Cess for 10 years from COD) INR/kWh",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.energetica-india.net/news/madhya-pradesh-re-policy-2025-green-cities-jobs-and-innovation",
+        "note": "Confirmed verbatim from primary MP RE Policy 2025 (OCR): 'No energy development cess shall be payable on the power supplied by renewable energy projects for a period of ten (10) years from the COD.' Energetica independently notes 'exemptions from electricity duty and energy development cess.'"
+      },
+      {
+        "dimension_key": "single_window",
+        "claimed_value": "true boolean",
+        "verdict": "confirmed",
+        "corrected_value": "",
+        "second_source_url": "https://www.energetica-india.net/news/madhya-pradesh-re-policy-2025-green-cities-jobs-and-innovation",
+        "note": "Confirmed verbatim from primary MP RE Policy 2025 (OCR): 'Establish a Single Window System for technical support and project clearance through coordination between concerned Government department.' Energetica independently: 'A Single Window System are established to streamline processes and provide support to developers.'"
+      }
+    ]
+  }
+]

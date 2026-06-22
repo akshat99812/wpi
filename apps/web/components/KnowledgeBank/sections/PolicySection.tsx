@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import type { WpiBundle } from '@/lib/types';
 import { InfoCard, SectionHeader, SourceLinks } from '../WindCards';
 import { STATE_PROFILES } from '../stateProfiles';
@@ -426,6 +427,8 @@ export default function PolicySection({ bundle: _bundle, selectedState }: Props)
           delay={0}
         />
 
+        <ComparePoliciesCTA />
+
         <InfoCard
           title="Official policy & regulatory links"
           delay={30}
@@ -501,6 +504,7 @@ export default function PolicySection({ bundle: _bundle, selectedState }: Props)
           title={`Policy — ${selectedState}`}
           delay={0}
         />
+        <ComparePoliciesCTA />
         <div className="wpi-card-in rounded-xl border border-dashed border-[#1f2c44] bg-[#0a0f1c]/60 p-4 text-[11.5px] text-muted/70">
           State-specific wind / RE policy stack for <b>{selectedState}</b> is
           not yet curated. Refer to the state nodal agency / SERC portal.
@@ -528,6 +532,8 @@ export default function PolicySection({ bundle: _bundle, selectedState }: Props)
         title={`Policy — ${selectedState}`}
         delay={0}
       />
+
+      <ComparePoliciesCTA />
 
       {/* Hero card — state policy anchor + counts */}
       <div
@@ -701,6 +707,21 @@ function PolicyLinkCard({
         <ExternalLinkIcon />
       </span>
     </a>
+  );
+}
+
+// ── Button → full side-by-side policy comparison tool (/policy) ───────────
+function ComparePoliciesCTA() {
+  return (
+    <Link
+      href="/policy"
+      className="wpi-card-in self-start inline-flex items-center gap-2 rounded-lg
+                 bg-orange px-4 py-2 text-[12px] font-bold text-black
+                 hover:bg-orange/90 transition-colors"
+      style={{ ['--wpi-delay' as string]: '20ms' }}
+    >
+      Compare policies
+    </Link>
   );
 }
 

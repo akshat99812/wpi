@@ -9,6 +9,10 @@ import {
   TURBINE_OEMS, ORIGIN_META, SUPPLY_CHAIN_AS_OF, OEM_WATCHLIST,
   type TurbineOem, type OemStatus,
 } from '../data/turbineSupplyChain';
+import {
+  MFG_BRANCHES, MFG_TOTAL_CAPACITY_MW, MFG_TOTAL_BRANCHES,
+  COMPONENT_META, MFG_CAPACITY_AS_OF, type MfgBranch,
+} from '../data/mfgCapacity';
 
 interface Props {
   bundle?:        WpiBundle;
@@ -55,6 +59,30 @@ export default function TechnologySection({ bundle: _bundle }: Props) {
     };
   }, []);
 
+  const mfg = useMemo(() => {
+    const facilities = [...MFG_BRANCHES].sort(
+      (a, b) => b.mfgCapacity - a.mfgCapacity,
+    );
+    const states = new Set(facilities.map((f) => f.state));
+    const maxCapacity = Math.max(1, ...facilities.map((f) => f.mfgCapacity));
+    // Capacity rolled up per component (a facility can list several).
+    const byComponent: Record<string, number> = {};
+    for (const f of facilities) {
+      for (const c of f.componentMfg) {
+        byComponent[c] = (byComponent[c] ?? 0) + f.mfgCapacity;
+      }
+    }
+    const componentRows = Object.entries(byComponent)
+      .map(([component, capacity]) => ({ component, capacity }))
+      .sort((a, b) => b.capacity - a.capacity);
+    return {
+      facilities,
+      stateCount: states.size,
+      maxCapacity,
+      componentRows,
+    };
+  }, []);
+
   return (
     <div className="flex flex-col gap-3.5">
       <SectionHeader
@@ -69,6 +97,69 @@ export default function TechnologySection({ bundle: _bundle }: Props) {
         design&apos;s country of origin. Sourced from MNRE RLMM/ALMM and company
         filings ({SUPPLY_CHAIN_AS_OF}).
       </Prose>
+
+      {/* ── Manufacturing footprint ── */}
+      <InfoCard
+        title="Manufacturing footprint"
+        delay={20}
+        defaultOpen
+        icon={<FactoryIcon />}
+        accent="#5ec26a"
+      >
+        <Prose>
+          Where India&apos;s turbine components are actually built — facility-level
+          {' '}<b className="text-[#bdf0c8]">annual manufacturing capacity</b> by state and
+          component, from MNRE ALMM / RLMM filings ({MFG_CAPACITY_AS_OF}).
+        </Prose>
+
+        <div className="grid grid-cols-3 gap-2.5 mt-1">
+          <HeadlineMetric
+            label="Total Capacity"
+            value={`${MFG_TOTAL_CAPACITY_MW.toLocaleString('en-IN')} MW`}
+            accent="#5ec26a"
+            delay={40}
+          />
+          <HeadlineMetric label="Facilities" value={String(MFG_TOTAL_BRANCHES)} accent="#7bc4e2" delay={70} />
+          <HeadlineMetric label="States / UTs" value={String(mfg.stateCount)} accent="#ff8a1f" delay={100} />
+        </div>
+
+        {/* Capacity by component */}
+        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted/55 mt-3.5 mb-1.5">
+          Capacity by component (MW)
+        </p>
+        <div className="flex flex-col gap-2">
+          {mfg.componentRows.map((r, i) => (
+            <ComponentBar
+              key={r.component}
+              component={r.component}
+              capacity={r.capacity}
+              max={MFG_TOTAL_CAPACITY_MW}
+              delay={i * 50}
+            />
+          ))}
+        </div>
+
+        {/* Facility list */}
+        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted/55 mt-4 mb-1.5">
+          Facilities by capacity
+        </p>
+        <div className="flex flex-col gap-1.5">
+          {mfg.facilities.map((f, i) => (
+            <MfgFacilityRow
+              key={`${f.state}-${f.district}-${f.componentMfg.join('')}`}
+              branch={f}
+              max={mfg.maxCapacity}
+              delay={i * 30}
+            />
+          ))}
+        </div>
+
+        <p className="text-[10px] text-muted/55 leading-relaxed mt-3 pt-2.5 border-t border-[#1f2c44]">
+          All {MFG_TOTAL_BRANCHES} facilities operated by <b className="text-[#bdf0c8]">Suzlon Energy Limited</b>,
+          {' '}India&apos;s largest turbine OEM. Capacities are annual manufacturing
+          capacity per facility in MW.
+        </p>
+      </InfoCard>
 
       <div className="grid grid-cols-3 gap-2.5">
         <HeadlineMetric label="Active OEMs" value={String(stats.active.length)} accent="#ff8a1f" delay={40} />
@@ -184,7 +275,7 @@ export default function TechnologySection({ bundle: _bundle }: Props) {
         </a>
       </InfoCard>
 
-      <SourceLinks sources={SOURCES} delay={290} />
+      <SourceLinks sources={SOURCES} delay={330} />
     </div>
   );
 }
@@ -214,6 +305,94 @@ function OriginBar({
       <span className="text-[11px] font-mono text-text/85 w-[22px] text-right tabular-nums">
         {count}
       </span>
+    </div>
+  );
+}
+
+// ── Component capacity bar (animated) ───────────────────────────────────────
+function ComponentBar({
+  component, capacity, max, delay,
+}: { component: string; capacity: number; max: number; delay: number }) {
+  const meta = COMPONENT_META[component];
+  const color = meta?.color ?? '#7a8699';
+  const pct = Math.min(100, (capacity / max) * 100);
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="text-[11px] text-muted/85 w-[64px] flex-shrink-0 truncate">
+        {meta?.label ?? component}
+      </span>
+      <div className="flex-1 h-1.5 bg-[#0a0f1c] rounded-full overflow-hidden">
+        <div
+          className="wpi-bar-grow h-full rounded-full"
+          style={{
+            backgroundColor: color,
+            ['--wpi-delay' as string]: `${delay}ms`,
+            ['--wpi-bar-target' as string]: `${pct}%`,
+          }}
+        />
+      </div>
+      <span className="text-[11px] font-mono text-text/85 w-[44px] text-right tabular-nums">
+        {capacity.toFixed(2)}
+      </span>
+    </div>
+  );
+}
+
+// ── Manufacturing facility row ──────────────────────────────────────────────
+function MfgFacilityRow({
+  branch, max, delay,
+}: { branch: MfgBranch; max: number; delay: number }) {
+  const pct = Math.min(100, (branch.mfgCapacity / max) * 100);
+  return (
+    <div
+      className="wpi-card-in bg-[#0a0f1c]/60 border border-[#1f2c44] rounded-lg px-3 py-2.5 flex flex-col gap-2"
+      style={{ ['--wpi-delay' as string]: `${delay}ms` }}
+      title={branch.branchAddress.replace(/\r\n/g, ', ')}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <span className="block text-[12px] font-bold text-text/90 truncate">
+            {branch.state}
+          </span>
+          <span className="block text-[10px] text-muted/65 leading-snug mt-0.5">
+            {branch.district}
+          </span>
+        </div>
+        <span className="text-[12.5px] font-black font-mono tabular-nums text-[#bdf0c8] flex-shrink-0">
+          {branch.mfgCapacity.toFixed(2)}
+          <span className="text-[9px] text-muted/55 font-bold ml-0.5">MW</span>
+        </span>
+      </div>
+
+      <div className="h-1.5 bg-[#0a0f1c] rounded-full overflow-hidden">
+        <div
+          className="wpi-bar-grow h-full rounded-full"
+          style={{
+            backgroundColor: COMPONENT_META[branch.componentMfg[0]]?.color ?? '#5ec26a',
+            ['--wpi-delay' as string]: `${delay + 80}ms`,
+            ['--wpi-bar-target' as string]: `${pct}%`,
+          }}
+        />
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
+        {branch.componentMfg.map((c) => {
+          const color = COMPONENT_META[c]?.color ?? '#7a8699';
+          return (
+            <span
+              key={c}
+              className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-[2px] rounded-full"
+              style={{
+                color,
+                backgroundColor: `${color}1f`,
+                border: `1px solid ${color}55`,
+              }}
+            >
+              {COMPONENT_META[c]?.label ?? c}
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 }
