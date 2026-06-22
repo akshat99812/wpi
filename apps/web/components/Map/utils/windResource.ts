@@ -32,6 +32,8 @@ export interface WindMetricMeta {
   fringeTilePath: string;
   domain: number[];
   ramp: { value: number; color: string }[];
+  /** Discrete colour-band count — the ramp steps into this many flat bands. */
+  bands: number;
 }
 
 export const WIND_METRICS: Record<WindMetric, WindMetricMeta> =
@@ -51,7 +53,9 @@ const ATTRIBUTION_HTML =
 // v2: 2026-06-15 — fringe extended to ~100 km offshore + softer (~78 km) fade.
 // v3: 2026-06-15 — fringe extended to the whole Indian coastline (all coastal
 //     states/UTs + island groups).
-const WIND_ATLAS_VERSION = '3';
+// v4: 2026-06-22 — discrete 40-band colour ramp (colour steps every 2.5% of the
+//     value domain) replaces the continuous blend; tiles re-baked.
+const WIND_ATLAS_VERSION = '4';
 
 const SOURCE_ID = SOURCE_IDS.windAtlas;
 const LAYER_ID = LAYER_IDS.windRaster;

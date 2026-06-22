@@ -5,6 +5,10 @@ import {
   type WindMetric,
   type WindMetricMeta,
 } from '../utils/windResource';
+import {
+  rampToNormStops,
+  steppedGradientStops,
+} from '../utils/windRamp';
 
 /** 'off' plus the bake-emitted metrics — the segmented control's value. */
 export type WindMetricChoice = 'off' | WindMetric;
@@ -145,9 +149,10 @@ function RampLegend({
   const [lo, hi] = meta.domain as [number, number];
   const has = value != null && Number.isFinite(value);
   const frac = has ? Math.min(1, Math.max(0, ((value as number) - lo) / (hi - lo))) : 0;
-  const stops = meta.ramp
-    .map((s) => `${s.color} ${(((s.value - lo) / (hi - lo)) * 100).toFixed(1)}%`)
-    .join(', ');
+  // Discrete band ramp: same boundaries the baked raster steps at, so the
+  // legend reads as flat bands that change colour every 1/bands of the domain.
+  const norm = rampToNormStops(meta.ramp, lo, hi);
+  const stops = steppedGradientStops(norm, meta.bands);
   const label = !has
     ? '—'
     : meta.unit === 'm/s'

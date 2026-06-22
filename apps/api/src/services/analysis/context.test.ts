@@ -356,7 +356,17 @@ describe("computeContext (injected deps)", () => {
             { geometry: { type: "Polygon" as const, coordinates: [aoiRing] } },
           ],
         }),
-        loadExclusionCoverage: async () => ({ excludedKm2: 5, excludedFraction: 0.1 }),
+        loadExclusionCoverage: async () => ({
+          excludedKm2: 5,
+          excludedFraction: 0.1,
+          amberKm2: 2,
+          amberFraction: 0.04,
+          categories: [
+            { layerCode: "forest_legal", cls: "red", km2: 5, fraction: 0.1 },
+            { layerCode: "esz_default_10km", cls: "amber", km2: 2, fraction: 0.04 },
+          ],
+        }),
+        loadTurbineInventory: async () => ({ count: 12, ratedMw: 18, ratedCount: 9 }),
       },
     );
 
@@ -371,6 +381,39 @@ describe("computeContext (injected deps)", () => {
     expect(result.sizing.excludedFraction).toBe(0.1);
     // Full overlap → sizing collapses to ~0 (the §2.5 farm-covered case).
     expect(result.sizing.capacityMw).toBeCloseTo(0, 1);
+    // Turbine inventory flows through verbatim.
+    expect(result.turbines).toEqual({ count: 12, ratedMw: 18, ratedCount: 9 });
+    // Exclusion breakdown is shaped: red/amber totals + per-kind categories.
+    expect(result.exclusions).toEqual({
+      redFraction: 0.1,
+      amberFraction: 0.04,
+      categories: [
+        { layerCode: "forest_legal", cls: "red", fraction: 0.1, km2: 5 },
+        { layerCode: "esz_default_10km", cls: "amber", fraction: 0.04, km2: 2 },
+      ],
+    });
+  });
+
+  test("exclusion coverage without breakdown fields → totals only, empty categories", async () => {
+    // A legacy/partial coverage object (no amber, no categories) must still
+    // shape into a valid `exclusions` block, not throw.
+    const result = await computeContext(
+      aoi,
+      { elevation: flatElevation, aoiMask, cfIec3: 0.4 },
+      {
+        loadStatesGeo: async () => statesGeo,
+        loadCapacityRows: async () => null,
+        loadFarmsGeo: async () => null,
+        loadExclusionCoverage: async () => ({ excludedKm2: 5, excludedFraction: 0.1 }),
+        loadTurbineInventory: async () => null,
+      },
+    );
+    expect(result.exclusions).toEqual({
+      redFraction: 0.1,
+      amberFraction: 0,
+      categories: [],
+    });
+    expect(result.turbines).toBeNull();
   });
 
   test("degrades cleanly when every loader returns null", async () => {
@@ -382,6 +425,7 @@ describe("computeContext (injected deps)", () => {
         loadCapacityRows: async () => null,
         loadFarmsGeo: async () => null,
         loadExclusionCoverage: async () => null,
+        loadTurbineInventory: async () => null,
       },
     );
 
@@ -389,5 +433,8 @@ describe("computeContext (injected deps)", () => {
     expect(result.windfarms).toEqual({ count: 0, overlapFraction: 0 });
     expect(result.sizing.energyGwh).toBe(0);
     expect(result.sizing.capacityMw).toBeGreaterThan(0);
+    // Null loaders → both new sections degrade to null, never throw.
+    expect(result.turbines).toBeNull();
+    expect(result.exclusions).toBeNull();
   });
 });

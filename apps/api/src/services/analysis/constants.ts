@@ -16,8 +16,13 @@
  *  10.4.0: CF-engine Phase C (shadow) — net CF = gross·(1−wake)·Π(1−lossᵢ)
  *  (resource.cfNet) with the loss waterfall.
  *  10.5.0: CF-engine Phase D (shadow) — P50/P75/P90 exceedance of the net CF
- *  (resource.cfExceedance) from an engineering σ budget. */
-export const ANALYSIS_VERSION = "10.5.0";
+ *  (resource.cfExceedance) from an engineering σ budget.
+ *  11.0.0: scoring mechanism replaced (methodology §A/§B). Headline score is now
+ *  the 2-component CUF-anchored index (resource 72 / grid 28) from windScoring;
+ *  response gains PART B financials (equity/project IRR, LCOE, payback, NPV) +
+ *  a Monte-Carlo IRR band (windFinance). The CF-engine net-CF/Weibull/exceedance
+ *  is retained as displayed detail but no longer feeds the score. */
+export const ANALYSIS_VERSION = "11.0.0";
 
 /**
  * Sampling zoom for all GWA raster layers. Verified: z9 gives only 256 valid
@@ -89,14 +94,6 @@ export const SIZING_ASSUMPTIONS = [
   "IEC-III capacity factor",
   "existing wind-farm area excluded",
 ] as const;
-
-/** Score weights (plan §2.6). Validation confidence NEVER feeds the score. */
-export const SCORE_WEIGHTS = {
-  resource: 45,
-  cf: 25,
-  grid: 20,
-  terrain: 10,
-} as const;
 
 /** Mast-validation distance rules in km (plan §2.3). */
 export const MAST_DELTA_MAX_KM = 25;

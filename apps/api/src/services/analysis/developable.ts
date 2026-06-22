@@ -20,11 +20,33 @@ import { pool, dbAvailable } from "../../lib/db";
 import { DEVELOPABLE_PACKING_FACTOR } from "./constants";
 import type { ValidatedAoi } from "./types";
 
+/** One exclusion category's footprint inside the AOI, keyed by the raw
+ *  `layer_code` (the UI maps it to a human label). `cls` is the legal class:
+ *  'red' = hard exclusion, 'amber' = verify-before-use. */
+export interface ExclusionCategory {
+  layerCode: string;
+  cls: "red" | "amber";
+  /** This category ∩ AOI, in km². */
+  km2: number;
+  /** This category ∩ AOI ÷ AOI area, clamped to 0..1. */
+  fraction: number;
+}
+
 export interface ExclusionCoverage {
-  /** Hard (red) exclusion area inside the AOI, in km². */
+  /** Hard (red) exclusion area inside the AOI, in km² (deduped union). */
   excludedKm2: number;
-  /** Excluded area ÷ AOI area, clamped to 0..1. */
+  /** Red excluded area ÷ AOI area, clamped to 0..1. Drives sizing. */
   excludedFraction: number;
+  /** Amber (verify) exclusion area inside the AOI, in km² (deduped union).
+   *  Optional so legacy/injected coverage objects stay valid; the display
+   *  degrades to 0 when absent. */
+  amberKm2?: number;
+  /** Amber excluded area ÷ AOI area, clamped to 0..1. */
+  amberFraction?: number;
+  /** Per-`layer_code` breakdown ("for what"), each ∩ AOI, sorted by area desc.
+   *  Categories may overlap, so their fractions can sum to MORE than the
+   *  deduped red/amber totals — they answer "what kinds", not a partition. */
+  categories?: ExclusionCategory[];
 }
 
 /** Injectable so context tests never touch the DB. */
@@ -49,43 +71,69 @@ export async function queryExclusionCoverageDefault(
   const aoiGeoJson = JSON.stringify({ type: "Polygon", coordinates: [aoi.ring] });
   // ST_MakeValid guards against self-touching source polygons; the GIST `&&`
   // prefilter keeps the ST_Union input to only the features that actually
-  // overlap the (≤2,500 km²) AOI.
+  // overlap the (≤2,500 km²) AOI. `feat` collects every intersecting red/amber
+  // feature once; the deduped class totals (per_class) keep the red number
+  // identical to the legacy query, while per_cat answers "for what".
   const sql = `
     WITH aoi AS (
       SELECT ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON($1), 4326)) AS g
     ),
-    hard AS (
-      SELECT ST_MakeValid(e.geom) AS geom
+    feat AS (
+      SELECT e.layer_code AS layer_code, e.class AS cls, ST_MakeValid(e.geom) AS geom
         FROM wce.excl_polygon e, aoi
-       WHERE e.class = 'red' AND e.geom && aoi.g AND ST_Intersects(e.geom, aoi.g)
+       WHERE e.geom && aoi.g AND ST_Intersects(e.geom, aoi.g)
       UNION ALL
-      SELECT ST_MakeValid(b.geom) AS geom
+      SELECT b.layer_code, b.class, ST_MakeValid(b.geom)
         FROM wce.excl_buffer b, aoi
-       WHERE b.class = 'red' AND b.geom && aoi.g AND ST_Intersects(b.geom, aoi.g)
+       WHERE b.geom && aoi.g AND ST_Intersects(b.geom, aoi.g)
+    ),
+    per_cat AS (
+      SELECT layer_code, cls,
+             ST_Area(ST_Intersection(ST_Union(geom), (SELECT g FROM aoi))::geography) AS m2
+        FROM feat
+       GROUP BY layer_code, cls
+    ),
+    per_class AS (
+      SELECT cls,
+             ST_Area(ST_Intersection(ST_Union(geom), (SELECT g FROM aoi))::geography) AS m2
+        FROM feat
+       GROUP BY cls
     )
     SELECT
-      (SELECT ST_Area(g::geography) FROM aoi) AS aoi_m2,
+      (SELECT ST_Area(g::geography) FROM aoi)                       AS aoi_m2,
+      COALESCE((SELECT m2 FROM per_class WHERE cls = 'red'),   0)   AS red_m2,
+      COALESCE((SELECT m2 FROM per_class WHERE cls = 'amber'), 0)   AS amber_m2,
       COALESCE(
-        ST_Area(
-          ST_Intersection(ST_Union(hard.geom), (SELECT g FROM aoi))::geography
-        ),
-        0
-      ) AS excluded_m2
-    FROM hard
+        (SELECT json_agg(
+                  json_build_object('layer_code', layer_code, 'cls', cls, 'm2', m2)
+                  ORDER BY m2 DESC
+                )
+           FROM per_cat WHERE m2 > 0),
+        '[]'::json
+      ) AS cats
   `;
   try {
     const { rows } = await pool.query<{
       aoi_m2: string | number | null;
-      excluded_m2: string | number | null;
+      red_m2: string | number | null;
+      amber_m2: string | number | null;
+      cats: Array<{ layer_code: string; cls: string; m2: string | number | null }> | string | null;
     }>(sql, [aoiGeoJson]);
     const row = rows[0];
     if (!row) return { excludedKm2: 0, excludedFraction: 0 };
     const aoiM2 = toFinite(row.aoi_m2);
-    const excludedM2 = toFinite(row.excluded_m2) ?? 0;
     if (aoiM2 === null || aoiM2 <= 0) return { excludedKm2: 0, excludedFraction: 0 };
+
+    const redM2 = toFinite(row.red_m2) ?? 0;
+    const amberM2 = toFinite(row.amber_m2) ?? 0;
+    const categories = shapeCategories(row.cats, aoiM2);
+
     return {
-      excludedKm2: Math.round(excludedM2 * KM2_PER_M2 * 100) / 100,
-      excludedFraction: clamp01(excludedM2 / aoiM2),
+      excludedKm2: Math.round(redM2 * KM2_PER_M2 * 100) / 100,
+      excludedFraction: clamp01(redM2 / aoiM2),
+      amberKm2: Math.round(amberM2 * KM2_PER_M2 * 100) / 100,
+      amberFraction: clamp01(amberM2 / aoiM2),
+      categories,
     };
   } catch (err) {
     console.warn(
@@ -94,6 +142,40 @@ export async function queryExclusionCoverageDefault(
     );
     return null;
   }
+}
+
+/** Normalize the json_agg'd per-category rows (pg may hand back a parsed array
+ *  or a json string depending on driver) into typed ExclusionCategory[]. Only
+ *  rows with a finite positive area and a valid class survive. */
+function shapeCategories(
+  raw: Array<{ layer_code: string; cls: string; m2: string | number | null }> | string | null,
+  aoiM2: number,
+): ExclusionCategory[] {
+  if (raw == null) return [];
+  let arr: Array<{ layer_code: string; cls: string; m2: string | number | null }>;
+  if (typeof raw === "string") {
+    try {
+      arr = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  } else {
+    arr = raw;
+  }
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((r) => {
+      const m2 = toFinite(r.m2) ?? 0;
+      const cls = r.cls === "red" || r.cls === "amber" ? r.cls : null;
+      if (cls === null || m2 <= 0 || typeof r.layer_code !== "string") return null;
+      return {
+        layerCode: r.layer_code,
+        cls,
+        km2: Math.round(m2 * KM2_PER_M2 * 100) / 100,
+        fraction: clamp01(m2 / aoiM2),
+      } satisfies ExclusionCategory;
+    })
+    .filter((c): c is ExclusionCategory => c !== null);
 }
 
 /**

@@ -101,6 +101,14 @@ export interface GridData {
 export interface ContextData {
   states: { name: string; installedMw: number | null; potentialMw: number | null }[];
   windfarms: { count: number; overlapFraction: number };
+  /** Individual physical wind turbines standing inside the AOI; null when DB down. */
+  turbines: { count: number; ratedMw: number | null; ratedCount: number } | null;
+  /** Exclusion-zone coverage of the AOI broken down by kind; null when DB down. */
+  exclusions: {
+    redFraction: number;
+    amberFraction: number;
+    categories: { layerCode: string; cls: "red" | "amber"; fraction: number; km2: number }[];
+  } | null;
   terrain: {
     elevMean: number;
     elevMin: number;
@@ -119,9 +127,14 @@ export interface ContextData {
   };
 }
 
+/** Methodology §A rating band derived from the headline value. */
+export type ScoreRating = "Excellent" | "Good" | "Moderate" | "Marginal" | "Poor";
+
 export interface ScoreComponent {
-  key: "resource" | "cf" | "grid" | "terrain";
+  /** Methodology PART A is resource-weighted 72/28 — two components only. */
+  key: "resource" | "grid";
   weight: number;
+  /** resource: the CUF the score anchored to; grid: the grid sub-score. */
   raw: number | null;
   normalized: number;
   points: number;
@@ -129,14 +142,43 @@ export interface ScoreComponent {
 
 export interface AnalysisScore {
   value: number;
+  /** §A3 rating band derived from `value`. */
+  rating: ScoreRating;
+  /** Shared capacity factor (windCuf) the score anchored to; null when ws missing. */
+  cuf: number | null;
   confidence: Confidence;
   components: ScoreComponent[];
+}
+
+/** Methodology PART B (per 1 MW). Mirrors apps/api windFinance.ts. */
+export interface WindFinancials {
+  irr: number | null; // equity IRR (headline), fraction
+  projIrr: number | null;
+  payback: number | null; // years
+  npvCr: number; // ₹ Cr/MW at 10%
+  lcoe: number | null; // ₹/kWh
+  annualMwh: number;
+  effTariff: number; // ₹/kWh
+}
+
+/** §B5 Monte-Carlo equity-IRR band (fractions). */
+export interface IrrBand {
+  p10: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p90: number;
+  n: number;
 }
 
 export interface AnalysisResponse {
   analysisVersion: string;
   aoi: { areaKm2: number; centroid: [number, number]; isPointMode: boolean };
   score: AnalysisScore;
+  /** PART B financials; null when the wind speed was unavailable. */
+  financials: WindFinancials | null;
+  /** §B5 Monte-Carlo IRR band; null when ws unavailable. */
+  irrBand: IrrBand | null;
   sections: {
     resource: Section<ResourceData>;
     climate: Section<ClimateData>;

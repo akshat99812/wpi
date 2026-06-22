@@ -1,13 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type {
   AnalysisResponse,
   Confidence,
+  ContextData,
+  IrrBand,
   ResourceData,
   ScoreComponent,
+  ScoreRating,
+  WindFinancials,
 } from "@/lib/analysis/types";
+import {
+  LAYER_LABELS,
+  fetchExclusionSources,
+  type ExclusionSource,
+} from "@/components/Map/utils/exclusions";
 
 /**
  * Results panel for a completed site analysis (plan §4 Phase 4 layout):
@@ -39,26 +48,32 @@ const SITE_CLASS_STYLE: Record<string, string> = {
 };
 
 const COMPONENT_LABEL: Record<ScoreComponent["key"], string> = {
-  resource: "Wind resource",
-  cf: "Capacity factor",
+  resource: "Wind resource (CUF)",
   grid: "Grid access",
-  terrain: "Terrain",
 };
 
 /**
  * Plain-language breakpoints shown in the methodology popover. These MIRROR
- * the server normalization ramps in
- * apps/api/src/services/analysis/score.ts — keep both in sync if either moves.
+ * the server sub-scores in
+ * apps/api/src/services/analysis/windScoring.ts — keep both in sync if either moves.
  */
 const COMPONENT_METHOD: Record<ScoreComponent["key"], string> = {
-  resource: "Mean wind speed @100 m — 0 pts at ≤4.5 m/s, rising to full at ≥7.5 m/s.",
-  cf: "IEC-III capacity factor — 0 pts at ≤0.12, rising to full at ≥0.38.",
-  grid: "Distance to EHV grid — full credit at ≤10 km, falling to 0 at ≥50 km.",
-  terrain: "90th-percentile slope — full credit at ≤5°, falling to 0 at ≥20°.",
+  resource:
+    "Capacity factor from @100 m wind speed (modern 120–140 m hub), scored via the anchor table — 0.34 CUF earns 0.42, rising to full credit at 0.46 CUF.",
+  grid: "Line + substation distance — line full ≤2 km (0 at 40 km), substation full ≤5 km (0 at 80 km), blended 60/40. A missing distance scores 0.15.",
+};
+
+/** §A3 rating-band chip styling. */
+const RATING_STYLE: Record<ScoreRating, string> = {
+  Excellent: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40",
+  Good: "bg-sky-500/15 text-sky-300 border-sky-500/40",
+  Moderate: "bg-amber-500/15 text-amber-300 border-amber-500/40",
+  Marginal: "bg-orange-500/15 text-orange-300 border-orange-500/40",
+  Poor: "bg-slate-500/15 text-slate-300 border-slate-500/40",
 };
 
 export function AnalysisResults({ analysis, onMastSelect }: Props) {
-  const { score, sections, aoi } = analysis;
+  const { score, financials, irrBand, sections, aoi } = analysis;
   const resource = sections.resource.status === "ok" ? sections.resource.data : null;
   const validation = sections.validation.status === "ok" ? sections.validation.data : null;
   const grid = sections.grid.status === "ok" ? sections.grid.data : null;
@@ -66,7 +81,13 @@ export function AnalysisResults({ analysis, onMastSelect }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <ScoreHeader value={score.value} confidence={score.confidence} components={score.components} />
+      <ScoreHeader
+        value={score.value}
+        rating={score.rating}
+        cuf={score.cuf}
+        confidence={score.confidence}
+        components={score.components}
+      />
 
       <p className="text-[11px] text-slate-500">
         {aoi.areaKm2.toFixed(1)} km²
@@ -140,6 +161,15 @@ export function AnalysisResults({ analysis, onMastSelect }: Props) {
         </button>
       )}
 
+      {/* On-site inventory — what already stands in this AOI. Wind-farm count
+          lives in the header badge + sizing %, so it is not repeated here. */}
+      {context && (
+        <SiteInventoryBlock
+          turbines={context.turbines}
+          mastCount={validation?.mastCountInAoi ?? 0}
+        />
+      )}
+
       {/* Grid row */}
       {grid && (
         <div className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-3 py-2 text-xs text-slate-300">
@@ -201,11 +231,22 @@ export function AnalysisResults({ analysis, onMastSelect }: Props) {
         </div>
       )}
 
+      {/* Exclusion-zone breakdown — how much of the AOI is excluded, and for what */}
+      {context && <ExclusionsBlock exclusions={context.exclusions} />}
+
       {/* Explicit placeholders for whatever didn't arrive */}
       {sections.climate.status === "unavailable" && <UnavailableNote label="Wind climate (rose, seasonality)" />}
       {sections.validation.status === "unavailable" && <UnavailableNote label="Mast validation" />}
       {sections.grid.status === "unavailable" && <UnavailableNote label="Grid proximity" />}
       {sections.context.status === "unavailable" && <UnavailableNote label="Site context & sizing" />}
+
+      {/* Financial screening (methodology PART B) — independent of the score,
+          shown last as the commercial read-out for the site. */}
+      {financials ? (
+        <FinancialsBlock financials={financials} irrBand={irrBand} />
+      ) : (
+        <UnavailableNote label="Financial screening" />
+      )}
 
       <ReportDisclaimer />
     </div>
@@ -287,10 +328,14 @@ function ReportDisclaimer() {
 
 function ScoreHeader({
   value,
+  rating,
+  cuf,
   confidence,
   components,
 }: {
   value: number;
+  rating: ScoreRating;
+  cuf: number | null;
   confidence: Confidence;
   components: ScoreComponent[];
 }) {
@@ -311,6 +356,14 @@ function ScoreHeader({
           <span className="text-xs text-slate-400">/ 100 screening score</span>
         </button>
         <div className="flex items-center gap-2">
+          <span
+            className={
+              "rounded-full border px-2 py-0.5 text-[10px] font-semibold " +
+              RATING_STYLE[rating]
+            }
+          >
+            {rating}
+          </span>
           <button
             type="button"
             onClick={() => setShowMethod((v) => !v)}
@@ -338,6 +391,14 @@ function ScoreHeader({
       </div>
       {expanded && (
         <ul className="mt-2 space-y-1 border-t border-slate-700/60 pt-2">
+          {cuf != null && (
+            <li className="flex items-center justify-between text-xs">
+              <span className="text-slate-400">Capacity factor (CUF)</span>
+              <span className="font-mono text-slate-200">
+                {(cuf * 100).toFixed(1)}%
+              </span>
+            </li>
+          )}
           {components.map((c) => (
             <li key={c.key} className="flex items-center justify-between text-xs">
               <span className="text-slate-400">
@@ -387,6 +448,313 @@ function ScoreMethodology({ components }: { components: ScoreComponent[] }) {
         Breakpoints are calibrated to India&apos;s wind distribution, so the
         windiest ~2% of sites approach a full resource score. The confidence
         chip reflects met-mast validation only and never affects the score.
+      </p>
+    </div>
+  );
+}
+
+// ── Financial screening (methodology PART B) ─────────────────────────────────
+
+/** Fraction → percent string; null → em dash (irr() returns null, never 0). */
+const pct = (x: number | null): string =>
+  x == null ? "—" : `${(x * 100).toFixed(1)}%`;
+
+/** Area fraction → percent: keep one decimal for slivers (<1%) so a real but
+ *  small exclusion never rounds to a misleading "0%". */
+function areaPct(frac: number): string {
+  const p = frac * 100;
+  if (p <= 0) return "0%";
+  if (p < 1) return `${p.toFixed(1)}%`;
+  return `${Math.round(p)}%`;
+}
+
+// ── Small "i" info toggle (inline disclosure) ────────────────────────────────
+
+/** A small circled "i" that toggles an inline disclosure. Inline (not a
+ *  floating popover) so it can never be clipped by the scrolling results panel. */
+function InfoDot({
+  open,
+  onClick,
+  label,
+}: {
+  open: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-expanded={open}
+      onClick={onClick}
+      className={`flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full border text-[8px] font-bold italic leading-none transition-colors ${
+        open
+          ? "border-sky-400/60 bg-sky-400/10 text-sky-200"
+          : "border-slate-500 text-slate-400 hover:border-slate-300 hover:text-slate-200"
+      }`}
+    >
+      i
+    </button>
+  );
+}
+
+/** Plain-language summary of the PART B finance model (windFinance.ts). */
+const FINANCE_METHODOLOGY: string[] = [
+  "Levered project-finance pro-forma per 1 MW, CERC RE Tariff 2024 norms.",
+  "Effective tariff = PPA floor + REC + TOD/merchant + carbon — the adders are what lift IRR above a bare PPA.",
+  "75:25 debt:equity · 9.5% loan (15 yr) · 4.67%/yr depreciation (cap 90%) · MAT 17.47% → corporate 34.94% at year 20 · 8,766 h/yr.",
+  "Equity IRR = levered post-tax return (headline); Project IRR = unlevered. Payback = first year cumulative equity cashflow ≥ 0.",
+  "LCOE = (capex + discounted O&M) ÷ discounted energy — cost-side only, so it will not reconcile against the IRR.",
+  "P10–P90 band = 4,000-run Monte Carlo over the published market spread (CAPEX/PPA/REC/TOD/CUF), not your edits.",
+];
+
+/** wce.source_registry.legal_tier → short label (migration 003). */
+const LEGAL_TIER_LABEL: Record<number, string> = {
+  1: "gazette",
+  2: "official govt GIS",
+  3: "official open data",
+  4: "global third-party",
+  5: "community / OSM",
+  6: "derived buffer",
+  7: "screening proxy",
+};
+
+// ── On-site inventory (existing turbines / farms / masts in the AOI) ──────────
+
+/** "What already stands here" — physical turbines (wind_turbines) and
+ *  measurement masts inside the AOI. Renders nothing when the area is empty on
+ *  both counts. (Existing wind-farm count is shown by the header badge + sizing
+ *  %, so it is intentionally not repeated here.) */
+function SiteInventoryBlock({
+  turbines,
+  mastCount,
+}: {
+  turbines: ContextData["turbines"];
+  mastCount: number;
+}) {
+  const turbineCount = turbines?.count ?? 0;
+  if (turbineCount === 0 && mastCount === 0) return null;
+  return (
+    <div className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-3 py-2 text-xs text-slate-300">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        On-site inventory
+      </p>
+      {turbines && turbineCount > 0 && (
+        <p className="mt-1">
+          <span className="text-slate-100">{turbineCount.toLocaleString()}</span>{" "}
+          wind turbine{turbineCount === 1 ? "" : "s"} inside this area
+          {turbines.ratedMw != null && (
+            <span className="text-slate-400">
+              {" "}· ~{turbines.ratedMw.toLocaleString()} MW rated
+              {turbines.ratedCount < turbineCount &&
+                ` (${turbines.ratedCount} of ${turbineCount} tagged)`}
+            </span>
+          )}
+        </p>
+      )}
+      {mastCount > 0 && (
+        <p className="mt-0.5">
+          {mastCount} measurement mast{mastCount === 1 ? "" : "s"} inside this area
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Exclusion-zone breakdown (how much of the AOI, and for what) ──────────────
+
+/** Per-kind exclusion coverage of the AOI. Red = hard (no-go, drives the
+ *  developable-area cut); amber = verify-before-use. Categories can overlap, so
+ *  they may sum to more than the deduped red/amber totals — surfaced as a note. */
+function ExclusionsBlock({ exclusions }: { exclusions: ContextData["exclusions"] }) {
+  const [showSources, setShowSources] = useState(false);
+  const [sources, setSources] = useState<ExclusionSource[] | null>(null);
+
+  // Lazy-load the provenance registry only when the "i" is first opened.
+  useEffect(() => {
+    if (!showSources || sources !== null) return;
+    let on = true;
+    fetchExclusionSources()
+      .then((rows) => on && setSources(rows))
+      .catch(() => on && setSources([]));
+    return () => {
+      on = false;
+    };
+  }, [showSources, sources]);
+
+  if (!exclusions) return <UnavailableNote label="Exclusion zones" />;
+
+  const { redFraction, amberFraction, categories } = exclusions;
+  const anyExcluded = redFraction > 0 || amberFraction > 0 || categories.length > 0;
+
+  // Sources whose layer feeds a category present in this AOI; fall back to the
+  // full registry if the layer_code mapping yields nothing.
+  const presentCodes = new Set(categories.map((c) => c.layerCode));
+  const relevantSources = (sources ?? []).filter(
+    (s) => s.layer_code != null && presentCodes.has(s.layer_code),
+  );
+  const shownSources = relevantSources.length > 0 ? relevantSources : (sources ?? []);
+
+  return (
+    <div className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-3 py-2 text-xs text-slate-300">
+      <div className="flex items-center gap-1.5">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+          Exclusion zones
+        </p>
+        <InfoDot
+          open={showSources}
+          onClick={() => setShowSources((v) => !v)}
+          label="Exclusion data sources"
+        />
+      </div>
+      {showSources && (
+        <div className="mt-1.5 rounded-md border border-slate-700/60 bg-slate-900/50 p-2">
+          <p className="text-[9px] font-semibold uppercase tracking-wide text-slate-500">
+            Data sources
+          </p>
+          {sources === null ? (
+            <p className="mt-1 text-[10px] text-slate-500">Loading sources…</p>
+          ) : shownSources.length === 0 ? (
+            <p className="mt-1 text-[10px] text-slate-500">
+              Source registry unavailable.
+            </p>
+          ) : (
+            <ul className="mt-1 space-y-1">
+              {shownSources.map((s) => (
+                <li key={s.source_id} className="leading-tight">
+                  <span className="text-slate-300">
+                    {s.authority ?? s.source_id}
+                  </span>
+                  <span className="text-slate-500">
+                    {" "}· {LEGAL_TIER_LABEL[s.legal_tier] ?? `tier ${s.legal_tier}`} ·{" "}
+                    {s.license}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      {!anyExcluded ? (
+        <p className="mt-1 text-slate-400">No exclusion zones intersect this area.</p>
+      ) : (
+        <>
+          <p className="mt-1">
+            <span className="font-medium text-red-300">{areaPct(redFraction)}</span> hard (no-go)
+            {amberFraction > 0 && (
+              <>
+                {" "}· <span className="font-medium text-amber-300">{areaPct(amberFraction)}</span>{" "}
+                verify-before-use
+              </>
+            )}{" "}
+            of area
+          </p>
+          {categories.length > 0 && (
+            <ul className="mt-1.5 space-y-1">
+              {categories.map((c) => (
+                <li key={`${c.cls}:${c.layerCode}`} className="flex items-center gap-2">
+                  <span
+                    className={`h-2 w-2 flex-shrink-0 rounded-full ${
+                      c.cls === "red" ? "bg-red-500" : "bg-amber-500"
+                    }`}
+                  />
+                  <span className="flex-1 text-slate-300">
+                    {LAYER_LABELS[c.layerCode] ?? c.layerCode}
+                  </span>
+                  <span className="font-mono text-slate-400">{areaPct(c.fraction)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-1.5 text-[10px] leading-tight text-slate-500">
+            Kinds can overlap, so they may sum to more than the totals. Only hard
+            (red) zones are removed from the developable area.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Per-MW pro-forma headline + Monte-Carlo IRR band. Independent of the score —
+ * the two outputs share only the capacity factor (methodology rule §5). The
+ * amber note flags that the tariff stack is placeholder config, not our terms.
+ */
+function FinancialsBlock({
+  financials,
+  irrBand,
+}: {
+  financials: WindFinancials;
+  irrBand: IrrBand | null;
+}) {
+  const [showMethod, setShowMethod] = useState(false);
+  return (
+    <div className="rounded-xl border border-slate-700 bg-slate-800/60 p-3">
+      <div className="flex items-baseline justify-between">
+        <div className="flex items-center gap-1.5">
+          <p className="text-[10px] uppercase tracking-wide text-slate-400">
+            Financial screening · per MW
+          </p>
+          <InfoDot
+            open={showMethod}
+            onClick={() => setShowMethod((v) => !v)}
+            label="Financial methodology"
+          />
+        </div>
+        <p className="text-[10px] text-slate-500">
+          tariff ₹{financials.effTariff.toFixed(2)}/kWh
+        </p>
+      </div>
+      {showMethod && (
+        <div className="mt-2 rounded-md border border-slate-700/60 bg-slate-900/50 p-2">
+          <p className="text-[9px] font-semibold uppercase tracking-wide text-slate-500">
+            How this is modelled
+          </p>
+          <ul className="mt-1 flex flex-col gap-1 text-[10px] leading-snug text-slate-400">
+            {FINANCE_METHODOLOGY.map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="mt-2 grid grid-cols-2 gap-1.5">
+        <Stat label="Equity IRR" value={pct(financials.irr)} sub="levered · headline" />
+        <Stat label="Project IRR" value={pct(financials.projIrr)} sub="unlevered" />
+        <Stat
+          label="LCOE"
+          value={financials.lcoe != null ? `₹${financials.lcoe.toFixed(2)}/kWh` : "—"}
+        />
+        <Stat
+          label="Payback"
+          value={financials.payback != null ? `${financials.payback} yr` : "—"}
+        />
+        <Stat label="NPV @10%" value={`₹${financials.npvCr.toFixed(2)} Cr`} />
+        <Stat
+          label="Annual energy"
+          value={`${Math.round(financials.annualMwh).toLocaleString()} MWh`}
+        />
+      </div>
+      {irrBand && (
+        <div className="mt-2 border-t border-slate-700/60 pt-2">
+          <p className="text-[10px] uppercase tracking-wide text-slate-500">
+            Equity-IRR band · {irrBand.n.toLocaleString()} Monte-Carlo runs
+          </p>
+          <p className="mt-1 font-mono text-[12px] text-slate-200">
+            P50 {pct(irrBand.p50)}
+            <span className="ml-2 text-slate-400">
+              likely {pct(irrBand.p25)}–{pct(irrBand.p75)}
+            </span>
+          </p>
+          <p className="text-[10px] text-slate-500">
+            envelope {pct(irrBand.p10)}–{pct(irrBand.p90)} (P10–P90)
+          </p>
+        </div>
+      )}
+      <p className="mt-2 text-[10px] leading-relaxed text-amber-300/80">
+        Placeholder CERC-2024 tariff stack (PPA ₹3.50 + REC + TOD + carbon = ₹
+        {financials.effTariff.toFixed(2)}). Ground in real PPA / offtake terms
+        before quoting IRR.
       </p>
     </div>
   );

@@ -33,8 +33,13 @@ import {
 import {
   developableFraction as computeDevelopableFraction,
   queryExclusionCoverageDefault,
+  type ExclusionCoverage,
   type LoadExclusionCoverage,
 } from "./developable";
+import {
+  queryTurbinesInAoiDefault,
+  type LoadTurbineInventory,
+} from "./turbinesInAoi";
 import { patchPixelCenterLngLat } from "./mercator";
 import { buildAoiMask, type PatchFrame } from "./mask";
 import type { AoiMask, ContextData, LayerPatch, ValidatedAoi } from "./types";
@@ -95,6 +100,25 @@ export interface ContextDeps {
   loadCapacityRows?: () => Promise<CapacityRow[] | null>;
   loadFarmsGeo?: () => Promise<FeatureCollection<FarmsFeature> | null>;
   loadExclusionCoverage?: LoadExclusionCoverage;
+  loadTurbineInventory?: LoadTurbineInventory;
+}
+
+/** Shape the raw ExclusionCoverage into the response `exclusions` block (red +
+ *  amber totals + per-kind categories). null coverage → null block. */
+function shapeExclusions(
+  coverage: ExclusionCoverage | null,
+): ContextData["exclusions"] {
+  if (!coverage) return null;
+  return {
+    redFraction: coverage.excludedFraction,
+    amberFraction: coverage.amberFraction ?? 0,
+    categories: (coverage.categories ?? []).map((c) => ({
+      layerCode: c.layerCode,
+      cls: c.cls,
+      fraction: c.fraction,
+      km2: c.km2,
+    })),
+  };
 }
 
 export interface ContextInputs {
@@ -507,13 +531,16 @@ export async function computeContext(
   const loadCapacity = deps.loadCapacityRows ?? loadCapacityRowsDefault;
   const loadFarms = deps.loadFarmsGeo ?? loadFarmsGeoDefault;
   const loadExclusions = deps.loadExclusionCoverage ?? queryExclusionCoverageDefault;
+  const loadTurbines = deps.loadTurbineInventory ?? queryTurbinesInAoiDefault;
 
-  const [statesGeo, capacityRows, farmsGeo, exclusionCoverage] = await Promise.all([
-    loadStates(),
-    loadCapacity(),
-    loadFarms(),
-    loadExclusions(aoi),
-  ]);
+  const [statesGeo, capacityRows, farmsGeo, exclusionCoverage, turbines] =
+    await Promise.all([
+      loadStates(),
+      loadCapacity(),
+      loadFarms(),
+      loadExclusions(aoi),
+      loadTurbines(aoi),
+    ]);
 
   const stateNames = statesGeo ? statesForAoi(aoi, statesGeo) : [];
   if (!statesGeo) console.warn("[context] states list degraded to []");
@@ -532,6 +559,8 @@ export async function computeContext(
   return {
     states: joinStateCapacities(stateNames, capacityRows),
     windfarms,
+    turbines: turbines ?? null,
+    exclusions: shapeExclusions(exclusionCoverage),
     terrain,
     sizing: computeSizing(
       aoi.areaKm2,

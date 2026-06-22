@@ -101,13 +101,22 @@ describe.skipIf(!LIVE)("golden: Muppandal 5×5 km", () => {
     expect(g.ehvWithin25Km).toBe(true);
   }, LIVE_TIMEOUT_MS);
 
-  test("score is reproducible from its own components", async () => {
-    const { score } = await muppandal();
+  test("score is reproducible from its own components and reads excellent", async () => {
+    // Bands recalibrated for the §A CUF-anchored score (was 80–95 under the old
+    // raw-speed 4-component score). Re-VERIFY against a fresh live run before
+    // tightening — see VERIFIED.md.
+    const { score, financials } = await muppandal();
     const sum = score.components.reduce((acc, c) => acc + c.points, 0);
     expect(Math.abs(score.value - sum)).toBeLessThanOrEqual(0.5);
-    expect(score.value).toBeGreaterThanOrEqual(80);
-    expect(score.value).toBeLessThanOrEqual(95);
+    // Top-class resource (~9+ m/s, cuf ~0.46) with grid on-site → near maximum.
+    expect(score.value).toBeGreaterThanOrEqual(88);
+    expect(score.value).toBeLessThanOrEqual(100);
+    expect(score.rating).toBe("Excellent");
     expect(score.confidence).toBe("high");
+    // Part B is present and bankable-looking for a strong site.
+    expect(financials).not.toBeNull();
+    expect(financials!.irr).not.toBeNull();
+    expect(financials!.irr!).toBeGreaterThan(0.12);
   }, LIVE_TIMEOUT_MS);
 
   test("AOI ~94% inside an existing farm → sizing collapses (§2.5)", async () => {
@@ -124,21 +133,26 @@ describe.skipIf(!LIVE)("golden: Muppandal 5×5 km", () => {
 });
 
 describe.skipIf(!LIVE)("golden: Bhadla 5×5 km (solar country)", () => {
-  test("wind resource reads weak-to-moderate, never flattered", async () => {
+  test("wind resource reads moderate, never offshore-flattered", async () => {
     const { sections, score } = await bhadla();
     expect(sections.resource.status).toBe("ok");
     const r = sections.resource.data!;
     expect(r.meanSpeed).toBeGreaterThanOrEqual(5.5);
     expect(r.meanSpeed).toBeLessThanOrEqual(6.5);
     expect(r.siteClass).toBe("marginal");
-    // Resource component earns well under half its weight.
+    // CUF-anchored: a ~6 m/s site (cuf ~0.40) is "moderate commercial", not
+    // maxed — its resource component stays below full credit (weight 72).
     const resourcePts = score.components.find((c) => c.key === "resource")!.points;
-    expect(resourcePts).toBeLessThan(45 / 2);
+    expect(resourcePts).toBeGreaterThan(0);
+    expect(resourcePts).toBeLessThan(72);
   }, LIVE_TIMEOUT_MS);
 
-  test("scores well below Muppandal", async () => {
+  test("scores below Muppandal", async () => {
     const [b, m] = await Promise.all([bhadla(), muppandal()]);
-    expect(b.score.value).toBeLessThan(m.score.value - 20);
+    // The CUF curve rewards a decent ~6 m/s site, so the gap narrows vs the old
+    // raw-speed score, but Muppandal still leads clearly.
+    expect(b.score.value).toBeLessThan(m.score.value);
+    expect(m.score.value - b.score.value).toBeGreaterThanOrEqual(8);
   }, LIVE_TIMEOUT_MS);
 });
 

@@ -29,8 +29,9 @@ import { computeContext } from "./context";
 import { computeGrid } from "./grid";
 import { buildAoiMask } from "./mask";
 import { computeResource, type ResourcePatches } from "./resource";
-import { computeScore } from "./score";
+import { screenWind } from "./screenWind";
 import { fetchLayerPatch, type TileFetchOptions } from "./tiles";
+import { toAnalysisScore } from "./windScoring";
 import type {
   AnalysisResponse,
   AoiMask,
@@ -252,6 +253,8 @@ export async function analyzeAoi(
           data: {
             states: contextSection.data.states,
             windfarms: contextSection.data.windfarms,
+            turbines: contextSection.data.turbines,
+            exclusions: contextSection.data.exclusions,
             terrain: contextSection.data.terrain,
             sizing: contextSection.data.sizing,
           },
@@ -259,18 +262,17 @@ export async function analyzeAoi(
       : unavailableSection<ContextData>();
   const validation: Section<ValidationData> = validationSection;
 
-  const score = computeScore(
-    {
-      meanSpeed: resourceData?.meanSpeed ?? null,
-      // cfIec3 is null when the CF layer is empty in-mask; ?? maps both the
-      // missing-section and missing-layer cases onto the same null input.
-      cfIec3: resourceData?.cfIec3 ?? null,
-      nearestEhvKm: gridSection.data?.nearestEhvKm ?? null,
-      slope90thDeg: contextSection.data?.slope90thDeg ?? null,
-    },
-    // Mirrors the mast badge ONLY — never part of the arithmetic (plan §6).
-    validation.data?.confidence ?? "low",
-  );
+  // Methodology §A/§B: the headline score AND the financials come from the
+  // per-point screen, fed by our samplers — ws = AOI mean speed @100 m,
+  // line/sub = the grid section's nearest-feature distances. A missing wind
+  // speed makes every output null (handled inside screenWind/toAnalysisScore);
+  // the financial half adds no new inputs.
+  const ws = resourceData?.meanSpeed ?? null;
+  const lineKm = grid.data?.nearestLine?.distanceKm ?? null;
+  const subKm = grid.data?.nearestSubstation?.distanceKm ?? null;
+  const screening = screenWind(ws, lineKm, subKm);
+  // Confidence mirrors the mast badge ONLY — never part of the arithmetic (§5).
+  const score = toAnalysisScore(screening.score, validation.data?.confidence ?? "low");
 
   // CF-engine Phase E (shadow): per-state calibration of the net CF vs actuals.
   // No-op (identity) until the CEA/SLDC table is ingested — logged for now.
@@ -293,6 +295,8 @@ export async function analyzeAoi(
       isPointMode: aoi.isPointMode,
     },
     score,
+    financials: screening.financials,
+    irrBand: screening.irrBand,
     sections: {
       resource,
       climate: climateSection,

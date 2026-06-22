@@ -1,6 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { WIND_HEIGHTS, type WindHeight } from '@/lib/wind/lookup';
+import {
+  bandedColorAt,
+  steppedGradientStops,
+  type NormStop,
+} from '../utils/windRamp';
 
 /**
  * Interactive wind-speed legend (Global Wind Atlas) with a hub-height switcher.
@@ -18,7 +23,9 @@ import { WIND_HEIGHTS, type WindHeight } from '@/lib/wind/lookup';
  * no-data (null) parks the pointer and shows "—".
  */
 
-const STOPS: Array<[number, [number, number, number]]> = [
+// Anchor palette (same six colours the bake's PALETTE uses). The visible colour
+// steps come from banding this ramp — see windRamp.ts.
+const STOPS: NormStop[] = [
   [0.0, [0x3d, 0x93, 0xb5]],
   [0.2, [0x5a, 0xad, 0x82]],
   [0.4, [0xc8, 0xe0, 0x4a]],
@@ -26,27 +33,19 @@ const STOPS: Array<[number, [number, number, number]]> = [
   [0.8, [0xff, 0x7a, 0x1a]],
   [1.0, [0xff, 0x1a, 0x00]],
 ];
+// Discrete band count — matches `bands` in wind-atlas/metadata.json and the
+// BANDS constant in build_wind_atlas.py, so this legend steps colour at exactly
+// the same boundaries the baked speed raster does (every 2.5% of the domain).
+const BANDS = 40;
 const WS_LO = 4;
 const WS_HI = 9;
 const BAR_H = 150; // px
 
-const GRADIENT =
-  'linear-gradient(to top,' +
-  STOPS.map(([t, [r, g, b]]) => `rgb(${r},${g},${b}) ${Math.round(t * 100)}%`).join(',') +
-  ')';
+// `to top` so low values sit at the bottom; steppedGradientStops runs low→high.
+const GRADIENT = `linear-gradient(to top,${steppedGradientStops(STOPS, BANDS)})`;
 
 function colorAt(frac: number): string {
-  const t = Math.min(1, Math.max(0, frac));
-  for (let k = 0; k < STOPS.length - 1; k++) {
-    const [t0, c0] = STOPS[k];
-    const [t1, c1] = STOPS[k + 1];
-    if (t >= t0 && t <= t1) {
-      const f = (t - t0) / (t1 - t0);
-      const c = c0.map((v, i) => Math.round(v + (c1[i] - v) * f));
-      return `rgb(${c[0]},${c[1]},${c[2]})`;
-    }
-  }
-  return `rgb(${STOPS[STOPS.length - 1][1].join(',')})`;
+  return bandedColorAt(STOPS, frac, BANDS);
 }
 
 interface Props {

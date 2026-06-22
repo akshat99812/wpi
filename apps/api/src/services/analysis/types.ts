@@ -6,6 +6,8 @@
  * stitched float32 patch per GWA layer covering the AOI's tile cover.
  */
 
+import type { IrrBand, WindFinancials } from "./windFinance";
+
 // ── GeoJSON (the slice we accept) ───────────────────────────────────────────
 
 export interface GeoJsonPolygon {
@@ -171,6 +173,17 @@ export interface GridData {
 export interface ContextData {
   states: { name: string; installedMw: number | null; potentialMw: number | null }[];
   windfarms: { count: number; overlapFraction: number };
+  /** Individual physical wind turbines standing inside the AOI (wind_turbines
+   *  table). null when the DB is unavailable. ratedMw is a tagged-only floor. */
+  turbines: { count: number; ratedMw: number | null; ratedCount: number } | null;
+  /** Exclusion-zone coverage of the AOI, broken down by kind ("for what").
+   *  redFraction drives sizing; categories may overlap (not a partition).
+   *  null when the DB is unavailable. */
+  exclusions: {
+    redFraction: number;
+    amberFraction: number;
+    categories: { layerCode: string; cls: "red" | "amber"; fraction: number; km2: number }[];
+  } | null;
   terrain: {
     elevMean: number;
     elevMin: number;
@@ -193,9 +206,19 @@ export interface ContextData {
   };
 }
 
+/** Methodology §A rating band derived from the headline value. */
+export type ScoreRating =
+  | "Excellent"
+  | "Good"
+  | "Moderate"
+  | "Marginal"
+  | "Poor";
+
 export interface ScoreComponent {
-  key: "resource" | "cf" | "grid" | "terrain";
+  /** Methodology PART A is resource-weighted 72/28 — two components only. */
+  key: "resource" | "grid";
   weight: number;
+  /** resource: the CUF the score was anchored to; grid: the grid sub-score. */
   raw: number | null;
   normalized: number;
   points: number;
@@ -203,6 +226,11 @@ export interface ScoreComponent {
 
 export interface AnalysisScore {
   value: number; // 0–100
+  /** §A3 rating band derived from `value`. */
+  rating: ScoreRating;
+  /** The shared capacity factor (windCuf) the score anchored to; null when the
+   *  wind speed was unavailable. */
+  cuf: number | null;
   /** Mirrors the mast badge; NEVER part of the arithmetic. */
   confidence: "high" | "medium" | "low";
   components: ScoreComponent[];
@@ -212,6 +240,12 @@ export interface AnalysisResponse {
   analysisVersion: string;
   aoi: { areaKm2: number; centroid: [number, number]; isPointMode: boolean };
   score: AnalysisScore;
+  /** Methodology PART B (per 1 MW): equity/project IRR, LCOE, payback, NPV.
+   *  null when the wind speed was unavailable. Independent of `score` — the two
+   *  share only the CUF and never read each other. */
+  financials: WindFinancials | null;
+  /** §B5 Monte-Carlo equity-IRR band (P10…P90). null when ws unavailable. */
+  irrBand: IrrBand | null;
   sections: {
     resource: Section<ResourceData>;
     climate: Section<ClimateData>;

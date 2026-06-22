@@ -35,7 +35,9 @@ function makeResponse(): AnalysisResponse {
   return {
     analysisVersion: ANALYSIS_VERSION,
     aoi: { areaKm2: 25, centroid: [77.55, 8.25], isPointMode: false },
-    score: { value: 0, confidence: "low", components: [] },
+    score: { value: 0, rating: "Poor", cuf: null, confidence: "low", components: [] },
+    financials: null,
+    irrBand: null,
     sections: {
       resource: { status: "unavailable", data: null },
       climate: { status: "unavailable", data: null },

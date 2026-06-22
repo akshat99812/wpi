@@ -29,11 +29,12 @@ const LAYER_VALUES: Record<string, number> = {
   elevation: 100,
 };
 
-/** Score expected from LAYER_VALUES with the 404-for-power fetcher:
- *  resource (8−4.5)/3 = 1.167 → clamp 1 → 45 · cf clamp((0.5−0.12)/0.26)=1
- *  → 25 · grid raw null (no power features) → 0 · terrain: flat constant
- *  elevation → slope 0° ≤ 5° → normalized 1 → 10 → round(80) = 80. */
-const EXPECTED_SCORE = 80;
+/** Score expected from LAYER_VALUES with the 404-for-power fetcher (§A):
+ *  ws 8 m/s → cuf 0.45 → resource sub-score 0.97 (anchors 0.44→0.94, 0.46→1.0)
+ *  → 72·0.97 = 69.8 pts · grid: no line/substation (404) → 0.15 each → 28·0.15
+ *  = 4.2 pts → round(74.04) = 74. Independent of the context section — the new
+ *  score has no terrain term. */
+const EXPECTED_SCORE = 74;
 
 async function encodeFloat32Tile(value: number): Promise<ArrayBuffer> {
   const metadata = {
@@ -140,33 +141,38 @@ test("computes resource stats from the constant layers", async () => {
   expect(data.siteClass).toBe("excellent");
 });
 
-test("wires resource, grid and terrain into the score; confidence mirrors validation", async () => {
+test("wires resource + grid into the 2-component score; financials present; confidence mirrors validation", async () => {
   // Arrange
   const aoi = muppandalPointAoi();
 
   // Act
   const response = await analyzeAoi(aoi, { fetchImpl: constantLayerFetcher });
 
-  // Assert — deterministic components first.
+  // Assert — Part A is two components only: resource (CUF-anchored) + grid.
   const byKey = Object.fromEntries(response.score.components.map((c) => [c.key, c]));
-  expect(byKey.resource?.raw).toBe(8);
-  expect(byKey.resource?.points).toBeCloseTo(45, 1); // (8−4.5)/3 clamps to 1
-  expect(byKey.cf?.raw).toBe(0.5);
-  expect(byKey.cf?.points).toBe(25);
-  // 404-everywhere power fetcher → no EHV anywhere → conservative 0.
-  expect(byKey.grid).toEqual({ key: "grid", weight: 20, raw: null, normalized: 0, points: 0 });
-  // Terrain depends on the context section completing (env loaders degrade
-  // internally but never throw): flat elevation → slope 0 → full points.
-  if (response.sections.context.status === "ok") {
-    expect(byKey.terrain).toEqual({
-      key: "terrain", weight: 10, raw: 0, normalized: 1, points: 10,
-    });
-    expect(response.score.value).toBe(EXPECTED_SCORE);
-  } else {
-    expect(byKey.terrain?.raw).toBeNull();
-  }
+  expect(response.score.components.map((c) => c.key)).toEqual(["resource", "grid"]);
+  // ws 8 → cuf 0.45 → resource sub-score 0.97 → 69.8 pts; raw = the CUF used.
+  expect(byKey.resource?.raw).toBeCloseTo(0.45, 10);
+  expect(byKey.resource?.normalized).toBeCloseTo(0.97, 10);
+  expect(byKey.resource?.points).toBeCloseTo(69.8, 6);
+  // 404-everywhere power fetcher → no line/substation → 0.15 each → grid 0.15.
+  expect(byKey.grid?.weight).toBe(28);
+  expect(byKey.grid?.normalized).toBeCloseTo(0.15, 10);
+  expect(byKey.grid?.points).toBeCloseTo(4.2, 6);
+  // Headline + rating + CUF are deterministic (no terrain/context dependency).
+  expect(response.score.value).toBe(EXPECTED_SCORE);
+  expect(response.score.rating).toBe("Good");
+  expect(response.score.cuf).toBeCloseTo(0.45, 10);
+
+  // Part B: financials + IRR band come back for a real wind speed.
+  expect(response.financials).not.toBeNull();
+  expect(response.financials!.irr).toBeGreaterThan(0);
+  expect(response.financials!.effTariff).toBe(4.5);
+  expect(response.irrBand).not.toBeNull();
+  expect(response.irrBand!.n).toBe(4000);
+
   // Confidence mirrors the validation badge (or "low" when unavailable) and
-  // NEVER feeds the arithmetic (plan §6).
+  // NEVER feeds the arithmetic (rule §5).
   const expectedConfidence =
     response.sections.validation.status === "ok"
       ? response.sections.validation.data!.confidence
@@ -183,10 +189,15 @@ test("degrades resource to unavailable (not a rejection) when every fetch fails"
   // Act
   const response = await analyzeAoi(aoi, { fetchImpl: failingFetcher });
 
-  // Assert — section degraded, response intact, score conservatively null-fed.
+  // Assert — section degraded, response intact, score conservatively null-fed,
+  // and Part B is null (no wind speed → no CUF → no financials).
   expect(response.sections.resource).toEqual({ status: "unavailable", data: null });
   expect(response.score.value).toBe(0);
+  expect(response.score.rating).toBe("Poor");
+  expect(response.score.cuf).toBeNull();
   expect(response.score.components.every((c) => c.raw === null)).toBe(true);
+  expect(response.financials).toBeNull();
+  expect(response.irrBand).toBeNull();
 });
 
 test("degrades resource to unavailable when the section exceeds the budget", async () => {
@@ -203,4 +214,6 @@ test("degrades resource to unavailable when the section exceeds the budget", asy
   // Assert
   expect(response.sections.resource).toEqual({ status: "unavailable", data: null });
   expect(response.score.value).toBe(0);
+  expect(response.financials).toBeNull();
+  expect(response.irrBand).toBeNull();
 });
