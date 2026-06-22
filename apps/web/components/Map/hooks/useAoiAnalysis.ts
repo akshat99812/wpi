@@ -8,6 +8,7 @@ import {
 } from "@/components/Map/utils/aoiDraw";
 import { closeRing, ringAreaKm2 } from "@/lib/analysis/geometry";
 import { AnalyzeRequestError, postAnalyze } from "@/lib/analysis/client";
+import { KmlParseError, parseAoiFromFile } from "@/lib/analysis/kml";
 import {
   decodeAoiHash,
   encodeAoiHash,
@@ -46,6 +47,8 @@ export interface AoiAnalysis {
   /** Call inside map.on("load") — attaches the draw controller. */
   onMapLoad: (map: MlMap) => void;
   arm: (mode: AoiDrawMode) => void;
+  /** Parse a .kml/.kmz File into an AOI, draw it, fit the map, and analyze. */
+  uploadFile: (file: File) => void;
   /** Cancel an armed draw without touching a committed AOI / results
    *  (what Esc does — also used when another map tool takes the clicks). */
   disarm: () => void;
@@ -145,6 +148,36 @@ export function useAoiAnalysis(): AoiAnalysis {
     setError(null);
   }, []);
 
+  const uploadFile = useCallback(
+    (file: File) => {
+      const controller = controllerRef.current;
+      // Take over the click chain like arming does, then run as a draw commit.
+      controller?.disarm();
+      armedRef.current = null;
+      setArmedMode(null);
+      setError(null);
+      setUiState("loading");
+
+      parseAoiFromFile(file)
+        .then(({ ring }) => {
+          const closed = closeRing(ring);
+          controllerRef.current?.setCommitted(closed);
+          controllerRef.current?.fitToRing(closed);
+          runAnalysis(closed);
+        })
+        .catch((err: unknown) => {
+          const message =
+            err instanceof KmlParseError
+              ? err.message
+              : "Could not read that file — upload a valid .kml or .kmz.";
+          console.error("[analyze] file upload failed", err);
+          setError(message);
+          setUiState("error");
+        });
+    },
+    [runAnalysis],
+  );
+
   const disarm = useCallback(() => {
     controllerRef.current?.disarm();
     armedRef.current = null;
@@ -201,6 +234,7 @@ export function useAoiAnalysis(): AoiAnalysis {
     error,
     onMapLoad,
     arm,
+    uploadFile,
     disarm,
     clearAll,
   };

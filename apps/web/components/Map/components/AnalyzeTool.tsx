@@ -41,6 +41,8 @@ interface Props {
   error: string | null;
   onArm: (mode: AoiDrawMode) => void;
   onClear: () => void;
+  /** Hand a user-selected .kml/.kmz file to the analysis flow. */
+  onUploadFile?: (file: File) => void;
   section?: 'controls' | 'results';
 }
 
@@ -83,12 +85,21 @@ export function AnalyzeTool({
   error,
   onArm,
   onClear,
+  onUploadFile,
   section,
 }: Props) {
   const hasAnything = uiState !== "idle";
   const status = statusFor(uiState, armedMode);
   const showControls = section !== "results";
   const showResults = section !== "controls";
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // Reset so re-selecting the same file fires change again.
+    e.target.value = "";
+    if (file) onUploadFile?.(file);
+  };
 
   return (
     <div className="flex flex-col gap-3 p-4 text-sm">
@@ -125,6 +136,30 @@ export function AnalyzeTool({
               </motion.button>
             );
           })}
+        </div>
+      )}
+
+      {/* ── Upload KML / KMZ ─────────────────────────────────────────── */}
+      {showControls && onUploadFile && (
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".kml,.kmz,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz"
+            onChange={onFileChange}
+            className="hidden"
+            aria-hidden
+          />
+          <motion.button
+            type="button"
+            title="Upload a .kml or .kmz boundary and analyze it"
+            onClick={() => fileInputRef.current?.click()}
+            whileTap={{ scale: 0.97 }}
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-slate-700 px-2 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-sky-400/60 hover:bg-sky-500/10 hover:text-sky-200"
+          >
+            <UploadGlyph className="h-4 w-4" />
+            Upload KML / KMZ
+          </motion.button>
         </div>
       )}
 
@@ -351,6 +386,25 @@ function ModeGlyph({ mode, className }: { mode: AoiDrawMode; className?: string 
   return (
     <svg {...common}>
       <path d="M12 3.5 20 9l-3 10H7L4 9z" strokeDasharray="3 2.2" />
+    </svg>
+  );
+}
+
+/** Upload / tray-arrow glyph for the KML/KMZ button. */
+function UploadGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M12 15V4M8 8l4-4 4 4" />
+      <path d="M4 14v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
     </svg>
   );
 }

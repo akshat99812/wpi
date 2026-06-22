@@ -132,6 +132,28 @@ export class AoiDrawController {
     }
   }
 
+  /** Pan/zoom the map to fit a ring (used after a file upload). */
+  fitToRing(ring: [number, number][]): void {
+    if (this.destroyed || ring.length === 0) return;
+    let minLon = Infinity;
+    let minLat = Infinity;
+    let maxLon = -Infinity;
+    let maxLat = -Infinity;
+    for (const [lon, lat] of ring) {
+      if (lon < minLon) minLon = lon;
+      if (lat < minLat) minLat = lat;
+      if (lon > maxLon) maxLon = lon;
+      if (lat > maxLat) maxLat = lat;
+    }
+    this.map.fitBounds(
+      [
+        [minLon, minLat],
+        [maxLon, maxLat],
+      ],
+      { padding: 80, maxZoom: 12, duration: 800 },
+    );
+  }
+
   /** Render (or clear) the committed AOI ring. */
   setCommitted(ring: [number, number][] | null): void {
     if (this.destroyed) return;
