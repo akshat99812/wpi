@@ -95,17 +95,22 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
 // they shipped raw OSM volts).
 const VOLTAGE_DIVISOR = 1;
 
-/** Descending [min kV, colour] bands. OpenInfraMap-style palette. */
+/** Descending [min kV, colour] bands. Tuned for MAXIMUM adjacent contrast — a
+ *  smooth heat ramp made neighbouring voltages (red/orange/gold) blur together,
+ *  so instead each band jumps to a different hue family from the one above and
+ *  below it: red → violet → orange → teal → yellow → pink → blue. (Professional
+ *  Open-Color values, so the variety still reads clean, not garish.) The legend
+ *  chips carry the kV labels, so colour order need not be monotonic. */
 export const VOLTAGE_COLORS: [number, string][] = [
-  [765, '#00C1CF'], // cyan
-  [400, '#B54EB2'], // purple
-  [220, '#C73030'], // red
-  [132, '#E55C00'], // orange
-  [66,  '#B59F10'], // olive
-  [33,  '#7A9939'], // green
-  [11,  '#6E97B8'], // blue — also catches anything > 0 below 33 kV
+  [765, '#E03131'], // red — EHV/UHV backbone
+  [400, '#7048E8'], // violet
+  [220, '#F76707'], // orange
+  [132, '#0CA678'], // teal
+  [66,  '#FAB005'], // yellow
+  [33,  '#C2255C'], // pink
+  [11,  '#1C7ED6'], // blue — also catches anything > 0 below 33 kV
 ];
-export const VOLTAGE_UNKNOWN = '#7A7A85';
+export const VOLTAGE_UNKNOWN = '#909296'; // neutral slate grey
 
 /** Voltage bands exposed as isolatable chips in the Layers card — one per
  *  VOLTAGE_COLORS entry, highest kV first. Selecting a subset isolates the
@@ -126,10 +131,20 @@ export const PLANT_COLORS: Record<(typeof PLANT_SOURCES)[number], string> = {
   solar: '#F2A93B',
 };
 
-// Casing keeps thin lines legible over satellite imagery.
-const CASING_COLOR = '#1a1a1a';
-const CASING_OPACITY = 0.5;
-const CASING_EXTRA_WIDTH = 0.6;
+// Casing keeps thin lines legible over satellite imagery. Kept tight (a thin
+// halo, not a second line) so the colored stroke stays crisp, not bulky.
+// CRITICAL: the halo is FADED OUT when zoomed out — at country/region zoom the
+// dark casing under a sub-pixel colored line is what reads as "thick dark
+// strands" and muddies the voltage colours. So it only ramps in once zoomed
+// in enough (z11+) that lines are wide enough to actually need a halo.
+const CASING_COLOR = '#0c0c0c';
+const CASING_OPACITY: ExpressionSpecification = [
+  'interpolate', ['linear'], ['zoom'],
+  8, 0,      // zoomed out → no halo, clean thin colour lines
+  11, 0.35,
+  14, 0.6,   // zoomed in → full halo for legibility over satellite
+] as ExpressionSpecification;
+const CASING_EXTRA_WIDTH = 0.3;
 
 // ── Shared expressions ───────────────────────────────────────────────────
 // Substation voltages are strings, line voltages are numbers — to-number
@@ -154,13 +169,15 @@ function voltageColorExpr(): ExpressionSpecification {
   return expr as ExpressionSpecification;
 }
 
-/** Zoom-interpolated × voltage-stepped line width (+pad for the casing). */
+/** Zoom-interpolated × voltage-stepped line width (+pad for the casing).
+ *  Kept deliberately thin for a clean, map-grade look — the voltage hierarchy
+ *  (higher kV reads thicker) carries the weight, not raw stroke width. */
 function lineWidthExpr(pad = 0): ExpressionSpecification {
   return [
     'interpolate', ['linear'], ['zoom'],
-    5,  ['step', voltageKv, 0.35 + pad, 220, 0.55 + pad, 400, 0.8 + pad],
-    10, ['step', voltageKv, 0.5 + pad, 66, 0.7 + pad, 220, 1.0 + pad, 400, 1.4 + pad],
-    14, ['step', voltageKv, 1.0 + pad, 220, 1.5 + pad, 400, 2.0 + pad],
+    5,  ['step', voltageKv, 0.3 + pad, 220, 0.4 + pad, 400, 0.55 + pad],
+    10, ['step', voltageKv, 0.4 + pad, 66, 0.48 + pad, 220, 0.62 + pad, 400, 0.85 + pad],
+    14, ['step', voltageKv, 0.65 + pad, 220, 1.0 + pad, 400, 1.35 + pad],
   ] as ExpressionSpecification;
 }
 
@@ -399,6 +416,22 @@ export interface PowerGridOptions {
   /** Synchronous veto for the popup click handler — true while another tool
    *  (AOI draw, measure) is armed and owns map clicks. */
   isInteractionBlocked?: () => boolean;
+}
+
+/**
+ * Warm the India-clip outline so the FIRST grid toggle is instant.
+ * addPowerGridImpl blocks up to OUTLINE_WAIT_MS waiting for this outline before
+ * it adds any layer (so tiles lay out exactly once, already clipped). Kicking
+ * the fetch off at map load means that race is already resolved by toggle time
+ * — the lines appear immediately instead of after a cold-start stall.
+ *
+ * The fetch is module-memoised, so this is safe to call repeatedly and is free
+ * after the first call. Fire-and-forget; failures are logged by loadIndiaOutline.
+ * (We can't pre-warm the tiles themselves — MapLibre won't request a source's
+ * tiles until a visible layer references it, which only happens on toggle.)
+ */
+export function prefetchPowerGrid(): void {
+  void loadIndiaOutline();
 }
 
 /**

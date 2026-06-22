@@ -17,6 +17,8 @@ import boundariesRoutes from './routes/boundaries';
 import privateMastsRoutes from './routes/privateMasts';
 import analyzeRoutes from './routes/analyze';
 import exclusionsRoutes from './routes/exclusions';
+import policyRoutes from './routes/policy';
+import windFarmsRoutes from './routes/windFarms';
 import { setupScheduler } from './services/scheduler';
 import { runOrchestrator } from './orchestrator';
 import fs from 'fs';
@@ -72,6 +74,8 @@ app.use('/api', boundariesRoutes);
 app.use('/api', privateMastsRoutes);
 app.use('/api', analyzeRoutes);
 app.use('/api', exclusionsRoutes);
+app.use('/api', policyRoutes);
+app.use('/api', windFarmsRoutes);
 
 // Setup node-cron
 setupScheduler();

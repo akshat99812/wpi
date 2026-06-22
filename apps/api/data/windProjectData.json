@@ -1,0 +1,2553 @@
+{
+    "projects": [
+        {
+            "state": "Gujarat",
+            "district": "Kutch",
+            "financialYear": "24-25",
+            "weg": 170,
+            "capacity": 497.606
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "24-25",
+            "weg": 54,
+            "capacity": 83.918
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kurnool",
+            "financialYear": "24-25",
+            "weg": 83,
+            "capacity": 280.5
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "24-25",
+            "weg": 104,
+            "capacity": 152.346
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "24-25",
+            "weg": 93,
+            "capacity": 261.675
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "24-25",
+            "weg": 54,
+            "capacity": 96.338
+        },
+        {
+            "state": "Karnataka",
+            "district": "Sandur",
+            "financialYear": "24-25",
+            "weg": 5,
+            "capacity": 15.3
+        },
+        {
+            "state": "Gujarat",
+            "district": "Dwarka",
+            "financialYear": "24-25",
+            "weg": 20,
+            "capacity": 25.32
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tenkasi",
+            "financialYear": "24-25",
+            "weg": 2,
+            "capacity": 2.85
+        },
+        {
+            "state": "Gujarat",
+            "district": "Navsari",
+            "financialYear": "24-25",
+            "weg": 16,
+            "capacity": 31.831
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "24-25",
+            "weg": 17,
+            "capacity": 29.225
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davanagere",
+            "financialYear": "24-25",
+            "weg": 8,
+            "capacity": 26.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Uttara Kannada",
+            "financialYear": "24-25",
+            "weg": 2,
+            "capacity": 6.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Botad",
+            "financialYear": "24-25",
+            "weg": 7,
+            "capacity": 13.926
+        },
+        {
+            "state": "Karnataka",
+            "district": "Belagavi",
+            "financialYear": "24-25",
+            "weg": 20,
+            "capacity": 54
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Karur",
+            "financialYear": "24-25",
+            "weg": 27,
+            "capacity": 56.7
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Dharashiv",
+            "financialYear": "24-25",
+            "weg": 21,
+            "capacity": 68.23
+        },
+        {
+            "state": "Karnataka",
+            "district": "Ballari",
+            "financialYear": "24-25",
+            "weg": 52,
+            "capacity": 171.6
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tiruppur",
+            "financialYear": "24-25",
+            "weg": 104,
+            "capacity": 280.8
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thoothukudi",
+            "financialYear": "24-25",
+            "weg": 187,
+            "capacity": 504.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendranagar",
+            "financialYear": "24-25",
+            "weg": 14,
+            "capacity": 26.586
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bharuch",
+            "financialYear": "24-25",
+            "weg": 17,
+            "capacity": 25.26
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Nandurbar",
+            "financialYear": "24-25",
+            "weg": 4,
+            "capacity": 8.4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Tuticorin",
+            "financialYear": "24-25",
+            "weg": 1,
+            "capacity": 1.628
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag \u0026 Kopal",
+            "financialYear": "24-25",
+            "weg": 2,
+            "capacity": 1.5
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag",
+            "financialYear": "24-25",
+            "weg": 242,
+            "capacity": 737.635
+        },
+        {
+            "state": "Karnataka",
+            "district": "Vijayanagara",
+            "financialYear": "24-25",
+            "weg": 53,
+            "capacity": 174.9
+        },
+        {
+            "state": "Karnataka",
+            "district": "Tumkur",
+            "financialYear": "24-25",
+            "weg": 1,
+            "capacity": 0.75
+        },
+        {
+            "state": "Karnataka",
+            "district": "Koppal",
+            "financialYear": "24-25",
+            "weg": 34,
+            "capacity": 13.2
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "24-25",
+            "weg": 1,
+            "capacity": 0.225
+        },
+        {
+            "state": "Karnataka",
+            "district": "Kopal",
+            "financialYear": "24-25",
+            "weg": 36,
+            "capacity": 129.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kutch",
+            "financialYear": "23-24",
+            "weg": 279,
+            "capacity": 614.7
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "23-24",
+            "weg": 39,
+            "capacity": 81.25
+        },
+        {
+            "state": "Karnataka",
+            "district": "Vijaynagar",
+            "financialYear": "23-24",
+            "weg": 33,
+            "capacity": 70.4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "23-24",
+            "weg": 94,
+            "capacity": 226.7
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot",
+            "financialYear": "23-24",
+            "weg": 37,
+            "capacity": 95.1
+        },
+        {
+            "state": "Karnataka",
+            "district": "Chitradurga",
+            "financialYear": "23-24",
+            "weg": 19,
+            "capacity": 38.1
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "23-24",
+            "weg": 3,
+            "capacity": 2.4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "23-24",
+            "weg": 71,
+            "capacity": 174.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Dwarka",
+            "financialYear": "23-24",
+            "weg": 100,
+            "capacity": 210
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Trichy",
+            "financialYear": "23-24",
+            "weg": 5,
+            "capacity": 10.5
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Karur",
+            "financialYear": "23-24",
+            "weg": 10,
+            "capacity": 23.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "23-24",
+            "weg": 140,
+            "capacity": 386.15
+        },
+        {
+            "state": "Karnataka",
+            "district": "Godag",
+            "financialYear": "23-24",
+            "weg": 84,
+            "capacity": 302.4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "23-24",
+            "weg": 8,
+            "capacity": 14.2
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tenkasi",
+            "financialYear": "23-24",
+            "weg": 7,
+            "capacity": 5.25
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "23-24",
+            "weg": 84,
+            "capacity": 248.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Vijayanagar",
+            "financialYear": "23-24",
+            "weg": 8,
+            "capacity": 26.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davangere",
+            "financialYear": "23-24",
+            "weg": 8,
+            "capacity": 24
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Ratlam",
+            "financialYear": "23-24",
+            "weg": 38,
+            "capacity": 100.65
+        },
+        {
+            "state": "Gujarat",
+            "district": "Morbi",
+            "financialYear": "23-24",
+            "weg": 13,
+            "capacity": 35.1
+        },
+        {
+            "state": "Karnataka",
+            "district": "Belgavi",
+            "financialYear": "23-24",
+            "weg": 11,
+            "capacity": 29.7
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Nandurbar",
+            "financialYear": "23-24",
+            "weg": 9,
+            "capacity": 21
+        },
+        {
+            "state": "Karnataka",
+            "district": "Tumkar",
+            "financialYear": "23-24",
+            "weg": 4,
+            "capacity": 16
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bharuch",
+            "financialYear": "23-24",
+            "weg": 9,
+            "capacity": 20.1
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendranagar",
+            "financialYear": "23-24",
+            "weg": 12,
+            "capacity": 34.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "kolar",
+            "financialYear": "23-24",
+            "weg": 3,
+            "capacity": 6.3
+        },
+        {
+            "state": "Karnataka",
+            "district": "Koppal",
+            "financialYear": "23-24",
+            "weg": 10,
+            "capacity": 21
+        },
+        {
+            "state": "Karnataka",
+            "district": "Dharwad",
+            "financialYear": "23-24",
+            "weg": 12,
+            "capacity": 41.58
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag",
+            "financialYear": "23-24",
+            "weg": 72,
+            "capacity": 249.48
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Ramnad",
+            "financialYear": "23-24",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Dev Bhumi Dwarka",
+            "financialYear": "23-24",
+            "weg": 43,
+            "capacity": 116.1
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Dharashiv",
+            "financialYear": "23-24",
+            "weg": 37,
+            "capacity": 99.9
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Latur",
+            "financialYear": "23-24",
+            "weg": 22,
+            "capacity": 79.2
+        },
+        {
+            "state": "KR",
+            "district": "Kerla",
+            "financialYear": "23-24",
+            "weg": 1,
+            "capacity": 1
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "22-23",
+            "weg": 348,
+            "capacity": 752.3
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kutch",
+            "financialYear": "22-23",
+            "weg": 195,
+            "capacity": 491.2
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Dhar",
+            "financialYear": "22-23",
+            "weg": 121,
+            "capacity": 326.7
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "22-23",
+            "weg": 12,
+            "capacity": 25
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Tirunelveli",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Gujarat",
+            "district": "Barmer",
+            "financialYear": "22-23",
+            "weg": 52,
+            "capacity": 114.4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Jamnagar",
+            "financialYear": "22-23",
+            "weg": 2,
+            "capacity": 4.2
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "22-23",
+            "weg": 45,
+            "capacity": 92.9
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "22-23",
+            "weg": 11,
+            "capacity": 24.78
+        },
+        {
+            "state": "Gujarat",
+            "district": "Tirupur",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 2.7
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot",
+            "financialYear": "22-23",
+            "weg": 9,
+            "capacity": 19.3
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Kutch",
+            "financialYear": "22-23",
+            "weg": 32,
+            "capacity": 67.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kanyakumari",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 0.2
+        },
+        {
+            "state": "Karnataka",
+            "district": "Amreli",
+            "financialYear": "22-23",
+            "weg": 6,
+            "capacity": 12.5
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davangere",
+            "financialYear": "22-23",
+            "weg": 21,
+            "capacity": 56.7
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "22-23",
+            "weg": 23,
+            "capacity": 50.6
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupurtamil Nadu",
+            "financialYear": "22-23",
+            "weg": 3,
+            "capacity": 8.1
+        },
+        {
+            "state": "Gujarat",
+            "district": "Tirunelveli",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 0.75
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Rajkot",
+            "financialYear": "22-23",
+            "weg": 3,
+            "capacity": 6.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Davangere",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 2.7
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag",
+            "financialYear": "22-23",
+            "weg": 6,
+            "capacity": 9.9
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "22-23",
+            "weg": 19,
+            "capacity": 47.7
+        },
+        {
+            "state": "Gujarat",
+            "district": "Babra",
+            "financialYear": "22-23",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bharuch",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Karnataka",
+            "district": "Vijayanagar",
+            "financialYear": "22-23",
+            "weg": 8,
+            "capacity": 17.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bellary",
+            "financialYear": "22-23",
+            "weg": 12,
+            "capacity": 26.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davengere",
+            "financialYear": "22-23",
+            "weg": 30,
+            "capacity": 63
+        },
+        {
+            "state": "Karnataka",
+            "district": "Chitradurga",
+            "financialYear": "22-23",
+            "weg": 6,
+            "capacity": 12
+        },
+        {
+            "state": "Gujarat",
+            "district": "Devbhumi Dwarka",
+            "financialYear": "22-23",
+            "weg": 9,
+            "capacity": 24.3
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "22-23",
+            "weg": 3,
+            "capacity": 6.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kalawad",
+            "financialYear": "22-23",
+            "weg": 2,
+            "capacity": 1.5
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tenkasi",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 0.75
+        },
+        {
+            "state": "Karnataka",
+            "district": "Kopol",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tiruneveli",
+            "financialYear": "22-23",
+            "weg": 8,
+            "capacity": 13.05
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendranagar",
+            "financialYear": "22-23",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Coimbatore",
+            "financialYear": "22-23",
+            "weg": 1,
+            "capacity": 0.23
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kutch",
+            "financialYear": "21-22",
+            "weg": 140,
+            "capacity": 299.5
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "21-22",
+            "weg": 47,
+            "capacity": 109
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "21-22",
+            "weg": 12,
+            "capacity": 10.25
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "financialYear": "21-22",
+            "weg": 3,
+            "capacity": 6
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "21-22",
+            "weg": 14,
+            "capacity": 29.4
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Sangli",
+            "financialYear": "21-22",
+            "weg": 6,
+            "capacity": 12.5
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kariyana",
+            "financialYear": "21-22",
+            "weg": 13,
+            "capacity": 35.1
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhuj",
+            "financialYear": "21-22",
+            "weg": 60,
+            "capacity": 120
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "21-22",
+            "weg": 32,
+            "capacity": 69.4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Dwarka",
+            "financialYear": "21-22",
+            "weg": 4,
+            "capacity": 8.4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "21-22",
+            "weg": 7,
+            "capacity": 15.3
+        },
+        {
+            "state": "Karnataka",
+            "district": "Ballari",
+            "financialYear": "21-22",
+            "weg": 9,
+            "capacity": 18
+        },
+        {
+            "state": "Gujarat",
+            "district": "Koppal",
+            "financialYear": "21-22",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dwarka",
+            "financialYear": "21-22",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Gujarat",
+            "district": "Dindigul",
+            "financialYear": "21-22",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Karnataka",
+            "district": "Ballari \u0026 Davangere",
+            "financialYear": "21-22",
+            "weg": 60,
+            "capacity": 126
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Ramnad",
+            "financialYear": "21-22",
+            "weg": 1,
+            "capacity": 0.75
+        },
+        {
+            "state": "Karnataka",
+            "district": "Koppal",
+            "financialYear": "21-22",
+            "weg": 17,
+            "capacity": 35.7
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Karur/Thirupur",
+            "financialYear": "21-22",
+            "weg": 49,
+            "capacity": 147
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Coimbatore",
+            "financialYear": "21-22",
+            "weg": 1,
+            "capacity": 0.75
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thoolthukudi",
+            "financialYear": "21-22",
+            "weg": 31,
+            "capacity": 62
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kutch",
+            "financialYear": "20-21",
+            "weg": 415,
+            "capacity": 941.8
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "20-21",
+            "weg": 59,
+            "capacity": 119.2
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "20-21",
+            "weg": 21,
+            "capacity": 16.75
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "20-21",
+            "weg": 10,
+            "capacity": 21
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantapur",
+            "financialYear": "20-21",
+            "weg": 2,
+            "capacity": 4.2
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bellary",
+            "financialYear": "20-21",
+            "weg": 4,
+            "capacity": 9.5
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davangere",
+            "financialYear": "20-21",
+            "weg": 15,
+            "capacity": 40.5
+        },
+        {
+            "state": "Karnataka",
+            "district": "Chitradurga",
+            "financialYear": "20-21",
+            "weg": 19,
+            "capacity": 38
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "financialYear": "20-21",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Vijayapura",
+            "financialYear": "20-21",
+            "weg": 13,
+            "capacity": 26
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "20-21",
+            "weg": 16,
+            "capacity": 27.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Kutch",
+            "financialYear": "20-21",
+            "weg": 1,
+            "capacity": 0.75
+        },
+        {
+            "state": "Karnataka",
+            "district": "Tirunelveli",
+            "financialYear": "20-21",
+            "weg": 3,
+            "capacity": 6
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Bellary Dindigul",
+            "financialYear": "20-21",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot",
+            "financialYear": "20-21",
+            "weg": 8,
+            "capacity": 16.8
+        },
+        {
+            "state": "Karnataka",
+            "district": "Belagavi",
+            "financialYear": "20-21",
+            "weg": 14,
+            "capacity": 28
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur \u0026 Karur",
+            "financialYear": "20-21",
+            "weg": 51,
+            "capacity": 153
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "20-21",
+            "weg": 18,
+            "capacity": 39.4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kutch",
+            "financialYear": "19-20",
+            "weg": 491,
+            "capacity": 1011.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "19-20",
+            "weg": 87,
+            "capacity": 188.59
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bijapur",
+            "financialYear": "19-20",
+            "weg": 14,
+            "capacity": 30.8
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot",
+            "financialYear": "19-20",
+            "weg": 31,
+            "capacity": 73.7
+        },
+        {
+            "state": "Karnataka",
+            "district": "Shimoga",
+            "financialYear": "19-20",
+            "weg": 9,
+            "capacity": 18.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendranagar",
+            "financialYear": "19-20",
+            "weg": 7,
+            "capacity": 12.8
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "19-20",
+            "weg": 132,
+            "capacity": 303.8
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag",
+            "financialYear": "19-20",
+            "weg": 2,
+            "capacity": 1.5
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Aurangabad",
+            "financialYear": "19-20",
+            "weg": 2,
+            "capacity": 4.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhuj",
+            "financialYear": "19-20",
+            "weg": 15,
+            "capacity": 34.5
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "19-20",
+            "weg": 43,
+            "capacity": 86.8
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot \u0026 Morbi",
+            "financialYear": "19-20",
+            "weg": 46,
+            "capacity": 101.2
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantpur",
+            "financialYear": "19-20",
+            "weg": 4,
+            "capacity": 8
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kurnool",
+            "financialYear": "19-20",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Osmanabad",
+            "financialYear": "19-20",
+            "weg": 101,
+            "capacity": 202
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "financialYear": "19-20",
+            "weg": 13,
+            "capacity": 26
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thoothukudi",
+            "financialYear": "19-20",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "19-20",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "18-19",
+            "weg": 91,
+            "capacity": 175.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kachchh",
+            "financialYear": "18-19",
+            "weg": 12,
+            "capacity": 24.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "18-19",
+            "weg": 21,
+            "capacity": 44.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Coimbatore",
+            "financialYear": "18-19",
+            "weg": 3,
+            "capacity": 1.45
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "18-19",
+            "weg": 6,
+            "capacity": 3.6
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "18-19",
+            "weg": 29,
+            "capacity": 35.1
+        },
+        {
+            "state": "Karnataka",
+            "district": "Koppal",
+            "financialYear": "18-19",
+            "weg": 34,
+            "capacity": 70.5
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Aurangabad",
+            "financialYear": "18-19",
+            "weg": 2,
+            "capacity": 4.2
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bijapur",
+            "financialYear": "18-19",
+            "weg": 31,
+            "capacity": 68.2
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantapuram",
+            "financialYear": "18-19",
+            "weg": 33,
+            "capacity": 69.3
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "18-19",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Theni",
+            "financialYear": "18-19",
+            "weg": 2,
+            "capacity": 3
+        },
+        {
+            "state": "Telangana",
+            "district": "Medak",
+            "financialYear": "18-19",
+            "weg": 13,
+            "capacity": 27.3
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thirupur",
+            "financialYear": "18-19",
+            "weg": 47,
+            "capacity": 94
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kurnool",
+            "financialYear": "18-19",
+            "weg": 9,
+            "capacity": 18
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "18-19",
+            "weg": 12,
+            "capacity": 25.63
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thoothukkudi",
+            "financialYear": "18-19",
+            "weg": 119,
+            "capacity": 249.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Morbi",
+            "financialYear": "18-19",
+            "weg": 2,
+            "capacity": 3
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "18-19",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thoothukudi",
+            "financialYear": "18-19",
+            "weg": 77,
+            "capacity": 176.36
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantapur",
+            "financialYear": "18-19",
+            "weg": 15,
+            "capacity": 30.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Khambaliya",
+            "financialYear": "18-19",
+            "weg": 23,
+            "capacity": 50.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhuj",
+            "financialYear": "18-19",
+            "weg": 125,
+            "capacity": 250
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendernagar",
+            "financialYear": "18-19",
+            "weg": 16,
+            "capacity": 32
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Satara",
+            "financialYear": "18-19",
+            "weg": 3,
+            "capacity": 6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendranagar",
+            "financialYear": "18-19",
+            "weg": 9,
+            "capacity": 18.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Patan",
+            "financialYear": "18-19",
+            "weg": 3,
+            "capacity": 6
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Ariyalur",
+            "financialYear": "18-19",
+            "weg": 11,
+            "capacity": 22
+        },
+        {
+            "state": "Karnataka",
+            "district": "Belgaum",
+            "financialYear": "18-19",
+            "weg": 5,
+            "capacity": 10
+        },
+        {
+            "state": "Kerala",
+            "district": "Palakkad",
+            "financialYear": "18-19",
+            "weg": 5,
+            "capacity": 10
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "financialYear": "18-19",
+            "weg": 5,
+            "capacity": 10
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "17-18",
+            "weg": 70,
+            "capacity": 95.9
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Udumalpet",
+            "financialYear": "17-18",
+            "weg": 9,
+            "capacity": 5.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Koppal",
+            "financialYear": "17-18",
+            "weg": 147,
+            "capacity": 303.3
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "17-18",
+            "weg": 35,
+            "capacity": 66.35
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thiruvallur",
+            "financialYear": "17-18",
+            "weg": 3,
+            "capacity": 1.8
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "17-18",
+            "weg": 61,
+            "capacity": 115.25
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kachchh",
+            "financialYear": "17-18",
+            "weg": 8,
+            "capacity": 16.8
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bijapur",
+            "financialYear": "17-18",
+            "weg": 45,
+            "capacity": 90
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dharampuri",
+            "financialYear": "17-18",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaiselmer",
+            "financialYear": "17-18",
+            "weg": 5,
+            "capacity": 10
+        },
+        {
+            "state": "Karnataka",
+            "district": "Vijayapr",
+            "financialYear": "17-18",
+            "weg": 4,
+            "capacity": 8
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "YSR Kadapa",
+            "financialYear": "17-18",
+            "weg": 9,
+            "capacity": 18
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Aurangabad",
+            "financialYear": "17-18",
+            "weg": 6,
+            "capacity": 12.6
+        },
+        {
+            "state": "Karnataka",
+            "district": "Chitradurga",
+            "financialYear": "17-18",
+            "weg": 10,
+            "capacity": 23
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "17-18",
+            "weg": 8,
+            "capacity": 16
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantapur",
+            "financialYear": "17-18",
+            "weg": 122,
+            "capacity": 256.9
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupu",
+            "financialYear": "17-18",
+            "weg": 3,
+            "capacity": 6.3
+        },
+        {
+            "state": "Karnataka",
+            "district": "Vijayapura",
+            "financialYear": "17-18",
+            "weg": 8,
+            "capacity": 18.4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Raichur",
+            "financialYear": "17-18",
+            "weg": 85,
+            "capacity": 170
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Theni",
+            "financialYear": "17-18",
+            "weg": 5,
+            "capacity": 3
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tiruppur",
+            "financialYear": "17-18",
+            "weg": 30,
+            "capacity": 55.8
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kadapa",
+            "financialYear": "17-18",
+            "weg": 4,
+            "capacity": 8
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bellary",
+            "financialYear": "17-18",
+            "weg": 31,
+            "capacity": 24.8
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "17-18",
+            "weg": 53,
+            "capacity": 108.3
+        },
+        {
+            "state": "Gujarat",
+            "district": "SurendraNagar",
+            "financialYear": "17-18",
+            "weg": 8,
+            "capacity": 16
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kurnool",
+            "financialYear": "17-18",
+            "weg": 7,
+            "capacity": 15.2
+        },
+        {
+            "state": "Karnataka",
+            "district": "Kalaburagi",
+            "financialYear": "17-18",
+            "weg": 30,
+            "capacity": 60
+        },
+        {
+            "state": "Gujarat",
+            "district": "Porbandar",
+            "financialYear": "17-18",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Thanjavur",
+            "financialYear": "17-18",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Coimbatore",
+            "financialYear": "17-18",
+            "weg": 2,
+            "capacity": 2.6
+        },
+        {
+            "state": "Kerala",
+            "district": "Idukki",
+            "financialYear": "17-18",
+            "weg": 4,
+            "capacity": 1
+        },
+        {
+            "state": "Karnataka",
+            "district": "Belgaum",
+            "financialYear": "17-18",
+            "weg": 24,
+            "capacity": 48.4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Villupuram",
+            "financialYear": "17-18",
+            "weg": 2,
+            "capacity": 1.7
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Karur",
+            "financialYear": "17-18",
+            "weg": 2,
+            "capacity": 1.7
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davanagere",
+            "financialYear": "17-18",
+            "weg": 3,
+            "capacity": 2.4
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "17-18",
+            "weg": 3,
+            "capacity": 6.3
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Shajapur",
+            "financialYear": "17-18",
+            "weg": 9,
+            "capacity": 18.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kutch",
+            "financialYear": "17-18",
+            "weg": 1,
+            "capacity": 1.5
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "financialYear": "17-18",
+            "weg": 16,
+            "capacity": 24
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendra Nagar",
+            "financialYear": "17-18",
+            "weg": 5,
+            "capacity": 10
+        },
+        {
+            "state": "Karnataka",
+            "district": "Darwad",
+            "financialYear": "17-18",
+            "weg": 4,
+            "capacity": 8.4
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "17-18",
+            "weg": 3,
+            "capacity": 6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot \u0026 Amreli",
+            "financialYear": "17-18",
+            "weg": 10,
+            "capacity": 20
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot",
+            "financialYear": "17-18",
+            "weg": 22,
+            "capacity": 17.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendranagar",
+            "financialYear": "17-18",
+            "weg": 1,
+            "capacity": 0.8
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Ananthapuram",
+            "financialYear": "17-18",
+            "weg": 25,
+            "capacity": 50
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "16-17",
+            "weg": 33,
+            "capacity": 65
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli\u0026Rajkot",
+            "financialYear": "16-17",
+            "weg": 38,
+            "capacity": 76
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendernagar",
+            "financialYear": "16-17",
+            "weg": 28,
+            "capacity": 56
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "16-17",
+            "weg": 20,
+            "capacity": 20.1
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantapur",
+            "financialYear": "16-17",
+            "weg": 542,
+            "capacity": 1106
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bijapur",
+            "financialYear": "16-17",
+            "weg": 231,
+            "capacity": 482
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kachchh",
+            "financialYear": "16-17",
+            "weg": 138,
+            "capacity": 283.95
+        },
+        {
+            "state": "Karnataka",
+            "district": "Chitradurga",
+            "financialYear": "16-17",
+            "weg": 14,
+            "capacity": 31
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "16-17",
+            "weg": 104,
+            "capacity": 191.55
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "16-17",
+            "weg": 10,
+            "capacity": 21
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendranagar",
+            "financialYear": "16-17",
+            "weg": 43,
+            "capacity": 38
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Y S R Kadapa",
+            "financialYear": "16-17",
+            "weg": 27,
+            "capacity": 54
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Coimbatore",
+            "financialYear": "16-17",
+            "weg": 6,
+            "capacity": 12.6
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Mandsaur",
+            "financialYear": "16-17",
+            "weg": 17,
+            "capacity": 23.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Patan",
+            "financialYear": "16-17",
+            "weg": 60,
+            "capacity": 120
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "16-17",
+            "weg": 45,
+            "capacity": 66.25
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag",
+            "financialYear": "16-17",
+            "weg": 45,
+            "capacity": 87
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kadappah",
+            "financialYear": "16-17",
+            "weg": 64,
+            "capacity": 120.8
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Dewas",
+            "financialYear": "16-17",
+            "weg": 42,
+            "capacity": 79.2
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantpuram",
+            "financialYear": "16-17",
+            "weg": 50,
+            "capacity": 100
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Theni",
+            "financialYear": "16-17",
+            "weg": 29,
+            "capacity": 45
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "financialYear": "16-17",
+            "weg": 19,
+            "capacity": 24.45
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "16-17",
+            "weg": 122,
+            "capacity": 247.5
+        },
+        {
+            "state": "Karnataka",
+            "district": "Belgaum",
+            "financialYear": "16-17",
+            "weg": 69,
+            "capacity": 135.3
+        },
+        {
+            "state": "Karnataka",
+            "district": "Dindigul",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 0.85
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Kachchh",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Gujarat",
+            "district": "Anantapur",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Pune",
+            "financialYear": "16-17",
+            "weg": 3,
+            "capacity": 7.2
+        },
+        {
+            "state": "Kerala",
+            "district": "Palakkad",
+            "financialYear": "16-17",
+            "weg": 8,
+            "capacity": 16
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kurnool",
+            "financialYear": "16-17",
+            "weg": 258,
+            "capacity": 462.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Dwarka",
+            "financialYear": "16-17",
+            "weg": 15,
+            "capacity": 30
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kodappah",
+            "financialYear": "16-17",
+            "weg": 4,
+            "capacity": 9.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhoynagor",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Kolhapur",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot",
+            "financialYear": "16-17",
+            "weg": 31,
+            "capacity": 58
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surat",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 1.5
+        },
+        {
+            "state": "Gujarat",
+            "district": "Morbi",
+            "financialYear": "16-17",
+            "weg": 15,
+            "capacity": 22.5
+        },
+        {
+            "state": "Gujarat",
+            "district": "Surendemagar",
+            "financialYear": "16-17",
+            "weg": 7,
+            "capacity": 14
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davangere",
+            "financialYear": "16-17",
+            "weg": 40,
+            "capacity": 80
+        },
+        {
+            "state": "Gujarat",
+            "district": "Porbander",
+            "financialYear": "16-17",
+            "weg": 45,
+            "capacity": 93.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli,Rjk\u0026Botd",
+            "financialYear": "16-17",
+            "weg": 23,
+            "capacity": 46
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Yavotmal",
+            "financialYear": "16-17",
+            "weg": 13,
+            "capacity": 19.5
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kadapa",
+            "financialYear": "16-17",
+            "weg": 47,
+            "capacity": 80.5
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jodhpur",
+            "financialYear": "16-17",
+            "weg": 12,
+            "capacity": 25.2
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anathapuramu",
+            "financialYear": "16-17",
+            "weg": 49,
+            "capacity": 98
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Ratlam",
+            "financialYear": "16-17",
+            "weg": 81,
+            "capacity": 157.2
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Betul",
+            "financialYear": "16-17",
+            "weg": 25,
+            "capacity": 50
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Sangli",
+            "financialYear": "16-17",
+            "weg": 26,
+            "capacity": 54.6
+        },
+        {
+            "state": "Telangana",
+            "district": "Rangareddi",
+            "financialYear": "16-17",
+            "weg": 11,
+            "capacity": 23.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Kayathor",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Shajapur",
+            "financialYear": "16-17",
+            "weg": 16,
+            "capacity": 32.3
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gulburga",
+            "financialYear": "16-17",
+            "weg": 30,
+            "capacity": 60
+        },
+        {
+            "state": "Karnataka",
+            "district": "Darwad",
+            "financialYear": "16-17",
+            "weg": 12,
+            "capacity": 25.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Devbhoomi Dwrk.",
+            "financialYear": "16-17",
+            "weg": 10,
+            "capacity": 20
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Ujjain",
+            "financialYear": "16-17",
+            "weg": 12,
+            "capacity": 18
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bellary",
+            "financialYear": "16-17",
+            "weg": 6,
+            "capacity": 4.8
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantpurum",
+            "financialYear": "16-17",
+            "weg": 25,
+            "capacity": 50
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amrli/Raj/BVN",
+            "financialYear": "16-17",
+            "weg": 71,
+            "capacity": 142
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Chennai",
+            "financialYear": "16-17",
+            "weg": 5,
+            "capacity": 1.125
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli,Rjkt\u0026Botd",
+            "financialYear": "16-17",
+            "weg": 52,
+            "capacity": 104
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Ananthapuramu",
+            "financialYear": "16-17",
+            "weg": 55,
+            "capacity": 104.25
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Pratapgarh",
+            "financialYear": "16-17",
+            "weg": 8,
+            "capacity": 13.5
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "16-17",
+            "weg": 41,
+            "capacity": 82
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Ramnad",
+            "financialYear": "16-17",
+            "weg": 1,
+            "capacity": 0.75
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Shajapur",
+            "financialYear": "15-16",
+            "weg": 134,
+            "capacity": 234.8
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Dhajpur",
+            "financialYear": "15-16",
+            "weg": 2,
+            "capacity": 4.2
+        },
+        {
+            "state": "Kerala",
+            "district": "Palakkad",
+            "financialYear": "15-16",
+            "weg": 4,
+            "capacity": 8.4
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "15-16",
+            "weg": 58,
+            "capacity": 44.7
+        },
+        {
+            "state": "Gujarat",
+            "district": "Kachchh",
+            "financialYear": "15-16",
+            "weg": 21,
+            "capacity": 44.1
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "15-16",
+            "weg": 295,
+            "capacity": 434.2
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirupur",
+            "financialYear": "15-16",
+            "weg": 2,
+            "capacity": 2.25
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Mandsaur",
+            "financialYear": "15-16",
+            "weg": 150,
+            "capacity": 246.3
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Sangli",
+            "financialYear": "15-16",
+            "weg": 53,
+            "capacity": 100.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Botad",
+            "financialYear": "15-16",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Dhar",
+            "financialYear": "15-16",
+            "weg": 112,
+            "capacity": 218.2
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot\u0026Botad",
+            "financialYear": "15-16",
+            "weg": 2,
+            "capacity": 4
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davangere",
+            "financialYear": "15-16",
+            "weg": 26,
+            "capacity": 52
+        },
+        {
+            "state": "Karnataka",
+            "district": "Haveri",
+            "financialYear": "15-16",
+            "weg": 27,
+            "capacity": 27.6
+        },
+        {
+            "state": "Karnataka",
+            "district": "Koppal",
+            "financialYear": "15-16",
+            "weg": 9,
+            "capacity": 9
+        },
+        {
+            "state": "Karnataka",
+            "district": "Raichur",
+            "financialYear": "15-16",
+            "weg": 4,
+            "capacity": 8
+        },
+        {
+            "state": "Karnataka",
+            "district": "Dharwad",
+            "financialYear": "15-16",
+            "weg": 10,
+            "capacity": 21
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag",
+            "financialYear": "15-16",
+            "weg": 21,
+            "capacity": 36.6
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Anantpur",
+            "financialYear": "15-16",
+            "weg": 169,
+            "capacity": 328.5
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Dewas",
+            "financialYear": "15-16",
+            "weg": 91,
+            "capacity": 182
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Ratlam",
+            "financialYear": "15-16",
+            "weg": 159,
+            "capacity": 314.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Bhavnagar",
+            "financialYear": "15-16",
+            "weg": 11,
+            "capacity": 22.9
+        },
+        {
+            "state": "Gujarat",
+            "district": "Rajkot",
+            "financialYear": "15-16",
+            "weg": 34,
+            "capacity": 64.7
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Sanghli",
+            "financialYear": "15-16",
+            "weg": 14,
+            "capacity": 28
+        },
+        {
+            "state": "Gujarat",
+            "district": "Patan",
+            "financialYear": "15-16",
+            "weg": 25,
+            "capacity": 50
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tirunelveli",
+            "financialYear": "15-16",
+            "weg": 27,
+            "capacity": 50.7
+        },
+        {
+            "state": "Gujarat",
+            "district": "Raj,Amrli\u0026Bhav",
+            "financialYear": "15-16",
+            "weg": 36,
+            "capacity": 72
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Kolhapur",
+            "financialYear": "15-16",
+            "weg": 3,
+            "capacity": 4.1
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Dharashiv",
+            "financialYear": "15-16",
+            "weg": 5,
+            "capacity": 10
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Ahmednagar",
+            "financialYear": "15-16",
+            "weg": 14,
+            "capacity": 26.5
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tiruppur",
+            "financialYear": "15-16",
+            "weg": 20,
+            "capacity": 30
+        },
+        {
+            "state": "Karnataka",
+            "district": "Bijapur",
+            "financialYear": "15-16",
+            "weg": 42,
+            "capacity": 84
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Srikakulam",
+            "financialYear": "15-16",
+            "weg": 5,
+            "capacity": 10
+        },
+        {
+            "state": "Gujarat",
+            "district": "Amreli",
+            "financialYear": "15-16",
+            "weg": 8,
+            "capacity": 12
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Jaora",
+            "financialYear": "15-16",
+            "weg": 2,
+            "capacity": 3
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Yavatmal",
+            "financialYear": "15-16",
+            "weg": 7,
+            "capacity": 10.5
+        },
+        {
+            "state": "Gujarat",
+            "district": "Porbandar",
+            "financialYear": "15-16",
+            "weg": 5,
+            "capacity": 10.5
+        },
+        {
+            "state": "Gujarat",
+            "district": "Raj,Amrli \u0026 Bhav",
+            "financialYear": "15-16",
+            "weg": 28,
+            "capacity": 56
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Coimbatore",
+            "financialYear": "15-16",
+            "weg": 1,
+            "capacity": 2
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kurnool",
+            "financialYear": "15-16",
+            "weg": 12,
+            "capacity": 24
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Ujjain",
+            "financialYear": "15-16",
+            "weg": 40,
+            "capacity": 60
+        },
+        {
+            "state": "Karnataka",
+            "district": "Kolar",
+            "financialYear": "15-16",
+            "weg": 1,
+            "capacity": 2.1
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Sindhudurg",
+            "financialYear": "15-16",
+            "weg": 8,
+            "capacity": 10
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Bharatpur",
+            "financialYear": "15-16",
+            "weg": 72,
+            "capacity": 151.2
+        },
+        {
+            "state": "Telangana",
+            "district": "Rangareddy",
+            "financialYear": "15-16",
+            "weg": 37,
+            "capacity": 77.7
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Satara",
+            "financialYear": "15-16",
+            "weg": 16,
+            "capacity": 31.8
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "15-16",
+            "weg": 34,
+            "capacity": 56.5
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Muppandal",
+            "financialYear": "15-16",
+            "weg": 1,
+            "capacity": 0.6
+        },
+        {
+            "state": "Gujarat",
+            "district": "Dharampur",
+            "financialYear": "15-16",
+            "weg": 1,
+            "capacity": 1.5
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Pratapgarh",
+            "financialYear": "15-16",
+            "weg": 55,
+            "capacity": 100.1
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tenkasi",
+            "financialYear": "15-16",
+            "weg": 1,
+            "capacity": 0.6
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "financialYear": "15-16",
+            "weg": 10,
+            "capacity": 15
+        },
+        {
+            "state": "Gujarat",
+            "district": "Jamnagar",
+            "financialYear": "25-26",
+            "weg": 988,
+            "capacity": 2964.775
+        },
+        {
+            "state": "Karnataka",
+            "district": "Gadag",
+            "financialYear": "25-26",
+            "weg": 461,
+            "capacity": 1379.045
+        },
+        {
+            "state": "Andhra Pradesh",
+            "district": "Kurnool",
+            "financialYear": "25-26",
+            "weg": 13,
+            "capacity": 38.63
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Tuticorin",
+            "financialYear": "25-26",
+            "weg": 135,
+            "capacity": 407.32
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Ratlam",
+            "financialYear": "25-26",
+            "weg": 162,
+            "capacity": 484
+        },
+        {
+            "state": "Maharashtra",
+            "district": "Dharashiv",
+            "financialYear": "25-26",
+            "weg": 214,
+            "capacity": 642.6
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "25-26",
+            "weg": 47,
+            "capacity": 140.4
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jaisalmer",
+            "financialYear": "24-25",
+            "weg": 4,
+            "capacity": 12.925
+        },
+        {
+            "state": "Madhya Pradesh",
+            "district": "Ratlam",
+            "financialYear": "24-25",
+            "weg": 117,
+            "capacity": 350.86
+        },
+        {
+            "state": "Kerala",
+            "district": "Kerala",
+            "financialYear": "24-25",
+            "weg": 3,
+            "capacity": 7.775
+        },
+        {
+            "state": "Kerala",
+            "district": "Kerala",
+            "financialYear": "25-26",
+            "weg": 1,
+            "capacity": 0.25
+        }
+    ],
+    "totalCapacityMW": 32859.15,
+    "totalDistricts": 362,
+    "financialYears": [
+        "25-26",
+        "24-25",
+        "23-24",
+        "22-23",
+        "21-22",
+        "20-21",
+        "19-20",
+        "18-19",
+        "17-18",
+        "16-17",
+        "15-16"
+    ]
+}

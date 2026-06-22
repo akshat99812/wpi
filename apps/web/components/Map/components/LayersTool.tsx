@@ -82,6 +82,8 @@ interface Props {
   showPowerGrid: boolean;
   /** "Exclusion zones" = legal exclusion polygons (red hard / amber verify). */
   showExclusions: boolean;
+  /** "Policy score" = state polygons coloured by composite wind-policy score. */
+  showPolicyScore: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
   mastCats: Record<MastHeightCat, boolean>;
   /** Which grid line-voltage bands are visible, keyed by band-min kV as a
@@ -91,6 +93,7 @@ interface Props {
   onToggleMasts: (next: boolean) => void;
   onTogglePowerGrid: (next: boolean) => void;
   onToggleExclusions: (next: boolean) => void;
+  onTogglePolicyScore: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
   onVoltageBandChange: (kv: string, next: boolean) => void;
 }
@@ -109,12 +112,14 @@ export function LayersTool({
   showMasts,
   showPowerGrid,
   showExclusions,
+  showPolicyScore,
   mastCats,
   voltageBands,
   onToggleTurbines,
   onToggleMasts,
   onTogglePowerGrid,
   onToggleExclusions,
+  onTogglePolicyScore,
   onMastCatChange,
   onVoltageBandChange,
 }: Props) {
@@ -164,9 +169,19 @@ export function LayersTool({
         onChange={onToggleExclusions}
       />
       {showExclusions && <ExclusionLegend />}
+      <ToggleRow
+        label="Policy score"
+        description="States ranked best→worst on wind tariff/OA policy"
+        swatch={POLICY_SCORE_SWATCH}
+        checked={showPolicyScore}
+        onChange={onTogglePolicyScore}
+      />
     </div>
   );
 }
+
+// Map fill ramp midpoint (mirror utils/policyScore amber).
+const POLICY_SCORE_SWATCH = '#f59e0b';
 
 // Map fill colours (mirror utils/exclusions EXCL_RED / EXCL_AMBER).
 const EXCL_RED_SWATCH = '#dc2626';

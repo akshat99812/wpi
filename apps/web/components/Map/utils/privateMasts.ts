@@ -85,12 +85,12 @@ async function addImpl(map: MlMap, opts: PrivateMastsOptions): Promise<void> {
         paint: {
           'circle-radius': [
             'interpolate', ['linear'], ['zoom'],
-            4, 3,
-            10, 5,
-            16, 9,
+            4, 2,
+            10, 3.5,
+            16, 6.5,
           ],
           'circle-color': PRIVATE_MAST_COLOR,
-          'circle-stroke-width': 1.5,
+          'circle-stroke-width': 1,
           'circle-stroke-color': '#0a0a0a',
           'circle-opacity': 0.9,
         },

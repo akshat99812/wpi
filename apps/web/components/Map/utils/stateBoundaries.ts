@@ -14,6 +14,23 @@ const SOURCE_ID = 'pro-states';
 const CASING_ID = 'pro-state-casing';
 const LINE_ID = 'pro-state-line';
 
+/** Show/hide both boundary layers (casing + core line). Idempotent — safe to
+ *  call before the layers exist (skips any that aren't added yet). */
+export function setStateBoundariesVisibility(
+  map: maplibregl.Map,
+  visible: boolean,
+): void {
+  try {
+    for (const id of [CASING_ID, LINE_ID]) {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
+      }
+    }
+  } catch (err) {
+    console.error('[pro-map] could not set state-boundary visibility', err);
+  }
+}
+
 // Cache the GeoJSON across remounts so we don't refetch the ~1 MB file.
 let cached: GeoJSON.FeatureCollection | null = null;
 

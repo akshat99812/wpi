@@ -1,0 +1,180 @@
+[
+    {
+        "state": "Tamil Nadu",
+        "district": "Thiruvallur",
+        "companyTypeId": "dd8d730e-3fff-4c98-80f7-ce94c5055516",
+        "companyType": "Components Manufacturer",
+        "agencyName": "HINE HYDRAULICS INDIA PVT.LTD.",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Karnataka",
+        "district": "Bengaluru South",
+        "companyTypeId": "dd8d730e-3fff-4c98-80f7-ce94c5055516",
+        "companyType": "Components Manufacturer",
+        "agencyName": "Timken India Limited",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Maharashtra",
+        "district": "Mumbai Suburban",
+        "companyTypeId": "8f43b71c-5841-44fe-8cdb-89685dc912b6",
+        "companyType": "Turbine Manufacturer",
+        "agencyName": "Vayona Energy Private Limited",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Rajasthan",
+        "district": "Jaipur",
+        "companyTypeId": "85349ba3-ab86-4293-a358-b32ee8034054",
+        "companyType": "Power Project Developer",
+        "agencyName": "AVP Green infra ray solutions",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Madhya Pradesh",
+        "district": "Dhar",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 1.26,
+        "componentMfg": [
+            "Blade"
+        ]
+    },
+    {
+        "state": "Tamil Nadu",
+        "district": "Coimbatore",
+        "companyTypeId": "dd8d730e-3fff-4c98-80f7-ce94c5055516",
+        "companyType": "Components Manufacturer",
+        "agencyName": "ZF Wind Power Coimbatore Private Limited",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Gujarat",
+        "district": "Kachchh",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 0.84,
+        "componentMfg": [
+            "Blade"
+        ]
+    },
+    {
+        "state": "Rajasthan",
+        "district": "Jaisalmer",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 1.26,
+        "componentMfg": [
+            "Blade"
+        ]
+    },
+    {
+        "state": "Andhra Pradesh",
+        "district": "Ananthapuramu",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 1.26,
+        "componentMfg": [
+            "Blade"
+        ]
+    },
+    {
+        "state": "Puducherry",
+        "district": "Puducherry",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 1.89,
+        "componentMfg": [
+            "Hub"
+        ]
+    },
+    {
+        "state": "Maharashtra",
+        "district": "Mumbai",
+        "companyTypeId": "dd8d730e-3fff-4c98-80f7-ce94c5055516",
+        "companyType": "Components Manufacturer",
+        "agencyName": "INDORE SPECIALITY MATERIALS PRIVATE LIMITED",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Gujarat",
+        "district": "Ahmedabad",
+        "companyTypeId": "85349ba3-ab86-4293-a358-b32ee8034054",
+        "companyType": "Power Project Developer",
+        "agencyName": "Ahasolar technologies limited",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Jharkhand",
+        "district": "Ranchi",
+        "companyTypeId": "dd8d730e-3fff-4c98-80f7-ce94c5055516",
+        "companyType": "Components Manufacturer",
+        "agencyName": "AVNY ENERGY",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Gujarat",
+        "district": "Kachchh",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 2.46,
+        "componentMfg": [
+            "Tower"
+        ]
+    },
+    {
+        "state": "Tamil Nadu",
+        "district": "Coimbatore",
+        "companyTypeId": "dd8d730e-3fff-4c98-80f7-ce94c5055516",
+        "companyType": "Components Manufacturer",
+        "agencyName": "SE FORGE LIMITED",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Maharashtra",
+        "district": "Mumbai Suburban",
+        "companyTypeId": "8f43b71c-5841-44fe-8cdb-89685dc912b6",
+        "companyType": "Turbine Manufacturer",
+        "agencyName": "Senvion Wind Technology Private Limited",
+        "totalMfgCapacityMW": 0.00,
+        "componentMfg": []
+    },
+    {
+        "state": "Maharashtra",
+        "district": "Dhule",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 1.05,
+        "componentMfg": [
+            "Blade"
+        ]
+    },
+    {
+        "state": "Dadra and Nagar Haveli and Daman and Diu",
+        "district": "Daman",
+        "companyTypeId": "83a99c62-7622-4ff1-8c5d-3fc83659d00b",
+        "companyType": "Turbine \u0026 Components Manufacturer",
+        "agencyName": "Suzlon Energy Limited",
+        "totalMfgCapacityMW": 2.52,
+        "componentMfg": [
+            "Hub"
+        ]
+    }
+]

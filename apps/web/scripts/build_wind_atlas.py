@@ -126,6 +126,13 @@ PALETTE: list[tuple[float, tuple[int, int, int]]] = [
     (1.0, (0xff, 0x1a, 0x00)),  # red
 ]
 
+# Discrete colour banding: the domain is split into BANDS equal steps and every
+# pixel snaps to its band's CENTRE colour, so the raster reads as crisp contour
+# bands (the colour changes at each band boundary) instead of a continuous blur.
+# 40 bands ⇒ a new colour every 2.5% of the value domain. The frontend legends
+# (windRamp.ts) band at the SAME boundaries, driven by `bands` in metadata.json.
+BANDS = 40
+
 # ── Metric × height matrix ───────────────────────────────────────────────────
 # `tile_subdir`/`grid_name` keep speed's legacy paths byte-identical so the
 # existing assets, useWindLayer consumers, and lookup.ts keep working without
@@ -442,7 +449,11 @@ LUT = build_lut()
 def colorize(values, valid, lo: float, hi: float):
     safe = np.where(valid, values, lo)
     t = np.clip((safe - lo) / (hi - lo), 0.0, 1.0)
-    rgb = LUT[(t * 255).astype(np.uint8)]
+    # Snap each value to its band's centre so colours are flat within a band and
+    # step at every 1/BANDS boundary (matches windRamp.ts on the frontend).
+    band = np.minimum((t * BANDS).astype(np.int32), BANDS - 1)
+    t_q = (band + 0.5) / BANDS
+    rgb = LUT[(t_q * 255).astype(np.uint8)]
     a = np.where(valid, 255, 0).astype(np.uint8)
     return np.dstack([rgb, a])
 
@@ -608,6 +619,9 @@ def emit_metadata():
                 "fringeTilePath": f"/wind-atlas/fringe/{name}/{{height}}/{{z}}/{{x}}/{{y}}.png",
                 "domain": [cfg["lo"], cfg["hi"]],
                 "ramp": ramp_stops(cfg),
+                # Discrete colour-band count (see BANDS): the baked raster and
+                # the frontend legends both step the ramp into this many bands.
+                "bands": BANDS,
             }
             for name, cfg in METRICS.items()
         },

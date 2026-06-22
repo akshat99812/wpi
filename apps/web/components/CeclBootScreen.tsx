@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { CeclLoader } from "./CeclLoader";
 
-const DEFAULT_BOOT_MS = 1600; // 1–2s branded boot, matching the Pro map
+const DEFAULT_BOOT_MS = 2800; // branded boot (landing → portal), matching the Pro map
 const FADE_MS = 400;
 
 type BootPhase = "visible" | "fading" | "gone";

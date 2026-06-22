@@ -26,7 +26,10 @@ import {
   type MastHeightCat,
 } from "@/components/Map/components/LayersTool";
 import { WindResourceCard, WindIcon } from "@/components/Map/components/WindResourceCard";
-import { addLightStateBoundaries } from "@/components/Map/utils/stateBoundaries";
+import {
+  addLightStateBoundaries,
+  setStateBoundariesVisibility,
+} from "@/components/Map/utils/stateBoundaries";
 import {
   addPrivateMasts,
   setPrivateMastsVisibility,
@@ -36,6 +39,7 @@ import {
 } from "@/components/Map/utils/privateMasts";
 import {
   addPowerGrid,
+  prefetchPowerGrid,
   setPowerGridVisibility,
   setPowerGridVoltageFilter,
   VOLTAGE_BANDS,
@@ -52,6 +56,17 @@ import {
   EXCL_FILL_LAYER_ID,
   EXCL_OUTLINE_LAYER_ID,
 } from "@/components/Map/utils/exclusions";
+import {
+  addPolicyScore,
+  setPolicyScoreVisibility,
+} from "@/components/Map/utils/policyScore";
+import { PolicyScoreLegend } from "@/components/Map/components/PolicyScoreLegend";
+import { WindFarmDataTool, WindFarmIcon } from "@/components/Map/components/WindFarmDataTool";
+import {
+  addWindFarms,
+  FARM_CIRCLE_MAXZOOM,
+  type WindFarmProps,
+} from "@/components/Map/utils/windFarms";
 import {
   addWindResourceLayer,
   removeWindResourceLayer,
@@ -87,7 +102,7 @@ const WINDMILL_TILES_VERSION = 2;
 
 // Minimum branded "terminal is booting" boot animation, even when the session
 // resolves instantly. Keeps the Pro map entrance consistent with the landing page.
-const BOOT_MS = 1600;
+const BOOT_MS = 2800;
 
 export default function ProMapPage() {
   const { data: session, isPending } = useSession();
@@ -98,18 +113,29 @@ export default function ProMapPage() {
   const basemapRef = useRef<ProBasemap>("road");
   // Mirror layer-visibility toggles so the map-load closure can set the right
   // initial visibility when it adds the layers (same pattern as basemapRef).
-  const showMastsRef = useRef(true);
-  const showTurbinesRef = useRef(false);
+  // Default Pro-map view: masts OFF, individual turbines ON. At country zoom the
+  // turbine glyphs are tiny, so the wind-farm circle layer (added on load) shows
+  // green per-district farms instead; zooming in past FARM_CIRCLE_MAXZOOM drops
+  // the circles and reveals the exact turbines.
+  const showMastsRef = useRef(false);
+  const showTurbinesRef = useRef(true);
   const showExclusionsRef = useRef(false);
   const showPowerGridRef = useRef(false);
+  const showPolicyScoreRef = useRef(false);
   const windMetricRef = useRef<WindMetricChoice>("off");
   const windHeightRef = useRef<number>(DEFAULT_WIND_HEIGHT);
+  // 3D terrain is the one toggle owned by useTerrain, but the map-load closure
+  // needs its latest value to hide state boundaries the instant they finish
+  // loading (boundaries are fetched async — see the effect below).
+  const terrainEnabledRef = useRef(false);
   const [selected, setSelected] = useState<Windmill | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
   // Individual OSM wind-turbine selection — its own card (TurbineDataTool),
   // independent of the mast `selected` above.
   const [selectedTurbine, setSelectedTurbine] = useState<Turbine | null>(null);
+  // Clicked wind-farm circle → district aggregate shown in the Wind-farm card.
+  const [selectedFarm, setSelectedFarm] = useState<WindFarmProps | null>(null);
   const [turbineLoading, setTurbineLoading] = useState(false);
   const [turbineError, setTurbineError] = useState<string | null>(null);
   const [readout, setReadout] = useState<CursorReadout | null>(null);
@@ -125,11 +151,11 @@ export default function ProMapPage() {
   // the label → map-layer mapping). Default view = masts only.
   // Single "Masts" toggle drives BOTH datasets: the public NIWE mast points
   // and the proprietary inventory (yellow pins, /api/private-masts).
-  const [showMasts, setShowMasts] = useState(true);
+  const [showMasts, setShowMasts] = useState(false);
   // "Wind turbines" — individual OSM/OpenInfraMap turbine points (black dots),
   // /api/tiles/turbines MVT. Off by default; enable from the Layers card. The
   // visible dots appear from low zoom and gain full fidelity when zoomed in.
-  const [showTurbines, setShowTurbines] = useState(false);
+  const [showTurbines, setShowTurbines] = useState(true);
   // "Exclusion zones" — legal exclusion polygons (red = hard, amber = verify),
   // /api/tiles/exclusions MVT. Off by default; fills sit below the point layers.
   const [showExclusions, setShowExclusions] = useState(false);
@@ -137,6 +163,9 @@ export default function ProMapPage() {
   // default off. The source + layers are created lazily on first enable
   // (addPowerGrid is idempotent); later toggles only flip visibility.
   const [showPowerGrid, setShowPowerGrid] = useState(false);
+  // "Policy score" — state polygons coloured by composite wind-policy
+  // attractiveness (best → worst), GeoJSON from /api/policy/score. Off by default.
+  const [showPolicyScore, setShowPolicyScore] = useState(false);
   // Mast measurement-height buckets (tile property `hcat`): all on = no filter.
   const [mastCats, setMastCats] = useState<Record<MastHeightCat, boolean>>({
     short: true,
@@ -179,6 +208,11 @@ export default function ProMapPage() {
     measure.disarm();
     aoi.arm(mode);
   };
+  // Uploading a KML/KMZ also takes over the AOI flow, so release the measure tool.
+  const uploadAoiFile = (file: File) => {
+    measure.disarm();
+    aoi.uploadFile(file);
+  };
   const toggleMeasure = () => {
     if (measure.armed) {
       measure.disarm();
@@ -215,6 +249,14 @@ export default function ProMapPage() {
       setSidebarOpen(true);
     }
   }, [turbineLoading, selectedTurbine, turbineError]);
+
+  // Clicking a wind-farm circle opens its data card and jumps to the Farm tab.
+  useEffect(() => {
+    if (selectedFarm) {
+      setActiveTool("farm");
+      setSidebarOpen(true);
+    }
+  }, [selectedFarm]);
 
   // Same reveal pattern for analysis results: surface the left data panel the
   // moment a run starts (or lands / fails) so results never arrive into a
@@ -290,6 +332,20 @@ export default function ProMapPage() {
     else map.once("load", apply);
   }, [showMasts]);
 
+  // Hide India state boundaries in 3D terrain mode AND on the satellite
+  // basemap: the flat lines drape awkwardly over tilted relief, and the
+  // satellite imagery already carries its own coastlines/borders, so the white
+  // overlay just adds clutter. Boundaries show only on the flat road map.
+  useEffect(() => {
+    terrainEnabledRef.current = terrain.enabled;
+    const map = mapRef.current;
+    if (!map) return;
+    const show = !terrain.enabled && basemap !== "satellite";
+    const apply = () => setStateBoundariesVisibility(map, show);
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [terrain.enabled, basemap]);
+
   // "Wind turbines" toggle — flips the black-dot layers (added in the load
   // handler). Separate effect so it can't interfere with the mast toggles.
   useEffect(() => {
@@ -311,6 +367,17 @@ export default function ProMapPage() {
     if (map.isStyleLoaded()) apply();
     else map.once("idle", apply);
   }, [showExclusions]);
+
+  // "Policy score" choropleth toggle. addPolicyScore (lazy, idempotent) runs in
+  // the load handler; here we only flip visibility.
+  useEffect(() => {
+    showPolicyScoreRef.current = showPolicyScore;
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => setPolicyScoreVisibility(map, showPolicyScore);
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [showPolicyScore]);
 
   // Mast height-bucket filter on the pin layers. The tiles carry `hcat`
   // (0 = <50 m · 1 = 50–100 m · 2 = >100 m · −1 = unknown). All buckets on →
@@ -450,8 +517,11 @@ export default function ProMapPage() {
       // (no API key, free hosted; same style the main map falls back to). Swap
       // to "bright"/"positron"/"dark" here if a different look is wanted.
       style: "https://tiles.openfreemap.org/styles/liberty",
+      // Start just inside the wind-farm circle band (FARM_CIRCLE_MINZOOM 4.5)
+      // so the circles show on load; zooming out past it clears them for a clean
+      // country overview.
       center: [78.9629, 22.5937],
-      zoom: 4.4,
+      zoom: 4.7,
       // Floor the zoom at the mast cutoff so the dots never vanish on zoom-out
       // (below this the backend withholds mast tiles — see windmills.ts 204).
       minZoom: MAST_MIN_ZOOM,
@@ -545,7 +615,8 @@ export default function ProMapPage() {
         maxzoom: 16,
       });
 
-      // Visible pin — slightly larger than before for better feedback.
+      // Visible pin — kept compact so the dots don't dominate the map (the
+      // wide invisible windmills-hit layer below preserves easy clicking).
       map.addLayer({
         id: "windmills-pts",
         type: "circle",
@@ -556,12 +627,12 @@ export default function ProMapPage() {
             "interpolate",
             ["linear"],
             ["zoom"],
-            4, 3,
-            10, 5,
-            16, 9,
+            4, 2,
+            10, 3.5,
+            16, 6.5,
           ],
           "circle-color": "#1d9bf0",
-          "circle-stroke-width": 1.5,
+          "circle-stroke-width": 1,
           "circle-stroke-color": "#0a0a0a",
           "circle-opacity": 0.9,
         },
@@ -589,10 +660,19 @@ export default function ProMapPage() {
         },
       });
 
-      // Light India state boundaries — drawn above both basemaps but BELOW the
-      // pins (beforeId), so they show in road and satellite modes without ever
-      // swallowing a pin click. Fire-and-forget: fetches GeoJSON, then adds.
-      void addLightStateBoundaries(map, { beforeId: "windmills-pts" });
+      // Light India state boundaries — drawn above the basemap but BELOW the
+      // pins (beforeId) so they never swallow a pin click. Shown only on the
+      // flat road map (hidden in 3D + on satellite, per the effect above).
+      // Fire-and-forget: fetches GeoJSON, then adds.
+      // Once added, immediately honour the current state (boundaries are hidden
+      // in 3D terrain mode and on satellite) — covers a toggle flipped
+      // mid-fetch.
+      void addLightStateBoundaries(map, { beforeId: "windmills-pts" }).then(() =>
+        setStateBoundariesVisibility(
+          map,
+          !terrainEnabledRef.current && basemapRef.current !== "satellite",
+        ),
+      );
 
       // Apply the current Layers-card visibility to the freshly-added layers
       // (this also restores the user's choice if the map is ever re-created).
@@ -612,6 +692,11 @@ export default function ProMapPage() {
           isInteractionBlocked: () =>
             Boolean(aoiArmedRef.current || measureArmedRef.current),
         });
+      } else {
+        // Otherwise warm the India-clip outline in the background so the FIRST
+        // grid toggle is instant instead of stalling up to OUTLINE_WAIT_MS
+        // while it fetches the outline cold.
+        prefetchPowerGrid();
       }
 
       // Likewise re-add an active wind-resource raster on map re-creation.
@@ -667,6 +752,11 @@ export default function ProMapPage() {
           });
         },
       });
+      // The single "Masts" toggle is OFF by default, but addPrivateMasts adds the
+      // proprietary pins VISIBLE and the showMasts effect can race this async
+      // layer-add — so set their initial visibility explicitly, exactly like the
+      // public windmills initVis above. Without this they survive a fresh load.
+      setPrivateMastsVisibility(map, showMastsRef.current);
 
       // Individual OSM/OpenInfraMap wind turbines (black dots, MVT). Added
       // after the mast layers so the dots render on top; the turbine click
@@ -706,6 +796,16 @@ export default function ProMapPage() {
       });
       initVis(TURBINES_LAYER_ID, showTurbinesRef.current);
       initVis(TURBINES_HIT_LAYER_ID, showTurbinesRef.current);
+      // Turbines stay hidden when zoomed out (illegible dots at country scale) —
+      // the wind-farm circles stand in until you pass FARM_CIRCLE_MAXZOOM, where
+      // the circles drop out and the exact turbines take over.
+      map.setLayerZoomRange(TURBINES_LAYER_ID, FARM_CIRCLE_MAXZOOM, 24);
+      map.setLayerZoomRange(TURBINES_HIT_LAYER_ID, FARM_CIRCLE_MAXZOOM, 24);
+
+      // Wind-farm aggregate circles (white, sized by installed MW) for the
+      // zoom-out view — WT-MARUT/NIWE district capacity on GADM centroids.
+      // Clicking one flies in (turbines take over) and opens its data card.
+      addWindFarms(map, { onSelect: setSelectedFarm });
 
       // Legal exclusion-zone fills (red/amber polygons, MVT). Inserted BELOW the
       // mast pins so masts/turbines stay clickable on top. Off by default.
@@ -716,6 +816,13 @@ export default function ProMapPage() {
       });
       initVis(EXCL_FILL_LAYER_ID, showExclusionsRef.current);
       initVis(EXCL_OUTLINE_LAYER_ID, showExclusionsRef.current);
+
+      // Policy-score choropleth (state polygons by composite attractiveness).
+      // Async (fetches GeoJSON) — applies its own initial visibility. Below pins.
+      void addPolicyScore(map, {
+        beforeId: "windmills-pts",
+        visible: showPolicyScoreRef.current,
+      });
 
       map.on("click", "windmills-hit", async (e: MapMouseEvent) => {
         // Armed tools head the click-priority chain: while the user is
@@ -797,6 +904,13 @@ export default function ProMapPage() {
       ),
     },
     {
+      id: "farm",
+      label: "Wind farm",
+      Icon: WindFarmIcon,
+      badge: selectedFarm != null,
+      content: <WindFarmDataTool selected={selectedFarm} />,
+    },
+    {
       id: "analysis",
       label: "Site analysis",
       Icon: AnalyzeIcon,
@@ -840,6 +954,7 @@ export default function ProMapPage() {
             error={aoi.error}
             onArm={armAoi}
             onClear={aoi.clearAll}
+            onUploadFile={uploadAoiFile}
           />
           <MeasureTool
             phase={measure.phase}
@@ -889,12 +1004,14 @@ export default function ProMapPage() {
               showMasts={showMasts}
               showPowerGrid={showPowerGrid}
               showExclusions={showExclusions}
+              showPolicyScore={showPolicyScore}
               mastCats={mastCats}
               voltageBands={voltageBands}
               onToggleTurbines={setShowTurbines}
               onToggleMasts={setShowMasts}
               onTogglePowerGrid={setShowPowerGrid}
               onToggleExclusions={setShowExclusions}
+              onTogglePolicyScore={setShowPolicyScore}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
               }
@@ -942,6 +1059,9 @@ export default function ProMapPage() {
       {/* Top-left mast colour key — only meaningful while the Masts layer is on.
           Offset clears the left sidebar (≈320px open · ≈60px collapsed rail). */}
       {isPro && showMasts && <MastLegend offsetLeft={sidebarOpen ? 344 : 72} />}
+
+      {/* Ranked best→worst policy-attractiveness key (top-right) — only with the layer on. */}
+      {isPro && showPolicyScore && <PolicyScoreLegend />}
 
       {(isPending || booting) && (
         <CeclLoader label="Intelligence Terminal Loading" />

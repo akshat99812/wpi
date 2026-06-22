@@ -44,7 +44,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
 const POINT_HIT_LAYERS = [TURBINES_HIT_LAYER_ID, 'windmills-hit', PRIVATE_MASTS_HIT_LAYER_ID];
 
 // Human-readable layer labels for the popup (falls back to the raw code).
-const LAYER_LABELS: Record<string, string> = {
+// Exported so the site-analysis exclusion breakdown reuses the same names.
+export const LAYER_LABELS: Record<string, string> = {
   crz_1: 'CRZ-I (coastal, no-development)',
   crz_other: 'CRZ-II/III/IV (coastal)',
   ramsar: 'Ramsar wetland',
@@ -63,6 +64,39 @@ const LAYER_LABELS: Record<string, string> = {
   asi_regulated_300m: 'ASI regulated (300 m)',
   settlement_500m: 'Settlement setback (500 m)',
 };
+
+/** Full provenance row from /api/exclusion-sources (wce.source_registry). */
+export interface ExclusionSource {
+  source_id: string;
+  layer_code: string | null;
+  class: string | null;
+  legal_tier: number;
+  is_legal_boundary: boolean;
+  license: string;
+  authority: string | null;
+  notes: string | null;
+}
+
+let exclusionSourcesCache: ExclusionSource[] | null = null;
+let exclusionSourcesPromise: Promise<ExclusionSource[]> | null = null;
+
+/** Fetch (once, cached) the exclusion data-source registry — used by the
+ *  site-analysis "sources" popover. Pro-gated; degrades to [] on any failure. */
+export async function fetchExclusionSources(): Promise<ExclusionSource[]> {
+  if (exclusionSourcesCache) return exclusionSourcesCache;
+  if (!exclusionSourcesPromise) {
+    exclusionSourcesPromise = fetch(`${API_URL}/api/exclusion-sources`, {
+      credentials: 'include',
+    })
+      .then((r) => (r.ok ? (r.json() as Promise<ExclusionSource[]>) : []))
+      .then((rows) => {
+        exclusionSourcesCache = Array.isArray(rows) ? rows : [];
+        return exclusionSourcesCache;
+      })
+      .catch(() => [] as ExclusionSource[]);
+  }
+  return exclusionSourcesPromise;
+}
 
 type SourceMeta = {
   source_id: string;
