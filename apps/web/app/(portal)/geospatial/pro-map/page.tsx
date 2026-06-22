@@ -727,6 +727,9 @@ export default function ProMapPage() {
       // attribute the inventory doesn't carry left null (the card renders
       // those rows blank). No detail fetch — everything is already client-side.
       addPrivateMasts(map, {
+        // Hide on first mount if masts are off by default — the layers are added
+        // after an async fetch, so a synchronous initVis can't reach them.
+        initialVisible: showMastsRef.current,
         isInteractionBlocked: () =>
           Boolean(aoiArmedRef.current || measureArmedRef.current),
         onSelect: (props, lngLat) => {

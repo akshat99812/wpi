@@ -35,6 +35,13 @@ export interface PrivateMastsOptions {
   isInteractionBlocked?: () => boolean;
   /** Fires with the clicked mast's properties + its true point coordinates. */
   onSelect?: (props: PrivateMastProps, lngLat: { lng: number; lat: number }) => void;
+  /**
+   * Initial visibility for the layers. Because the add awaits a fetch, the
+   * page's synchronous visibility call runs BEFORE the layers exist and no-ops;
+   * passing `false` here hides them the moment they actually mount (so the
+   * proprietary pins don't flash on with the masts toggle off by default).
+   */
+  initialVisible?: boolean;
 }
 
 interface Handlers {
@@ -124,6 +131,10 @@ async function addImpl(map: MlMap, opts: PrivateMastsOptions): Promise<void> {
   }
 
   installInteractivity(map, opts);
+
+  // Apply the requested initial visibility now that the (async-added) layers
+  // exist — the page's synchronous call ran before this fetch resolved.
+  if (opts.initialVisible === false) setPrivateMastsVisibility(map, false);
 }
 
 /** Show/hide the layer + its hit target (Layers-card toggle). */
