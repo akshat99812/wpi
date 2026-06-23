@@ -234,3 +234,43 @@ In a browser:
 - `docker compose ... logs -f api` — a `provider "xai" failed ... falling back`
   line is expected/healthy if Grok rate-limits; an OpenAI error there means the
   `OPENAI_API_KEY` is wrong.
+
+## Site-report PDF export (feature flag)
+
+The Pro "Export report (PDF)" feature renders 6-page A4 reports server-side with
+headless Chromium. The `api` image now ships Chromium + fonts (incl. the ₹
+glyph) and runs it with `--no-sandbox` under container isolation. The feature is
+**OFF by default** behind `REPORT_PDF_ENABLED`.
+
+Rollout:
+
+```bash
+# In the prod env file, enable the flag (optionally tune the render pool):
+REPORT_PDF_ENABLED=true
+REPORT_BROWSER_POOL_SIZE=4        # max concurrent Chromium pages
+PDF_EXPORT_RATE_LIMIT=5           # exports / user / hour
+
+# Rebuild the api image (Chromium install) and restart:
+docker compose up -d --build api
+```
+
+Smoke test:
+
+```bash
+# Off (default) → 404; on → 401 without a Pro session (route is reachable).
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  https://api.windpowerindia.com/api/site-analysis/report -d '{}'
+```
+
+In a browser: as a Pro user, draw an AOI → run analysis → **Export report
+(PDF)** → confirm a 6-page PDF downloads with the maps, figures, and a header/
+footer on every page.
+
+- **Kill switch:** set `REPORT_PDF_ENABLED=false` and restart the api service.
+- **Memory:** Chromium is memory-heavy; the api service sets `shm_size: 1gb`.
+  Watch `browserQueueWaitMs` / 503 rates in the logs — sustained non-zero queue
+  wait is the documented trigger to raise the pool size or move to an async job
+  (plan §6.4 / §9.4).
+- **Retention (plan §9.3):** the endpoint streams the PDF and persists nothing
+  by default; if you later cache PDFs or debug snapshots, give them an owner-
+  scoped store + TTL and log digests, not full image data URLs.

@@ -17,6 +17,7 @@ import {
   fetchExclusionSources,
   type ExclusionSource,
 } from "@/components/Map/utils/exclusions";
+import { exportReport, type ExportPhase } from "@/components/Map/report/exportReport";
 
 /**
  * Results panel for a completed site analysis (plan §4 Phase 4 layout):
@@ -30,6 +31,8 @@ import {
 
 interface Props {
   analysis: AnalysisResponse;
+  /** Committed AOI ring (lon/lat) — enables the PDF report export. */
+  committedRing?: [number, number][] | null;
   /** Optional click-through from the nearest-mast row to the mast detail. */
   onMastSelect?: (mastId: string) => void;
 }
@@ -72,7 +75,7 @@ const RATING_STYLE: Record<ScoreRating, string> = {
   Poor: "bg-slate-500/15 text-slate-300 border-slate-500/40",
 };
 
-export function AnalysisResults({ analysis, onMastSelect }: Props) {
+export function AnalysisResults({ analysis, committedRing, onMastSelect }: Props) {
   const { score, financials, irrBand, sections, aoi } = analysis;
   const resource = sections.resource.status === "ok" ? sections.resource.data : null;
   const validation = sections.validation.status === "ok" ? sections.validation.data : null;
@@ -248,8 +251,84 @@ export function AnalysisResults({ analysis, onMastSelect }: Props) {
         <UnavailableNote label="Financial screening" />
       )}
 
+      {/* Export the full screening as a 6-page PDF. Only offered once a real
+          resource exists (so the report is meaningful) and we have the AOI ring. */}
+      {resource && committedRing && committedRing.length > 0 && (
+        <ExportReportButton ring={committedRing} />
+      )}
+
       <ReportDisclaimer />
     </div>
+  );
+}
+
+// ── PDF report export button ──────────────────────────────────────────────────
+
+/**
+ * Two-phase export: captures the three maps offscreen, POSTs the AOI + images,
+ * then downloads the streamed PDF. Owns its own progress state and blocks a
+ * double-submit while a render is in flight (plan §7.2).
+ */
+function ExportReportButton({ ring }: { ring: [number, number][] }) {
+  const [phase, setPhase] = useState<ExportPhase>("idle");
+  const [err, setErr] = useState<string | null>(null);
+  const busy = phase === "capturing" || phase === "rendering";
+
+  const onClick = async () => {
+    if (busy) return;
+    setErr(null);
+    try {
+      await exportReport({ ring, onPhase: setPhase });
+      setPhase("idle");
+    } catch (e) {
+      setPhase("error");
+      setErr(e instanceof Error ? e.message : "Export failed");
+    }
+  };
+
+  const label =
+    phase === "capturing"
+      ? "Capturing maps…"
+      : phase === "rendering"
+        ? "Rendering report…"
+        : "Export report (PDF)";
+
+  return (
+    <div className="mt-1">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={busy}
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-xs font-medium text-sky-200 transition-colors enabled:hover:border-sky-400/70 enabled:hover:bg-sky-500/20 disabled:opacity-60"
+      >
+        {busy ? (
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-sky-300/40 border-t-sky-200" />
+        ) : (
+          <DownloadIcon className="h-3.5 w-3.5" />
+        )}
+        {label}
+      </button>
+      {err && <p className="mt-1 text-[10px] text-red-300">{err}</p>}
+    </div>
+  );
+}
+
+function DownloadIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
   );
 }
 

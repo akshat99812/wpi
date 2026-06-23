@@ -23,8 +23,10 @@ import {
 } from "./windFinance";
 import { windScore, type WindScore } from "./windScoring";
 
-/** Fixed Monte-Carlo seed → reproducible IRR bands across runs and tests. */
-const MC_SEED = 42;
+/** Fixed Monte-Carlo seed → reproducible IRR bands across runs and tests.
+ *  Exported so the report's buildReportModel reproduces the SAME band (+ a
+ *  histogram) as the analyze response. */
+export const MC_SEED = 42;
 
 export interface WindScreening {
   score: WindScore | null; // Part A: { score, res, grid, cuf, rating } | null

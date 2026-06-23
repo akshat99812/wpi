@@ -38,6 +38,8 @@ interface Props {
   liveOverCap: boolean;
   committedAreaKm2: number | null;
   analysis: AnalysisResponse | null;
+  /** Committed AOI ring, forwarded to the results panel's PDF export. */
+  committedRing?: [number, number][] | null;
   error: string | null;
   onArm: (mode: AoiDrawMode) => void;
   onClear: () => void;
@@ -87,6 +89,7 @@ export function AnalyzeTool({
   onClear,
   onUploadFile,
   section,
+  committedRing,
 }: Props) {
   const hasAnything = uiState !== "idle";
   const status = statusFor(uiState, armedMode);
@@ -285,7 +288,7 @@ export function AnalyzeTool({
             exit={{ opacity: 0 }}
             transition={{ type: "spring", stiffness: 380, damping: 32 }}
           >
-            <AnalysisResults analysis={analysis} />
+            <AnalysisResults analysis={analysis} committedRing={committedRing} />
           </motion.div>
         )}
       </AnimatePresence>

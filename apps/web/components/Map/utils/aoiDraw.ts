@@ -13,20 +13,6 @@ import {
   squareRingAround,
 } from "@/lib/analysis/geometry";
 
-/**
- * AOI selection for the Analyze tool. Three modes:
- *  - point: hand-rolled — hover shows a ghost 5×5 km square, click commits;
- *  - rectangle / polygon: terra-draw with its MapLibre adapter.
- *
- * The 2,500 km² cap is enforced LIVE: terra-draw `validation` rejects any
- * vertex/drag that would push the shape over the cap (the draw simply refuses
- * to grow), and the same check drives the inline warning via onLiveArea.
- *
- * Committed AOIs render on our own source/layers (sky outline + faint fill,
- * mirroring the windfarm-boundary styling), inserted below the mast pins —
- * they survive terra-draw teardown and mode switches.
- */
-
 export type AoiDrawMode = "point" | "rectangle" | "polygon";
 
 export interface AoiDrawCallbacks {
@@ -154,7 +140,6 @@ export class AoiDrawController {
     );
   }
 
-  /** Render (or clear) the committed AOI ring. */
   setCommitted(ring: [number, number][] | null): void {
     if (this.destroyed) return;
     this.ensureCommittedLayers();
@@ -195,16 +180,6 @@ export class AoiDrawController {
 
   private ensureTerraDraw(): TerraDraw {
     if (this.draw) return this.draw;
-
-    // The 2,500 km² hard stop (plan rule) with a LIVE preview: provisional
-    // (cursor-following) updates are allowed even over the cap — drawn in
-    // red via the style callbacks below — but vertex commits and the finish
-    // are rejected while oversized, so an over-cap AOI can never be
-    // submitted. Freezing the preview instead (rejecting provisionals) made
-    // the tool feel dead at country zoom, where ANY visible rectangle
-    // exceeds the cap and the finishing click was silently swallowed.
-    // The live-area callback is deduped: validation runs on EVERY mousemove
-    // and an unconditional React setState per move makes the draw janky.
     let lastReportedArea = -1;
     let lastReportedOverCap = false;
     const reportLiveArea = (area: number, overCap: boolean) => {
@@ -251,8 +226,6 @@ export class AoiDrawController {
           },
         }),
         new TerraDrawPolygonMode({
-          // Render vertex + closing points: without them users get no visual
-          // cue that clicking the start point (or Enter) finishes the ring.
           showCoordinatePoints: true,
           styles: {
             fillColor: previewFill as never,
@@ -264,10 +237,6 @@ export class AoiDrawController {
               context as { updateType?: string },
             );
             if (!cap.valid) return cap;
-            // Self-intersection only at commit/finish (terra-draw's own
-            // documented pattern): the PROVISIONAL closing segment sweeps
-            // across the ring while the cursor moves and transiently
-            // self-intersects — rejecting those updates freezes the draw.
             const updateType = (context as { updateType?: string }).updateType;
             if (updateType === "finish" || updateType === "commit") {
               return ValidateNotSelfIntersecting(feature as never);
@@ -287,8 +256,6 @@ export class AoiDrawController {
       if (feat?.geometry.type !== "Polygon") return;
       const ring = (feat.geometry.coordinates as [number, number][][])[0] ?? [];
       if (ring.length < 3) return;
-      // Same dedupe/over-cap path as validation — a hardcoded overCap=false
-      // here would clobber the warning right after each accepted update.
       const area = ringAreaKm2(ring);
       reportLiveArea(area, area > AOI_MAX_KM2);
     });
@@ -299,8 +266,6 @@ export class AoiDrawController {
       const ring = (feat.geometry.coordinates as [number, number][][])[0] ?? [];
       const mode: AoiDrawMode =
         this.armed === "rectangle" ? "rectangle" : "polygon";
-      // Clear terra-draw's working layers; the committed ring is rendered by
-      // setCommitted on our own stable layers.
       draw.clear();
       draw.setMode("static");
       this.armed = null;
@@ -312,9 +277,7 @@ export class AoiDrawController {
     this.draw = draw;
     return draw;
   }
-
-  // ── point mode ghost ──────────────────────────────────────────────────────
-
+  
   private setGhost(ring: [number, number][] | null): void {
     this.ensureGhostLayers();
     const src = this.map.getSource(GHOST_SOURCE) as GeoJSONSource | undefined;
@@ -325,8 +288,6 @@ export class AoiDrawController {
         : EMPTY_FC,
     );
   }
-
-  // ── layer scaffolding ─────────────────────────────────────────────────────
 
   private ensureCommittedLayers(): void {
     if (this.map.getSource(COMMITTED_SOURCE)) return;

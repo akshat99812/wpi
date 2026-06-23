@@ -12,6 +12,13 @@ services:
       # Disk-backed tile cache (power-grid proxy + windmill tiles). Named
       # volume below so cached tiles survive container restarts/rebuilds.
       TILE_CACHE_DIR: /var/cache/tiles
+      # Site-report PDF export (plan §9.5 rollout). Default OFF — flip to "true"
+      # to enable the Pro endpoint. Pool size bounds concurrent Chromium pages.
+      REPORT_PDF_ENABLED: ${REPORT_PDF_ENABLED:-false}
+      REPORT_BROWSER_POOL_SIZE: ${REPORT_BROWSER_POOL_SIZE:-4}
+    # Chromium needs more shared memory than Docker's 64 MB default; we also pass
+    # --disable-dev-shm-usage, but a real /dev/shm keeps multi-page renders stable.
+    shm_size: "1gb"
     ports:
       - "3005:3005"
     volumes:
