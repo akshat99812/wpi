@@ -15,3 +15,13 @@ export const REPORT_PDF_ENABLED = process.env.REPORT_PDF_ENABLED === "true";
  * PDF is self-identifying ("the layout changed" vs "the engine changed").
  */
 export const REPORT_VERSION = "0.1.0";
+
+/**
+ * Max concurrent Chromium pages the render pool will hand out (plan §5.1).
+ * Env-configurable per box size; a positive integer, default 4. Backpressure
+ * (bounded acquire wait → 503) protects the box rather than an unbounded queue.
+ */
+export const REPORT_BROWSER_POOL_SIZE = Math.max(
+  1,
+  Math.floor(Number(process.env.REPORT_BROWSER_POOL_SIZE)) || 4,
+);
