@@ -9,6 +9,7 @@
  */
 
 import { BRAND } from "./brand";
+import { LOGO_DATA_URI } from "./logoAsset";
 
 function esc(s: string): string {
   return s
@@ -22,12 +23,15 @@ const WRAP =
   "font-size:8px;font-family:Arial,Helvetica,sans-serif;color:#6b7280;" +
   "width:100%;padding:0 14mm;display:flex;justify-content:space-between;align-items:center;";
 
-/** Running header: brand (left) + the site label / report title (right). */
+/** Running header: logo + brand (left) + the site label / report title (right). */
 export function buildHeaderHtml(opts?: { title?: string }): string {
   const right = esc(opts?.title ?? BRAND.reportTitle);
   return (
     `<div style="${WRAP}">` +
+    `<span style="display:flex;align-items:center;gap:6px;">` +
+    `<img src="${LOGO_DATA_URI}" alt="" style="height:14px;width:auto;display:block;" />` +
     `<span style="font-weight:700;color:#1f2937;">${esc(BRAND.product)}</span>` +
+    `</span>` +
     `<span>${right}</span>` +
     `</div>`
   );

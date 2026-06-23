@@ -58,11 +58,12 @@ describe("renderReportHtml — populated content (high wind)", () => {
     expect(html).toContain("higher-scoring site");
   });
 
-  test("policy page renders the matrix with sourced cells", () => {
+  test("policy page renders state policy with sourced cells, no National column", () => {
     expect(html).toContain("PPA floor");
-    expect(html).toContain("National");
-    expect(html).toContain("₹3.00/kWh");
-    expect(html).toContain("CERC RE Tariff 2024");
+    expect(html).not.toContain("National"); // national column deliberately dropped
+    expect(html).toContain("TN");
+    expect(html).toContain("₹2.90/kWh"); // TN PPA floor (national value gone)
+    expect(html).toContain("TNERC Order"); // TN cell's source citation
   });
 
   test("finance page shows the headline IRR and the indicative tariff warning", () => {
@@ -87,8 +88,8 @@ describe("renderReportHtml — populated content (high wind)", () => {
 describe("renderReportHtml — multi-state policy", () => {
   const html = renderReportHtml(sampleReportModel("multi-state"));
 
-  test("renders a column per intersected state", () => {
-    expect(html).toContain("National");
+  test("renders a column per intersected state, national dropped", () => {
+    expect(html).not.toContain("National"); // national column deliberately dropped
     expect(html).toContain("TN");
     expect(html).toContain("KA");
     expect(html).toContain("₹3.10/kWh"); // KA-only PPA floor value

@@ -1,9 +1,12 @@
 /**
- * Page 4 — Policy & regulatory context (plan §3.2 / §1.4). Renders the national
- * + per-state policy matrix the AOI intersects, reusing the policy-comparison
- * dataset (every cell individually sourced + dated). Degrades to national-only
- * or an explicit "unavailable" note (decision D4). Policy is content, not
- * computation — this page only displays the resolved CompareResult.
+ * Page 4 — Policy & regulatory context (plan §3.2 / §1.4). Renders the per-state
+ * policy matrix the AOI intersects, reusing the policy-comparison dataset (every
+ * cell individually sourced + dated). The National column is deliberately
+ * dropped here — site-screening readers care about the state(s) they're in, not
+ * the national baseline — so this page shows state jurisdictions only and
+ * degrades to an explicit "unavailable" note when the AOI hits no seeded state
+ * (decision D4). Policy is content, not computation — this page only displays
+ * the resolved CompareResult.
  */
 
 import type { ReactNode } from "react";
@@ -15,9 +18,9 @@ import { formatDate } from "../format";
 import { Page, Unavailable } from "../primitives";
 import type { ReportModel } from "../../reportModel";
 
-/** "national" → "National"; a state code → its upper-case code (compact header). */
+/** A state code → its upper-case code (compact column header). */
 function jurisdictionLabel(code: string): string {
-  return code === "national" ? "National" : code.toUpperCase();
+  return code.toUpperCase();
 }
 
 function dimLabel(d: MetaDimension): string {
@@ -34,9 +37,15 @@ function rowSource(cells: (Cell | undefined)[]): string | null {
   return null;
 }
 
-function PolicyMatrix({ policy }: { policy: PolicyContext }) {
+function PolicyMatrix({
+  policy,
+  codes,
+}: {
+  policy: PolicyContext;
+  /** Jurisdiction columns to render (National already filtered out). */
+  codes: string[];
+}) {
   const { compare } = policy;
-  const codes = compare.jurisdictions;
   const rows: ReactNode[] = [];
   let lastCategory = "";
 
@@ -102,25 +111,31 @@ export function Page4Policy({ model }: { model: ReportModel }) {
     );
   }
 
-  const states = policy.stateCodes.map((c) => c.toUpperCase());
-  const scope =
-    states.length > 0 ? `National + ${states.join(", ")}` : "National only";
+  // National column dropped — render the intersected state jurisdictions only.
+  const codes = policy.compare.jurisdictions.filter((c) => c !== "national");
+  const states = codes.map((c) => c.toUpperCase());
+
+  if (codes.length === 0) {
+    return (
+      <Page kicker="Policy" title="Policy & regulatory context">
+        <Unavailable label="State policy & regulatory context" />
+        <p className="muted">
+          The AOI intersects no seeded state boundary, so no state-level policy
+          is available for this run.
+        </p>
+      </Page>
+    );
+  }
 
   return (
     <Page kicker="Policy" title="Policy & regulatory context">
       <p className="lead">
-        {scope}
+        {states.join(", ")}
         {policy.asOf ? (
           <span className="muted"> · reviewed to {formatDate(policy.asOf)}</span>
         ) : null}
       </p>
-      {states.length === 0 ? (
-        <p className="muted">
-          The AOI intersects no seeded state boundary — showing national policy
-          only.
-        </p>
-      ) : null}
-      <PolicyMatrix policy={policy} />
+      <PolicyMatrix policy={policy} codes={codes} />
       <p className="muted">
         Each value is individually sourced and dated in the WCE
         policy-comparison dataset; the most-recent citation is shown beneath each
