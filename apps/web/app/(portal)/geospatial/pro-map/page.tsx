@@ -927,6 +927,7 @@ export default function ProMapPage() {
           liveOverCap={aoi.liveOverCap}
           committedAreaKm2={aoi.committedAreaKm2}
           analysis={aoi.analysis}
+          committedRing={aoi.committedRing}
           error={aoi.error}
           onArm={armAoi}
           onClear={aoi.clearAll}

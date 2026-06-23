@@ -42,6 +42,8 @@ export interface AoiAnalysis {
   liveAreaKm2: number | null;
   liveOverCap: boolean;
   committedAreaKm2: number | null;
+  /** Closed outer ring of the committed AOI (lon/lat) — drives report export. */
+  committedRing: [number, number][] | null;
   analysis: AnalysisResponse | null;
   error: string | null;
   /** Call inside map.on("load") — attaches the draw controller. */
@@ -67,6 +69,9 @@ export function useAoiAnalysis(): AoiAnalysis {
   const [liveAreaKm2, setLiveAreaKm2] = useState<number | null>(null);
   const [liveOverCap, setLiveOverCap] = useState(false);
   const [committedAreaKm2, setCommittedAreaKm2] = useState<number | null>(null);
+  const [committedRing, setCommittedRing] = useState<
+    [number, number][] | null
+  >(null);
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,6 +83,7 @@ export function useAoiAnalysis(): AoiAnalysis {
     const seq = ++requestSeqRef.current;
 
     setCommittedAreaKm2(ringAreaKm2(closed));
+    setCommittedRing(closed);
     setAnalysis(null);
     setError(null);
     setUiState("loading");
@@ -196,6 +202,7 @@ export function useAoiAnalysis(): AoiAnalysis {
     setLiveAreaKm2(null);
     setLiveOverCap(false);
     setCommittedAreaKm2(null);
+    setCommittedRing(null);
     setAnalysis(null);
     setError(null);
     setUiState("idle");
@@ -230,6 +237,7 @@ export function useAoiAnalysis(): AoiAnalysis {
     liveAreaKm2,
     liveOverCap,
     committedAreaKm2,
+    committedRing,
     analysis,
     error,
     onMapLoad,
