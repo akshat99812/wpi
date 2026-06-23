@@ -191,13 +191,22 @@ export interface WindFinancials {
   effTariff: number;
 }
 
+/** Opt-in perturbation for sensitivity analysis (tornado CUF arm, PR2). */
+export interface WindFinancialsOptions {
+  /** Multiply the curve CUF before energy (matches the MC's cuf factor). */
+  cufScale?: number;
+}
+
 /** Single deterministic pro-forma (§B1–B4). null when ws → no CUF. */
 export function windFinancials(
   ws: number | null,
   cfg: WindConfig = WIND_CONFIG,
+  opts?: WindFinancialsOptions,
 ): WindFinancials | null {
-  const cuf = windCuf(ws);
-  if (cuf === null) return null;
+  const cufBase = windCuf(ws);
+  if (cufBase === null) return null;
+  const cuf =
+    opts?.cufScale != null ? Math.max(0, cufBase * opts.cufScale) : cufBase;
   const eff = windEffectiveTariff(cfg);
   const m = cashflowModel(
     cfg,
@@ -238,6 +247,51 @@ const pctile = (s: number[], p: number): number => {
   return s[lo]! + (s[hi]! - s[lo]!) * (i - lo);
 };
 
+/** Equal-width histogram of the equity-IRR draws (figure F16). */
+export interface IrrHistogram {
+  /** `bins + 1` edges, ascending; the top edge is the observed max. */
+  binEdges: number[];
+  /** One count per bucket; sums to the number of draws. */
+  counts: number[];
+}
+
+/**
+ * Equal-width histogram over the observed range of `values`. Pure and
+ * deterministic (same input → same output), so it is snapshot-safe. The max
+ * value falls in the last bucket (inclusive top edge). Degenerate all-equal
+ * input collapses to a single bucket — never produces NaN edges.
+ *
+ * Robustness contract: non-finite entries (NaN / ±Infinity) are EXCLUDED, so
+ * `counts` always sums to the number of FINITE values; `bins` is coerced to a
+ * positive integer (default 24). Empty / all-non-finite input → empty histogram.
+ */
+export function buildIrrHistogram(values: number[], bins = 24): IrrHistogram {
+  const b = Number.isInteger(bins) && bins > 0 ? bins : 24;
+  const finite = values.filter((v) => Number.isFinite(v));
+  if (finite.length === 0) return { binEdges: [], counts: [] };
+  let min = Infinity;
+  let max = -Infinity;
+  for (const v of finite) {
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
+  if (max <= min) {
+    return { binEdges: [min, max], counts: [finite.length] };
+  }
+  const width = (max - min) / b;
+  const binEdges: number[] = new Array(b + 1);
+  for (let i = 0; i <= b; i++) binEdges[i] = min + width * i;
+  binEdges[b] = max; // pin the top edge against floating-point drift
+  const counts: number[] = new Array(b).fill(0);
+  for (const v of finite) {
+    let idx = Math.floor((v - min) / width);
+    if (idx >= b) idx = b - 1; // the max lands in the last bucket
+    if (idx < 0) idx = 0;
+    counts[idx]!++;
+  }
+  return { binEdges, counts };
+}
+
 export interface IrrBand {
   p10: number;
   p25: number;
@@ -245,7 +299,51 @@ export interface IrrBand {
   p75: number;
   p90: number;
   n: number;
+  /**
+   * ≤`bins`-bucket histogram of the equity-IRR draws — opt-in via
+   * `IrrRangeOptions.histogram`. Lets the PDF draw figure F16 without shipping
+   * ~4,000 floats. Absent (undefined) on the default analyze path, so the
+   * AnalysisResponse stays byte-for-byte unchanged.
+   */
+  histogram?: IrrHistogram;
+  /** Raw insertion-order equity-IRR draws — debug only (`includeDraws`). */
+  draws?: number[];
 }
+
+/** Opt-in extras for windIrrRange (default: none → lean analyze response). */
+export interface IrrRangeOptions {
+  /** Attach a histogram of the draws (for figure F16). */
+  histogram?: boolean;
+  /** Histogram bucket count. Default 24. */
+  bins?: number;
+  /** Attach raw insertion-order draws (debug). */
+  includeDraws?: boolean;
+}
+
+/** Triangular [min, mode, max] for one Monte-Carlo input. */
+export interface TriBound {
+  min: number;
+  mode: number;
+  max: number;
+}
+
+/**
+ * Triangular bounds for the MC sampler — the SINGLE source of truth shared by
+ * `windIrrRange` (the band) and `windSensitivity` (the tornado), so the two
+ * figures can never silently diverge if a bound is retuned. `cufScale` is a
+ * multiplicative factor on the curve CUF; the rest are absolute WindConfig
+ * field values.
+ */
+export const MC_BOUNDS = {
+  ppa: { min: 3.3, mode: 3.5, max: 3.7 },
+  recWind: { min: 0.25, mode: 0.35, max: 0.45 },
+  todMerchantWind: { min: 0.3, mode: 0.4, max: 0.52 },
+  carbon: { min: 0.15, mode: 0.25, max: 0.32 },
+  omCr: { min: 0.12, mode: 0.13, max: 0.15 },
+  interestRate: { min: 0.085, mode: 0.095, max: 0.105 },
+  capexCr: { min: 8.5, mode: 9.0, max: 9.5 },
+  cufScale: { min: 0.92, mode: 1.0, max: 1.08 },
+} as const satisfies Record<string, TriBound>;
 
 /**
  * 4,000-run equity-IRR band (§B5). Each draw samples inputs from triangular
@@ -256,25 +354,30 @@ export function windIrrRange(
   ws: number | null,
   rng: Rng,
   cfg: WindConfig = WIND_CONFIG,
+  opts?: IrrRangeOptions,
 ): IrrBand | null {
   const cufBase = windCuf(ws);
   if (cufBase === null) return null;
   const rs: number[] = [];
   for (let i = 0; i < cfg.mcRuns; i++) {
+    // Draw order is load-bearing — it pins the seeded RNG sequence and thus the
+    // golden percentiles. Keep ppa→rec→tod→carbon→om→cuf→interest→capex.
     const eff =
-      tri(rng, 3.3, 3.5, 3.7) +
-      tri(rng, 0.25, 0.35, 0.45) +
-      tri(rng, 0.3, 0.4, 0.52) +
-      tri(rng, 0.15, 0.25, 0.32);
-    const om = tri(rng, 0.12, 0.13, 0.15);
-    const cuf = cufBase * tri(rng, 0.92, 1.0, 1.08);
-    const interest = tri(rng, 0.085, 0.095, 0.105);
-    const m = cashflowModel(cfg, tri(rng, 8.5, 9.0, 9.5), eff, cuf * cfg.hoursYr, om, 0, 20, interest);
+      tri(rng, MC_BOUNDS.ppa.min, MC_BOUNDS.ppa.mode, MC_BOUNDS.ppa.max) +
+      tri(rng, MC_BOUNDS.recWind.min, MC_BOUNDS.recWind.mode, MC_BOUNDS.recWind.max) +
+      tri(rng, MC_BOUNDS.todMerchantWind.min, MC_BOUNDS.todMerchantWind.mode, MC_BOUNDS.todMerchantWind.max) +
+      tri(rng, MC_BOUNDS.carbon.min, MC_BOUNDS.carbon.mode, MC_BOUNDS.carbon.max);
+    const om = tri(rng, MC_BOUNDS.omCr.min, MC_BOUNDS.omCr.mode, MC_BOUNDS.omCr.max);
+    const cuf = cufBase * tri(rng, MC_BOUNDS.cufScale.min, MC_BOUNDS.cufScale.mode, MC_BOUNDS.cufScale.max);
+    const interest = tri(rng, MC_BOUNDS.interestRate.min, MC_BOUNDS.interestRate.mode, MC_BOUNDS.interestRate.max);
+    const m = cashflowModel(cfg, tri(rng, MC_BOUNDS.capexCr.min, MC_BOUNDS.capexCr.mode, MC_BOUNDS.capexCr.max), eff, cuf * cfg.hoursYr, om, 0, 20, interest);
     if (m && m.eqIrr !== null) rs.push(m.eqIrr);
   }
   if (rs.length < 10) return null;
+  // Capture raw (insertion-order) draws BEFORE the sort, for the debug option.
+  const rawDraws = opts?.includeDraws ? rs.slice() : null;
   rs.sort((a, b) => a - b);
-  return {
+  const band: IrrBand = {
     p10: pctile(rs, 0.1),
     p25: pctile(rs, 0.25),
     p50: pctile(rs, 0.5),
@@ -282,4 +385,7 @@ export function windIrrRange(
     p90: pctile(rs, 0.9),
     n: rs.length,
   };
+  if (opts?.histogram) band.histogram = buildIrrHistogram(rs, opts.bins ?? 24);
+  if (rawDraws) band.draws = rawDraws;
+  return band;
 }

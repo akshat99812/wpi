@@ -617,15 +617,15 @@ async function mapWithConcurrency<T, R>(
  *
  * `options.fetchImpl` is the same injectable test seam tiles.ts uses.
  */
-export async function computeGrid(
-  aoi: ValidatedAoi,
+export async function fetchPowerFeatures(
+  bbox: readonly [number, number, number, number],
   options: TileFetchOptions = {},
-): Promise<GridResult> {
+): Promise<{ lines: PowerLineFeature[]; substations: SubstationFeature[] }> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const acc = newAccumulator();
   const seen = new Set<string>();
   for (const [round, padKm] of GRID_SEARCH_PADS_KM.entries()) {
-    const coords = newTileCoords(padBboxKm(aoi.bbox, padKm), POWER_DECODE_ZOOM, seen);
+    const coords = newTileCoords(padBboxKm(bbox, padKm), POWER_DECODE_ZOOM, seen);
     for (const c of coords) seen.add(tileKey(c.x, c.y));
     const results = await mapWithConcurrency(
       coords,
@@ -646,5 +646,13 @@ export async function computeGrid(
     }
     if (allLines(acc).length > 0 && allSubstations(acc).length > 0) break;
   }
-  return summarizeGridFeatures(aoi.centroid, allLines(acc), allSubstations(acc));
+  return { lines: allLines(acc), substations: allSubstations(acc) };
+}
+
+export async function computeGrid(
+  aoi: ValidatedAoi,
+  options: TileFetchOptions = {},
+): Promise<GridResult> {
+  const { lines, substations } = await fetchPowerFeatures(aoi.bbox, options);
+  return summarizeGridFeatures(aoi.centroid, lines, substations);
 }
