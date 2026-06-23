@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 
-type PageId = 'geospatial' | 'finance' | 'research';
+type PageId = 'geospatial' | 'finance' | 'research' | 'articles';
 
 interface PageDef {
   id:     PageId;
@@ -64,16 +64,28 @@ const ResearchIcon = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
+const ArticlesIcon = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+       className={className} aria-hidden>
+    <path d="M5 4h9a2 2 0 0 1 2 2v13H7a2 2 0 0 1-2-2V4z" />
+    <path d="M16 7h2.5A1.5 1.5 0 0 1 20 8.5V17a2 2 0 0 1-2 2" />
+    <path d="M8 8h5M8 11h5M8 14h3" />
+  </svg>
+);
+
 const PAGES: PageDef[] = [
   { id: 'geospatial', href: '/geospatial', label: 'Geospatial', desc: 'Map · State Deep Dive', Icon: GeospatialIcon },
   { id: 'finance',    href: '/finance',    label: 'Finance',    desc: 'DCF & Bankability',    Icon: FinanceIcon    },
   { id: 'research',   href: '/research',   label: 'Research',   desc: 'Resource Intelligence', Icon: ResearchIcon  },
+  { id: 'articles',   href: '/articles',   label: 'Articles',   desc: 'Windpower Directory',  Icon: ArticlesIcon   },
 ];
 
 function activeIdFor(pathname: string | null): PageId {
   if (!pathname) return 'geospatial';
   if (pathname.startsWith('/finance'))   return 'finance';
   if (pathname.startsWith('/research'))  return 'research';
+  if (pathname.startsWith('/articles'))  return 'articles';
   // /geospatial AND the legacy /dashboard route both map to Geospatial.
   return 'geospatial';
 }
