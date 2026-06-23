@@ -75,7 +75,7 @@ export function PolicyScoreLegend() {
       <div className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto rounded-lg border border-slate-700 bg-slate-900/85 px-3 py-2.5 text-slate-200 shadow-lg backdrop-blur">
         <div className="mb-0.5 flex items-center gap-1.5">
           <span className="text-[9px] font-bold uppercase tracking-wide text-white/45">
-            Policy attractiveness · best → worst
+            Policy attractiveness 
           </span>
           <button
             type="button"

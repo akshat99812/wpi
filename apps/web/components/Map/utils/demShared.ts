@@ -1,22 +1,6 @@
 import maplibregl, { type Map as MlMap } from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 
-/**
- * Shared DEM (raster-dem elevation) plumbing for the Pro map's 3D terrain
- * (utils/terrain.ts) AND its hypsometric elevation tint (utils/elevationTint.ts).
- *
- * Both features read elevation from ONE `raster-dem` source — there is never a
- * reason to load two DEM pyramids — so the source, its provider config, the
- * pmtiles protocol registration, and the layer-ordering anchor live here. The
- * two feature modules depend on this one (one-way: demShared knows nothing of
- * terrain.ts / elevationTint.ts), which keeps them decoupled and cycle-free.
- *
- * See pro-map-3d-terrain-research.md §2–§4 for the DEM-source decision.
- */
-
-// ── DEM provider ────────────────────────────────────────────────────────────
-// `pmtiles` = a single PMTiles archive read via byte-range (the `url` form);
-// `raster` = a classic XYZ tile template. Both are terrarium/mapbox encoded.
 type DemProvider =
   | {
       kind: 'pmtiles';

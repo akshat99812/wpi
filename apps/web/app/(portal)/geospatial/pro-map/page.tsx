@@ -104,6 +104,12 @@ const WINDMILL_TILES_VERSION = 2;
 // resolves instantly. Keeps the Pro map entrance consistent with the landing page.
 const BOOT_MS = 2800;
 
+// Default view loads the mean-wind-speed raster at 150 m (a baked height — see
+// public/wind-atlas/metadata.json) at half opacity. Distinct from
+// DEFAULT_WIND_HEIGHT (100 m), which drives the cursor-readout grid lookup.
+const DEFAULT_WIND_RASTER_HEIGHT = 150;
+const DEFAULT_WIND_RASTER_OPACITY = 0.5;
+
 export default function ProMapPage() {
   const { data: session, isPending } = useSession();
   const mapRef = useRef<MlMap | null>(null);
@@ -120,10 +126,10 @@ export default function ProMapPage() {
   const showMastsRef = useRef(false);
   const showTurbinesRef = useRef(true);
   const showExclusionsRef = useRef(false);
-  const showPowerGridRef = useRef(false);
+  const showPowerGridRef = useRef(true);
   const showPolicyScoreRef = useRef(false);
-  const windMetricRef = useRef<WindMetricChoice>("off");
-  const windHeightRef = useRef<number>(DEFAULT_WIND_HEIGHT);
+  const windMetricRef = useRef<WindMetricChoice>("speed");
+  const windHeightRef = useRef<number>(DEFAULT_WIND_RASTER_HEIGHT);
   // 3D terrain is the one toggle owned by useTerrain, but the map-load closure
   // needs its latest value to hide state boundaries the instant they finish
   // loading (boundaries are fetched async — see the effect below).
@@ -160,9 +166,10 @@ export default function ProMapPage() {
   // /api/tiles/exclusions MVT. Off by default; fills sit below the point layers.
   const [showExclusions, setShowExclusions] = useState(false);
   // "Electricity Grid" — OpenInfraMap lines/substations/wind+solar plants,
-  // default off. The source + layers are created lazily on first enable
-  // (addPowerGrid is idempotent); later toggles only flip visibility.
-  const [showPowerGrid, setShowPowerGrid] = useState(false);
+  // on by default (part of the default load view). The source + layers are
+  // created lazily on first enable (addPowerGrid is idempotent); later toggles
+  // only flip visibility.
+  const [showPowerGrid, setShowPowerGrid] = useState(true);
   // "Policy score" — state polygons coloured by composite wind-policy
   // attractiveness (best → worst), GeoJSON from /api/policy/score. Off by default.
   const [showPolicyScore, setShowPolicyScore] = useState(false);
@@ -178,14 +185,16 @@ export default function ProMapPage() {
     Object.fromEntries(VOLTAGE_BANDS.map((b) => [String(b.kv), true])),
   );
   // Wind-resource raster (GWA mean speed / power density) — single active
-  // metric × height, default off. Available heights per metric come from the
-  // bake-emitted metadata.json; any switch is a remove + re-add.
-  const [windMetric, setWindMetric] = useState<WindMetricChoice>("off");
-  const [windHeight, setWindHeight] = useState<number>(DEFAULT_WIND_HEIGHT);
+  // metric × height. Default load view = mean speed @ 150 m. Available heights
+  // per metric come from the bake-emitted metadata.json; any switch is a
+  // remove + re-add.
+  const [windMetric, setWindMetric] = useState<WindMetricChoice>("speed");
+  const [windHeight, setWindHeight] = useState<number>(DEFAULT_WIND_RASTER_HEIGHT);
   // User opacity (0–1) for the wind-resource raster, on top of the basemap
-  // contrast curve. Persisted in the layer module so metric/height re-adds keep
-  // it; this effect re-applies it whenever the slider moves.
-  const [windOpacity, setWindOpacity] = useState<number>(1);
+  // contrast curve. Defaults to 50% for the default load view. Persisted in the
+  // layer module so metric/height re-adds keep it; this effect re-applies it
+  // whenever the slider moves.
+  const [windOpacity, setWindOpacity] = useState<number>(DEFAULT_WIND_RASTER_OPACITY);
   // Basemap: dark road map by default; satellite swaps an Esri raster on.
   const [basemap, setBasemap] = useState<ProBasemap>("road");
   // Branded boot animation — held for at least BOOT_MS so the "Intelligence
