@@ -50,6 +50,10 @@ const SHOT_TIMEOUT_MS = 20_000;
 const FIT_PADDING = 64;
 const THREE_D_PITCH = 60;
 const THREE_D_EXAGGERATION = 1.4;
+// Encode shots as JPEG: a 1200x800 raster map (terrain/satellite) is multiple MB
+// as PNG but ~200-400 KB as JPEG, keeping three images well under the server's
+// per-image cap + request-body limit. The report maps don't need lossless PNG.
+const JPEG_QUALITY = 0.85;
 
 /** Plain-text attribution burned into each shot (HTML credits stripped). */
 const ATTRIBUTION: Record<Shot, string> = {
@@ -197,7 +201,7 @@ function burnInAttribution(
   out.width = mapCanvas.width;
   out.height = mapCanvas.height;
   const ctx = out.getContext("2d");
-  if (!ctx) return mapCanvas.toDataURL("image/png");
+  if (!ctx) return mapCanvas.toDataURL("image/jpeg", JPEG_QUALITY);
   ctx.drawImage(mapCanvas, 0, 0);
 
   const pad = Math.round(out.height * 0.01);
@@ -211,7 +215,7 @@ function burnInAttribution(
   ctx.fillRect(out.width - barW, out.height - barH, barW, barH);
   ctx.fillStyle = "#374151";
   ctx.fillText(attribution, out.width - barW + pad, out.height - barH / 2);
-  return out.toDataURL("image/png");
+  return out.toDataURL("image/jpeg", JPEG_QUALITY);
 }
 
 async function captureShot(shot: Shot, input: MapCaptureInput): Promise<string> {
