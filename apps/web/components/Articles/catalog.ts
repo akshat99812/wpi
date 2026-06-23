@@ -10,12 +10,16 @@
  * The metadata below (titles, authors, designations, page ranges) was verified
  * twice against high-resolution crops of each article's opening page. It drives
  * navigation only; the page images remain the authoritative content.
+ *
+ * Order: articles and writers are listed in the curated display order (not the
+ * printed page sequence). `index` is the display position; `startPage`/`endPage`
+ * still point at the correct page images regardless of order.
  */
 
 export interface Article {
   /** Stable slug. */
   id: string;
-  /** 1-based position in the directory. */
+  /** 1-based display position. */
   index: number;
   /** Main heading, exactly as printed. */
   title: string;
@@ -103,20 +107,8 @@ export const ARTICLES: Article[] = [
     hasTable: false,
   },
   {
-    id: 'windfarm-project-development',
-    index: 4,
-    title: 'Windfarm Project Development',
-    writerId: 'sayan-deb',
-    authorName: 'Mr. Sayan Deb',
-    designation: 'Whole Time Director, Okaga Renewables',
-    startPage: 17,
-    endPage: 36,
-    hasPhoto: true,
-    hasTable: true,
-  },
-  {
     id: 'india-offshore-journey',
-    index: 5,
+    index: 4,
     title: "India's Offshore Journey",
     writerId: 'rajesh-katyal',
     authorName: 'Dr. Rajesh Katyal',
@@ -126,6 +118,19 @@ export const ARTICLES: Article[] = [
     endPage: 44,
     hasPhoto: true,
     hasTable: false,
+  },
+  {
+    id: 'wind-sector-silently-led',
+    index: 5,
+    title: "Wind Sector has Silently led India's Energy Transition",
+    writerId: 'dinesh-jagdale',
+    authorName: 'Mr. Dinesh Dayanand Jagdale',
+    designation:
+      'President, Corporate Affairs & Retail Business at Suzlon Energy Ltd. & Former Joint Secretary to the Government of India',
+    startPage: 75,
+    endPage: 77,
+    hasPhoto: true,
+    hasTable: true,
   },
   {
     id: 'wind-solar-hybridization',
@@ -165,8 +170,20 @@ export const ARTICLES: Article[] = [
     hasTable: true,
   },
   {
-    id: 'unlocking-efficiency-value-chain',
+    id: 'windfarm-project-development',
     index: 9,
+    title: 'Windfarm Project Development',
+    writerId: 'sayan-deb',
+    authorName: 'Mr. Sayan Deb',
+    designation: 'Whole Time Director, Okaga Renewables',
+    startPage: 17,
+    endPage: 36,
+    hasPhoto: true,
+    hasTable: true,
+  },
+  {
+    id: 'unlocking-efficiency-value-chain',
+    index: 10,
     title: "Unlocking Efficiency Across India's Renewable Energy Value Chain",
     subtitle:
       'The Role of Digital Technological Solutions in Reducing Inefficiencies and Driving Sector-Wide Savings and Growth',
@@ -178,26 +195,14 @@ export const ARTICLES: Article[] = [
     hasPhoto: false,
     hasTable: false,
   },
-  {
-    id: 'wind-sector-silently-led',
-    index: 10,
-    title: "Wind Sector has Silently led India's Energy Transition",
-    writerId: 'dinesh-jagdale',
-    authorName: 'Mr. Dinesh Dayanand Jagdale',
-    designation:
-      'President, Corporate Affairs & Retail Business at Suzlon Energy Ltd. & Former Joint Secretary to the Government of India',
-    startPage: 75,
-    endPage: 77,
-    hasPhoto: true,
-    hasTable: true,
-  },
 ];
 
 /**
- * Writers, in order of first appearance. `designation`/`photo` are the single
+ * Writers, in curated display order. `designation`/`photo` are the single
  * source of truth per author; `articleIds` is derived from ARTICLES so the
  * author→article mapping is never duplicated. Sayan Deb authored two articles
- * (#4 and #9); every other writer authored one.
+ * (Windfarm Project Development and Unlocking Efficiency) and is listed last;
+ * every other writer authored one.
  */
 const WRITER_BASE: Omit<Writer, 'articleIds'>[] = [
   {
@@ -219,17 +224,18 @@ const WRITER_BASE: Omit<Writer, 'articleIds'>[] = [
     photo: `${AUTHORS}/kasthurirangaian.webp`,
   },
   {
-    id: 'sayan-deb',
-    name: 'Mr. Sayan Deb',
-    designation: 'Whole Time Director, Okaga Renewables',
-    photo: `${AUTHORS}/sayan-deb.webp`,
-  },
-  {
     id: 'rajesh-katyal',
     name: 'Dr. Rajesh Katyal',
     designation:
       'Director General, NIWE, Chennai, Under Ministry of New & Renewable Energy, Govt. of India',
     photo: `${AUTHORS}/rajesh-katyal.webp`,
+  },
+  {
+    id: 'dinesh-jagdale',
+    name: 'Mr. Dinesh Dayanand Jagdale',
+    designation:
+      'President, Corporate Affairs & Retail Business at Suzlon Energy Ltd. & Former Joint Secretary to the Government of India',
+    photo: `${AUTHORS}/dinesh-jagdale.webp`,
   },
   {
     id: 'mp-ramesh',
@@ -250,11 +256,10 @@ const WRITER_BASE: Omit<Writer, 'articleIds'>[] = [
     photo: `${AUTHORS}/ashesh-shrivastava.webp`,
   },
   {
-    id: 'dinesh-jagdale',
-    name: 'Mr. Dinesh Dayanand Jagdale',
-    designation:
-      'President, Corporate Affairs & Retail Business at Suzlon Energy Ltd. & Former Joint Secretary to the Government of India',
-    photo: `${AUTHORS}/dinesh-jagdale.webp`,
+    id: 'sayan-deb',
+    name: 'Mr. Sayan Deb',
+    designation: 'Whole Time Director, Okaga Renewables',
+    photo: `${AUTHORS}/sayan-deb.webp`,
   },
 ];
 
