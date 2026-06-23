@@ -58,7 +58,18 @@ app.use(compression() as any);
 // request bodies. It owns everything under /api/auth/*.
 app.all('/api/auth/*', toNodeHandler(auth));
 
-app.use(express.json());
+// Most routes carry only small JSON, so the default body limit stays tight
+// (small-body DoS posture). The PDF-report export is the one exception — it
+// POSTs three base64 map images — so that single route gets a 20 MB limit
+// (matched to nginx `client_max_body_size 20m`). Without this, the large body
+// is rejected with 413 by the global parser before the handler ever runs.
+const defaultJson = express.json({ limit: '256kb' });
+const reportJson = express.json({ limit: '20mb' });
+app.use((req, res, next) =>
+  req.method === 'POST' && req.path === '/api/site-analysis/report'
+    ? reportJson(req, res, next)
+    : defaultJson(req, res, next),
+);
 
 // Mount routers
 app.use('/api', dataRoutes);

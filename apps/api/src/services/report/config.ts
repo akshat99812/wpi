@@ -39,7 +39,8 @@ export const PDF_EXPORT_RATE_WINDOW_MS = 60 * 60 * 1000;
 
 /**
  * Hard cap per inbound map image (plan §6.1/§9.3): base64 data URLs are decoded
- * client-side maps, not arbitrary uploads. 8 MB each keeps a 3-image request
- * bounded without an unbounded-body DoS. No remote fetch (no-SSRF posture).
+ * client-side maps, not arbitrary uploads. 4 MB each (a 1200×800 PNG is ~1-3 MB)
+ * keeps a 3-image request — base64-inflated — under the 20 MB request-body limit
+ * (server.ts) and nginx's `client_max_body_size 20m`. No remote fetch (no-SSRF).
  */
-export const REPORT_MAP_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
+export const REPORT_MAP_IMAGE_MAX_BYTES = 4 * 1024 * 1024;
