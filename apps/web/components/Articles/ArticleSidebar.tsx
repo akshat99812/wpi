@@ -48,7 +48,7 @@ function WriterCard({
               alt={writer.name}
               fill
               sizes="44px"
-              className="object-cover"
+              className="object-cover grayscale"
               unoptimized
             />
           ) : (
