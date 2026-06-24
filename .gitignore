@@ -70,3 +70,11 @@ ingestion/qdrant_storage/
 
 # Qdrant snapshots — large binaries, copied to the VPS via scp (see DEPLOY.md)
 deploy/*.snapshot
+
+# Stray artifacts (not part of the build).
+# Bun project — bun.lock is the real lockfile, npm's is stray:
+apps/web/package-lock.json
+# empty scratch file:
+apps/api/.nv
+# 45 MB articles-reader regen source; kept local, not tracked:
+Articles.pdf
