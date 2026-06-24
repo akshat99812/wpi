@@ -61,12 +61,6 @@ import {
   setPolicyScoreVisibility,
 } from "@/components/Map/utils/policyScore";
 import { PolicyScoreLegend } from "@/components/Map/components/PolicyScoreLegend";
-import { WindFarmDataTool, WindFarmIcon } from "@/components/Map/components/WindFarmDataTool";
-import {
-  addWindFarms,
-  FARM_CIRCLE_MAXZOOM,
-  type WindFarmProps,
-} from "@/components/Map/utils/windFarms";
 import {
   addWindResourceLayer,
   removeWindResourceLayer,
@@ -119,10 +113,7 @@ export default function ProMapPage() {
   const basemapRef = useRef<ProBasemap>("road");
   // Mirror layer-visibility toggles so the map-load closure can set the right
   // initial visibility when it adds the layers (same pattern as basemapRef).
-  // Default Pro-map view: masts OFF, individual turbines ON. At country zoom the
-  // turbine glyphs are tiny, so the wind-farm circle layer (added on load) shows
-  // green per-district farms instead; zooming in past FARM_CIRCLE_MAXZOOM drops
-  // the circles and reveals the exact turbines.
+  // Default Pro-map view: masts OFF, individual turbines ON across all zooms.
   const showMastsRef = useRef(false);
   const showTurbinesRef = useRef(true);
   const showExclusionsRef = useRef(false);
@@ -140,8 +131,6 @@ export default function ProMapPage() {
   // Individual OSM wind-turbine selection — its own card (TurbineDataTool),
   // independent of the mast `selected` above.
   const [selectedTurbine, setSelectedTurbine] = useState<Turbine | null>(null);
-  // Clicked wind-farm circle → district aggregate shown in the Wind-farm card.
-  const [selectedFarm, setSelectedFarm] = useState<WindFarmProps | null>(null);
   const [turbineLoading, setTurbineLoading] = useState(false);
   const [turbineError, setTurbineError] = useState<string | null>(null);
   const [readout, setReadout] = useState<CursorReadout | null>(null);
@@ -258,14 +247,6 @@ export default function ProMapPage() {
       setSidebarOpen(true);
     }
   }, [turbineLoading, selectedTurbine, turbineError]);
-
-  // Clicking a wind-farm circle opens its data card and jumps to the Farm tab.
-  useEffect(() => {
-    if (selectedFarm) {
-      setActiveTool("farm");
-      setSidebarOpen(true);
-    }
-  }, [selectedFarm]);
 
   // Same reveal pattern for analysis results: surface the left data panel the
   // moment a run starts (or lands / fails) so results never arrive into a
@@ -526,9 +507,7 @@ export default function ProMapPage() {
       // (no API key, free hosted; same style the main map falls back to). Swap
       // to "bright"/"positron"/"dark" here if a different look is wanted.
       style: "https://tiles.openfreemap.org/styles/liberty",
-      // Start just inside the wind-farm circle band (FARM_CIRCLE_MINZOOM 4.5)
-      // so the circles show on load; zooming out past it clears them for a clean
-      // country overview.
+      // Country-overview start: centred on India, zoomed to show the whole grid.
       center: [78.9629, 22.5937],
       zoom: 4.7,
       // Floor the zoom at the mast cutoff so the dots never vanish on zoom-out
@@ -808,16 +787,6 @@ export default function ProMapPage() {
       });
       initVis(TURBINES_LAYER_ID, showTurbinesRef.current);
       initVis(TURBINES_HIT_LAYER_ID, showTurbinesRef.current);
-      // Turbines stay hidden when zoomed out (illegible dots at country scale) —
-      // the wind-farm circles stand in until you pass FARM_CIRCLE_MAXZOOM, where
-      // the circles drop out and the exact turbines take over.
-      map.setLayerZoomRange(TURBINES_LAYER_ID, FARM_CIRCLE_MAXZOOM, 24);
-      map.setLayerZoomRange(TURBINES_HIT_LAYER_ID, FARM_CIRCLE_MAXZOOM, 24);
-
-      // Wind-farm aggregate circles (white, sized by installed MW) for the
-      // zoom-out view — WT-MARUT/NIWE district capacity on GADM centroids.
-      // Clicking one flies in (turbines take over) and opens its data card.
-      addWindFarms(map, { onSelect: setSelectedFarm });
 
       // Legal exclusion-zone fills (red/amber polygons, MVT). Inserted BELOW the
       // mast pins so masts/turbines stay clickable on top. Off by default.
@@ -914,13 +883,6 @@ export default function ProMapPage() {
           error={turbineError}
         />
       ),
-    },
-    {
-      id: "farm",
-      label: "Wind farm",
-      Icon: WindFarmIcon,
-      badge: selectedFarm != null,
-      content: <WindFarmDataTool selected={selectedFarm} />,
     },
     {
       id: "analysis",
