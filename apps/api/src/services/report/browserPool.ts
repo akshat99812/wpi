@@ -10,6 +10,7 @@
 import puppeteer, { type Browser, type Page } from "puppeteer";
 
 import { REPORT_BROWSER_POOL_SIZE } from "./config";
+import { recordQueueWait } from "./metrics";
 import { abortError, PoolBusyError, Semaphore } from "./semaphore";
 
 export { PoolBusyError };
@@ -86,10 +87,15 @@ export async function withPage<T>(
 ): Promise<T> {
   // Bail before taking a permit if the client already went away.
   if (opts?.signal?.aborted) throw abortError();
+  // Time spent blocked on a free permit — the §6.4 "queue-wait" signal. Only
+  // a successful acquire is recorded; a timeout (PoolBusyError) or abort throws
+  // here and is captured by the route's 503/abort counters instead.
+  const waitStart = performance.now();
   await semaphore.acquire(
     opts?.acquireTimeoutMs ?? DEFAULT_ACQUIRE_TIMEOUT_MS,
     opts?.signal,
   );
+  recordQueueWait(performance.now() - waitStart);
   let page: Page | null = null;
   try {
     const browser = await getBrowser();

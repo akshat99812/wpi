@@ -32,14 +32,20 @@ import {
   resultCacheKey,
 } from "../services/analysis/resultCache";
 import { GeometryError, type ValidatedAoi } from "../services/analysis/types";
-import { PoolBusyError } from "../services/report/browserPool";
+import { poolStats, PoolBusyError } from "../services/report/browserPool";
 import {
   PDF_EXPORT_RATE_LIMIT,
   PDF_EXPORT_RATE_WINDOW_MS,
   REPORT_PDF_ENABLED,
 } from "../services/report/config";
 import {
+  recordOutcome,
+  recordRequest,
+  snapshot,
+} from "../services/report/metrics";
+import {
   generateReportPdf,
+  inFlightReportCount,
   ReportRequestError,
   reportRequestSchema,
   selectedSiteFrom,
@@ -73,6 +79,7 @@ const exportLimiter = rateLimit({
   standardHeaders: "draft-7",
   legacyHeaders: false,
   handler: (req, res) => {
+    recordOutcome("rateLimited429");
     console.warn(`[report] export rate-limit user=${req.user?.email}`);
     res.setHeader(
       "Retry-After",
@@ -93,10 +100,12 @@ router.post(
       res.status(404).json({ error: "PDF export is not enabled" });
       return;
     }
+    recordRequest();
 
     // ── Validate body, geometry, and the inline map images ──────────────────
     const parsed = reportRequestSchema.safeParse(req.body);
     if (!parsed.success) {
+      recordOutcome("badRequest400");
       res
         .status(400)
         .json({ error: "invalid request body", code: "INVALID_BODY" });
@@ -109,9 +118,11 @@ router.post(
       mapImages = validateMapImages(parsed.data.mapImages);
     } catch (err) {
       if (err instanceof GeometryError || err instanceof ReportRequestError) {
+        recordOutcome("badRequest400");
         res.status(400).json({ error: err.message, code: err.code });
         return;
       }
+      recordOutcome("failed500");
       console.error("[report] validation crashed", err);
       res.status(500).json({ error: "Report generation failed" });
       return;
@@ -130,6 +141,7 @@ router.post(
       if (analysis === null) {
         const slot = tryAcquireAnalysisSlot();
         if (slot === null) {
+          recordOutcome("analysisBusy503");
           res.setHeader("Retry-After", String(ANALYSIS_RETRY_AFTER_SECONDS));
           res.status(503).json({
             error: "Server is at its analysis limit — retry shortly",
@@ -181,8 +193,10 @@ router.post(
       );
       res.setHeader("Content-Length", String(pdf.length));
       res.send(Buffer.from(pdf));
+      recordOutcome("succeeded");
     } catch (err) {
       if (err instanceof PoolBusyError) {
+        recordOutcome("poolBusy503");
         res.setHeader("Retry-After", "5");
         res.status(503).json({
           error: "Render pool busy — retry shortly",
@@ -190,7 +204,11 @@ router.post(
         });
         return;
       }
-      if ((err as Error)?.name === "AbortError") return; // client gone
+      if ((err as Error)?.name === "AbortError") {
+        recordOutcome("aborted");
+        return; // client gone
+      }
+      recordOutcome("failed500");
       console.error("[report] failed", { user: req.user?.id, err });
       if (!res.headersSent) {
         res.status(500).json({ error: "Report generation failed" });
@@ -219,6 +237,36 @@ router.get("/site-analysis/report/preview", (req: Request, res: Response) => {
   res.set("Content-Type", "text/html; charset=utf-8");
   res.set("Cache-Control", "no-store");
   res.send(html);
+});
+
+/**
+ * GET /api/site-analysis/report/stats — ops observability (PR15).
+ *
+ * Returns the in-process render metrics so we can tell whether the §6.4
+ * async-queue triggers (p95 render >~10s, nonzero queue-wait, climbing 503s)
+ * have fired before building the queue. This is operational, not user-facing,
+ * data, and must work in production without a user session — so it is gated by a
+ * shared bearer token in `REPORT_METRICS_TOKEN`, NOT requirePro. Fail-closed:
+ * when the token is unset the route 404s (feature off), so production never
+ * exposes metrics by accident. Independent of REPORT_PDF_ENABLED so stats stay
+ * inspectable even after the export kill-switch is flipped.
+ */
+router.get("/site-analysis/report/stats", (req: Request, res: Response) => {
+  const token = process.env.REPORT_METRICS_TOKEN;
+  if (!token) {
+    res.status(404).json({ error: "Report metrics are not enabled" });
+    return;
+  }
+  const header = req.header("authorization") ?? "";
+  const provided = header.startsWith("Bearer ") ? header.slice(7) : "";
+  if (provided !== token) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  res.set("Cache-Control", "no-store");
+  res.json(
+    snapshot({ pool: poolStats(), inFlight: inFlightReportCount() }),
+  );
 });
 
 export default router;

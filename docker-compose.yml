@@ -16,6 +16,10 @@ services:
       # to enable the Pro endpoint. Pool size bounds concurrent Chromium pages.
       REPORT_PDF_ENABLED: ${REPORT_PDF_ENABLED:-false}
       REPORT_BROWSER_POOL_SIZE: ${REPORT_BROWSER_POOL_SIZE:-4}
+      # Bearer token for GET /api/site-analysis/report/stats (render metrics:
+      # p95 render/queue-wait, 503 rates). Unset → the endpoint 404s (fail-closed,
+      # default). Set a secret to enable ops inspection in prod.
+      REPORT_METRICS_TOKEN: ${REPORT_METRICS_TOKEN:-}
     # Chromium needs more shared memory than Docker's 64 MB default; we also pass
     # --disable-dev-shm-usage, but a real /dev/shm keeps multi-page renders stable.
     shm_size: "1gb"

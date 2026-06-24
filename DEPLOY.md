@@ -268,9 +268,32 @@ footer on every page.
 
 - **Kill switch:** set `REPORT_PDF_ENABLED=false` and restart the api service.
 - **Memory:** Chromium is memory-heavy; the api service sets `shm_size: 1gb`.
-  Watch `browserQueueWaitMs` / 503 rates in the logs — sustained non-zero queue
-  wait is the documented trigger to raise the pool size or move to an async job
-  (plan §6.4 / §9.4).
+- **Metrics (`GET /api/site-analysis/report/stats`):** in-process render metrics
+  for the export path. Gated by a bearer token in `REPORT_METRICS_TOKEN`; when
+  the token is unset the endpoint 404s (fail-closed), so prod never leaks metrics
+  by accident. It is independent of `REPORT_PDF_ENABLED`, so stats stay readable
+  even after the kill switch is flipped.
+
+  ```bash
+  # Set REPORT_METRICS_TOKEN=<secret> in the prod env file, then:
+  curl -s -H "Authorization: Bearer <secret>" \
+    https://api.windpowerindia.com/api/site-analysis/report/stats | jq
+  ```
+
+  The JSON reports `requests`, per-outcome `outcomes` (succeeded / dedupeHit /
+  rateLimited429 / analysisBusy503 / poolBusy503 / badRequest400 / failed500 /
+  aborted), and `renderMs` / `queueWaitMs` distributions (`count`/`p50`/`p95`/
+  `max`, over the last 512 samples) plus the live `pool` and `inFlight` gauges.
+- **When to revisit async scale-out (plan §6.4 / §9.4 — PR15 queue):** the
+  synchronous design (bounded pool → 503 + Retry-After, per-user 429) is
+  sufficient until the `/stats` numbers cross these thresholds in production —
+  build the BullMQ/Redis job queue only once they fire:
+  - `renderMs.p95` (or render + `queueWaitMs.p95`) sustained **> ~10 s**, or
+  - `queueWaitMs.p95` **persistently non-zero** (renders waiting on a permit), or
+  - a **climbing `poolBusy503`** count relative to `succeeded`.
+  Until then, the cheaper lever is raising `REPORT_BROWSER_POOL_SIZE` on a bigger
+  box. Both the DbPolicyProvider (policy already reads live from Postgres) and
+  the queue remain deferred-until-needed by design.
 - **Retention (plan §9.3):** the endpoint streams the PDF and persists nothing
   by default; if you later cache PDFs or debug snapshots, give them an owner-
   scoped store + TTL and log digests, not full image data URLs.

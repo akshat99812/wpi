@@ -18,6 +18,7 @@ import type { SelectedSite } from "../analysis/nearbySite";
 import type { AnalysisResponse } from "../analysis/types";
 import { REPORT_MAP_IMAGE_MAX_BYTES } from "./config";
 import { withPage } from "./browserPool";
+import { recordOutcome, recordRender } from "./metrics";
 import { renderPdf } from "./renderPdf";
 import { renderReportHtml } from "./renderReportHtml";
 import type { ReportMapImages, ReportModel } from "./reportModel";
@@ -145,16 +146,21 @@ export function generateReportPdf(args: {
 }): Promise<Uint8Array> {
   const hash = args.model.meta.inputsHash;
   const existing = inFlight.get(hash);
-  if (existing) return existing;
+  if (existing) {
+    recordOutcome("dedupeHit");
+    return existing;
+  }
 
   const render = args.render ?? defaultRenderer;
   const startedAt = performance.now();
   const promise = (async () => {
     const html = renderReportHtml(args.model);
     const pdf = await render(html, args.signal);
+    const elapsedMs = Math.round(performance.now() - startedAt);
+    recordRender(elapsedMs);
     console.info(
       `[report] rendered hash=${hash.slice(0, 8)} ` +
-        `bytes=${pdf.length} ms=${Math.round(performance.now() - startedAt)}`,
+        `bytes=${pdf.length} ms=${elapsedMs}`,
     );
     return pdf;
   })().finally(() => inFlight.delete(hash));
