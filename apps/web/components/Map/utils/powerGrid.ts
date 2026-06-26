@@ -5,6 +5,7 @@ import type {
   Map as MlMap,
   MapMouseEvent,
 } from 'maplibre-gl';
+import { assetPath } from '@/lib/basePath';
 
 // maplibre-gl v5 doesn't re-export ExpressionSpecification (its bundled
 // style-spec d.ts declares the type without exporting it), so derive it from
@@ -86,7 +87,8 @@ const INDIA_BOUNDS: [number, number, number, number] = [68.08, 6.74, 97.43, 37.0
 // unclipped (applyIndiaClip patches the filters when the fetch lands).
 const OUTLINE_WAIT_MS = 1_500;
 // Simplified dissolved India outline used by the `within` clip filters.
-const INDIA_OUTLINE_URL = '/india-outline.geojson';
+// assetPath: served under the app's basePath in prod (/terminal).
+const INDIA_OUTLINE_URL = assetPath('/india-outline.geojson');
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
 

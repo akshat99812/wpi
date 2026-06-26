@@ -1,3 +1,4 @@
+import { assetPath } from '@/lib/basePath';
 import type { BasemapId, StateMeta } from './types';
 
 // ── Basemap labels (icons replaced with professional inline SVG in BasemapSwitcher) ──
@@ -160,7 +161,9 @@ export function mwColor(mw: number): string {
 // on every map load was the single biggest load-time bottleneck. The original
 // gist stays wired as a runtime FALLBACK if the local file is ever missing.
 // Both carry ST_NM as the name property (extractStateName reads it).
-export const INDIA_GEOJSON_URL = '/india-states.geojson';
+// assetPath: served under the app's basePath in prod (/terminal); the gist
+// fallback below is cross-origin and needs no prefix.
+export const INDIA_GEOJSON_URL = assetPath('/india-states.geojson');
 
 export const INDIA_GEOJSON_FALLBACK_URL =
   'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';

@@ -725,13 +725,23 @@ export default function ProMapPage() {
         prefetchPowerGrid();
       }
 
-      // Likewise re-add an active wind-resource raster on map re-creation.
-      if (windMetricRef.current !== "off") {
-        addWindResourceLayer(map, windMetricRef.current, windHeightRef.current, {
+      // Wind-resource raster (default view = mean speed @ 150 m), also re-added
+      // here on map re-creation. Deferred to idle: we've just added the
+      // satellite + windmills sources above, so map.isStyleLoaded() is
+      // transiently FALSE (pending source updates + tiles still loading) and
+      // addWindResourceLayer's style-ready guard would silently bail — the bug
+      // that left the speed layer missing on first load. At idle the style is
+      // fully settled, so the add reliably succeeds (same rationale as the
+      // policy-score + offshore adds below).
+      map.once("idle", () => {
+        // Read the refs at idle so the very latest metric/height wins.
+        const metric = windMetricRef.current;
+        if (metric === "off") return;
+        addWindResourceLayer(map, metric, windHeightRef.current, {
           beforeId: "windmills-pts",
           contrast: basemapRef.current === "satellite" ? "satellite" : "standard",
         });
-      }
+      });
 
       // Attach the AOI draw controller now that the pin layer exists (its
       // layers anchor below windmills-pts, like the farm boundaries).

@@ -1,5 +1,6 @@
 import type { Map as MlMap } from 'maplibre-gl';
 import metadata from '@/public/wind-atlas/metadata.json';
+import { BASE_PATH } from '@/lib/basePath';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
 /**
@@ -149,7 +150,9 @@ export function addWindResourceLayer(
     map.addSource(SOURCE_ID, {
       type: 'raster',
       tiles: [
-        `${window.location.origin}${meta.tilePath.replace('{height}', String(height))}?v=${WIND_ATLAS_VERSION}`,
+        // BASE_PATH: public assets sit under the app's basePath in prod
+        // (/terminal) — omitting it 404s the raster. See @/lib/basePath.
+        `${window.location.origin}${BASE_PATH}${meta.tilePath.replace('{height}', String(height))}?v=${WIND_ATLAS_VERSION}`,
       ],
       tileSize: 256,
       minzoom: metadata.minzoom,
@@ -198,7 +201,7 @@ function syncFringe(map: MlMap, contrast: WindResourceContrast): void {
   map.addSource(FRINGE_SOURCE_ID, {
     type: 'raster',
     tiles: [
-      `${window.location.origin}${meta.fringeTilePath.replace('{height}', String(active!.height))}?v=${WIND_ATLAS_VERSION}`,
+      `${window.location.origin}${BASE_PATH}${meta.fringeTilePath.replace('{height}', String(active!.height))}?v=${WIND_ATLAS_VERSION}`,
     ],
     tileSize: 256,
     minzoom: metadata.minzoom,

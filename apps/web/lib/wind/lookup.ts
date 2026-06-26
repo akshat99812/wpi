@@ -20,6 +20,7 @@
  */
 
 import metadata from '@/public/wind-atlas/metadata.json';
+import { assetPath } from '@/lib/basePath';
 import type { WindMetric } from '@/components/Map/utils/windResource';
 
 export type { WindMetric };
@@ -48,7 +49,8 @@ function gridKey(metric: WindMetric, height: number): string {
 
 function gridUrl(metric: WindMetric, height: number): string {
   const m = metadata.metrics[metric];
-  return m.gridPath.replace('{height}', String(height));
+  // assetPath: grids live under the app's basePath in prod (/terminal).
+  return assetPath(m.gridPath.replace('{height}', String(height)));
 }
 
 /**

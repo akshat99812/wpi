@@ -3,8 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Map as MlMap } from 'maplibre-gl';
 import { WindFlow, loadWindField, type WindField } from '../utils/windFlow';
+import { assetPath } from '@/lib/basePath';
 
-const FIELD_URL = '/wind-flow/india-wind.json';
+// assetPath: served under the app's basePath in prod (/terminal).
+const FIELD_URL = assetPath('/wind-flow/india-wind.json');
 
 // Module-level cache so toggling the mode on/off doesn't refetch the field.
 let fieldPromise: Promise<WindField> | null = null;
