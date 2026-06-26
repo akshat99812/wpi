@@ -710,11 +710,11 @@ function PolicyLinkCard({
   );
 }
 
-// ── Button → full side-by-side policy comparison tool (/policy) ───────────
+// ── Button → full side-by-side policy comparison tool (/research/policy) ──
 function ComparePoliciesCTA() {
   return (
     <Link
-      href="/policy"
+      href="/research/policy"
       className="wpi-card-in self-start inline-flex items-center gap-2 rounded-lg
                  bg-orange px-4 py-2 text-[12px] font-bold text-black
                  hover:bg-orange/90 transition-colors"

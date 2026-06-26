@@ -4,6 +4,9 @@
  * Wind Policy Comparison (Pro). Pivot table of Indian wind-energy policy across
  * jurisdictions, with per-cell source excerpts + confidence badges. Every value
  * is sourced to a real legal document (SERC order / state GR / national rule).
+ *
+ * Embeddable core: fills its parent (the Research section's flex column) rather
+ * than owning the viewport. Mounted by the Research "Policy" sub-route.
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -31,7 +34,7 @@ function Centered({ children }: { children: React.ReactNode }) {
   return <div className="flex flex-1 items-center justify-center p-8 text-muted">{children}</div>;
 }
 
-export default function PolicyPage() {
+export default function PolicyComparison() {
   const { data: session, isPending } = useSession();
   const user = session?.user as { email?: string; tier?: string | null } | undefined;
   const isPro = user?.tier === "PREMIUM";
@@ -103,7 +106,7 @@ export default function PolicyPage() {
     );
 
   return (
-    <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">
+    <div className="flex-1 min-h-0 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <header className="mb-4">
           <h1 className="text-xl font-semibold text-text">Wind Policy Comparison</h1>
@@ -158,7 +161,7 @@ export default function PolicyPage() {
 
         {meta && <DimensionChoropleth dimensions={meta.dimensions} year={year} />}
       </div>
-    </main>
+    </div>
   );
 }
 

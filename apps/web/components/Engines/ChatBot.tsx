@@ -1,11 +1,19 @@
 "use client";
 
+/**
+ * Wind Energy Chatbot — Pro RAG assistant over 25 years of Indian wind-energy
+ * directories. Streams answers from /api/chat over SSE and renders markdown
+ * with collapsible source citations.
+ *
+ * This is the embeddable core: it fills its parent (a flex column) rather than
+ * owning the full viewport, so it can live inside the Research section's
+ * sidebar layout. The portal TopBar already provides logo / account chrome.
+ */
+
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -49,7 +57,7 @@ function parseSseBlock(block: string): [string, unknown] | null {
   }
 }
 
-export default function ChatPage() {
+export default function ChatBot() {
   const { data: session, isPending } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -179,76 +187,39 @@ export default function ChatPage() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-[#090d18] text-text flex items-center justify-center">
-        <div className="text-muted/60 text-sm">Loading…</div>
+      <div className="flex-1 min-h-0 flex items-center justify-center text-muted/60 text-sm">
+        Loading…
       </div>
     );
   }
 
   if (!isPro) {
     return (
-      <div className="min-h-screen bg-[#090d18] text-text flex items-center justify-center px-4">
+      <div className="flex-1 min-h-0 flex items-center justify-center px-4 py-8">
         <div className="max-w-md w-full bg-[#0d1628] border border-[#1e2c44] rounded-2xl p-7 shadow-2xl">
           <h1 className="text-[18px] font-bold mb-1">Pro subscription required</h1>
           <p className="text-[12px] text-muted/70 mb-5">
             The Wind Energy chatbot is available to Pro accounts only.
           </p>
           <p className="text-[12px] text-muted/60">
-            Signed in as <span className="text-text">{user?.email}</span> (tier:{" "}
+            Signed in as <span className="text-text">{user?.email ?? "—"}</span> (tier:{" "}
             <span className="text-text">{user?.tier ?? "FREE"}</span>)
           </p>
-          <button
-            onClick={() => signOut()}
-            className="mt-5 w-full px-3 py-2 rounded-lg bg-[#07090f] border border-[#1e2c44] text-[13px] text-muted hover:text-text hover:border-orange/50 transition-colors"
-          >
-            Sign out
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-dvh min-h-screen flex flex-col bg-[#090d18] text-text">
-      <header className="flex-none border-b border-[#1e2c44] px-5 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            aria-label="Home"
-            className="flex items-center gap-2 hover:opacity-90 transition-opacity"
-          >
-            <Image
-              src="/logo.png"
-              alt="CECL"
-              width={28}
-              height={28}
-              className="object-contain"
-              priority
-            />
-            <span className="hidden sm:inline text-[12px] font-bold tracking-tight text-text">
-              CECL
-            </span>
-          </Link>
-          <span className="text-muted/30">|</span>
-          <h1 className="text-[13px] font-bold tracking-wide">
-            Wind Energy Chatbot
-          </h1>
-          <span className="text-[10px] uppercase tracking-wider text-orange/80 bg-orange/10 border border-orange/30 rounded px-1.5 py-0.5">
-            Pro
-          </span>
-        </div>
-        <div className="flex items-center gap-3 text-[11px] text-muted/60">
-          <span>{user?.email}</span>
-          <button
-            onClick={() => signOut()}
-            className="hover:text-text transition-colors"
-          >
-            Sign out
-          </button>
-        </div>
+    <div className="flex-1 min-h-0 flex flex-col bg-[#090d18] text-text">
+      <header className="flex-none border-b border-[#1e2c44] px-5 py-3 flex items-center gap-3">
+        <h1 className="text-[13px] font-bold tracking-wide">Wind Energy Chatbot</h1>
+        <span className="text-[10px] uppercase tracking-wider text-orange/80 bg-orange/10 border border-orange/30 rounded px-1.5 py-0.5">
+          Pro
+        </span>
       </header>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-5">
           {messages.length === 0 && (
             <div className="text-center text-muted/60 text-[13px] py-12">
