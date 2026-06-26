@@ -66,7 +66,7 @@ const PolicyIcon = ({ className = '' }: { className?: string }) => (
 );
 
 const ITEMS: NavItem[] = [
-  { href: '/research/chatbot', label: 'Chatbot',      desc: 'RAG · 25-yr archive',        Icon: ChatbotIcon      },
+  { href: '/research/chatbot', label: 'Chatbot',      desc: 'Coming soon',                Icon: ChatbotIcon      },
   { href: '/research',         label: 'Intelligence', desc: 'Resource · AI Topic Search', Icon: IntelligenceIcon },
   { href: '/research/policy',  label: 'Policy',       desc: 'Jurisdiction comparison',    Icon: PolicyIcon       },
 ];
