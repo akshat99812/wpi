@@ -71,8 +71,21 @@ export const COLLECTION_TITLE = 'Indian Windpower 2025';
 
 export const ARTICLES: Article[] = [
   {
-    id: 'reflections-formative-stages',
+    id: 'ministers-message',
     index: 1,
+    title: 'Message',
+    writerId: 'pralhad-joshi',
+    authorName: 'Shri Pralhad Joshi',
+    designation:
+      'Minister of Consumer Affairs, Food & Public Distribution and Minister of New & Renewable Energy, Government of India',
+    startPage: 78,
+    endPage: 78,
+    hasPhoto: true,
+    hasTable: false,
+  },
+  {
+    id: 'reflections-formative-stages',
+    index: 2,
     title: "Reflections on Formative Stages of India's Windpower Development Programme",
     writerId: 'gururaja',
     authorName: 'Dr. J. Gururaja',
@@ -84,7 +97,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'utilization-windpower-india',
-    index: 2,
+    index: 3,
     title: 'Utilization of Windpower in India – Past & Future',
     writerId: 'dilip-nigam',
     authorName: 'Mr. Dilip Nigam',
@@ -96,7 +109,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'strong-winds-bumpy-roads',
-    index: 3,
+    index: 4,
     title: 'Strong Winds Blow Past Bumpy Roads',
     writerId: 'kasthurirangaian',
     authorName: 'Dr. K. Kasthurirangaian',
@@ -108,7 +121,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'india-offshore-journey',
-    index: 4,
+    index: 5,
     title: "India's Offshore Journey",
     writerId: 'rajesh-katyal',
     authorName: 'Dr. Rajesh Katyal',
@@ -121,7 +134,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'wind-sector-silently-led',
-    index: 5,
+    index: 6,
     title: "Wind Sector has Silently led India's Energy Transition",
     writerId: 'dinesh-jagdale',
     authorName: 'Mr. Dinesh Dayanand Jagdale',
@@ -134,7 +147,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'wind-solar-hybridization',
-    index: 6,
+    index: 7,
     title: 'Wind Solar Hybridization - Some Considerations',
     writerId: 'mp-ramesh',
     authorName: 'Mr. M.P. Ramesh',
@@ -146,7 +159,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'knowledge-bytes-grid-emission-factor',
-    index: 7,
+    index: 8,
     title: 'Knowledge Bytes',
     subtitle: 'Q&A on Grid Emission Factor (EF)',
     writerId: 'nitin-raikar',
@@ -159,7 +172,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'windpower-development-overview',
-    index: 8,
+    index: 9,
     title: 'Windpower Development in India - An Overview',
     writerId: 'ashesh-shrivastava',
     authorName: 'Mr. Ashesh Shrivastava',
@@ -171,7 +184,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'windfarm-project-development',
-    index: 9,
+    index: 10,
     title: 'Windfarm Project Development',
     writerId: 'sayan-deb',
     authorName: 'Mr. Sayan Deb',
@@ -183,7 +196,7 @@ export const ARTICLES: Article[] = [
   },
   {
     id: 'unlocking-efficiency-value-chain',
-    index: 10,
+    index: 11,
     title: "Unlocking Efficiency Across India's Renewable Energy Value Chain",
     subtitle:
       'The Role of Digital Technological Solutions in Reducing Inefficiencies and Driving Sector-Wide Savings and Growth',
@@ -205,6 +218,13 @@ export const ARTICLES: Article[] = [
  * every other writer authored one.
  */
 const WRITER_BASE: Omit<Writer, 'articleIds'>[] = [
+  {
+    id: 'pralhad-joshi',
+    name: 'Shri Pralhad Joshi',
+    designation:
+      'Minister of Consumer Affairs, Food & Public Distribution and Minister of New & Renewable Energy, Government of India',
+    photo: `${AUTHORS}/pralhad-joshi.webp`,
+  },
   {
     id: 'gururaja',
     name: 'Dr. J. Gururaja',

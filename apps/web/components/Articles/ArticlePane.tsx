@@ -46,7 +46,7 @@ function Header({ article, writer }: Props) {
               alt={article.authorName}
               fill
               sizes="40px"
-              className="object-cover"
+              className="object-cover grayscale"
               unoptimized
             />
           </span>
@@ -92,7 +92,7 @@ export default function ArticlePane({ article, writer }: Props) {
               width={PAGE_W}
               height={PAGE_H}
               sizes="(max-width: 900px) 100vw, 900px"
-              className="block h-auto w-full"
+              className="block h-auto w-full grayscale"
               priority={i === 0}
               unoptimized
             />
