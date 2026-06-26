@@ -273,7 +273,9 @@ export default function WindSection({ bundle, selectedState }: Props) {
           falling to <b className="text-[#ffd0a0]">10–20%</b> in winter.
           Rajasthan and Gujarat are less monsoon-dependent and sustain
           generation through the pre-monsoon summer via thermal-low
-          circulation over the Thar desert.
+          circulation over the Thar desert. Maximum wind power is generated in{' '}
+          <b className="text-[#ffd0a0]">June–August</b>, with July typically the
+          single highest-generating month nationally.
         </Prose>
         <Prose>
           Plant Load Factors at 150 m hub height typically span{' '}
