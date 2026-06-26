@@ -14,6 +14,7 @@ import { MastDataTool, MastIcon } from "@/components/Map/components/MastDataTool
 import { TurbineDataTool, TurbineIcon } from "@/components/Map/components/TurbineDataTool";
 import { AnalyzeTool, AnalyzeIcon } from "@/components/Map/components/AnalyzeTool";
 import { MeasureTool } from "@/components/Map/components/MeasureTool";
+import { PlaceSearch } from "@/components/Map/components/PlaceSearch";
 import { TerrainTool, TerrainIcon } from "@/components/Map/components/TerrainTool";
 import { useAoiAnalysis } from "@/components/Map/hooks/useAoiAnalysis";
 import { useMeasureDistance } from "@/components/Map/hooks/useMeasureDistance";
@@ -1124,6 +1125,15 @@ export default function ProMapPage() {
       {/* Map container always mounted so the ref attaches on first paint.
           Overlays gate UX rather than swapping the DOM. */}
       <div ref={containerRef} className="absolute inset-0 bg-slate-900" />
+
+      {/* Top-centre place search — flies the map to a chosen place. Sits
+          between the left/right tool cards and clears the top-right nav
+          control; only meaningful (and only mounted) for Pro users. */}
+      {isPro && (
+        <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
+          <PlaceSearch mapRef={mapRef} />
+        </div>
+      )}
 
       {isPro && (
         <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
