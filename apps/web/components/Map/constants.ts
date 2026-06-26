@@ -153,15 +153,17 @@ export function mwColor(mw: number): string {
 // grid at lib/wind/india-grid.json for the cursor readout — the old hand-placed
 // reference-point heatmap (WIND_ATLAS_DATA) has been retired.
 
-// India GeoJSON CDN — post-2014 state boundaries (Telangana split from
-// Andhra Pradesh, Jammu & Kashmir / Ladakh split, all 28 states + 8 UTs).
-// jbrobst's gist uses ST_NM as the name property; the older geohacker source
-// (NAME_1) is kept as a fallback if the gist is unreachable.
-export const INDIA_GEOJSON_URL =
-  'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';
+// India state boundaries (post-2014: Telangana split, J&K / Ladakh split, all
+// 28 states + 8 UTs). PRIMARY is a self-hosted, simplified copy baked from the
+// jbrobst gist by scripts/build-india-states.mjs (~220 KB / ~68 KB gzipped,
+// served same-origin and cacheable) — fetching the full ~1 MB gist cross-origin
+// on every map load was the single biggest load-time bottleneck. The original
+// gist stays wired as a runtime FALLBACK if the local file is ever missing.
+// Both carry ST_NM as the name property (extractStateName reads it).
+export const INDIA_GEOJSON_URL = '/india-states.geojson';
 
 export const INDIA_GEOJSON_FALLBACK_URL =
-  'https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson';
+  'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';
 
 // Shared layer IDs (kept in one place to avoid drift)
 export const LAYER_IDS = {

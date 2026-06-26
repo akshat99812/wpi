@@ -8,6 +8,10 @@ import {
   LOW_VOLTAGE_VISIBLE_ZOOM,
   EHV_MIN_VOLTAGE,
 } from '../utils/powerGrid';
+import {
+  OFFSHORE_ZONE_COLOR,
+  OFFSHORE_PROJECT_COLOR,
+} from '../utils/offshoreWind';
 
 // The map dots are near-black (utils/turbines TURBINE_COLOR); on the dark
 // sidebar that's invisible, so the toggle's glyph is tinted a legible light
@@ -48,6 +52,24 @@ function GridIcon({ className }: { className?: string }) {
   );
 }
 
+/** Offshore-wind glyph (turbine over waves) for the "Offshore wind" toggle. */
+function OffshoreGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+      className={className} aria-hidden
+    >
+      {/* rotor + mast rising from a wavy sea line */}
+      <circle cx="12" cy="5" r="1.1" />
+      <path d="M12 6.1V14" />
+      <path d="M12 5l3.4 2M12 5L8.6 7" />
+      <path d="M3 18c1.6-1.1 3.1-1.1 4.7 0s3.1 1.1 4.7 0 3.1-1.1 4.7 0" />
+      <path d="M3 21c1.6-1.1 3.1-1.1 4.7 0s3.1 1.1 4.7 0 3.1-1.1 4.7 0" />
+    </svg>
+  );
+}
+
 /** Mast height buckets — mirror the `hcat` property baked into the windmill
  *  vector tiles (apps/api windmills route): 0 = <50 m, 1 = 50–100 m, 2 = >100 m. */
 export type MastHeightCat = 'short' | 'mid' | 'tall';
@@ -84,6 +106,8 @@ interface Props {
   showExclusions: boolean;
   /** "Policy score" = state polygons coloured by composite wind-policy score. */
   showPolicyScore: boolean;
+  /** "Offshore wind" = identified offshore zones + VGF/LiDAR project points. */
+  showOffshore: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
   mastCats: Record<MastHeightCat, boolean>;
   /** Which grid line-voltage bands are visible, keyed by band-min kV as a
@@ -94,6 +118,7 @@ interface Props {
   onTogglePowerGrid: (next: boolean) => void;
   onToggleExclusions: (next: boolean) => void;
   onTogglePolicyScore: (next: boolean) => void;
+  onToggleOffshore: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
   onVoltageBandChange: (kv: string, next: boolean) => void;
 }
@@ -113,6 +138,7 @@ export function LayersTool({
   showPowerGrid,
   showExclusions,
   showPolicyScore,
+  showOffshore,
   mastCats,
   voltageBands,
   onToggleTurbines,
@@ -120,6 +146,7 @@ export function LayersTool({
   onTogglePowerGrid,
   onToggleExclusions,
   onTogglePolicyScore,
+  onToggleOffshore,
   onMastCatChange,
   onVoltageBandChange,
 }: Props) {
@@ -176,6 +203,37 @@ export function LayersTool({
         checked={showPolicyScore}
         onChange={onTogglePolicyScore}
       />
+      <ToggleRow
+        label="Offshore wind"
+        description="Identified zones, projects & national policy"
+        swatch={OFFSHORE_ZONE_COLOR}
+        icon={<OffshoreGlyph className="h-3.5 w-3.5" />}
+        checked={showOffshore}
+        onChange={onToggleOffshore}
+      />
+      {showOffshore && <OffshoreLegend />}
+    </div>
+  );
+}
+
+/** Legend for the offshore-wind layer: cyan zones, orange project points.
+ *  Swatches use the live map colours (imported) so they can't drift. */
+function OffshoreLegend() {
+  return (
+    <div className="mx-2 mb-1 ml-7 rounded-lg border border-slate-700/60 bg-slate-800/40 px-2.5 py-2">
+      <div className="flex flex-col gap-1.5">
+        <span className="flex items-center gap-2 text-[11px] text-slate-300">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: OFFSHORE_ZONE_COLOR }} />
+          Identified zone (indicative)
+        </span>
+        <span className="flex items-center gap-2 text-[11px] text-slate-300">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: OFFSHORE_PROJECT_COLOR }} />
+          Project / LiDAR site
+        </span>
+      </div>
+      <p className="pt-2 text-[10px] leading-relaxed text-slate-500">
+        Click a zone or pin for details &amp; policy. Outlines are indicative.
+      </p>
     </div>
   );
 }

@@ -1,0 +1,169 @@
+{
+  "type": "FeatureCollection",
+  "name": "india-offshore-wind",
+  "note": "Indicative offshore wind reference layer for India. Zone polygons are APPROXIMATE extents of the NIWE/FOWIND-identified offshore zones (Gulf of Khambhat off Gujarat; Gulf of Mannar and off Kanyakumari, Tamil Nadu), drawn for orientation only — not survey boundaries or lease blocks. Project/LiDAR points are approximate. Verify against MNRE / NIWE before any commercial use.",
+  "policy": [
+    {
+      "key": "national_policy_2015",
+      "label": "National Offshore Wind Energy Policy",
+      "value": "Notified 6 Oct 2015",
+      "detail": "Framework for offshore wind development within India's Exclusive Economic Zone (up to 200 nautical miles). MNRE is the nodal ministry; NIWE is the nodal agency for resource assessment, surveys and block allocation.",
+      "year": 2015,
+      "source_name": "MNRE — National Offshore Wind Energy Policy, 2015",
+      "source_url": "https://mnre.gov.in/"
+    },
+    {
+      "key": "target_2030",
+      "label": "Capacity target",
+      "value": "30 GW by 2030",
+      "detail": "MNRE announced the 30 GW-by-2030 medium-term target (and an interim 5 GW-by-2022 milestone) in 2018, under the framework of the October 2015 National Offshore Wind Energy Policy. The 5 GW-by-2022 milestone was missed — India had no operational offshore capacity by 2022.",
+      "year": 2030,
+      "source_name": "MNRE — offshore wind targets",
+      "source_url": "https://mnre.gov.in/"
+    },
+    {
+      "key": "vgf_scheme_2024",
+      "label": "Viability Gap Funding scheme",
+      "value": "₹7,453 cr · 1 GW (2×500 MW)",
+      "detail": "Union Cabinet approved (19 Jun 2024) a ₹7,453 cr outlay: ₹6,853 cr VGF to establish 1 GW of offshore wind (500 MW each off Gujarat and Tamil Nadu) plus ₹600 cr for port upgrades. SECI runs the procurement/bidding as implementing agency under MNRE/NIWE oversight; VGF lowers the per-unit tariff for distribution companies.",
+      "year": 2024,
+      "source_name": "PIB / MNRE — Offshore Wind VGF Scheme, 2024",
+      "source_url": "https://pib.gov.in/"
+    },
+    {
+      "key": "identified_potential",
+      "label": "Identified resource potential",
+      "value": "~70 GW (Gujarat + Tamil Nadu)",
+      "detail": "Preliminary NIWE/FOWIND assessment: ~36 GW off the Gujarat coast and ~35 GW off Tamil Nadu — gross theoretical potential (not net developable capacity), based on mesoscale modelling and early LiDAR campaigns.",
+      "year": 2018,
+      "source_name": "NIWE / FOWIND — preliminary offshore assessment",
+      "source_url": "https://niwe.res.in/"
+    },
+    {
+      "key": "seabed_lease",
+      "label": "Seabed lease & block allocation",
+      "value": "MNRE strategy, 2023",
+      "detail": "MNRE strategy paper for allocating offshore wind energy blocks within the EEZ, distinguishing studied areas (allocated on a VGF/competitive basis) from un-studied areas (allocated for survey/study via lease).",
+      "year": 2023,
+      "source_name": "MNRE — Strategy for offshore wind block allocation",
+      "source_url": "https://mnre.gov.in/"
+    }
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "zone",
+        "id": "zone-guj-khambhat",
+        "name": "Gulf of Khambhat zone",
+        "state": "Gujarat",
+        "potential_gw": 36,
+        "status": "Identified (NIWE/FOWIND)",
+        "precision": "indicative",
+        "note": "Off the south Saurashtra coast (Pipavav–Diu). India's first offshore LiDAR campaign sits within this zone."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[70.85, 20.05], [71.80, 19.95], [71.95, 20.50], [70.95, 20.55], [70.85, 20.05]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "zone",
+        "id": "zone-tn-mannar",
+        "name": "Gulf of Mannar zone",
+        "state": "Tamil Nadu",
+        "potential_gw": 35,
+        "status": "Identified (NIWE/FOWIND)",
+        "precision": "indicative",
+        "note": "Between the Tuticorin–Rameswaram coast and Sri Lanka; part of the ~35 GW Tamil Nadu potential."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[78.45, 8.65], [79.15, 8.75], [79.05, 9.25], [78.40, 9.10], [78.45, 8.65]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "zone",
+        "id": "zone-tn-kanyakumari",
+        "name": "Off Kanyakumari zone",
+        "state": "Tamil Nadu",
+        "potential_gw": null,
+        "status": "High-resource area",
+        "precision": "indicative",
+        "note": "South of Cape Comorin — among India's strongest offshore wind regimes during the south-west monsoon jet."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[77.20, 7.70], [77.95, 7.65], [78.00, 8.00], [77.25, 8.05], [77.20, 7.70]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "project",
+        "id": "proj-guj-vgf-500",
+        "name": "Gujarat 500 MW (VGF Tranche-I)",
+        "state": "Gujarat",
+        "type": "VGF project",
+        "capacity_mw": 500,
+        "status": "Planned",
+        "year": 2024,
+        "precision": "approximate",
+        "note": "One of the two initial 500 MW blocks under the 2024 VGF scheme; SECI implementing."
+      },
+      "geometry": { "type": "Point", "coordinates": [71.30, 20.35] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "project",
+        "id": "proj-guj-lidar",
+        "name": "Gulf of Khambhat LiDAR",
+        "state": "Gujarat",
+        "type": "LiDAR campaign",
+        "capacity_mw": null,
+        "status": "Commissioned 2017",
+        "year": 2017,
+        "precision": "approximate",
+        "note": "India's first offshore wind LiDAR, ~25 km off the Gujarat coast (FOWIND)."
+      },
+      "geometry": { "type": "Point", "coordinates": [71.50, 20.45] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "project",
+        "id": "proj-tn-vgf-500",
+        "name": "Tamil Nadu 500 MW (VGF Tranche-I)",
+        "state": "Tamil Nadu",
+        "type": "VGF project",
+        "capacity_mw": 500,
+        "status": "Planned",
+        "year": 2024,
+        "precision": "approximate",
+        "note": "Second of the two initial 500 MW blocks under the 2024 VGF scheme; SECI implementing."
+      },
+      "geometry": { "type": "Point", "coordinates": [78.85, 8.95] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "project",
+        "id": "proj-tn-lidar",
+        "name": "Gulf of Mannar LiDAR",
+        "state": "Tamil Nadu",
+        "type": "LiDAR campaign",
+        "capacity_mw": null,
+        "status": "Commissioned 2018",
+        "year": 2018,
+        "precision": "approximate",
+        "note": "NIWE offshore LiDAR campaign off the Tamil Nadu coast."
+      },
+      "geometry": { "type": "Point", "coordinates": [78.75, 8.90] }
+    }
+  ]
+}

@@ -60,6 +60,17 @@ import {
   addPolicyScore,
   setPolicyScoreVisibility,
 } from "@/components/Map/utils/policyScore";
+import {
+  addOffshoreWind,
+  setOffshoreWindVisibility,
+  type OffshoreData,
+  type OffshoreZoneProps,
+  type OffshoreProjectProps,
+} from "@/components/Map/utils/offshoreWind";
+import {
+  OffshoreWindTool,
+  OffshoreIcon,
+} from "@/components/Map/components/OffshoreWindTool";
 import { PolicyScoreLegend } from "@/components/Map/components/PolicyScoreLegend";
 import {
   addWindResourceLayer,
@@ -119,6 +130,7 @@ export default function ProMapPage() {
   const showExclusionsRef = useRef(false);
   const showPowerGridRef = useRef(true);
   const showPolicyScoreRef = useRef(false);
+  const showOffshoreRef = useRef(false);
   const windMetricRef = useRef<WindMetricChoice>("speed");
   const windHeightRef = useRef<number>(DEFAULT_WIND_RASTER_HEIGHT);
   // 3D terrain is the one toggle owned by useTerrain, but the map-load closure
@@ -162,6 +174,18 @@ export default function ProMapPage() {
   // "Policy score" — state polygons coloured by composite wind-policy
   // attractiveness (best → worst), GeoJSON from /api/policy/score. Off by default.
   const [showPolicyScore, setShowPolicyScore] = useState(false);
+  // "Offshore wind" — NIWE/FOWIND-identified offshore zones (indicative cyan
+  // fills) + VGF/LiDAR project pins, GeoJSON from /api/offshore-wind. Off by
+  // default; the one fetch also feeds the Offshore-wind tool panel (zones,
+  // projects + national policy block). Below the pins, like exclusions.
+  const [showOffshore, setShowOffshore] = useState(false);
+  const [offshoreData, setOffshoreData] = useState<OffshoreData | null>(null);
+  const [offshoreLoading, setOffshoreLoading] = useState(true);
+  const [offshoreError, setOffshoreError] = useState<string | null>(null);
+  const [selectedOffshoreZone, setSelectedOffshoreZone] =
+    useState<OffshoreZoneProps | null>(null);
+  const [selectedOffshoreProject, setSelectedOffshoreProject] =
+    useState<OffshoreProjectProps | null>(null);
   // Mast measurement-height buckets (tile property `hcat`): all on = no filter.
   const [mastCats, setMastCats] = useState<Record<MastHeightCat, boolean>>({
     short: true,
@@ -369,6 +393,18 @@ export default function ProMapPage() {
     else map.once("idle", apply);
   }, [showPolicyScore]);
 
+  // "Offshore wind" toggle — flips the zone fills + project pins (added async
+  // in the load handler; they apply their own initial visibility). Mirrors the
+  // exclusion/policy-score toggles.
+  useEffect(() => {
+    showOffshoreRef.current = showOffshore;
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => setOffshoreWindVisibility(map, showOffshore);
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [showOffshore]);
+
   // Mast height-bucket filter on the pin layers. The tiles carry `hcat`
   // (0 = <50 m · 1 = 50–100 m · 2 = >100 m · −1 = unknown). All buckets on →
   // no filter at all, so unknown-height masts stay visible by default.
@@ -525,9 +561,11 @@ export default function ProMapPage() {
     });
     mapRef.current = map;
 
-    // Wind readout uses the pre-baked GWA grid; load the default height once
-    // (the Pro map has no height switcher — it just shows @100 m).
-    void loadWindGrid(DEFAULT_WIND_HEIGHT);
+    // Wind readout uses the pre-baked GWA grid (~237 KB), needed only for the
+    // live cursor readout — defer it until the map is idle so it never competes
+    // with first paint. lookupWind returns null until the grid is in memory, so
+    // the readout simply starts populating once this resolves.
+    map.once("idle", () => void loadWindGrid(DEFAULT_WIND_HEIGHT));
 
     // Top-RIGHT so it doesn't collide with the left-edge tool card (the right
     // edge is free now that the tool card lives on the left).
@@ -798,11 +836,54 @@ export default function ProMapPage() {
       initVis(EXCL_FILL_LAYER_ID, showExclusionsRef.current);
       initVis(EXCL_OUTLINE_LAYER_ID, showExclusionsRef.current);
 
-      // Policy-score choropleth (state polygons by composite attractiveness).
-      // Async (fetches GeoJSON) — applies its own initial visibility. Below pins.
-      void addPolicyScore(map, {
-        beforeId: "windmills-pts",
-        visible: showPolicyScoreRef.current,
+      // Policy-score + offshore are the only two whole-GeoJSON layers here and
+      // both are OFF by default, yet they each fetched their data eagerly at
+      // load (~57 KB + 2 requests), competing with first paint. Defer both to
+      // map idle. They are added LAST (after every other layer), so deferring
+      // keeps their z-order (just below the pins) unchanged. Reading the toggle
+      // refs at idle-time also means they honour the very latest toggle state.
+      map.once("idle", () => {
+        // Policy-score choropleth (state polygons by composite attractiveness).
+        // Async (fetches GeoJSON) — applies its own initial visibility. Below pins.
+        void addPolicyScore(map, {
+          beforeId: "windmills-pts",
+          visible: showPolicyScoreRef.current,
+        });
+
+        // Offshore-wind reference layer — indicative zones + VGF/LiDAR pins, from
+        // /api/offshore-wind. Async (fetches GeoJSON) — applies its own initial
+        // visibility and feeds the Offshore-wind tool panel (zones/projects/policy)
+        // via onData, so the panel works even with the layer toggled off. Below
+        // the pins; a zone/project click jumps the left card to the Offshore tool.
+        addOffshoreWind(map, {
+          isInteractionBlocked: () =>
+            Boolean(aoiArmedRef.current || measureArmedRef.current),
+          onData: (d) => {
+            setOffshoreData(d);
+            setOffshoreError(null);
+            setOffshoreLoading(false);
+            // Layers exist now — apply the LATEST toggle state (the visibility
+            // effect ran while the async add was in flight and no-op'd). This is
+            // the single source of truth for the offshore layer's initial state.
+            setOffshoreWindVisibility(map, showOffshoreRef.current);
+          },
+          onError: (msg) => {
+            setOffshoreError(msg);
+            setOffshoreLoading(false);
+          },
+          onSelectZone: (zone) => {
+            setSelectedOffshoreProject(null);
+            setSelectedOffshoreZone(zone);
+            setActiveTool("offshore");
+            setSidebarOpen(true);
+          },
+          onSelectProject: (project) => {
+            setSelectedOffshoreZone(null);
+            setSelectedOffshoreProject(project);
+            setActiveTool("offshore");
+            setSidebarOpen(true);
+          },
+        });
       });
 
       map.on("click", "windmills-hit", async (e: MapMouseEvent) => {
@@ -905,6 +986,21 @@ export default function ProMapPage() {
         />
       ),
     },
+    {
+      id: "offshore",
+      label: "Offshore wind",
+      Icon: OffshoreIcon,
+      badge: selectedOffshoreZone != null || selectedOffshoreProject != null,
+      content: (
+        <OffshoreWindTool
+          data={offshoreData}
+          selectedZone={selectedOffshoreZone}
+          selectedProject={selectedOffshoreProject}
+          loading={offshoreLoading}
+          error={offshoreError}
+        />
+      ),
+    },
   ];
 
   // Right TOOLS bar: ONE panel stacking all the tools one below the other —
@@ -980,6 +1076,7 @@ export default function ProMapPage() {
               showPowerGrid={showPowerGrid}
               showExclusions={showExclusions}
               showPolicyScore={showPolicyScore}
+              showOffshore={showOffshore}
               mastCats={mastCats}
               voltageBands={voltageBands}
               onToggleTurbines={setShowTurbines}
@@ -987,6 +1084,7 @@ export default function ProMapPage() {
               onTogglePowerGrid={setShowPowerGrid}
               onToggleExclusions={setShowExclusions}
               onTogglePolicyScore={setShowPolicyScore}
+              onToggleOffshore={setShowOffshore}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
               }
