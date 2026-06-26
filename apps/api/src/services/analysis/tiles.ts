@@ -71,13 +71,13 @@ export interface TileFetchOptions {
 
 /** Resolved per call (not at module load) so tests can point TILE_CACHE_DIR
  *  at a tmp dir after import. */
-function resolveTileCacheDir(): string {
+export function resolveTileCacheDir(): string {
   const fromEnv = process.env.TILE_CACHE_DIR;
   if (fromEnv && fromEnv.length > 0) return fromEnv;
   return process.env.NODE_ENV === "production" ? PROD_CACHE_DIR : DEV_CACHE_DIR;
 }
 
-function tileCachePath(
+export function tileCachePath(
   baseDir: string,
   layer: GwaLayer,
   z: number,
@@ -188,7 +188,7 @@ async function fetchTileBytes(
 /** One tile through the cache: cached bytes always win (infinite TTL); a
  *  corrupt cached file is logged and refetched; freshly fetched bytes are
  *  cached only after they decode cleanly. null = 404 (all-NaN tile). */
-async function loadTile(
+export async function loadTile(
   layer: GwaLayer,
   x: number,
   y: number,

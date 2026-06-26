@@ -31,8 +31,20 @@ export const ANALYSIS_VERSION = "11.0.0";
  */
 export const ANALYSIS_ZOOM = 10;
 
-/** GWA TiTiler (same instance build_wind_atlas.py bakes from). */
-export const GWA_TILER_BASE = "https://tiles-stag.ramtt.xyz/titiler/gwa4";
+/**
+ * GWA TiTiler base URL (same instance build_wind_atlas.py bakes from).
+ *
+ * This is Global Wind Atlas's OWN tiler — third-party infra we don't control,
+ * and it is intermittently unreliable (spurious 404s, inconsistent payloads,
+ * slow cold responses). The durable answer is to pre-seed the on-disk tile
+ * cache (scripts/prefetch-gwa-tiles.ts) so analysis never depends on it at
+ * query time. Overridable via env so the host can be repointed at a self-hosted
+ * mirror without a code change.
+ */
+export const GWA_TILER_BASE =
+  process.env.GWA_TILER_BASE && process.env.GWA_TILER_BASE.length > 0
+    ? process.env.GWA_TILER_BASE
+    : "https://tiles-stag.ramtt.xyz/titiler/gwa4";
 
 /** Verified GWA layer names (VERIFIED.md §1). Units in comments. */
 export const GWA_LAYERS = {
