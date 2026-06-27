@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import React, { useEffect, useMemo, useState } from "react";
+import LogisticsPlanner from "@/components/logistics/LogisticsPlanner";
 import type {
   AnalysisResponse,
   Confidence,
@@ -257,6 +258,12 @@ export function AnalysisResults({ analysis, committedRing, onMastSelect }: Props
         <ExportReportButton ring={committedRing} />
       )}
 
+      {/* Continue into the logistics planner with this AOI as the delivery site. */}
+      <PlanLogisticsButton
+        centroid={aoi.centroid}
+        siteName={context?.states?.[0]?.name ?? null}
+      />
+
       <ReportDisclaimer />
     </div>
   );
@@ -328,6 +335,79 @@ function DownloadIcon({ className }: { className?: string }) {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+
+// ── Plan turbine logistics (deep-link into /logistics) ────────────────────────
+
+/**
+ * Hands the AOI centroid to the Turbine Logistics Planner as the delivery site,
+ * so the user can price ODC transport for this exact location without
+ * re-entering coordinates. `centroid` is [lon, lat] (GeoJSON order). Both pages
+ * live in the (portal) route group, so this is a smooth in-app navigation.
+ */
+function PlanLogisticsButton({
+  centroid,
+  siteName,
+}: {
+  centroid: [number, number];
+  siteName: string | null;
+}) {
+  const [open, setOpen] = useState(false);
+  const [lon, lat] = centroid;
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  const name = siteName ? `${siteName} site` : "Selected site";
+  return (
+    <div className="mt-1">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls="logistics-inline"
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-orange/40 bg-orange/10 px-3 py-2 text-xs font-medium text-orange transition-colors hover:border-orange/70 hover:bg-orange/20"
+      >
+        <TruckIcon className="h-3.5 w-3.5" />
+        Plan turbine logistics
+        <span aria-hidden className="ml-0.5">{open ? "▾" : "▸"}</span>
+      </button>
+      {!open && (
+        <p className="mt-1 text-[10px] text-slate-500">
+          ODC transport + cost for this site; routes plot on the map.
+        </p>
+      )}
+      {open && (
+        <div
+          id="logistics-inline"
+          className="mt-2 overflow-hidden rounded-lg border border-[#1f2c44] bg-[#0b0f19]"
+        >
+          <LogisticsPlanner
+            initialDestination={{ lat, lon, name }}
+            embedded
+            onRequestClose={() => setOpen(false)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TruckIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M10 17h4V5H2v12h3" />
+      <path d="M14 9h4l3 3v5h-3" />
+      <circle cx="7.5" cy="17.5" r="1.5" />
+      <circle cx="17.5" cy="17.5" r="1.5" />
     </svg>
   );
 }

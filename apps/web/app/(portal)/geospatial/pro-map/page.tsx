@@ -19,6 +19,9 @@ import { TerrainTool, TerrainIcon } from "@/components/Map/components/TerrainToo
 import { useAoiAnalysis } from "@/components/Map/hooks/useAoiAnalysis";
 import { useMeasureDistance } from "@/components/Map/hooks/useMeasureDistance";
 import { useTerrain } from "@/components/Map/hooks/useTerrain";
+import { useLogisticsRouteLayer } from "@/components/Map/hooks/useLogisticsRouteLayer";
+import { subscribeLogisticsRoutes } from "@/lib/logisticsRouteStore";
+import type { LogisticsRoutesPayload } from "@/lib/logistics";
 import type { AoiDrawMode } from "@/components/Map/utils/aoiDraw";
 import { BasemapToggle, type ProBasemap } from "@/components/Map/components/BasemapToggle";
 import {
@@ -119,6 +122,12 @@ const DEFAULT_WIND_RASTER_OPACITY = 0.5;
 export default function ProMapPage() {
   const { data: session, isPending } = useSession();
   const mapRef = useRef<MlMap | null>(null);
+
+  // Logistics routes plotted from the planner popup (pushed via the route store,
+  // which bridges the portalled modal to this map).
+  const [logisticsRoutes, setLogisticsRoutes] = useState<LogisticsRoutesPayload | null>(null);
+  useEffect(() => subscribeLogisticsRoutes(setLogisticsRoutes), []);
+  useLogisticsRouteLayer(mapRef, logisticsRoutes);
   const containerRef = useRef<HTMLDivElement | null>(null);
   // Mirrors `basemap` so the map-load closure (which deliberately omits
   // `basemap` from its deps) can read the latest value when it adds the layer.

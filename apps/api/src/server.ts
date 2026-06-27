@@ -21,6 +21,7 @@ import policyRoutes from './routes/policy';
 import windFarmsRoutes from './routes/windFarms';
 import offshoreWindRoutes from './routes/offshoreWind';
 import siteAnalysisReportRoutes from './routes/siteAnalysisReport';
+import logisticsRoutes from './routes/logistics';
 import { setupScheduler } from './services/scheduler';
 import { runOrchestrator } from './orchestrator';
 import fs from 'fs';
@@ -91,6 +92,7 @@ app.use('/api', policyRoutes);
 app.use('/api', windFarmsRoutes);
 app.use('/api', offshoreWindRoutes);
 app.use('/api', siteAnalysisReportRoutes);
+app.use('/api', logisticsRoutes);
 
 // Setup node-cron
 setupScheduler();
