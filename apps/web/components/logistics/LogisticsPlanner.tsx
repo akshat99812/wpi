@@ -168,7 +168,6 @@ export default function LogisticsPlanner({
   const [model, setModel] = useState<string>("");
   const [scope, setScope] = useState<PlanScope>("turbine");
   const [component, setComponent] = useState<ComponentCategory>("blade");
-  const [presetIdx, setPresetIdx] = useState<number>(0);
   const [lat, setLat] = useState<string>("");
   const [lon, setLon] = useState<string>("");
   const [siteName, setSiteName] = useState<string>("");
@@ -204,26 +203,14 @@ export default function LogisticsPlanner({
     }
   }, [modelsForOem, model]);
 
-  // Seed the destination from the first preset once the catalog arrives.
-  useEffect(() => {
-    if (catalog && catalog.presetSites.length && !lat && !lon) {
-      const p = catalog.presetSites[0];
-      setLat(String(p.lat));
-      setLon(String(p.lon));
-      setSiteName(p.name);
-    }
-  }, [catalog, lat, lon]);
-
   // Switching OEM invalidates origin overrides (facilities are OEM-scoped).
   useEffect(() => {
     setOrigins({});
   }, [oem]);
 
-  // Seed the destination from an explicit prop (pro-map popup) or, on the
-  // standalone /logistics page, from ?lat=&lon=&name= query params. Read once
-  // on mount (window.location avoids the Suspense boundary useSearchParams
-  // needs); runs before the catalog resolves, so the first-preset seed below
-  // sees lat/lon already set and skips.
+  // The delivery site comes ONLY from the selected AOI — an explicit prop
+  // (pro-map site-analysis popup) or, on the standalone /logistics page, the
+  // ?lat=&lon=&name= query params. There is no preset / manual location entry.
   useEffect(() => {
     let seedLat: string | undefined;
     let seedLon: string | undefined;
@@ -246,7 +233,6 @@ export default function LogisticsPlanner({
       setLat(seedLat);
       setLon(seedLon);
       setSiteName(seedName ?? "Selected site");
-      setPresetIdx(-1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -256,15 +242,9 @@ export default function LogisticsPlanner({
     [catalog, oem],
   );
 
-  function onPreset(i: number) {
-    setPresetIdx(i);
-    if (i >= 0 && catalog) {
-      const p = catalog.presetSites[i];
-      setLat(String(p.lat));
-      setLon(String(p.lon));
-      setSiteName(p.name);
-    }
-  }
+  // Destination is AOI-only — present iff seeded with valid coordinates.
+  const hasDestination =
+    Number.isFinite(parseFloat(lat)) && Number.isFinite(parseFloat(lon));
 
   const compute = useCallback(async () => {
     if (!catalog || !model) return;
@@ -403,12 +383,10 @@ export default function LogisticsPlanner({
               setScope={setScope}
               component={component}
               setComponent={setComponent}
-              presetIdx={presetIdx}
-              onPreset={onPreset}
               lat={lat}
-              setLat={(v) => { setLat(v); setPresetIdx(-1); }}
               lon={lon}
-              setLon={(v) => { setLon(v); setPresetIdx(-1); }}
+              siteName={siteName}
+              hasDestination={hasDestination}
               numTurbines={numTurbines}
               setNumTurbines={setNumTurbines}
               terrain={terrain}
@@ -486,12 +464,10 @@ interface FormPanelProps {
   setScope: (v: PlanScope) => void;
   component: ComponentCategory;
   setComponent: (v: ComponentCategory) => void;
-  presetIdx: number;
-  onPreset: (i: number) => void;
   lat: string;
-  setLat: (v: string) => void;
   lon: string;
-  setLon: (v: string) => void;
+  siteName: string;
+  hasDestination: boolean;
   numTurbines: number;
   setNumTurbines: (v: number) => void;
   terrain: TerrainType;
@@ -553,22 +529,18 @@ function FormPanel(p: FormPanelProps) {
       </div>
 
       <div>
-        <label className={LABEL} htmlFor="lp-dest">Destination site</label>
-        <select
-          id="lp-dest"
-          className={`${INPUT} mt-1`}
-          value={p.presetIdx}
-          onChange={(e) => p.onPreset(Number(e.target.value))}
-        >
-          <option value={-1}>Custom (enter lat/lon)</option>
-          {p.catalog?.presetSites.map((s, i) => (
-            <option key={s.name} value={i}>{s.name} — {s.state}</option>
-          ))}
-        </select>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <input aria-label="Latitude" className={INPUT} inputMode="decimal" placeholder="lat" value={p.lat} onChange={(e) => p.setLat(e.target.value)} />
-          <input aria-label="Longitude" className={INPUT} inputMode="decimal" placeholder="lon" value={p.lon} onChange={(e) => p.setLon(e.target.value)} />
-        </div>
+        <label className={LABEL}>Delivery site</label>
+        {p.hasDestination ? (
+          <div className="mt-1 rounded-md border border-[#27324a] bg-[#0b1120] px-2.5 py-2 text-xs">
+            <div className="font-medium text-text">{p.siteName || "Selected site"}</div>
+            <div className="mt-0.5 tabular-nums text-muted">{p.lat}, {p.lon}</div>
+          </div>
+        ) : (
+          <div className="mt-1 rounded-md border border-dashed border-[#27324a] bg-[#0b1120] px-2.5 py-2 text-[11px] leading-snug text-muted">
+            Draw a point, rectangle, or polygon on the map, then open the planner from
+            the site-analysis results.
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -641,7 +613,7 @@ function FormPanel(p: FormPanelProps) {
 
       <button
         type="button"
-        disabled={p.computing || !p.model}
+        disabled={p.computing || !p.model || !p.hasDestination}
         onClick={p.onCompute}
         className="w-full rounded-md bg-orange py-2 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:opacity-50"
       >

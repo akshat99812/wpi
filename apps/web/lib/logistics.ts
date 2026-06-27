@@ -119,13 +119,6 @@ export interface CostBreakdown {
   pctOfTurbineCost: number | null;
 }
 
-export interface PresetSite {
-  name: string;
-  state: string;
-  lat: number;
-  lon: number;
-}
-
 export interface PlanLeg {
   origin: Facility;
   distanceKm: number;
@@ -165,7 +158,6 @@ export interface Catalog {
   turbines: TurbineModel[];
   facilities: Facility[];
   trailerTypes: { id: TrailerType; label: string }[];
-  presetSites: PresetSite[];
   defaultAssumptions: CostAssumptions;
 }
 

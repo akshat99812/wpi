@@ -16,7 +16,6 @@ import {
 } from "../services/logistics";
 import { TURBINES } from "../services/logistics/turbines";
 import { FACILITIES } from "../services/logistics/facilities";
-import { PRESET_SITES } from "../services/logistics/presets";
 import { DEFAULT_ASSUMPTIONS, TRAILER_LABELS } from "../services/logistics/cost";
 import { OEM_LABELS } from "../services/logistics/types";
 
@@ -180,7 +179,6 @@ router.get("/logistics/catalog", ...requirePro, logisticsLimiter, (_req: Request
     trailerTypes: (Object.keys(TRAILER_LABELS) as (keyof typeof TRAILER_LABELS)[]).map(
       (id) => ({ id, label: TRAILER_LABELS[id] }),
     ),
-    presetSites: PRESET_SITES,
     defaultAssumptions: DEFAULT_ASSUMPTIONS,
   });
 });
