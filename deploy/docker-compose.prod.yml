@@ -29,6 +29,9 @@ services:
       # ── Pro Map (PostGIS) ────────────────────────────────────────────────
       DATABASE_URL: postgres://wpi:${POSTGIS_PASSWORD}@postgis:5432/wpi
       TILE_CACHE_TTL: ${TILE_CACHE_TTL:-3600}
+      # ── Logistics planner (OpenRouteService driving-hgv routing) ─────────
+      # Falls back to a straight-line estimate when unset.
+      ORS_API_KEY: ${ORS_API_KEY:-}
 
   web:
     build:
