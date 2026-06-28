@@ -245,6 +245,11 @@ export default function ProMapPage() {
     measure.disarm();
     aoi.uploadFile(file);
   };
+  // A micro-sited turbine-layout upload likewise takes over the AOI flow.
+  const uploadLayoutFile = (file: File) => {
+    measure.disarm();
+    aoi.uploadLayoutFile(file);
+  };
   const toggleMeasure = () => {
     if (measure.armed) {
       measure.disarm();
@@ -754,8 +759,12 @@ export default function ProMapPage() {
       });
 
       // Attach the AOI draw controller now that the pin layer exists (its
-      // layers anchor below windmills-pts, like the farm boundaries).
-      aoi.onMapLoad(map);
+      // layers anchor below windmills-pts, like the farm boundaries). The
+      // predicate suppresses turbine-marker clicks while another tool owns
+      // clicks (AOI-draw arming is handled inside the hook).
+      aoi.onMapLoad(map, () =>
+        Boolean(aoiArmedRef.current || measureArmedRef.current),
+      );
 
       // Measure-distance tool — its layers are created lazily on first arm
       // and sit ABOVE the pins (transient tooling, never data).
@@ -1001,6 +1010,12 @@ export default function ProMapPage() {
           analysis={aoi.analysis}
           committedRing={aoi.committedRing}
           error={aoi.error}
+          layout={aoi.layout}
+          selectedTurbine={aoi.selectedTurbine}
+          pointReport={aoi.pointReport}
+          pointUiState={aoi.pointUiState}
+          pointError={aoi.pointError}
+          onClearTurbine={aoi.clearTurbine}
           onArm={armAoi}
           onClear={aoi.clearAll}
         />
@@ -1043,9 +1058,13 @@ export default function ProMapPage() {
             committedAreaKm2={aoi.committedAreaKm2}
             analysis={aoi.analysis}
             error={aoi.error}
+            layout={aoi.layout}
+            selectedTurbine={aoi.selectedTurbine}
+            onClearTurbine={aoi.clearTurbine}
             onArm={armAoi}
             onClear={aoi.clearAll}
             onUploadFile={uploadAoiFile}
+            onUploadLayout={uploadLayoutFile}
           />
           <MeasureTool
             phase={measure.phase}

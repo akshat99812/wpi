@@ -9,23 +9,27 @@ import {
 } from "./geometry";
 
 /**
- * Client-side KML / KMZ → AOI ring parsing for the Analyze tool's file upload.
+ * Client-side KML / KMZ → GeoJSON reading for the Analyze tool's file uploads.
  *
  * A KMZ is a ZIP whose main document is `doc.kml` (or, defensively, the first
  * `.kml` entry). KML is parsed with the browser's native DOMParser, then
- * @tmcw/togeojson maps it to GeoJSON. We flatten every polygon ring out of the
- * feature collection and pick the LARGEST by area as the AOI — most site files
- * carry one boundary, but mixed files (boundary + annotations) are common.
+ * @tmcw/togeojson maps it to GeoJSON.
  *
- * A point-only file (a dropped pin with no polygon) degrades to a 5×5 km square
- * around the point, mirroring the map's "point" draw mode so the server still
- * fingerprints it as point-mode.
+ * Two consumers build on `featureCollectionFromFile`:
+ *  - `parseAoiFromFile` (here) flattens every polygon ring and picks the LARGEST
+ *    by area as the AOI boundary — most site files carry one boundary, but mixed
+ *    files (boundary + annotations) are common. A point-only file degrades to a
+ *    5×5 km square around the point, mirroring the map's "point" draw mode so the
+ *    server still fingerprints it as point-mode.
+ *  - `parseLayoutFromFile` (lib/analysis/layout.ts) collects every POINT as an
+ *    exact micro-sited turbine position.
  *
  * Cap/floor are checked here for a friendly message; the server re-validates
  * geometry (India bbox, self-intersection, exact area) authoritatively.
  */
 
-const MAX_FILE_BYTES = 8 * 1024 * 1024; // 8 MB — boundary files are tiny; guard junk.
+/** Max upload size — boundary/layout files are tiny; guard junk. */
+export const MAX_FILE_BYTES = 8 * 1024 * 1024; // 8 MB
 
 export class KmlParseError extends Error {
   constructor(message: string) {
@@ -85,8 +89,8 @@ function collectGeometry(
   }
 }
 
-/** Parse raw KML text into the best AOI ring. Throws KmlParseError on failure. */
-function ringFromKmlText(kmlText: string): ParsedAoi {
+/** Parse raw KML text into a GeoJSON FeatureCollection. Throws on bad XML. */
+function featureCollectionFromKmlText(kmlText: string): GeoJSON.FeatureCollection {
   let doc: Document;
   try {
     doc = new DOMParser().parseFromString(kmlText, "application/xml");
@@ -96,14 +100,57 @@ function ringFromKmlText(kmlText: string): ParsedAoi {
   if (doc.getElementsByTagName("parsererror").length > 0) {
     throw new KmlParseError("Could not read the KML — the file is not valid XML.");
   }
-
-  let fc: GeoJSON.FeatureCollection;
   try {
-    fc = kml(doc) as GeoJSON.FeatureCollection;
+    return kml(doc) as GeoJSON.FeatureCollection;
   } catch {
     throw new KmlParseError("Could not convert the KML to a usable shape.");
   }
+}
 
+/** Pull the primary KML document text out of a KMZ archive. */
+function kmlTextFromKmz(bytes: Uint8Array): string {
+  let entries: Record<string, Uint8Array>;
+  try {
+    entries = unzipSync(bytes);
+  } catch {
+    throw new KmlParseError("Could not open the KMZ — it is not a valid archive.");
+  }
+  const names = Object.keys(entries);
+  const docName =
+    names.find((n) => n.toLowerCase() === "doc.kml") ??
+    names.find((n) => n.toLowerCase().endsWith(".kml"));
+  if (!docName) {
+    throw new KmlParseError("The KMZ contains no .kml document.");
+  }
+  return strFromU8(entries[docName]);
+}
+
+/**
+ * Read a user-selected .kml or .kmz File into a GeoJSON FeatureCollection.
+ * Rejects oversized files and unsupported extensions. Shared by the boundary
+ * (AOI) and turbine-layout parsers so the ZIP/XML handling lives in one place.
+ */
+export async function featureCollectionFromFile(
+  file: File,
+): Promise<GeoJSON.FeatureCollection> {
+  if (file.size > MAX_FILE_BYTES) {
+    throw new KmlParseError("File is too large (over 8 MB). Upload just the site data.");
+  }
+  const name = file.name.toLowerCase();
+  const isKmz = name.endsWith(".kmz");
+  const isKml = name.endsWith(".kml");
+  if (!isKmz && !isKml) {
+    throw new KmlParseError("Unsupported file — choose a .kml or .kmz file.");
+  }
+  if (isKmz) {
+    const buf = new Uint8Array(await file.arrayBuffer());
+    return featureCollectionFromKmlText(kmlTextFromKmz(buf));
+  }
+  return featureCollectionFromKmlText(await file.text());
+}
+
+/** Pick the largest polygon ring (or a 5×5 km square around a lone point). */
+function ringFromFeatureCollection(fc: GeoJSON.FeatureCollection): ParsedAoi {
   const rings: [number, number][][] = [];
   const points: [number, number][] = [];
   for (const feature of fc.features ?? []) {
@@ -134,47 +181,13 @@ function ringFromKmlText(kmlText: string): ParsedAoi {
   return { ring: best, areaKm2: bestArea, fromPoint: false };
 }
 
-/** Pull the primary KML document text out of a KMZ archive. */
-function kmlTextFromKmz(bytes: Uint8Array): string {
-  let entries: Record<string, Uint8Array>;
-  try {
-    entries = unzipSync(bytes);
-  } catch {
-    throw new KmlParseError("Could not open the KMZ — it is not a valid archive.");
-  }
-  const names = Object.keys(entries);
-  const docName =
-    names.find((n) => n.toLowerCase() === "doc.kml") ??
-    names.find((n) => n.toLowerCase().endsWith(".kml"));
-  if (!docName) {
-    throw new KmlParseError("The KMZ contains no .kml document.");
-  }
-  return strFromU8(entries[docName]);
-}
-
 /**
  * Parse a user-selected .kml or .kmz File into a validated AOI ring.
- * Rejects oversized files and shapes outside the analysis area bounds.
+ * Rejects shapes outside the analysis area bounds.
  */
 export async function parseAoiFromFile(file: File): Promise<ParsedAoi> {
-  if (file.size > MAX_FILE_BYTES) {
-    throw new KmlParseError("File is too large (over 8 MB). Upload just the site boundary.");
-  }
-
-  const name = file.name.toLowerCase();
-  const isKmz = name.endsWith(".kmz");
-  const isKml = name.endsWith(".kml");
-  if (!isKmz && !isKml) {
-    throw new KmlParseError("Unsupported file — choose a .kml or .kmz file.");
-  }
-
-  let parsed: ParsedAoi;
-  if (isKmz) {
-    const buf = new Uint8Array(await file.arrayBuffer());
-    parsed = ringFromKmlText(kmlTextFromKmz(buf));
-  } else {
-    parsed = ringFromKmlText(await file.text());
-  }
+  const fc = await featureCollectionFromFile(file);
+  const parsed = ringFromFeatureCollection(fc);
 
   if (parsed.areaKm2 < AOI_MIN_KM2) {
     throw new KmlParseError(

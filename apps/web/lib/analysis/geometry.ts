@@ -67,3 +67,69 @@ export function haversineKm(a: [number, number], b: [number, number]): number {
     Math.cos(toRad(a[1])) * Math.cos(toRad(b[1])) * Math.sin(dLon / 2) ** 2;
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
 }
+
+/** Arithmetic mean [lon, lat] of a set of points. Empty input → [0, 0]. */
+export function centroidOf(points: [number, number][]): [number, number] {
+  if (points.length === 0) return [0, 0];
+  let sumLon = 0;
+  let sumLat = 0;
+  for (const [lon, lat] of points) {
+    sumLon += lon;
+    sumLat += lat;
+  }
+  return [sumLon / points.length, sumLat / points.length];
+}
+
+/**
+ * Convex hull of a point set via Andrew's monotone chain, returned as an OPEN
+ * counter-clockwise ring (first vertex NOT repeated at the end). Computed in
+ * planar lon/lat — exact enough for a single project's turbine footprint at
+ * Indian latitudes. Fewer than three unique points cannot form a polygon, so
+ * the de-duplicated input is returned as-is for the caller to handle.
+ */
+export function convexHull(points: [number, number][]): [number, number][] {
+  // De-duplicate, then sort by lon, then lat.
+  const seen = new Set<string>();
+  const pts: [number, number][] = [];
+  for (const p of points) {
+    const key = `${p[0]},${p[1]}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    pts.push(p);
+  }
+  if (pts.length < 3) return pts;
+  pts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+
+  // Cross product of OA × OB; ≤ 0 drops right turns and collinear points.
+  const cross = (
+    o: [number, number],
+    a: [number, number],
+    b: [number, number],
+  ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+
+  const lower: [number, number][] = [];
+  for (const p of pts) {
+    while (
+      lower.length >= 2 &&
+      cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0
+    ) {
+      lower.pop();
+    }
+    lower.push(p);
+  }
+  const upper: [number, number][] = [];
+  for (let i = pts.length - 1; i >= 0; i--) {
+    const p = pts[i];
+    while (
+      upper.length >= 2 &&
+      cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0
+    ) {
+      upper.pop();
+    }
+    upper.push(p);
+  }
+  // Drop each list's last point (it is the other list's first) and join.
+  lower.pop();
+  upper.pop();
+  return lower.concat(upper);
+}

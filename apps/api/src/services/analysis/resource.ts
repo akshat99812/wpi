@@ -34,8 +34,10 @@ const BAROMETRIC_EXPONENT = 5.256;
 
 /** Heights of the three GWA mean-speed layers used for the shear fit. */
 const SHEAR_FIT_HEIGHTS_M = [50, 100, 150] as const;
-const SHEAR_ALPHA_MIN = 0;
-const SHEAR_ALPHA_MAX = 0.6;
+/** Physical sanity band for the power-law shear exponent (exported so the
+ *  per-point report clamps identically to the AOI path). */
+export const SHEAR_ALPHA_MIN = 0;
+export const SHEAR_ALPHA_MAX = 0.6;
 /** 1/7 power law — used only if the 50/150 m layers are empty in-mask. */
 const SHEAR_ALPHA_FALLBACK = 1 / 7;
 

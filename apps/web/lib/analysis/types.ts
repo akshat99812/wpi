@@ -193,3 +193,42 @@ export interface AnalysisErrorBody {
   error: string;
   code?: string;
 }
+
+// ── Exact-point report (per-turbine click in a micro-sited layout) ──────────
+// Mirrors apps/api/src/services/analysis/point.ts (POST /api/analyze/point).
+
+export interface PointResourceData {
+  /** Mean wind speed @100 m (m/s) at the exact point. */
+  meanSpeed: number;
+  ws50: number | null;
+  ws150: number | null;
+  shearAlpha: number | null;
+  cfIec3: number | null;
+  cfIec2: number | null;
+  powerDensity: number | null;
+  powerDensityRaw: number | null;
+  airDensity: number | null;
+  elevationM: number | null;
+}
+
+export interface PointExclusionHit {
+  layerCode: string;
+  cls: "red" | "amber";
+}
+
+export interface PointExclusion {
+  inExclusion: boolean;
+  hardHit: boolean;
+  hits: PointExclusionHit[];
+}
+
+export interface PointReport {
+  point: { lon: number; lat: number };
+  resource: PointResourceData | null;
+  validation: {
+    nearestMast: ValidationData["nearestMast"];
+    modelDeltaPct: number | null;
+  } | null;
+  grid: GridData | null;
+  exclusion: PointExclusion | null;
+}

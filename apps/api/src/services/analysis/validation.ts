@@ -331,3 +331,45 @@ export async function computeValidation(
     confidence: confidenceFrom(counts.within20, counts.within25),
   };
 }
+
+/** Nearest-mast + model delta for a single exact point (no AOI counts). Powers
+ *  the per-turbine point report. Throws when the masts DB is unavailable — the
+ *  point pipeline maps a rejection to a null validation block. */
+export async function computePointValidation(
+  lon: number,
+  lat: number,
+  shearAlpha: number,
+  options: TileFetchOptions = {},
+): Promise<{ nearestMast: ValidationData["nearestMast"]; modelDeltaPct: number | null }> {
+  if (!dbAvailable()) {
+    throw new Error("validation: DATABASE_URL not set — masts DB unavailable");
+  }
+  if (!Number.isFinite(lon) || !Number.isFinite(lat)) {
+    throw new Error(`validation: non-finite point lon=${lon} lat=${lat}`);
+  }
+  if (!Number.isFinite(shearAlpha)) {
+    throw new Error(`validation: shearAlpha must be finite, got ${shearAlpha}`);
+  }
+
+  const nearest = await queryNearestMast(lon, lat);
+  const isDeltaEligible = nearest !== null && nearest.distanceKm <= MAST_DELTA_MAX_KM;
+  const modelDeltaPct =
+    isDeltaEligible && nearest !== null
+      ? await computeModelDelta(nearest, shearAlpha, options)
+      : null;
+
+  return {
+    nearestMast:
+      nearest === null
+        ? null
+        : {
+            station: nearest.station,
+            distanceKm: roundTo(nearest.distanceKm, DISTANCE_DECIMALS),
+            maws: nearest.maws,
+            mawpd: nearest.mawpd,
+            heightM: nearest.heightM,
+            id: nearest.id,
+          },
+    modelDeltaPct,
+  };
+}

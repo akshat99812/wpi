@@ -36,6 +36,12 @@ interface Props {
   committedRing?: [number, number][] | null;
   /** Optional click-through from the nearest-mast row to the mast detail. */
   onMastSelect?: (mastId: string) => void;
+  /** Pre-fill the logistics planner's turbine count (uploaded layout / single). */
+  logisticsTurbineCount?: number;
+  /** Override the logistics delivery-site label (layout / single turbine). */
+  logisticsSiteName?: string | null;
+  /** Remounts the logistics planner when the layout/turbine context changes. */
+  logisticsContextKey?: string;
 }
 
 const CONFIDENCE_STYLE: Record<Confidence, string> = {
@@ -76,7 +82,14 @@ const RATING_STYLE: Record<ScoreRating, string> = {
   Poor: "bg-slate-500/15 text-slate-300 border-slate-500/40",
 };
 
-export function AnalysisResults({ analysis, committedRing, onMastSelect }: Props) {
+export function AnalysisResults({
+  analysis,
+  committedRing,
+  onMastSelect,
+  logisticsTurbineCount,
+  logisticsSiteName,
+  logisticsContextKey,
+}: Props) {
   const { score, financials, irrBand, sections, aoi } = analysis;
   const resource = sections.resource.status === "ok" ? sections.resource.data : null;
   const validation = sections.validation.status === "ok" ? sections.validation.data : null;
@@ -258,10 +271,17 @@ export function AnalysisResults({ analysis, committedRing, onMastSelect }: Props
         <ExportReportButton ring={committedRing} />
       )}
 
-      {/* Continue into the logistics planner with this AOI as the delivery site. */}
+      {/* Continue into the logistics planner with this AOI as the delivery site.
+          For an uploaded layout the count + label are pre-filled; clicking a
+          single turbine prices delivery for that one turbine. */}
       <PlanLogisticsButton
+        key={logisticsContextKey ?? "aoi"}
         centroid={aoi.centroid}
-        siteName={context?.states?.[0]?.name ?? null}
+        siteName={
+          logisticsSiteName ??
+          (context?.states?.[0]?.name ? `${context.states[0].name} site` : null)
+        }
+        numTurbines={logisticsTurbineCount}
       />
 
       <ReportDisclaimer />
@@ -347,17 +367,20 @@ function DownloadIcon({ className }: { className?: string }) {
  * re-entering coordinates. `centroid` is [lon, lat] (GeoJSON order). Both pages
  * live in the (portal) route group, so this is a smooth in-app navigation.
  */
-function PlanLogisticsButton({
+export function PlanLogisticsButton({
   centroid,
   siteName,
+  numTurbines,
 }: {
   centroid: [number, number];
   siteName: string | null;
+  /** Pre-fill the planner's turbine count (uploaded layout / single turbine). */
+  numTurbines?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [lon, lat] = centroid;
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-  const name = siteName ? `${siteName} site` : "Selected site";
+  const name = siteName ?? "Selected site";
   return (
     <div className="mt-1">
       <button
@@ -383,6 +406,7 @@ function PlanLogisticsButton({
         >
           <LogisticsPlanner
             initialDestination={{ lat, lon, name }}
+            initialNumTurbines={numTurbines}
             embedded
             onRequestClose={() => setOpen(false)}
           />

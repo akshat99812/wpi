@@ -8,6 +8,8 @@ import {
   tryAcquireAnalysisSlot,
 } from "../services/analysis/concurrency";
 import { analyzeRequestSchema, validateAoi } from "../services/analysis/geometry";
+import { INDIA_BBOX } from "../services/analysis/constants";
+import { computePointReport } from "../services/analysis/point";
 import {
   getCachedResult,
   putCachedResult,
@@ -110,6 +112,61 @@ router.post(
     } catch (err) {
       console.error("[analyze] failed", { user: req.user?.id, err });
       res.status(500).json({ error: "Analysis failed" });
+    }
+  },
+);
+
+// POST /api/analyze/point — exact-point screening for ONE coordinate (a clicked
+// turbine in an uploaded micro-sited layout). Reads GWA/grid/mast/exclusion AT
+// the point — no AOI averaging. Reuses the analyze rate-limit + concurrency gate.
+router.post(
+  "/analyze/point",
+  ...requirePro,
+  analyzeLimiter,
+  async (req: Request, res: Response) => {
+    const body = (req.body ?? {}) as { lon?: unknown; lat?: unknown };
+    const lon = body.lon;
+    const lat = body.lat;
+    if (
+      typeof lon !== "number" ||
+      typeof lat !== "number" ||
+      !Number.isFinite(lon) ||
+      !Number.isFinite(lat)
+    ) {
+      res.status(400).json({
+        error: "request body must be { lon: number, lat: number }",
+        code: "INVALID_POINT",
+      });
+      return;
+    }
+    const [west, south, east, north] = INDIA_BBOX;
+    if (lon < west || lon > east || lat < south || lat > north) {
+      res.status(400).json({
+        error: "point is outside the India analysis area",
+        code: "OUT_OF_INDIA",
+      });
+      return;
+    }
+
+    const slot = tryAcquireAnalysisSlot();
+    if (slot === null) {
+      console.warn(
+        `[analyze/point] concurrency cap ${MAX_CONCURRENT_ANALYSES} reached; user=${req.user?.id}`,
+      );
+      res.setHeader("Retry-After", String(ANALYSIS_RETRY_AFTER_SECONDS));
+      res.status(429).json({
+        error: "Server is at its analysis limit — please retry shortly",
+      });
+      return;
+    }
+    try {
+      const report = await computePointReport(lon, lat);
+      res.json(report);
+    } catch (err) {
+      console.error("[analyze/point] failed", { user: req.user?.id, err });
+      res.status(500).json({ error: "Point analysis failed" });
+    } finally {
+      slot.release();
     }
   },
 );

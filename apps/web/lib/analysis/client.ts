@@ -1,4 +1,4 @@
-import type { AnalysisErrorBody, AnalysisResponse } from "./types";
+import type { AnalysisErrorBody, AnalysisResponse, PointReport } from "./types";
 
 /**
  * POST /api/analyze client. Pro-gated on the server; the session cookie rides
@@ -57,4 +57,38 @@ export async function postAnalyze(
   }
 
   return (await res.json()) as AnalysisResponse;
+}
+
+/**
+ * POST /api/analyze/point — exact-point screening for one coordinate (a clicked
+ * turbine in a micro-sited layout). Same auth/error contract as postAnalyze.
+ */
+export async function postAnalyzePoint(
+  lon: number,
+  lat: number,
+  signal: AbortSignal,
+): Promise<PointReport> {
+  const res = await fetch(`${API_URL}/api/analyze/point`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    signal,
+    body: JSON.stringify({ lon, lat }),
+  });
+
+  if (!res.ok) {
+    let body: AnalysisErrorBody | null = null;
+    try {
+      body = (await res.json()) as AnalysisErrorBody;
+    } catch {
+      // Non-JSON error body — fall through to status text.
+    }
+    throw new AnalyzeRequestError(
+      body?.error || messageForStatus(res.status),
+      body?.code ?? null,
+      res.status,
+    );
+  }
+
+  return (await res.json()) as PointReport;
 }

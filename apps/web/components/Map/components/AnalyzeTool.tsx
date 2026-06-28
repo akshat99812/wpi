@@ -3,10 +3,15 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { AoiDrawMode } from "@/components/Map/utils/aoiDraw";
-import type { AnalysisUiState } from "@/components/Map/hooks/useAoiAnalysis";
-import type { AnalysisResponse } from "@/lib/analysis/types";
+import type {
+  AnalysisUiState,
+  PointUiState,
+} from "@/components/Map/hooks/useAoiAnalysis";
+import type { AnalysisResponse, PointReport } from "@/lib/analysis/types";
+import type { TurbineLayout, TurbinePoint } from "@/lib/analysis/layout";
 import { AOI_MAX_KM2 } from "@/lib/analysis/geometry";
 import { AnalysisResults } from "./AnalysisResults";
+import { TurbinePointCard } from "./TurbinePointCard";
 import {
   CornerBrackets,
   StatusIndicator,
@@ -43,8 +48,20 @@ interface Props {
   error: string | null;
   onArm: (mode: AoiDrawMode) => void;
   onClear: () => void;
-  /** Hand a user-selected .kml/.kmz file to the analysis flow. */
+  /** Hand a user-selected .kml/.kmz site-boundary file to the analysis flow. */
   onUploadFile?: (file: File) => void;
+  /** Hand a user-selected .kml/.kmz micro-sited turbine-layout file. */
+  onUploadLayout?: (file: File) => void;
+  /** Active uploaded turbine layout (drives the layout summary + logistics). */
+  layout?: TurbineLayout | null;
+  /** Turbine currently screened individually (drives the per-turbine card). */
+  selectedTurbine?: TurbinePoint | null;
+  /** Exact-point report for the selected turbine + its lifecycle. */
+  pointReport?: PointReport | null;
+  pointUiState?: PointUiState;
+  pointError?: string | null;
+  /** Return from a single-turbine view to the site footprint result. */
+  onClearTurbine?: () => void;
   section?: 'controls' | 'results';
 }
 
@@ -53,6 +70,17 @@ const MODES: { id: AoiDrawMode; label: string; hint: string }[] = [
   { id: "rectangle", label: "Rectangle", hint: "Click a corner, move the mouse, then click the opposite corner" },
   { id: "polygon", label: "Polygon", hint: "Click vertices; click the first point or press Enter to finish, Esc to cancel" },
 ];
+
+/** Status-rail config for the per-turbine point report (results panel). */
+function statusForPoint(pointUiState: PointUiState): ToolStatus {
+  if (pointUiState === "loading")
+    return { text: "SCANNING", dot: "bg-sky-400", textColor: "text-sky-300", pulse: true };
+  if (pointUiState === "error")
+    return { text: "FAULT", dot: "bg-red-400", textColor: "text-red-300", pulse: false };
+  if (pointUiState === "ok")
+    return { text: "COMPLETE", dot: "bg-emerald-400", textColor: "text-emerald-300", pulse: false };
+  return { text: "READY", dot: "bg-slate-400", textColor: "text-slate-400", pulse: false };
+}
 
 /** Status-rail config per ui/armed state. */
 function statusFor(
@@ -88,21 +116,46 @@ export function AnalyzeTool({
   onArm,
   onClear,
   onUploadFile,
+  onUploadLayout,
+  layout,
+  selectedTurbine,
+  pointReport,
+  pointUiState = "idle",
+  pointError = null,
+  onClearTurbine,
   section,
   committedRing,
 }: Props) {
   const hasAnything = uiState !== "idle";
-  const status = statusFor(uiState, armedMode);
+  // In the results panel, a selected turbine's card owns the view — reflect its
+  // point-report state in the rail rather than the (often "COMPLETE") footprint.
+  const status =
+    section === "results" && selectedTurbine
+      ? statusForPoint(pointUiState)
+      : statusFor(uiState, armedMode);
   const showControls = section !== "results";
   const showResults = section !== "controls";
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const boundaryInputRef = React.useRef<HTMLInputElement>(null);
+  const layoutInputRef = React.useRef<HTMLInputElement>(null);
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onBoundaryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     // Reset so re-selecting the same file fires change again.
     e.target.value = "";
     if (file) onUploadFile?.(file);
   };
+  const onLayoutFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (file) onUploadLayout?.(file);
+  };
+
+  // Per-turbine banner label.
+  const turbineLabel = selectedTurbine?.name || "Turbine";
+  // Footprint logistics pre-fill (single-turbine logistics lives in the card).
+  const logisticsTurbineCount = layout ? layout.points.length : undefined;
+  const logisticsSiteName = layout ? "Uploaded layout" : undefined;
+  const logisticsContextKey = layout ? "footprint" : "aoi";
 
   return (
     <div className="flex flex-col gap-3 p-4 text-sm">
@@ -113,6 +166,30 @@ export function AnalyzeTool({
         </span>
         <StatusIndicator status={status} />
       </div>
+
+      {/* ── Layout context banner (results panel) ────────────────────── */}
+      {showResults && selectedTurbine && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-orange-400/40 bg-orange-500/10 px-2.5 py-1.5">
+          <span className="min-w-0 truncate text-[11px] text-orange-200">
+            <span className="font-semibold">{turbineLabel}</span> · exact-point analysis
+          </span>
+          {onClearTurbine && (
+            <button
+              type="button"
+              onClick={onClearTurbine}
+              className="shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium text-orange-200 transition-colors hover:bg-orange-500/20"
+            >
+              <span aria-hidden="true">←</span> Back to site
+            </button>
+          )}
+        </div>
+      )}
+      {showResults && !selectedTurbine && layout && (
+        <p className="rounded-lg border border-teal-400/30 bg-teal-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-teal-200">
+          Site footprint · {layout.points.length.toLocaleString()} turbines. Click a
+          turbine on the map for its individual analysis.
+        </p>
+      )}
 
       {/* ── Mode buttons ─────────────────────────────────────────────── */}
       {showControls && (
@@ -142,27 +219,61 @@ export function AnalyzeTool({
         </div>
       )}
 
-      {/* ── Upload KML / KMZ ─────────────────────────────────────────── */}
-      {showControls && onUploadFile && (
-        <div className="flex items-center gap-2">
+      {/* ── Upload KML / KMZ (boundary or micro-sited turbine layout) ──── */}
+      {showControls && (onUploadFile || onUploadLayout) && (
+        <div className="flex flex-col gap-1.5">
           <input
-            ref={fileInputRef}
+            ref={boundaryInputRef}
             type="file"
             accept=".kml,.kmz,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz"
-            onChange={onFileChange}
+            onChange={onBoundaryFileChange}
             className="hidden"
             aria-hidden
           />
-          <motion.button
-            type="button"
-            title="Upload a .kml or .kmz boundary and analyze it"
-            onClick={() => fileInputRef.current?.click()}
-            whileTap={{ scale: 0.97 }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-slate-700 px-2 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-sky-400/60 hover:bg-sky-500/10 hover:text-sky-200"
-          >
-            <UploadGlyph className="h-4 w-4" />
-            Upload KML / KMZ
-          </motion.button>
+          <input
+            ref={layoutInputRef}
+            type="file"
+            accept=".kml,.kmz,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz"
+            onChange={onLayoutFileChange}
+            className="hidden"
+            aria-hidden
+          />
+          <div className="grid grid-cols-2 gap-1.5">
+            {onUploadFile && (
+              <motion.button
+                type="button"
+                title="Upload a .kml or .kmz site boundary polygon and screen it"
+                onClick={() => boundaryInputRef.current?.click()}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-700 px-2 py-2 text-[11px] font-medium text-slate-300 transition-colors hover:border-sky-400/60 hover:bg-sky-500/10 hover:text-sky-200"
+              >
+                <UploadGlyph className="h-4 w-4 shrink-0" />
+                Upload site boundary
+              </motion.button>
+            )}
+            {onUploadLayout && (
+              <motion.button
+                type="button"
+                title="Upload a .kml or .kmz of exact turbine points (micro-sited layout)"
+                onClick={() => layoutInputRef.current?.click()}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-700 px-2 py-2 text-[11px] font-medium text-slate-300 transition-colors hover:border-teal-400/60 hover:bg-teal-500/10 hover:text-teal-200"
+              >
+                <TurbinesGlyph className="h-4 w-4 shrink-0" />
+                Upload turbine layout
+              </motion.button>
+            )}
+          </div>
+          {layout && (
+            <p className="rounded-md border border-teal-400/30 bg-teal-500/10 px-2 py-1.5 text-[11px] leading-snug text-teal-200">
+              {layout.points.length.toLocaleString()} turbine
+              {layout.points.length === 1 ? "" : "s"} loaded ·{" "}
+              {layout.areaKm2.toFixed(1)} km² footprint.
+              <span className="text-teal-300/80">
+                {" "}Click a turbine on the map for its individual analysis.
+              </span>
+            </p>
+          )}
         </div>
       )}
 
@@ -227,7 +338,7 @@ export function AnalyzeTool({
           </motion.p>
         )}
 
-        {section === "results" && uiState === "idle" && (
+        {section === "results" && !selectedTurbine && uiState === "idle" && (
           <motion.p
             key="results-idle"
             initial={{ opacity: 0 }}
@@ -242,7 +353,24 @@ export function AnalyzeTool({
           </motion.p>
         )}
 
-        {showResults && uiState === "loading" && (
+        {showResults && selectedTurbine && (
+          <motion.div
+            key="turbine-point"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          >
+            <TurbinePointCard
+              turbine={selectedTurbine}
+              report={pointReport ?? null}
+              uiState={pointUiState}
+              error={pointError ?? null}
+            />
+          </motion.div>
+        )}
+
+        {showResults && !selectedTurbine && uiState === "loading" && (
           <motion.div
             key="loading"
             initial={{ opacity: 0, y: 6 }}
@@ -264,7 +392,7 @@ export function AnalyzeTool({
           </motion.div>
         )}
 
-        {showResults && uiState === "error" && error && (
+        {showResults && !selectedTurbine && uiState === "error" && error && (
           <motion.div
             key="error"
             initial={{ opacity: 0, x: -6 }}
@@ -280,7 +408,7 @@ export function AnalyzeTool({
           </motion.div>
         )}
 
-        {showResults && (uiState === "ok" || uiState === "partial") && analysis && (
+        {showResults && !selectedTurbine && (uiState === "ok" || uiState === "partial") && analysis && (
           <motion.div
             key="results"
             initial={{ opacity: 0, y: 10 }}
@@ -288,7 +416,13 @@ export function AnalyzeTool({
             exit={{ opacity: 0 }}
             transition={{ type: "spring", stiffness: 380, damping: 32 }}
           >
-            <AnalysisResults analysis={analysis} committedRing={committedRing} />
+            <AnalysisResults
+              analysis={analysis}
+              committedRing={committedRing}
+              logisticsTurbineCount={logisticsTurbineCount}
+              logisticsSiteName={logisticsSiteName}
+              logisticsContextKey={logisticsContextKey}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -408,6 +542,21 @@ function UploadGlyph({ className }: { className?: string }) {
     >
       <path d="M12 15V4M8 8l4-4 4 4" />
       <path d="M4 14v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+    </svg>
+  );
+}
+
+/** Scattered-dots glyph for the "Upload turbine layout" button. */
+function TurbinesGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <circle cx="6" cy="7" r="1.7" />
+      <circle cx="13" cy="5" r="1.7" />
+      <circle cx="18" cy="9" r="1.7" />
+      <circle cx="8" cy="14" r="1.7" />
+      <circle cx="15" cy="16" r="1.7" />
+      <circle cx="5" cy="19" r="1.7" />
+      <circle cx="19" cy="18" r="1.7" />
     </svg>
   );
 }

@@ -47,6 +47,19 @@ const CARD =
 
 const COMPONENTS: ComponentCategory[] = ["blade", "nacelle", "hub", "tower"];
 
+// Turbine-count bounds. MAX matches the logistics API cap
+// (apps/api/src/routes/logistics.ts) AND the layout parser cap
+// (lib/analysis/layout.ts), so an uploaded layout's count is never silently
+// clamped on the way into the planner.
+const MIN_TURBINES = 1;
+const MAX_TURBINES = 1000;
+const DEFAULT_TURBINES = 20;
+
+/** Clamp a turbine count into [MIN_TURBINES, MAX_TURBINES] (integer). */
+function clampTurbines(n: number): number {
+  return Math.max(MIN_TURBINES, Math.min(MAX_TURBINES, Math.floor(n)));
+}
+
 function Centered({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-1 items-center justify-center p-8 text-muted">
@@ -145,6 +158,9 @@ interface LogisticsPlannerProps {
   /** Pre-seeds the destination (used by the pro-map popup). Falls back to the
    *  /logistics?lat=&lon=&name= query params when absent. */
   initialDestination?: { lat: number; lon: number; name?: string };
+  /** Pre-seeds the turbine count — an uploaded layout's exact count, or 1 for a
+   *  single clicked turbine. Falls back to the default (20) when absent. */
+  initialNumTurbines?: number;
   /** Hide the internal page header when shown inside a modal/embed. */
   embedded?: boolean;
   /** When embedded, lets the planner dismiss the modal (e.g. "view on map"). */
@@ -153,6 +169,7 @@ interface LogisticsPlannerProps {
 
 export default function LogisticsPlanner({
   initialDestination,
+  initialNumTurbines,
   embedded = false,
   onRequestClose,
 }: LogisticsPlannerProps) {
@@ -171,7 +188,7 @@ export default function LogisticsPlanner({
   const [lat, setLat] = useState<string>("");
   const [lon, setLon] = useState<string>("");
   const [siteName, setSiteName] = useState<string>("");
-  const [numTurbines, setNumTurbines] = useState<number>(20);
+  const [numTurbines, setNumTurbines] = useState<number>(DEFAULT_TURBINES);
   const [terrain, setTerrain] = useState<TerrainType>("plains");
   const [origins, setOrigins] = useState<Partial<Record<ComponentCategory, string>>>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -233,6 +250,10 @@ export default function LogisticsPlanner({
       setLat(seedLat);
       setLon(seedLon);
       setSiteName(seedName ?? "Selected site");
+    }
+    // Pre-fill the turbine count from an uploaded layout / single turbine.
+    if (typeof initialNumTurbines === "number" && Number.isFinite(initialNumTurbines)) {
+      setNumTurbines(clampTurbines(initialNumTurbines));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -550,10 +571,10 @@ function FormPanel(p: FormPanelProps) {
             id="lp-turbines"
             className={`${INPUT} mt-1 tabular-nums`}
             type="number"
-            min={1}
-            max={1000}
+            min={MIN_TURBINES}
+            max={MAX_TURBINES}
             value={p.numTurbines}
-            onChange={(e) => p.setNumTurbines(Math.max(1, Math.min(1000, Math.floor(Number(e.target.value) || 1))))}
+            onChange={(e) => p.setNumTurbines(clampTurbines(Number(e.target.value) || MIN_TURBINES))}
           />
         </div>
         <div>

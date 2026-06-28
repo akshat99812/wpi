@@ -6,15 +6,25 @@ import {
   AoiDrawController,
   type AoiDrawMode,
 } from "@/components/Map/utils/aoiDraw";
+import { TurbineLayoutController } from "@/components/Map/utils/turbineLayoutLayer";
 import { closeRing, ringAreaKm2 } from "@/lib/analysis/geometry";
-import { AnalyzeRequestError, postAnalyze } from "@/lib/analysis/client";
+import {
+  AnalyzeRequestError,
+  postAnalyze,
+  postAnalyzePoint,
+} from "@/lib/analysis/client";
 import { KmlParseError, parseAoiFromFile } from "@/lib/analysis/kml";
+import {
+  parseLayoutFromFile,
+  type TurbineLayout,
+  type TurbinePoint,
+} from "@/lib/analysis/layout";
 import {
   decodeAoiHash,
   encodeAoiHash,
   setAoiHash,
 } from "@/lib/analysis/permalink";
-import type { AnalysisResponse } from "@/lib/analysis/types";
+import type { AnalysisResponse, PointReport } from "@/lib/analysis/types";
 
 /**
  * State machine + side effects for the Analyze tool:
@@ -24,6 +34,12 @@ import type { AnalysisResponse } from "@/lib/analysis/types";
  * Owns the AoiDrawController lifecycle, the in-flight AbortController (a new
  * AOI or Clear cancels the previous request), Esc-to-cancel, and the
  * draw-armed ref the map click-priority chain reads synchronously.
+ *
+ * Also owns the micro-sited turbine LAYOUT flow: uploading a points file plots
+ * every exact turbine and screens the convex-hull FOOTPRINT as the AOI. Clicking
+ * a turbine runs a SEPARATE exact-point report (POST /api/analyze/point) shown in
+ * its own card — it never touches the footprint AOI/geometry, so returning to the
+ * site view is instant and no box is drawn around the turbine.
  */
 
 export type AnalysisUiState =
@@ -33,6 +49,9 @@ export type AnalysisUiState =
   | "ok"
   | "partial"
   | "error";
+
+/** Lifecycle of the per-turbine exact-point report (independent of the AOI). */
+export type PointUiState = "idle" | "loading" | "ok" | "error";
 
 export interface AoiAnalysis {
   uiState: AnalysisUiState;
@@ -46,11 +65,27 @@ export interface AoiAnalysis {
   committedRing: [number, number][] | null;
   analysis: AnalysisResponse | null;
   error: string | null;
-  /** Call inside map.on("load") — attaches the draw controller. */
-  onMapLoad: (map: MlMap) => void;
+  /** Uploaded micro-sited turbine layout, when one is active. */
+  layout: TurbineLayout | null;
+  /** The turbine currently screened individually, when one is selected. */
+  selectedTurbine: TurbinePoint | null;
+  /** Exact-point report for the selected turbine. */
+  pointReport: PointReport | null;
+  pointUiState: PointUiState;
+  pointError: string | null;
+  /** Call inside map.on("load") — attaches the draw + turbine controllers.
+   *  `isInteractionBlocked` lets the page suppress turbine clicks while another
+   *  tool (e.g. measure) owns clicks; AOI-draw arming is handled internally. */
+  onMapLoad: (map: MlMap, isInteractionBlocked?: () => boolean) => void;
   arm: (mode: AoiDrawMode) => void;
-  /** Parse a .kml/.kmz File into an AOI, draw it, fit the map, and analyze. */
+  /** Parse a .kml/.kmz boundary File into an AOI, draw it, fit, and analyze. */
   uploadFile: (file: File) => void;
+  /** Parse a .kml/.kmz turbine-layout File into points + footprint and analyze. */
+  uploadLayoutFile: (file: File) => void;
+  /** Screen one uploaded turbine individually (exact-point report). */
+  selectTurbine: (id: string) => void;
+  /** Return from a single-turbine view to the site footprint result. */
+  clearTurbine: () => void;
   /** Cancel an armed draw without touching a committed AOI / results
    *  (what Esc does — also used when another map tool takes the clicks). */
   disarm: () => void;
@@ -59,10 +94,17 @@ export interface AoiAnalysis {
 
 export function useAoiAnalysis(): AoiAnalysis {
   const controllerRef = useRef<AoiDrawController | null>(null);
+  const turbineLayerRef = useRef<TurbineLayoutController | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const armedRef = useRef<AoiDrawMode | null>(null);
   // Monotone id so a slow stale response can never clobber a newer one.
   const requestSeqRef = useRef(0);
+  // Synchronous mirrors for the once-bound turbine click handler / map reload.
+  const layoutRef = useRef<TurbineLayout | null>(null);
+  const selectedTurbineRef = useRef<TurbinePoint | null>(null);
+  // Separate in-flight tracking for the per-turbine point report.
+  const pointAbortRef = useRef<AbortController | null>(null);
+  const pointSeqRef = useRef(0);
 
   const [uiState, setUiState] = useState<AnalysisUiState>("idle");
   const [armedMode, setArmedMode] = useState<AoiDrawMode | null>(null);
@@ -74,7 +116,21 @@ export function useAoiAnalysis(): AoiAnalysis {
   >(null);
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [layout, setLayout] = useState<TurbineLayout | null>(null);
+  const [selectedTurbine, setSelectedTurbineState] = useState<TurbinePoint | null>(
+    null,
+  );
+  const [pointReport, setPointReport] = useState<PointReport | null>(null);
+  const [pointUiState, setPointUiState] = useState<PointUiState>("idle");
+  const [pointError, setPointError] = useState<string | null>(null);
 
+  /** State + ref in lock-step so the once-bound handlers read the live value. */
+  const setSelectedTurbine = useCallback((pt: TurbinePoint | null) => {
+    selectedTurbineRef.current = pt;
+    setSelectedTurbineState(pt);
+  }, []);
+
+  /** Run the AOI screening for a ring (drawn AOI, boundary upload, footprint). */
   const runAnalysis = useCallback((ring: [number, number][]) => {
     const closed = closeRing(ring);
     abortRef.current?.abort();
@@ -96,10 +152,10 @@ export function useAoiAnalysis(): AoiAnalysis {
     postAnalyze(closed, ac.signal)
       .then((res) => {
         if (seq !== requestSeqRef.current) return; // superseded
-        setAnalysis(res);
         const anyUnavailable = Object.values(res.sections).some(
           (s) => s.status === "unavailable",
         );
+        setAnalysis(res);
         setUiState(anyUnavailable ? "partial" : "ok");
       })
       .catch((err: unknown) => {
@@ -115,8 +171,71 @@ export function useAoiAnalysis(): AoiAnalysis {
       });
   }, []);
 
+  /** Cancel any in-flight per-turbine point report and reset its state. */
+  const resetPointReport = useCallback(() => {
+    pointAbortRef.current?.abort();
+    pointSeqRef.current++;
+    setPointReport(null);
+    setPointError(null);
+    setPointUiState("idle");
+  }, []);
+
+  /** Drop all uploaded-layout artifacts (markers, selection, point report). */
+  const clearLayoutArtifacts = useCallback(() => {
+    resetPointReport();
+    layoutRef.current = null;
+    setLayout(null);
+    setSelectedTurbine(null);
+    turbineLayerRef.current?.setLayout(null);
+  }, [resetPointReport, setSelectedTurbine]);
+
+  /** Screen one uploaded turbine individually (exact-point report). The AOI /
+   *  footprint result is left untouched, so no box is drawn for the turbine. */
+  const selectTurbine = useCallback((id: string) => {
+    const lay = layoutRef.current;
+    if (!lay) return;
+    const pt = lay.points.find((p) => p.id === id);
+    if (!pt) return;
+
+    setSelectedTurbine(pt);
+    turbineLayerRef.current?.setSelected(id);
+
+    pointAbortRef.current?.abort();
+    const ac = new AbortController();
+    pointAbortRef.current = ac;
+    const seq = ++pointSeqRef.current;
+    setPointReport(null);
+    setPointError(null);
+    setPointUiState("loading");
+
+    postAnalyzePoint(pt.lon, pt.lat, ac.signal)
+      .then((report) => {
+        if (seq !== pointSeqRef.current) return;
+        setPointReport(report);
+        setPointUiState("ok");
+      })
+      .catch((err: unknown) => {
+        if (seq !== pointSeqRef.current) return;
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        const message =
+          err instanceof AnalyzeRequestError
+            ? err.message
+            : "Network error — turbine analysis could not run.";
+        console.error("[analyze] point request failed", err);
+        setPointError(message);
+        setPointUiState("error");
+      });
+  }, [setSelectedTurbine]);
+
+  /** Return from a single-turbine view to the site footprint (kept intact). */
+  const clearTurbine = useCallback(() => {
+    resetPointReport();
+    setSelectedTurbine(null);
+    turbineLayerRef.current?.setSelected(null);
+  }, [resetPointReport, setSelectedTurbine]);
+
   const onMapLoad = useCallback(
-    (map: MlMap) => {
+    (map: MlMap, isInteractionBlocked?: () => boolean) => {
       controllerRef.current?.destroy();
       controllerRef.current = new AoiDrawController(map, {
         onLiveArea: (area, overCap) => {
@@ -126,10 +245,33 @@ export function useAoiAnalysis(): AoiAnalysis {
         onCommit: (ring) => {
           armedRef.current = null;
           setArmedMode(null);
+          // A freshly drawn AOI replaces any uploaded layout context.
+          clearLayoutArtifacts();
           controllerRef.current?.setCommitted(closeRing(ring));
           runAnalysis(ring);
         },
       });
+
+      turbineLayerRef.current?.destroy();
+      turbineLayerRef.current = new TurbineLayoutController(map, {
+        onTurbineClick: selectTurbine,
+        // Turbine clicks suppressed while a draw is armed (armedRef) or the page
+        // says another tool (measure) owns clicks — prevents double-commits.
+        isInteractionBlocked: () =>
+          armedRef.current !== null || (isInteractionBlocked?.() ?? false),
+      });
+
+      // Map re-creation (session/tier flip) rebuilds both controllers fresh,
+      // but the hook's layout state survives — re-apply it so the markers +
+      // footprint polygon reappear instead of desyncing from the panel.
+      if (layoutRef.current) {
+        turbineLayerRef.current.setLayout(layoutRef.current);
+        if (selectedTurbineRef.current) {
+          turbineLayerRef.current.setSelected(selectedTurbineRef.current.id);
+        }
+        controllerRef.current.setCommitted(closeRing(layoutRef.current.footprintRing));
+        return;
+      }
 
       // Permalink restore: a shared #aoi=… hash redraws the AOI and re-runs
       // the analysis as soon as the map (and its pin anchor layer) is ready.
@@ -141,7 +283,7 @@ export function useAoiAnalysis(): AoiAnalysis {
         })
         .catch((err) => console.error("[analyze] permalink restore failed", err));
     },
-    [runAnalysis],
+    [runAnalysis, selectTurbine, clearLayoutArtifacts],
   );
 
   const arm = useCallback((mode: AoiDrawMode) => {
@@ -157,12 +299,17 @@ export function useAoiAnalysis(): AoiAnalysis {
   const uploadFile = useCallback(
     (file: File) => {
       const controller = controllerRef.current;
-      // Take over the click chain like arming does, then run as a draw commit.
+      // Invalidate any in-flight AOI request so a late response can't clobber
+      // this upload's loading/error state.
+      abortRef.current?.abort();
+      requestSeqRef.current++;
       controller?.disarm();
       armedRef.current = null;
       setArmedMode(null);
       setError(null);
       setUiState("loading");
+      // A boundary upload replaces any uploaded layout context.
+      clearLayoutArtifacts();
 
       parseAoiFromFile(file)
         .then(({ ring }) => {
@@ -181,7 +328,43 @@ export function useAoiAnalysis(): AoiAnalysis {
           setUiState("error");
         });
     },
-    [runAnalysis],
+    [runAnalysis, clearLayoutArtifacts],
+  );
+
+  const uploadLayoutFile = useCallback(
+    (file: File) => {
+      const controller = controllerRef.current;
+      abortRef.current?.abort();
+      requestSeqRef.current++;
+      controller?.disarm();
+      armedRef.current = null;
+      setArmedMode(null);
+      setError(null);
+      setUiState("loading");
+      // Reset any prior layout/turbine selection before the new one lands.
+      clearLayoutArtifacts();
+
+      parseLayoutFromFile(file)
+        .then((lay) => {
+          layoutRef.current = lay;
+          setLayout(lay);
+          turbineLayerRef.current?.setLayout(lay);
+          const closed = closeRing(lay.footprintRing);
+          controllerRef.current?.setCommitted(closed);
+          controllerRef.current?.fitToRing(closed);
+          runAnalysis(closed);
+        })
+        .catch((err: unknown) => {
+          const message =
+            err instanceof KmlParseError
+              ? err.message
+              : "Could not read that layout — upload a valid .kml or .kmz of turbine points.";
+          console.error("[analyze] layout upload failed", err);
+          setError(message);
+          setUiState("error");
+        });
+    },
+    [runAnalysis, clearLayoutArtifacts],
   );
 
   const disarm = useCallback(() => {
@@ -197,6 +380,7 @@ export function useAoiAnalysis(): AoiAnalysis {
     const controller = controllerRef.current;
     controller?.disarm();
     controller?.setCommitted(null);
+    clearLayoutArtifacts();
     armedRef.current = null;
     setArmedMode(null);
     setLiveAreaKm2(null);
@@ -207,7 +391,7 @@ export function useAoiAnalysis(): AoiAnalysis {
     setError(null);
     setUiState("idle");
     setAoiHash(null);
-  }, []);
+  }, [clearLayoutArtifacts]);
 
   // Esc cancels an armed draw (keeps any previous result on screen).
   useEffect(() => {
@@ -221,12 +405,15 @@ export function useAoiAnalysis(): AoiAnalysis {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [armedMode, disarm]);
 
-  // Unmount: abort in-flight work and tear the controller down.
+  // Unmount: abort in-flight work and tear the controllers down.
   useEffect(() => {
     return () => {
       abortRef.current?.abort();
+      pointAbortRef.current?.abort();
       controllerRef.current?.destroy();
       controllerRef.current = null;
+      turbineLayerRef.current?.destroy();
+      turbineLayerRef.current = null;
     };
   }, []);
 
@@ -240,9 +427,17 @@ export function useAoiAnalysis(): AoiAnalysis {
     committedRing,
     analysis,
     error,
+    layout,
+    selectedTurbine,
+    pointReport,
+    pointUiState,
+    pointError,
     onMapLoad,
     arm,
     uploadFile,
+    uploadLayoutFile,
+    selectTurbine,
+    clearTurbine,
     disarm,
     clearAll,
   };
