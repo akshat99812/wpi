@@ -103,7 +103,10 @@ const planSchema = z
     destination: destinationSchema,
     numTurbines: posInt.max(MAX_TURBINES),
     terrain: terrainEnum,
-    origins: z.record(componentEnum, z.string().min(1).max(60)).optional(),
+    // partialRecord (not record): an origin override may cover only some
+    // components (e.g. just blade). z.record(enum, …) in Zod v4 requires ALL
+    // enum keys present and rejects partial overrides as INVALID_BODY.
+    origins: z.partialRecord(componentEnum, z.string().min(1).max(60)).optional(),
     assumptions: assumptionsSchema.optional(),
   })
   .refine((b) => b.scope !== "component" || !!b.component, {
