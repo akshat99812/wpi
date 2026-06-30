@@ -1,15 +1,30 @@
 {
   "source": "eq_magazine",
-  "fetchedAt": "2026-06-09T05:31:49.537Z",
+  "fetchedAt": "2026-06-30T00:31:04.089Z",
   "ok": true,
+  "fixturesUsed": true,
   "payload": {
     "news": [
       {
-        "headline": "PRE-BID MEETING: RfS DOCUMENT FOR ASSURED PEAK SUPPLY OF 4.8 GWh FROM ISTSCONNECTED RE PROJECTS IN INDIA, UNDER TARIFF-BASED COMPETITIVE BIDDING (SECI-FDRE-IX) &#8211; EQ",
-        "url": "https://www.eqmagpro.com/pre-bid-meeting-rfs-document-for-assured-peak-supply-of-4-8-gwh-from-istsconnected-re-projects-in-india-under-tariff-based-competitive-bidding-seci-fdre-ix-eq/",
-        "publishedAt": "2026-06-08T10:39:27.000Z",
+        "headline": "India Wind Installed Capacity Touches 49.5 GW at FY25 Close",
+        "url": "https://www.eqmagpro.com/india-wind-49gw-fy25",
+        "publishedAt": "2025-04-05T00:00:00Z",
         "source": "EQ Magazine",
-        "summary": "PRE-BID MEETING: REQUEST FOR SELECTION (RfS) DOCUMENT FOR ASSURED PEAK SUPPLY OF 4.8 GWh (1200 MW X 4 Hrs.) FROM ISTSCONNECTED RE PROJECTS IN INDIA, UNDER TARIFF-BASED COMPETITIVE BIDDING (SECI-FDRE-IX) This is in reference to the RfS No. SECI/C&#38;P/IPP/13/0006/26-27 dated 05.06.2026 regarding the"
+        "summary": "India wind fleet reaches new high; Gujarat, TN, Karnataka lead additions"
+      },
+      {
+        "headline": "Vestas Reopens Chennai Nacelle Plant after 2-Year Pause",
+        "url": "https://www.eqmagpro.com/vestas-chennai-restart",
+        "publishedAt": "2025-03-12T00:00:00Z",
+        "source": "EQ Magazine",
+        "summary": "Vestas resumes Indian wind nacelle manufacturing at Chennai facility"
+      },
+      {
+        "headline": "GWEC: India Tops APAC Wind Additions for Second Year",
+        "url": "https://www.eqmagpro.com/gwec-india-apac-wind-additions",
+        "publishedAt": "2025-02-28T00:00:00Z",
+        "source": "EQ Magazine",
+        "summary": "Global Wind Energy Council report ranks India #1 in APAC additions"
       }
     ]
   }

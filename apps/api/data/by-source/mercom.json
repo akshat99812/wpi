@@ -1,78 +1,44 @@
 {
   "source": "mercom",
-  "fetchedAt": "2026-06-09T05:31:25.853Z",
+  "fetchedAt": "2026-06-30T00:30:28.994Z",
   "ok": true,
+  "fixturesUsed": true,
   "payload": {
     "news": [
       {
-        "headline": "US Commissions Prismatic Cell Line to Test Grid Storage Technologies",
-        "url": "https://www.mercomindia.com/us-commissions-prismatic-cell-line-to-test-grid-storage-technologies",
-        "publishedAt": "2026-06-09T10:48:16.000Z",
+        "headline": "India Wind Power Additions Hit Record 4.5 GW in FY25",
+        "url": "https://mercomindia.com/india-wind-power-additions-record-fy25",
+        "publishedAt": "2025-04-05T00:00:00Z",
         "source": "Mercom India",
-        "summary": "<p>Listen to this article Researchers have commissioned an advanced prismatic battery cell production line at the U.S. Department of Energy’s (DOE) Pacific Northwest National Laboratory (PNNL).</p>"
+        "summary": "India added a record 4.5 GW of wind capacity in FY25"
       },
       {
-        "headline": "Molecular Interface Engineering Can Enhance Perovskite Solar Cell Stability",
-        "url": "https://www.mercomindia.com/molecular-interface-engineering-can-enhance-perovskite-solar-cell-stability",
-        "publishedAt": "2026-06-09T10:37:15.000Z",
+        "headline": "SECI Floats Tender for 1200 MW Wind Power – Tranche XV",
+        "url": "https://mercomindia.com/seci-tender-1200mw-wind-tranche-xv",
+        "publishedAt": "2025-03-20T00:00:00Z",
         "source": "Mercom India",
-        "summary": "<p>Listen to this article Researchers at the Indian Institute of Technology Guwahati (IIT Guwahati) have developed a formamidinium (FA)-based perovskite semiconductor technology for solar cells</p>"
+        "summary": "SECI issues new wind tender under Tranche XV"
       },
       {
-        "headline": "FDRE Projects Create New Revenue Streams Through Surplus Power Sales",
-        "url": "https://www.mercomindia.com/fdre-projects-create-new-revenue-streams-through-surplus-power-sales",
-        "publishedAt": "2026-06-09T10:25:08.000Z",
+        "headline": "Wind Tariffs Touch New Low of ₹2.99/kWh in NTPC Auction",
+        "url": "https://mercomindia.com/wind-tariffs-low-ntpc-auction",
+        "publishedAt": "2025-03-01T00:00:00Z",
         "source": "Mercom India",
-        "summary": "<p>Firm and Dispatchable Renewable Energy (FDRE) projects are creating new revenue opportunities for developers by enabling the sale of excess renewable generation. These projects typically combine oversized solar, wind, and battery storage capacities to meet dispatch obligations while ensuring a re"
+        "summary": "NTPC wind auction sees competitive L1 tariff of ₹2.99/kWh"
       },
       {
-        "headline": "MAHAPREIT Floats Tender for 100 MW Rooftop Solar Projects",
-        "url": "https://www.mercomindia.com/mahapreit-floats-tender-for-100-mw-rooftop-solar-projects",
-        "publishedAt": "2026-06-08T20:17:58.000Z",
+        "headline": "Suzlon Bags 504 MW Wind Order from NTPC Renewable",
+        "url": "https://mercomindia.com/suzlon-504mw-wind-ntpc",
+        "publishedAt": "2025-02-15T00:00:00Z",
         "source": "Mercom India",
-        "summary": "<p>The Mahatma Phule Renewable Energy &#038; Infrastructure Technology (MAHAPREIT) has invited bids to install 100 MW of behind-the-meter (BTM) rooftop solar projects, with or without battery energy storage systems, in Maharashtra.The projects must be developed under the renewable energy service com"
+        "summary": "Suzlon Energy secures large wind order from NTPC"
       },
       {
-        "headline": "Mexico Awards 7.4 GW Renewable Capacity in First Mixed Investment Tender",
-        "url": "https://www.mercomindia.com/mexico-awards-7-4-gw-renewable-capacity-in-first-mixed-investment-tender",
-        "publishedAt": "2026-06-08T18:12:52.000Z",
+        "headline": "India Offshore Wind: NIWE Releases Site Assessment for Gujarat Coast",
+        "url": "https://mercomindia.com/india-offshore-wind-niwe-gujarat",
+        "publishedAt": "2025-01-28T00:00:00Z",
         "source": "Mercom India",
-        "summary": "<p>Mexico’s state-owned power utility Comisión Federal de Electricidad (Federal Electricity Commission) (CFE) awarded 37 renewable energy projects with a combined capacity of 7,411 MW in its first mixed investment tender.</p>"
-      },
-      {
-        "headline": "GPS Renewables Raises ₹6.35 Billion for Compressed Biogas Project Pipeline",
-        "url": "https://www.mercomindia.com/gps-renewables-raises-₹6-35-billion-for-compressed-biogas-project-pipeline",
-        "publishedAt": "2026-06-08T18:08:34.000Z",
-        "source": "Mercom India",
-        "summary": "<p>Listen to this article Bengaluru-based biofuels firm GPS Renewables has raised ₹6.35 billion (~$66.6 million) in Series C funding to support its compressed biogas project</p>"
-      },
-      {
-        "headline": "Rosendahl Nextrom to Acquire Battery Equipment Firm TBS Engineering",
-        "url": "https://www.mercomindia.com/rosendahl-nextrom-acquire-battery-equipment-firm-tbs-engineering",
-        "publishedAt": "2026-06-08T16:58:28.000Z",
-        "source": "Mercom India",
-        "summary": "<p>Listen to this article Rosendahl Nextrom, a manufacturing company that supplies production equipment to several industries, has signed an agreement to acquire TBS Engineering, a</p>"
-      },
-      {
-        "headline": "Qualitas Energy Acquires 164 MW Solar Project in US",
-        "url": "https://www.mercomindia.com/qualitas-energy-acquires-164-mw-solar-project-in-us",
-        "publishedAt": "2026-06-08T16:47:23.000Z",
-        "source": "Mercom India",
-        "summary": "<p>Qualitas Energy, an investment firm specializing in renewable energy, energy transition, and sustainable infrastructure, has acquired a&#8230;</p>"
-      },
-      {
-        "headline": "Gujarat Proposes Extending Banking Charge for Green Energy Open Access",
-        "url": "https://www.mercomindia.com/gujarat-proposes-extending-banking-charge-for-green-energy-open-access",
-        "publishedAt": "2026-06-08T15:56:07.000Z",
-        "source": "Mercom India",
-        "summary": "<p>The Gujarat Electricity Regulatory Commission (GERC) has proposed extending the ₹1.50 (~$0.0157)/kWh banking charge under the green energy open access framework until August 31, 2026.</p>"
-      },
-      {
-        "headline": "Textile Manufacturer RMP Group Goes Solar to Cut Power Expenses",
-        "url": "https://www.mercomindia.com/textile-manufacturer-rmp-group-goes-solar-to-cut-power-expenses",
-        "publishedAt": "2026-06-08T13:43:44.000Z",
-        "source": "Mercom India",
-        "summary": "<p>Large commercial and industrial (C&#038;I) consumers are increasingly adopting solar power to advance their sustainability objectives and lower electricity costs. Companies with steady power demand can achieve substantial savings by installing solar systems on unused rooftop spaces.</p>"
+        "summary": "NIWE completes offshore wind assessment for Gujarat"
       }
     ],
     "tariffOrders": [

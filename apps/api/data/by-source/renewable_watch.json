@@ -1,78 +1,44 @@
 {
   "source": "renewable_watch",
-  "fetchedAt": "2026-06-09T05:31:28.456Z",
+  "fetchedAt": "2026-06-30T00:30:36.013Z",
   "ok": true,
+  "fixturesUsed": true,
   "payload": {
     "news": [
       {
-        "headline": "GE Vernova secures order for 100 MW wind project in Gujarat from Powerica",
-        "url": "https://renewablewatch.in/2026/06/08/ge-vernova-secures-order-for-100-mw-wind-project-in-gujarat-from-powerica/",
-        "publishedAt": "2026-06-08T05:53:15.000Z",
+        "headline": "Wind Energy Capacity in India Crosses 48 GW Mark",
+        "url": "https://renewablewatch.in/wind-energy-capacity-india-48gw",
+        "publishedAt": "2025-03-15T00:00:00Z",
         "source": "Renewable Watch",
-        "summary": "<p>GE Vernova has inked an agreement with Powerica Limited for the supply of onshore wind turbines. Under the agreement, GE Vernova will supply 28 units of its 3.8 MW-154m wind turbines for the 100 MW <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/06/08/ge-vernova-secures-order-for-"
+        "summary": "India crosses 48 GW installed wind energy capacity milestone"
       },
       {
-        "headline": "Carbon Trading: Unlocking value through policy and technology",
-        "url": "https://renewablewatch.in/2026/06/09/carbon-trading-unlocking-value-through-policy-and-technology/",
-        "publishedAt": "2026-06-09T05:11:01.000Z",
+        "headline": "Repowering of Old Wind Turbines: Policy and Opportunities",
+        "url": "https://renewablewatch.in/repowering-old-wind-turbines-india",
+        "publishedAt": "2025-02-20T00:00:00Z",
         "source": "Renewable Watch",
-        "summary": "<p>By Ranjit Kulkarni, Vice-President and General Manager, Honeywell Process Technology Industries are increasingly viewing carbon trading as a strategic lever for competitiveness, operational efficiency, innovation and access to environment-related finance. India emitted 4,371 kilo tonnes <a class="
+        "summary": "Analysis of repowering potential and policy framework"
       },
       {
-        "headline": "Maruti Suzuki to develop 10 TPD biogas plant in Haryana",
-        "url": "https://renewablewatch.in/2026/06/08/maruti-suzuki-to-develop-10-tpd-biogas-plant-in-haryana/",
-        "publishedAt": "2026-06-08T05:57:27.000Z",
+        "headline": "Gujarat Leads Wind Energy Addition with 3.2 GW in FY25",
+        "url": "https://renewablewatch.in/gujarat-wind-energy-fy25",
+        "publishedAt": "2025-02-01T00:00:00Z",
         "source": "Renewable Watch",
-        "summary": "<p>Maruti Suzuki India Limited has announced that it will develop a 10 tonnes per day (TPD) biogas plant at its Kharkhoda facility in Haryana. The biogas plant will be commissioned in the financial year 2026-27 <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/06/08/maruti-suzuki-to-de"
+        "summary": "Gujarat tops state-wise wind capacity addition in FY2025"
       },
       {
-        "headline": "ACME Solar raises Rs 28 billion through QIP",
-        "url": "https://renewablewatch.in/2026/06/08/acme-solar-raises-rs-28-billion-through-qip/",
-        "publishedAt": "2026-06-08T05:52:23.000Z",
+        "headline": "FDRE Projects: Combining Wind, Solar & Storage for Grid Stability",
+        "url": "https://renewablewatch.in/fdre-wind-solar-storage",
+        "publishedAt": "2025-01-15T00:00:00Z",
         "source": "Renewable Watch",
-        "summary": "<p>ACME Solar Holdings Limited has completed a qualified institutional placement (QIP) worth Rs 28 billion. The issue received strong interest from a broad group of domestic and international institutional investors, including mutual funds, insurance companies, <a class=\"mh-excerpt-more\" href=\"https"
+        "summary": "FDRE project structures gaining traction in India wind sector"
       },
       {
-        "headline": "Inox Clean Energy signs agreement to acquire Vena Energy India",
-        "url": "https://renewablewatch.in/2026/06/08/inox-clean-energy-signs-agreement-to-acquire-vena-energy-india/",
-        "publishedAt": "2026-06-08T05:51:25.000Z",
+        "headline": "Wind OEMs in India: Suzlon, Inox Lead Domestic Market Share",
+        "url": "https://renewablewatch.in/wind-oem-india-market-share",
+        "publishedAt": "2024-12-10T00:00:00Z",
         "source": "Renewable Watch",
-        "summary": "<p>Inox Clean Energy Limited, through its subsidiary Inox Neo, has signed an agreement to acquire 100 per cent of the equity interests in Vena Energy India. Vena Energy India, Vena Group’s Indian renewable energy platform, <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/06/08/inox-cl"
-      },
-      {
-        "headline": "Rolls-Royce and Sunly partner on 490 MWh BESS projects in Latvia",
-        "url": "https://renewablewatch.in/2026/06/08/rolls-royce-and-sunly-partner-on-490-mwh-bess-projects-in-latvia/",
-        "publishedAt": "2026-06-08T04:57:09.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Rolls-Royce Power Systems and Sunly have signed agreements to develop four large-scale battery energy storage (BESS) projects in Latvia with a combined capacity of 490 MWh. The first mtu EnergyPack installation in Valmiera is scheduled <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/20"
-      },
-      {
-        "headline": "Lightsource bp commences construction of 380 MWdc solar plus storage project in Australia",
-        "url": "https://renewablewatch.in/2026/06/08/lightsource-bp-commences-construction-of-380-mwdc-solar-plus-storage-project-in-australia/",
-        "publishedAt": "2026-06-08T04:56:11.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Lightsource bp has commenced construction of the Lower Wonga hybrid renewable energy project located near Gympie, Queensland. The project comprises a 380 MWdc solar farm with a 281 MW/843 MWh battery energy storage system (BESS). <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in/2026/06/"
-      },
-      {
-        "headline": "Qualitas Energy acquires 164 MWp solar PV project in US",
-        "url": "https://renewablewatch.in/2026/06/08/qualitas-energy-acquires-164-mwp-solar-pv-project-in-us/",
-        "publishedAt": "2026-06-08T04:54:56.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Qualitas Energy has acquired a 164 MWp solar PV project in Illinois, US. The project, purchased from Bechtel Enterprises, is located within the Midcontinent Independent System Operator (MISO) electricity market. The project is expected to <a class=\"mh-excerpt-more\" href=\"https://renewablewatch.in"
-      },
-      {
-        "headline": "NTPC floats EPC tenders for 790 MW solar PV projects in Rajasthan",
-        "url": "https://renewablewatch.in/2026/06/05/ntpc-floats-epc-tenders-for-790-mw-solar-pv-projects-in-rajasthan/",
-        "publishedAt": "2026-06-05T05:54:27.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>NTPC Renewable Energy Limited (NREL), a wholly owned subsidiary of NTPC Limited, has floated two engineering, procurement, and construction (EPC) tenders for the development of 790 MW of grid-connected solar photovoltaic (PV) projects in Rajasthan. <a class=\"mh-excerpt-more\" href=\"https://renewab"
-      },
-      {
-        "headline": "Ganesh Green Bharat secures 1 GWh BESS order from NTPC",
-        "url": "https://renewablewatch.in/2026/06/05/ganesh-green-bharat-secures-1-gwh-bess-order-from-ntpc/",
-        "publishedAt": "2026-06-05T05:53:19.000Z",
-        "source": "Renewable Watch",
-        "summary": "<p>Ganesh Green Bharat Limited (GGBL) has secured an engineering, procurement, and construction order for a 1,000 MWh battery energy storage system (BESS) from NTPC Renewable Energy Limited (NREL). According to the specifications of the order,  <a class=\"mh-excerpt-more\" href=\"https://renewablewatch"
+        "summary": "OEM landscape analysis for Indian wind turbine market"
       }
     ],
     "tariffOrders": [

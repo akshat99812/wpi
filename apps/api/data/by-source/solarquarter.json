@@ -1,9 +1,25 @@
 {
   "source": "solarquarter",
-  "fetchedAt": "2026-06-09T05:31:28.457Z",
+  "fetchedAt": "2026-06-30T00:30:36.016Z",
   "ok": true,
+  "fixturesUsed": true,
   "payload": {
-    "news": [],
+    "news": [
+      {
+        "headline": "India Wind Auctions: A Pricing Tracker for FY26",
+        "url": "https://solarquarter.com/india-wind-auctions-fy26",
+        "publishedAt": "2025-04-10T00:00:00Z",
+        "source": "SolarQuarter",
+        "summary": "Pricing tracker for FY26 wind auctions across SECI, GUVNL, MSEDCL."
+      },
+      {
+        "headline": "SECI XVII Wind: 500 MW awarded at ₹3.08/kWh",
+        "url": "https://solarquarter.com/seci-xvii-wind-3-08",
+        "publishedAt": "2024-08-06T00:00:00Z",
+        "source": "SolarQuarter",
+        "summary": "SECI ISTS Wind Tranche XVII concludes at ₹3.08/kWh L1."
+      }
+    ],
     "tariffOrders": [
       {
         "state": "Tamil Nadu",
