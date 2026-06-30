@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wind Turbine Micrositing &amp; Energy Yield Assessment — A Technical Blueprint for Building a WAsP-Class Platform</title>
+<style>
+  :root{
+    --navy:#0e2742; --navy2:#13314f; --steel:#1d4e74; --teal:#0e7c86; --cyan:#1f9bb0;
+    --green:#2e8b6f; --amber:#c8862a; --red:#b3402f;
+    --ink:#17222e; --muted:#566576; --line:#d6dee6; --line2:#e7edf2;
+    --bg:#ffffff; --bg-soft:#f3f7fa; --bg-soft2:#eaf2f6; --bg-eq:#f5f9fc;
+    --accentbar:#0e7c86;
+  }
+  *{box-sizing:border-box}
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    color:var(--ink); background:var(--bg); margin:0; line-height:1.5; font-size:10.6pt;
+  }
+  h1,h2,h3,h4,.sans{font-family:"Helvetica Neue",Arial,"Segoe UI",system-ui,sans-serif;}
+  p{margin:0 0 8px 0; text-align:justify;}
+  .wrap{max-width:185mm; margin:0 auto; padding:0 6mm;}
+
+  /* ---------- PRINT ---------- */
+  @page{
+    size:A4; margin:20mm 17mm 18mm 17mm;
+    @bottom-center{ content:counter(page); font-family:Arial,sans-serif; font-size:8pt; color:#7a8896; }
+    @bottom-right{ content:"Micrositing & EYA Platform — Technical Blueprint"; font-family:Arial,sans-serif; font-size:7.5pt; color:#9aa7b4; }
+    @bottom-left{ content:"WCE Project · v1.0"; font-family:Arial,sans-serif; font-size:7.5pt; color:#9aa7b4; }
+  }
+  @page:first{ margin:0; @bottom-center{content:""} @bottom-right{content:""} @bottom-left{content:""} }
+  .chapter{ page-break-before:always; }
+  h2,h3,h4{ break-after:avoid; }
+  table,figure,.figure,.eq,.callout,.kpis{ break-inside:avoid; }
+  tr{ break-inside:avoid; }
+
+  /* ---------- COVER ---------- */
+  .cover{ position:relative; height:297mm; margin:0; padding:0; color:#eaf3f7; overflow:hidden;
+    background:linear-gradient(160deg,#0a1f35 0%,#0e2742 42%,#103a4a 100%); page-break-after:always;}
+  .cover .sky{position:absolute;inset:0;}
+  .cover .content{position:relative; z-index:3; padding:30mm 22mm 0 22mm;}
+  .cover .kicker{font-family:Arial,sans-serif; letter-spacing:.32em; font-size:10pt; text-transform:uppercase; color:#5fd0d8;}
+  .cover h1{font-size:33pt; line-height:1.1; margin:14mm 0 6mm 0; font-weight:700; color:#ffffff; letter-spacing:-.5px;}
+  .cover .sub{font-size:14.5pt; color:#bcd6df; max-width:150mm; line-height:1.45;}
+  .cover .meta{position:absolute; left:22mm; right:22mm; bottom:22mm; z-index:3;
+    border-top:1px solid rgba(255,255,255,.25); padding-top:7mm; display:flex; justify-content:space-between;
+    font-family:Arial,sans-serif; font-size:9.5pt; color:#9fc0cc;}
+  .cover .meta b{color:#eaf3f7; font-weight:600;}
+  .cover .badge{position:absolute; right:22mm; top:30mm; z-index:4; font-family:Arial,sans-serif; font-size:8pt;
+    letter-spacing:.18em; color:#0a1f35; background:#5fd0d8; padding:5px 11px; border-radius:3px; text-transform:uppercase; font-weight:700;}
+
+  /* ---------- HEADINGS ---------- */
+  h2.part{ font-size:11pt; letter-spacing:.26em; text-transform:uppercase; color:var(--teal);
+    border-bottom:2px solid var(--teal); padding-bottom:4px; margin:0 0 3mm 0;}
+  h2{ font-size:18pt; color:var(--navy); margin:7mm 0 3mm 0; line-height:1.15; letter-spacing:-.3px;}
+  h2 .num{ color:var(--teal); }
+  h3{ font-size:13pt; color:var(--navy2); margin:6mm 0 2mm 0; }
+  h3 .num{ color:var(--teal); font-size:11.5pt; }
+  h4{ font-size:11pt; color:var(--steel); margin:4mm 0 1.5mm 0; text-transform:none; letter-spacing:.2px;}
+  .lead{ font-size:11.4pt; color:#33404e; }
+
+  /* ---------- TABLES ---------- */
+  table{ width:100%; border-collapse:collapse; margin:3mm 0 4mm 0; font-size:9.2pt;
+    font-family:"Helvetica Neue",Arial,sans-serif; }
+  caption,.tabcap{ caption-side:top; text-align:left; font-family:Arial,sans-serif; font-size:8.6pt;
+    color:var(--muted); margin-bottom:3px; }
+  .tabcap b{ color:var(--teal); }
+  th{ background:var(--navy); color:#fff; text-align:left; padding:5px 8px; font-weight:600; font-size:8.8pt;
+    vertical-align:bottom; border:1px solid var(--navy);}
+  td{ padding:5px 8px; border:1px solid var(--line); vertical-align:top; }
+  tbody tr:nth-child(even){ background:var(--bg-soft); }
+  td.n,th.n{ text-align:right; font-variant-numeric:tabular-nums; }
+  .small td,.small th{ font-size:8.3pt; padding:4px 6px; }
+
+  /* ---------- EQUATIONS ---------- */
+  .eq{ background:var(--bg-eq); border-left:3px solid var(--teal); border-radius:0 4px 4px 0;
+    padding:8px 12px; margin:3mm 0; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .eq .math{ font-family:"Cambria Math","Latin Modern Math",Georgia,serif; font-size:11.6pt; color:#10202c;}
+  .eq .en{ font-family:Arial,sans-serif; font-size:8.5pt; color:var(--muted); white-space:nowrap;}
+  var,.v{ font-style:italic; font-family:"Cambria Math",Georgia,serif; }
+  .op{ font-style:normal; }
+  sub,sup{ font-size:72%; }
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{ border:1px solid var(--line); border-left:4px solid var(--cyan); background:var(--bg-soft);
+    padding:8px 12px; margin:3mm 0; border-radius:0 4px 4px 0; font-size:9.6pt;}
+  .callout.warn{ border-left-color:var(--amber); background:#fdf6ec;}
+  .callout.key{ border-left-color:var(--green); background:#eef7f2;}
+  .callout .h{ font-family:Arial,sans-serif; font-weight:700; font-size:8.4pt; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--steel); display:block; margin-bottom:3px;}
+  .callout.warn .h{color:var(--amber);} .callout.key .h{color:var(--green);}
+
+  /* ---------- FIGURES ---------- */
+  figure{ margin:4mm 0; }
+  figure svg{ width:100%; height:auto; display:block; border:1px solid var(--line2); border-radius:6px; background:#fff;}
+  figcaption{ font-family:Arial,sans-serif; font-size:8.5pt; color:var(--muted); margin-top:4px; text-align:left;}
+  figcaption b{ color:var(--teal); }
+
+  /* ---------- LISTS ---------- */
+  ul,ol{ margin:4px 0 9px 0; padding-left:18px; }
+  li{ margin-bottom:3.5px; text-align:justify; }
+  ul.tight li{ margin-bottom:1.5px; }
+  .defs{ list-style:none; padding-left:0; }
+  .defs li{ padding-left:0; margin-bottom:4px; }
+  .defs .t{ font-family:Arial,sans-serif; font-weight:600; color:var(--navy2); }
+
+  /* ---------- KPI strip ---------- */
+  .kpis{ display:flex; gap:8px; margin:4mm 0; }
+  .kpi{ flex:1; border:1px solid var(--line); border-top:3px solid var(--teal); border-radius:5px; padding:8px 10px; background:#fff;}
+  .kpi .v{ font-family:Arial,sans-serif; font-style:normal; font-size:17pt; font-weight:700; color:var(--navy); }
+  .kpi .l{ font-family:Arial,sans-serif; font-size:8pt; color:var(--muted); text-transform:uppercase; letter-spacing:.08em;}
+
+  /* ---------- TOC ---------- */
+  .toc{ font-family:"Helvetica Neue",Arial,sans-serif; font-size:10pt; }
+  .toc .row{ display:flex; align-items:baseline; margin:2.5px 0; }
+  .toc .row .t{ color:var(--ink); } .toc .row.p{ margin-top:6mm; }
+  .toc .row.p .t{ font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:.12em; font-size:9pt;}
+  .toc .n{ width:13mm; color:var(--teal); font-weight:600; }
+  .toc .dots{ flex:1; border-bottom:1px dotted #b9c5cf; margin:0 5px; transform:translateY(-3px);}
+  .toc .pg{ color:var(--muted); font-variant-numeric:tabular-nums; }
+  .toc .row.sub .n{ padding-left:6mm; font-weight:400; color:var(--muted); width:19mm;}
+  .toc .row.sub .t{ color:var(--muted); }
+
+  code,.mono{ font-family:"SF Mono",Consolas,"Roboto Mono",monospace; font-size:8.8pt; background:#eef3f6;
+    padding:1px 4px; border-radius:3px; color:#0c3a44;}
+  pre{ background:#0e2742; color:#dbe9ef; padding:10px 12px; border-radius:6px; font-family:"SF Mono",Consolas,monospace;
+    font-size:8.4pt; line-height:1.45; overflow:auto; margin:3mm 0;}
+  pre .c{color:#6f93a6;} pre .k{color:#7fd0d8;} pre .s{color:#b5d8a0;}
+  a{ color:var(--teal); text-decoration:none; }
+  .hr{ height:1px; background:var(--line); margin:5mm 0; border:0;}
+  .tag{ display:inline-block; font-family:Arial,sans-serif; font-size:7.5pt; letter-spacing:.06em; text-transform:uppercase;
+    color:#fff; background:var(--steel); padding:1.5px 6px; border-radius:10px; vertical-align:middle; }
+  .tag.new{ background:var(--green);} .tag.std{ background:var(--steel);} .tag.opt{ background:var(--amber);}
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<section class="cover">
+  <svg class="sky" viewBox="0 0 800 1130" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0a1f35"/><stop offset="1" stop-color="#0f3a4a"/>
+      </linearGradient>
+      <radialGradient id="glow" cx="0.72" cy="0.22" r="0.5">
+        <stop offset="0" stop-color="#1f9bb0" stop-opacity="0.55"/><stop offset="1" stop-color="#1f9bb0" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="800" height="1130" fill="url(#cg)"/>
+    <rect width="800" height="1130" fill="url(#glow)"/>
+    <!-- contour-like resource field -->
+    <g fill="none" stroke="#2f6f80" stroke-opacity="0.33" stroke-width="1.2">
+      <path d="M-20,840 C160,790 300,880 460,820 C600,770 720,820 820,790"/>
+      <path d="M-20,880 C160,830 300,920 460,860 C600,810 720,860 820,830"/>
+      <path d="M-20,920 C150,876 300,958 470,900 C610,852 720,900 820,872"/>
+      <path d="M-20,962 C150,920 300,998 470,944 C620,898 730,944 820,918"/>
+      <path d="M-20,1004 C150,966 300,1040 470,988 C620,944 730,988 820,964"/>
+    </g>
+    <!-- streamlines -->
+    <g stroke="#5fd0d8" stroke-opacity="0.5" stroke-width="1.4" fill="none">
+      <path d="M40,300 C220,270 360,330 560,300"/>
+      <path d="M40,340 C220,312 360,372 600,340"/>
+      <path d="M40,380 C240,356 380,410 640,378"/>
+    </g>
+    <g fill="#5fd0d8" fill-opacity="0.5"><polygon points="560,300 552,295 552,305"/><polygon points="600,340 592,335 592,345"/><polygon points="640,378 632,373 632,383"/></g>
+    <!-- turbines on ridge -->
+    <g stroke="#cfe9ee" stroke-width="3" stroke-linecap="round">
+      <g transform="translate(150,820)"><line x1="0" y1="0" x2="0" y2="-95"/>
+        <g stroke="#eaf3f7" stroke-width="3.5"><line x1="0" y1="-95" x2="0" y2="-140"/><line x1="0" y1="-95" x2="39" y2="-72"/><line x1="0" y1="-95" x2="-39" y2="-72"/></g>
+        <circle cx="0" cy="-95" r="4" fill="#eaf3f7" stroke="none"/></g>
+      <g transform="translate(300,792)"><line x1="0" y1="0" x2="0" y2="-110"/>
+        <g stroke="#eaf3f7" stroke-width="3.5"><line x1="0" y1="-110" x2="0" y2="-158"/><line x1="0" y1="-110" x2="42" y2="-85"/><line x1="0" y1="-110" x2="-42" y2="-85"/></g>
+        <circle cx="0" cy="-110" r="4.5" fill="#eaf3f7" stroke="none"/></g>
+      <g transform="translate(470,812)"><line x1="0" y1="0" x2="0" y2="-100"/>
+        <g stroke="#eaf3f7" stroke-width="3.5"><line x1="0" y1="-100" x2="0" y2="-146"/><line x1="0" y1="-100" x2="40" y2="-76"/><line x1="0" y1="-100" x2="-40" y2="-76"/></g>
+        <circle cx="0" cy="-100" r="4" fill="#eaf3f7" stroke="none"/></g>
+    </g>
+  </svg>
+  <span class="badge">Technical Blueprint</span>
+  <div class="content">
+    <div class="kicker">Wind Resource Engineering · Onshore</div>
+    <h1>Micrositing &amp; Energy Yield Assessment</h1>
+    <div class="sub">A complete engineering blueprint for designing and building a WAsP-class platform — wind-flow modelling, wake physics, energy-yield assessment, uncertainty and turbine-layout optimisation, from methodology to software architecture and a phased build roadmap.</div>
+  </div>
+  <div class="meta">
+    <div>Prepared for <b>The WCE Project</b><br>Wind Continuum Engine — RAG &amp; Resource Subsystem</div>
+    <div style="text-align:right">Document <b>v1.0</b> &nbsp;·&nbsp; June 2026<br>State-of-the-art review &amp; design specification</div>
+  </div>
+</section>
+
+<!-- ===================== EXEC SUMMARY ===================== -->
+<div class="wrap">
+<section class="chapter">
+  <h2 class="part">Executive Summary</h2>
+  <h2 style="margin-top:2mm">Building a WAsP-class micrositing &amp; EYA engine</h2>
+  <p class="lead"><b>Micrositing</b> is the discipline of deciding exactly where each wind turbine stands on a site so that the array captures the most energy at the lowest cost and risk, while respecting terrain, wakes, loads, noise, and environmental constraints. <b>Energy Yield Assessment (EYA)</b> is the quantitative engine behind every wind-farm investment decision: it converts a wind measurement and a turbine layout into a bankable estimate of long-term production, expressed as exceedance probabilities (P50, P90) with a defensible uncertainty budget.</p>
+
+  <p>This document is a build-oriented specification for a software platform that performs both tasks at the standard set by <b>WAsP</b> (DTU), <b>WindPRO</b> (EMD), <b>openWind</b> (UL Solutions) and <b>WindFarmer</b> (DNV) — and extends them with the modelling techniques that have matured in 2023–2026: CFD and mesoscale–microscale coupling for complex terrain, and machine-learning surrogates and super-resolution downscaling for speed and accuracy. The scope is <b>onshore</b> wind, where terrain, roughness and orographic flow dominate — WAsP's home domain and the typical setting for Indian wind projects.</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v">8</div><div class="l">Factor domains the tool must model</div></div>
+    <div class="kpi"><div class="v">4</div><div class="l">Interchangeable flow engines</div></div>
+    <div class="kpi"><div class="v">P50→P90</div><div class="l">Bankable yield outputs</div></div>
+    <div class="kpi"><div class="v">5</div><div class="l">Phase build roadmap</div></div>
+  </div>
+
+  <h4>What the platform must do — eight factor domains</h4>
+  <p>A credible micrositing/EYA tool is an integration of eight modelling domains, each a chapter in this blueprint: (1) the <b>wind climate</b> — measurement, long-term correction and the statistical wind resource; (2) <b>terrain, roughness and obstacles</b>; (3) the <b>flow model</b> that extrapolates the measured climate across the site and to hub height; (4) <b>wake interaction</b> between turbines; (5) the <b>power conversion</b> and full loss waterfall that turns wind into net energy; (6) <b>uncertainty</b> quantification and P-value reporting; (7) <b>site suitability</b> and turbine-load validation against IEC 61400-1; and (8) <b>layout optimisation</b> under physical, regulatory and environmental constraints.</p>
+
+  <h4>The modelling spectrum we recommend</h4>
+  <p>No single flow model is correct everywhere. The platform is architected around a <b>pluggable flow-engine interface</b> so that the same site, measurements and turbines can be run through four engines of increasing fidelity and cost: a fast <b>linearised</b> model (WAsP IBZ-class) for flat-to-moderate terrain; <b>RANS/LES CFD</b> for steep, separated terrain where linear theory fails; <b>mesoscale–microscale coupling</b> (WRF → microscale, the New European Wind Atlas / Global Wind Atlas 4 methodology) for large or data-sparse sites; and <b>ML surrogates</b> that emulate CFD/mesoscale fields at a fraction of the run-time. A ruggedness diagnostic (RIX/ΔRIX) automatically flags where the linear engine is out of validity and a higher-fidelity engine should take over.</p>
+
+  <div class="callout key"><span class="h">Design thesis</span>The differentiator is not any one model but the <b>integration</b>: one data model, one uncertainty framework, and one optimisation loop wrapped around interchangeable flow and wake engines, with standards-compliant reporting (IEC 61400-15-1:2025, and the IEC 61400-15-2 energy-yield digital exchange format) generated automatically.</p>
+
+  <h4>How to build it</h4>
+  <p>Part IV translates the science into software: a layered architecture (data ingestion → terrain/roughness preprocessing → flow engine → wake engine → energy &amp; loss → uncertainty → optimisation → GIS visualisation → reporting), a recommended open-source foundation (PyWake, TopFarm, FLORIS, WindNinja, OpenFOAM/WRF, the geospatial Python stack), a concrete data-source catalogue (ERA5, Global Wind Atlas 4, Copernicus DEM, ESA WorldCover, and India's NIWE atlas), and a five-phase roadmap that delivers a usable linear-model EYA tool in Phase 1 and adds wakes, optimisation, CFD/mesoscale and ML in later phases.</p>
+
+  <p>The remainder of this document develops each of these elements in full, with the governing equations, typical parameter values, default loss and uncertainty tables, validation strategy, and a competitive comparison against the incumbent commercial tools.</p>
+</section>
+
+<!-- ===================== TOC ===================== -->
+<section class="chapter">
+  <h2 class="part">Contents</h2>
+  <div class="toc">
+    <div class="row p"><span class="t">Part I — Foundations &amp; Methodology</span></div>
+    <div class="row"><span class="n">1</span><span class="t">Introduction, Scope &amp; What "WAsP-class" Means</span><span class="dots"></span><span class="pg">5</span></div>
+    <div class="row"><span class="n">2</span><span class="t">The Physics of the Wind Resource</span><span class="dots"></span><span class="pg">7</span></div>
+    <div class="row"><span class="n">3</span><span class="t">Wind Measurement &amp; Data Acquisition</span><span class="dots"></span><span class="pg">11</span></div>
+    <div class="row"><span class="n">4</span><span class="t">Long-Term Correction &amp; the Reference Climate (MCP)</span><span class="dots"></span><span class="pg">14</span></div>
+
+    <div class="row p"><span class="t">Part II — The Modelling Engines</span></div>
+    <div class="row"><span class="n">5</span><span class="t">Terrain, Roughness &amp; Obstacle Modelling</span><span class="dots"></span><span class="pg">17</span></div>
+    <div class="row"><span class="n">6</span><span class="t">Flow Model I — Linearised (WAsP-class IBZ/BZ)</span><span class="dots"></span><span class="pg">20</span></div>
+    <div class="row"><span class="n">7</span><span class="t">Flow Model II — CFD (RANS &amp; LES)</span><span class="dots"></span><span class="pg">24</span></div>
+    <div class="row"><span class="n">8</span><span class="t">Flow Model III — Mesoscale &amp; Coupling</span><span class="dots"></span><span class="pg">27</span></div>
+    <div class="row"><span class="n">9</span><span class="t">Flow Model IV — ML / AI-Augmented Modelling</span><span class="dots"></span><span class="pg">29</span></div>
+
+    <div class="row p"><span class="t">Part III — Wakes, Energy &amp; Optimisation</span></div>
+    <div class="row"><span class="n">10</span><span class="t">Wake Modelling &amp; Blockage</span><span class="dots"></span><span class="pg">32</span></div>
+    <div class="row"><span class="n">11</span><span class="t">Energy Yield Assessment — Gross to Net</span><span class="dots"></span><span class="pg">36</span></div>
+    <div class="row"><span class="n">12</span><span class="t">Uncertainty Quantification &amp; P-Values</span><span class="dots"></span><span class="pg">40</span></div>
+    <div class="row"><span class="n">13</span><span class="t">Site Suitability &amp; Turbine-Load Validation</span><span class="dots"></span><span class="pg">43</span></div>
+    <div class="row"><span class="n">14</span><span class="t">Layout Optimisation (Micrositing)</span><span class="dots"></span><span class="pg">45</span></div>
+
+    <div class="row p"><span class="t">Part IV — Building the Tool</span></div>
+    <div class="row"><span class="n">15</span><span class="t">Software Architecture</span><span class="dots"></span><span class="pg">49</span></div>
+    <div class="row"><span class="n">16</span><span class="t">Data Pipeline &amp; Sources</span><span class="dots"></span><span class="pg">52</span></div>
+    <div class="row"><span class="n">17</span><span class="t">Technology Stack &amp; Open-Source Foundation</span><span class="dots"></span><span class="pg">54</span></div>
+    <div class="row"><span class="n">18</span><span class="t">Validation, Benchmarking &amp; Standards</span><span class="dots"></span><span class="pg">56</span></div>
+    <div class="row"><span class="n">19</span><span class="t">Implementation Roadmap</span><span class="dots"></span><span class="pg">58</span></div>
+    <div class="row"><span class="n">20</span><span class="t">Competitive Landscape</span><span class="dots"></span><span class="pg">60</span></div>
+
+    <div class="row p"><span class="t">Appendices</span></div>
+    <div class="row sub"><span class="n">A–E</span><span class="t">Nomenclature · Equation reference · Default loss/uncertainty tables · Glossary · Standards &amp; references</span><span class="dots"></span><span class="pg">62</span></div>
+  </div>
+</section>
+<!-- ============================================================= -->
+<!-- PART I -->
+<!-- ============================================================= -->
+<section class="chapter">
+  <h2 class="part">Part I — Foundations &amp; Methodology</h2>
+  <h2><span class="num">1.</span> Introduction, Scope &amp; What "WAsP-class" Means</h2>
+
+  <h3><span class="num">1.1</span> The problem in one paragraph</h3>
+  <p>Given a parcel of land, a few months to a few years of wind measurements from one or more masts or remote-sensing devices, a digital description of the terrain, and a catalogue of candidate turbines, two questions must be answered with money on the line: <i>where do we put the turbines</i> (micrositing) and <i>how much energy will they produce over 20+ years, and how sure are we</i> (energy yield assessment). Every number that follows in a project's financial model — debt sizing, tariff bids, equity returns — descends from the P50 and P90 energy figures this tool produces. The engineering challenge is that the wind at a turbine 800&nbsp;m away and 40&nbsp;m higher than the mast is <i>not</i> the wind at the mast: it has been reshaped by terrain, roughness, the atmospheric boundary layer, and the wakes of neighbouring turbines. Modelling that transformation accurately, and bounding its error honestly, is the whole game.</p>
+
+  <h3><span class="num">1.2</span> What "WAsP-class" means as an engineering target</h3>
+  <p>WAsP (Wind Atlas Analysis and Application Program, DTU Wind Energy; current release <b>WAsP 12.10</b>, December 2025) defined the industry's reference workflow: take an observed wind climate, <b>generalise</b> it upward and outward by removing the local effects of terrain, roughness and obstacles to obtain a site-independent <b>regional (generalised) wind climate</b>, then <b>predict</b> the wind climate at any other point by re-applying the local effects there. To match and exceed WAsP, our platform must reproduce that round-trip with at least equal fidelity and add the things WAsP does not natively do well — high-fidelity flow in steep terrain, integrated multi-turbine layout optimisation, automated uncertainty, and modern data-driven acceleration.</p>
+
+  <div class="callout"><span class="h">"WAsP-class" — the acceptance bar</span>The tool is WAsP-class when, on a benchmark onshore site with a validation mast withheld, it predicts the withheld mast's mean wind speed within <b>±2–3%</b> in simple terrain, flags (via RIX/ΔRIX) where it cannot, produces a full P50/P90 EYA with a documented uncertainty budget, and optimises a turbine layout under realistic constraints — all from one project data model and reproducibly.</p>
+
+  <h3><span class="num">1.3</span> Scope of this blueprint</h3>
+  <ul>
+    <li><b>In scope:</b> onshore wind; the full measurement-to-yield chain; four flow engines (linear, CFD, mesoscale, ML); analytical wake and blockage modelling; gross-to-net loss accounting; uncertainty and P-values; IEC 61400-1 site-suitability checks; layout optimisation; and the software architecture, data pipeline, technology stack and roadmap to build it.</li>
+    <li><b>Adjacent / lighter touch:</b> offshore array effects and met-ocean modelling (the architecture supports them but they are not the focus); detailed aeroelastic load simulation (we validate suitability and hand off to dedicated load tools such as OpenFAST); grid and electrical design beyond the loss budget.</li>
+  </ul>
+
+  <h3><span class="num">1.4</span> The end-to-end methodology</h3>
+  <p>Figure&nbsp;1 is the master pipeline. Every later chapter expands one block. Read left to right: raw inputs are conditioned into a long-term, height-referenced wind climate; the flow engine spreads that climate across a resource grid; turbines are placed and their wakes computed; energy is converted and de-rated through the loss waterfall; uncertainty is propagated to P-values; and an optimiser closes the loop by moving turbines to improve the objective.</p>
+
+  <figure>
+    <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0e7c86"/></marker>
+        <linearGradient id="bx" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef5f8"/></linearGradient>
+      </defs>
+      <style>
+        .b{fill:url(#bx); stroke:#1d4e74; stroke-width:1.3; rx:7;}
+        .bt{font-size:10.5px; font-weight:700; fill:#0e2742;}
+        .bs{font-size:8px; fill:#566576;}
+        .ph{font-size:8.5px; font-weight:700; fill:#0e7c86; letter-spacing:1px;}
+        .fl{stroke:#0e7c86; stroke-width:1.6; fill:none; marker-end:url(#ar);}
+      </style>
+      <text x="20" y="22" class="ph">INPUTS</text>
+      <text x="300" y="22" class="ph">MODELLING CORE</text>
+      <text x="690" y="22" class="ph">OUTPUTS</text>
+
+      <rect class="b" x="18" y="40" width="150" height="50" rx="7"/><text x="30" y="62" class="bt">Measurements</text><text x="30" y="78" class="bs">masts · LiDAR · SoDAR</text>
+      <rect class="b" x="18" y="104" width="150" height="50" rx="7"/><text x="30" y="126" class="bt">Reanalysis</text><text x="30" y="142" class="bs">ERA5 · MERRA-2 · GWA4</text>
+      <rect class="b" x="18" y="168" width="150" height="50" rx="7"/><text x="30" y="190" class="bt">Terrain + Roughness</text><text x="30" y="206" class="bs">DEM · land cover · obstacles</text>
+      <rect class="b" x="18" y="232" width="150" height="48" rx="7"/><text x="30" y="254" class="bt">Turbines</text><text x="30" y="270" class="bs">power/Ct curves · classes</text>
+
+      <rect class="b" x="248" y="56" width="150" height="50" rx="7"/><text x="260" y="78" class="bt">Long-term climate</text><text x="260" y="94" class="bs">MCP · Weibull · wind rose</text>
+      <rect class="b" x="248" y="124" width="150" height="52" rx="7"/><text x="260" y="146" class="bt">Flow engine</text><text x="260" y="162" class="bs">linear · CFD · meso · ML</text>
+      <rect class="b" x="248" y="196" width="150" height="50" rx="7"/><text x="260" y="218" class="bt">Resource grid (WRG)</text><text x="260" y="234" class="bs">speed-up · A,k per cell</text>
+
+      <rect class="b" x="468" y="90" width="150" height="50" rx="7"/><text x="480" y="112" class="bt">Wake + blockage</text><text x="480" y="128" class="bs">deficits · added TI</text>
+      <rect class="b" x="468" y="158" width="150" height="52" rx="7"/><text x="480" y="180" class="bt">Energy &amp; losses</text><text x="480" y="196" class="bs">gross → net waterfall</text>
+
+      <rect class="b" x="688" y="56" width="154" height="50" rx="7"/><text x="700" y="78" class="bt">P50 / P90 yield</text><text x="700" y="94" class="bs">AEP · CF · uncertainty</text>
+      <rect class="b" x="688" y="124" width="154" height="50" rx="7"/><text x="700" y="146" class="bt">Optimised layout</text><text x="700" y="162" class="bs">positions · turbine choice</text>
+      <rect class="b" x="688" y="192" width="154" height="50" rx="7"/><text x="700" y="214" class="bt">Suitability + report</text><text x="700" y="230" class="bs">IEC checks · EYA DEF</text>
+
+      <path class="fl" d="M168,65 C200,65 216,81 246,81"/>
+      <path class="fl" d="M168,129 C205,129 214,140 246,148"/>
+      <path class="fl" d="M168,192 C205,192 216,205 246,214"/>
+      <path class="fl" d="M168,256 C210,256 220,230 246,222"/>
+      <path class="fl" d="M398,150 C430,150 440,120 466,113"/>
+      <path class="fl" d="M398,150 C430,150 442,176 466,182"/>
+      <path class="fl" d="M398,220 C430,220 446,200 466,192"/>
+      <path class="fl" d="M618,114 C650,114 660,84 686,81"/>
+      <path class="fl" d="M618,184 C652,184 662,150 686,149"/>
+      <path class="fl" d="M618,184 C652,184 664,210 686,216"/>
+      <!-- optimiser feedback -->
+      <path d="M764,174 C764,260 543,290 320,290 C150,290 120,250 120,232" stroke="#c8862a" stroke-width="1.5" stroke-dasharray="5 4" fill="none" marker-end="url(#ar)"/>
+      <text x="430" y="287" font-size="8.5px" font-weight="700" fill="#c8862a">optimiser feedback loop — reposition turbines &amp; re-evaluate</text>
+    </svg>
+    <figcaption><b>Figure 1.</b> Master micrositing / EYA pipeline. Inputs are conditioned into a long-term wind climate, propagated across the site by an interchangeable flow engine into a Wind Resource Grid (WRG), combined with wake and blockage effects, converted to energy and de-rated through the loss waterfall, then reported as P50/P90 yield. An optimiser feeds back to move turbines and re-evaluate.</figcaption>
+  </figure>
+
+  <h3><span class="num">1.5</span> How to read the rest of the document</h3>
+  <p>Part&nbsp;I establishes the wind climate (the input). Part&nbsp;II is the flow-modelling core — four engines and the terrain data they consume. Part&nbsp;III converts flow into bankable energy and an optimised layout. Part&nbsp;IV is the build: architecture, data, stack, validation, roadmap and a competitive comparison. Equations are numbered per chapter; symbols are collected in Appendix&nbsp;A; default loss/uncertainty values in Appendix&nbsp;C.</p>
+</section>
+
+<!-- ===================== 2. PHYSICS ===================== -->
+<section class="chapter">
+  <h2><span class="num">2.</span> The Physics of the Wind Resource</h2>
+  <p class="lead">The flow engine is only as good as the boundary-layer physics it encodes. This chapter sets out the equations the tool must implement to describe how wind speed varies with height, terrain and time, and how that variability becomes an energy-bearing statistical distribution.</p>
+
+  <h3><span class="num">2.1</span> The atmospheric boundary layer (ABL)</h3>
+  <p>Wind turbines live in the lowest few hundred metres of the atmosphere — the <b>atmospheric boundary layer</b>, where the ground exerts friction and surface heating/cooling drives turbulence. Within the lowest ~10% (the <b>surface layer</b>), momentum flux is approximately constant with height and the mean wind profile follows the <b>logarithmic law</b>. Above it, in the <b>Ekman layer</b>, the Coriolis force turns the wind with height until it reaches the geostrophic value aloft. A micrositing tool models the surface and lower-Ekman layers explicitly and uses the geostrophic wind as the upper anchor for the wind-atlas generalisation.</p>
+
+  <figure>
+    <svg viewBox="0 0 860 290" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <style>.ax{stroke:#9aa7b4;stroke-width:1.2}.gl{stroke:#e2e9ef;stroke-width:1}.lbl{font-size:9px;fill:#566576}.tt{font-size:10px;font-weight:700;fill:#0e2742}.cv{fill:none;stroke-width:2.4}</style>
+      <!-- left: log profile -->
+      <g transform="translate(40,20)">
+        <text x="60" y="-2" class="tt">Vertical wind profile</text>
+        <line class="ax" x1="40" y1="20" x2="40" y2="230"/><line class="ax" x1="40" y1="230" x2="320" y2="230"/>
+        <text x="-2" y="120" class="lbl" transform="rotate(-90 -2,120)">height z</text>
+        <text x="150" y="248" class="lbl">mean wind speed U(z)</text>
+        <path class="cv" stroke="#0e7c86" d="M55,230 C150,210 220,150 250,90 C262,66 268,46 272,24"/>
+        <text x="278" y="40" class="lbl" fill="#0e7c86">log law</text>
+        <path class="cv" stroke="#c8862a" stroke-dasharray="5 4" d="M55,230 C140,200 210,150 260,95 C285,68 300,46 312,24"/>
+        <text x="250" y="200" class="lbl" fill="#c8862a">power law (α)</text>
+        <line class="gl" x1="40" y1="120" x2="250" y2="120"/><circle cx="250" cy="120" r="3" fill="#0e2742"/><text x="172" y="116" class="lbl">hub height</text>
+        <line class="gl" x1="40" y1="195" x2="180" y2="195"/><circle cx="120" cy="195" r="3" fill="#0e2742"/><text x="124" y="191" class="lbl">mast top</text>
+        <text x="44" y="226" class="lbl">z₀</text>
+      </g>
+      <!-- right: weibull -->
+      <g transform="translate(470,20)">
+        <text x="40" y="-2" class="tt">Wind-speed distribution</text>
+        <line class="ax" x1="40" y1="20" x2="40" y2="230"/><line class="ax" x1="40" y1="230" x2="330" y2="230"/>
+        <text x="-2" y="135" class="lbl" transform="rotate(-90 -2,135)">frequency f(U)</text>
+        <text x="150" y="248" class="lbl">wind speed U (m/s)</text>
+        <path class="cv" stroke="#1d4e74" d="M40,230 C70,228 92,120 130,96 C168,72 210,150 255,196 C285,220 305,226 330,229"/>
+        <text x="120" y="86" class="lbl" fill="#1d4e74">Weibull (A, k)</text>
+        <line class="gl" x1="118" y1="96" x2="118" y2="230"/><text x="96" y="244" class="lbl">A</text>
+        <path d="M40,230 L330,230" stroke="none"/>
+        <rect x="150" y="150" width="22" height="80" fill="#0e7c86" opacity="0.18"/><rect x="172" y="120" width="22" height="110" fill="#0e7c86" opacity="0.18"/><rect x="194" y="140" width="22" height="90" fill="#0e7c86" opacity="0.18"/>
+        <text x="150" y="120" class="lbl" fill="#0e7c86">∝ U³ energy</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 2.</b> Left: the mean wind profile in the surface layer — the logarithmic law (exact for neutral stratification) and the engineering power-law approximation, anchored at the mast and extrapolated to hub height. Right: the Weibull wind-speed distribution; because power scales with U³, the energy-bearing wind speeds lie well above the modal speed.</figcaption>
+  </figure>
+
+  <h3><span class="num">2.2</span> The logarithmic wind profile and roughness length</h3>
+  <p>For neutral stratification the mean horizontal wind speed grows logarithmically with height above a surface characterised by an aerodynamic <b>roughness length</b> <var>z</var><sub>0</sub>:</p>
+  <div class="eq"><span class="math">U(z) = (<var>u</var><sub>*</sub> / κ) · ln(z / <var>z</var><sub>0</sub>)</span><span class="en">Eq. 2.1 — log law (neutral)</span></div>
+  <p>where <var>u</var><sub>*</sub> is the friction velocity, κ&nbsp;≈&nbsp;0.40 is the von&nbsp;Kármán constant, and <var>z</var><sub>0</sub> ranges from ~0.0002&nbsp;m (water) and 0.03&nbsp;m (open farmland) to 0.4–1.0&nbsp;m (forest, suburb). Non-neutral stability adds a Monin–Obukhov correction ψ<sub>m</sub> that is a function of the stability parameter z/<var>L</var> (<var>L</var> = Obukhov length):</p>
+  <div class="eq"><span class="math">U(z) = (<var>u</var><sub>*</sub> / κ) · [ ln(z / <var>z</var><sub>0</sub>) − ψ<sub>m</sub>(z / <var>L</var>) ]</span><span class="en">Eq. 2.2 — with stability</span></div>
+  <p><var>L</var>&gt;0 is stable (nocturnal, suppressed mixing, strong shear), <var>L</var>&lt;0 unstable (daytime convection, well-mixed, low shear), <var>L</var>→∞ neutral. The tool must at minimum support a neutral profile and ideally a stability-classified climatology, because shear directly sets the hub-height wind and the rotor-equivalent wind speed.</p>
+
+  <h3><span class="num">2.3</span> The power law (engineering shear)</h3>
+  <p>For day-to-day extrapolation the power law is ubiquitous because it needs only a single fitted exponent α:</p>
+  <div class="eq"><span class="math">U(z) / U(<var>z</var><sub>r</sub>) = ( z / <var>z</var><sub>r</sub> )<sup>α</sup></span><span class="en">Eq. 2.3 — power law</span></div>
+  <p>Typical α: ~0.10–0.14 over open, flat terrain; 0.20–0.30 over forest or in stable nocturnal conditions; occasionally &gt;0.3. α is best derived from two or more measurement heights rather than assumed. <b>Caution:</b> extrapolating a single-height measurement to hub height with an assumed α is a leading source of EYA error and must carry an explicit uncertainty (Chapter&nbsp;12).</p>
+
+  <h3><span class="num">2.4</span> Geostrophic wind &amp; the resistance (drag) law</h3>
+  <p>The wind-atlas method connects the surface friction velocity to the free-atmosphere <b>geostrophic wind</b> <var>G</var> through the geostrophic drag law, the theoretical backbone of upward generalisation:</p>
+  <div class="eq"><span class="math"><var>G</var> = (<var>u</var><sub>*</sub> / κ) · √{ [ ln(<var>u</var><sub>*</sub> / (<var>f</var> <var>z</var><sub>0</sub>)) − A ]² + B² }</span><span class="en">Eq. 2.4 — resistance law</span></div>
+  <p>with Coriolis parameter <var>f</var>&nbsp;=&nbsp;2Ω&nbsp;sin&nbsp;φ (φ = latitude, Ω = Earth's rotation rate) and empirical constants A≈1.8, B≈4.5 for neutral conditions. Because <var>G</var> is (to first order) independent of local surface conditions, two nearby sites with different roughness share the same geostrophic forcing — this is precisely what lets WAsP generalise a mast's climate "up" and re-apply it "down" at a turbine location.</p>
+
+  <h3><span class="num">2.5</span> The Weibull distribution &amp; wind power density</h3>
+  <p>The long-term distribution of 10-minute mean wind speeds at a height is described, per direction sector, by a two-parameter <b>Weibull</b> distribution:</p>
+  <div class="eq"><span class="math">f(U) = (k / A) · (U / A)<sup>k−1</sup> · exp[ −(U / A)<sup>k</sup> ]</span><span class="en">Eq. 2.5 — Weibull pdf</span></div>
+  <p>where <var>A</var> (scale, m/s) is proportional to the mean speed and <var>k</var> (shape, dimensionless, typically 1.8–2.6 onshore) describes the spread. The mean speed and the all-important mean of <var>U</var>³ (which carries the energy) follow from the Gamma function Γ:</p>
+  <div class="eq"><span class="math">Ū = A · Γ(1 + 1/k)&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp; &lt;U³&gt; = A³ · Γ(1 + 3/k)</span><span class="en">Eq. 2.6 — Weibull moments</span></div>
+  <p>The instantaneous power available in the wind through a swept area <var>A</var><sub>r</sub> is the cube law that makes accurate wind-speed prediction so valuable — a 1% error in speed is roughly a 3% error in energy:</p>
+  <div class="eq"><span class="math"><var>P</var> = ½ · ρ · <var>A</var><sub>r</sub> · U³&nbsp;&nbsp;&nbsp;⟹&nbsp;&nbsp;&nbsp; WPD = ½ · ρ · A³ · Γ(1 + 3/k)</span><span class="en">Eq. 2.7 — wind power density</span></div>
+
+  <div class="callout warn"><span class="h">Why ±1% speed matters</span>Because <var>P</var> ∝ U³, the platform's flow-model accuracy target (±2–3% in speed) translates to roughly ±6–9% in gross energy <i>before</i> wakes and losses. This single fact justifies every chapter that follows on flow modelling and uncertainty.</p>
+
+  <h3><span class="num">2.6</span> Air density</h3>
+  <p>Power scales linearly with air density ρ, which varies with temperature, pressure, altitude and humidity. The tool must normalise power curves to site density (IEC 61400-12-1). For moist air:</p>
+  <div class="eq"><span class="math">ρ = <var>p</var><sub>d</sub> / (<var>R</var><sub>d</sub> <var>T</var>) + <var>p</var><sub>v</sub> / (<var>R</var><sub>v</sub> <var>T</var>)</span><span class="en">Eq. 2.8 — moist-air density</span></div>
+  <p>with <var>R</var><sub>d</sub>=287.06, <var>R</var><sub>v</sub>=461.5&nbsp;J·kg⁻¹·K⁻¹; reference ρ=1.225&nbsp;kg·m⁻³ at 15&nbsp;°C, sea level. A site at 1,000&nbsp;m and 25&nbsp;°C may sit near 1.06&nbsp;kg·m⁻³ — a ~13% power penalty that must not be overlooked for elevated Indian plateau sites (e.g., parts of Maharashtra, Karnataka, Rajasthan).</p>
+
+  <h3><span class="num">2.7</span> Turbulence intensity</h3>
+  <p>Turbulence intensity TI = σ<sub>U</sub>/Ū (ratio of the 10-min standard deviation of wind speed to its mean) governs both energy (it broadens the effective power curve) and, critically, fatigue loads and turbine-class suitability (Chapter&nbsp;13). Ambient TI falls with height and wind speed and rises with surface roughness; wakes add to it (Chapter&nbsp;10). The tool stores TI per sector and wind-speed bin, not as a single number.</p>
+
+  <table class="small">
+    <caption class="tabcap"><b>Table 2.1</b> — Representative roughness length and shear by land cover (defaults the tool ships; site-specific values override).</caption>
+    <thead><tr><th>Surface / land cover</th><th class="n">z₀ (m)</th><th class="n">Shear α (neutral)</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Water / open sea</td><td class="n">0.0002</td><td class="n">0.10</td><td>roughness varies with wave state (Charnock)</td></tr>
+      <tr><td>Bare soil / desert</td><td class="n">0.005</td><td class="n">0.11</td><td>Rajasthan, Kutch interiors</td></tr>
+      <tr><td>Open farmland, few hedges</td><td class="n">0.03</td><td class="n">0.14</td><td>WAsP class-1 reference surface</td></tr>
+      <tr><td>Farmland, scattered shelter</td><td class="n">0.10</td><td class="n">0.18</td><td>typical mixed agricultural terrain</td></tr>
+      <tr><td>Scrub / open forest</td><td class="n">0.40</td><td class="n">0.22</td><td>use displacement height d</td></tr>
+      <tr><td>Dense forest / suburb</td><td class="n">0.8–1.0</td><td class="n">0.28</td><td>canopy model recommended</td></tr>
+    </tbody>
+  </table>
+</section>
+<!-- ===================== 3. MEASUREMENT ===================== -->
+<section class="chapter">
+  <h2><span class="num">3.</span> Wind Measurement &amp; Data Acquisition</h2>
+  <p class="lead">Everything downstream inherits the quality of the measurement. The platform does not measure wind, but it must ingest, quality-control, and reason about measurement data and its uncertainty to the standards practitioners and lenders expect (IEC 61400-12-1, IEC 61400-50 series, MEASNET).</p>
+
+  <h3><span class="num">3.1</span> Instruments the tool must ingest</h3>
+  <table class="small">
+    <caption class="tabcap"><b>Table 3.1</b> — Measurement technologies, what they deliver, and the governing standard the tool should tag data against.</caption>
+    <thead><tr><th>Technology</th><th>Measures</th><th>Heights</th><th>Standard</th><th>Notes for ingestion</th></tr></thead>
+    <tbody>
+      <tr><td>Met mast — cup anemometer</td><td>horizontal speed</td><td>fixed booms</td><td>IEC 61400-12-1; MEASNET</td><td>boom-mounting/flow-distortion flags; calibration certs</td></tr>
+      <tr><td>Met mast — sonic anemometer</td><td>3-D wind, TI, w</td><td>fixed booms</td><td>IEC 61400-12-1</td><td>fast (20&nbsp;Hz) data for stability/turbulence</td></tr>
+      <tr><td>Wind vane</td><td>direction</td><td>fixed booms</td><td>—</td><td>dead-band, north offset correction</td></tr>
+      <tr><td>Ground-based LiDAR (profiling)</td><td>speed + direction profile</td><td>40–200&nbsp;m+</td><td>IEC 61400-50-2</td><td>classification, availability, CNR filtering</td></tr>
+      <tr><td>SoDAR</td><td>speed + direction profile</td><td>30–200&nbsp;m</td><td>IEC 61400-50-4</td><td>rain/clutter sensitivity</td></tr>
+      <tr><td>Nacelle / scanning LiDAR</td><td>inflow, wakes</td><td>hub</td><td>IEC 61400-50-3</td><td>power-curve &amp; wake validation</td></tr>
+    </tbody>
+  </table>
+  <p>Cup anemometry on a tall mast at or near hub height remains the bankable reference; <b>ground-based vertical-profiling LiDAR</b> (e.g., ZX/WindCube-class) is now routinely accepted — often in a "tall-mast + LiDAR" hybrid where the mast verifies the LiDAR and the LiDAR extends the profile to hub height and across the rotor. The IEC 61400-50 series (-2 for ground LiDAR, -3 for nacelle-mounted, -4 for SoDAR) standardises remote-sensing-device (RSD) use, classification and uncertainty.</p>
+
+  <h3><span class="num">3.2</span> Campaign design the tool should encode</h3>
+  <ul class="tight">
+    <li><b>Duration:</b> ≥12 continuous months to resolve the seasonal cycle; the long-term correction (Chapter&nbsp;4) then extends this to the climatological norm.</li>
+    <li><b>Heights:</b> ≥3 measurement levels to fit shear directly rather than assume it; top level as close to hub height as practical.</li>
+    <li><b>Coverage:</b> enough masts/RSDs to characterise spatial variability across complex terrain; one mast cannot represent a ridge system.</li>
+    <li><b>Data availability:</b> target ≥90% recovery after QC; document gaps and their treatment.</li>
+  </ul>
+
+  <h3><span class="num">3.3</span> Quality control &amp; processing (a required module)</h3>
+  <p>The ingestion layer must implement an auditable QC chain: range and step checks; flatline/stuck-sensor detection; icing flags (low σ with sub-zero temperature); tower-shadow and boom-distortion sector exclusion for masts; CNR/availability filtering for LiDAR; inter-sensor consistency; and gap treatment. Each step is logged so the data lineage is reproducible — a lender requirement. Output of this stage is a clean, height-resolved time series plus a per-sensor uncertainty estimate.</p>
+
+  <h3><span class="num">3.4</span> From time series to wind climate</h3>
+  <p>The cleaned series is reduced to the statistical objects the flow engine consumes: a directional <b>wind rose</b> (frequency by sector, usually 12 sectors of 30°), a <b>sector-wise Weibull</b> (A, k per sector), the <b>shear and veer</b> profiles, the <b>TI</b> by sector and speed bin, and the <b>air-density</b> climatology. In WAsP terms this is the <i>observed wind climate</i> (OWC) — the starting point for generalisation in Chapter&nbsp;6.</p>
+
+  <div class="callout"><span class="h">Software implication</span>Represent the wind climate as a first-class, serialisable object (sectors × {A, k, frequency, TI, shear, ρ}) with provenance. This object — not the raw time series — is what the flow engine, wake engine and reporting all consume, mirroring WAsP's <code>.tab</code>/<code>.owc</code> and <code>.lib</code> structures so external interoperability is trivial.</p>
+</section>
+
+<!-- ===================== 4. MCP ===================== -->
+<section class="chapter">
+  <h2><span class="num">4.</span> Long-Term Correction &amp; the Reference Climate (MCP)</h2>
+  <p class="lead">A 12–24 month campaign captures a sample, not the climate. The wind varies year to year by several percent, so the measured period must be corrected to a long-term reference before it can underpin a 20-year financial model. This is <b>Measure–Correlate–Predict (MCP)</b>.</p>
+
+  <h3><span class="num">4.1</span> The principle</h3>
+  <p>MCP correlates the short on-site measurement against a long, continuous <b>reference</b> dataset (a nearby long-running mast or, far more commonly today, a reanalysis time series), builds a transfer relationship over the concurrent period, and applies it to the reference's full multi-decade history to synthesise what the site would have experienced long-term. The corrected long-term wind climate is then the input to all flow modelling.</p>
+
+  <figure>
+    <svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <style>.t{font-size:9px;fill:#566576}.tt{font-size:10px;font-weight:700;fill:#0e2742}.bx{fill:#eef5f8;stroke:#1d4e74;stroke-width:1.2;rx:6}</style>
+      <line x1="40" y1="150" x2="820" y2="150" stroke="#9aa7b4" stroke-width="1.2"/>
+      <text x="40" y="172" class="t">~20+ yr reference history (reanalysis)</text>
+      <rect x="40" y="120" width="780" height="30" fill="#1d4e74" opacity="0.10"/>
+      <rect x="560" y="120" width="120" height="30" fill="#0e7c86" opacity="0.30"/>
+      <text x="560" y="112" class="t" fill="#0e7c86">concurrent period (12–24 mo)</text>
+      <rect x="560" y="120" width="120" height="30" fill="none" stroke="#0e7c86" stroke-width="1.4"/>
+      <text x="585" y="200" class="t">on-site measurement</text>
+      <g transform="translate(120,30)"><rect class="bx" x="0" y="0" width="150" height="44"/><text x="14" y="20" class="tt">1 · Measure</text><text x="14" y="36" class="t">site mast / LiDAR</text></g>
+      <g transform="translate(355,30)"><rect class="bx" x="0" y="0" width="150" height="44"/><text x="14" y="20" class="tt">2 · Correlate</text><text x="14" y="36" class="t">site ↔ reference fit</text></g>
+      <g transform="translate(590,30)"><rect class="bx" x="0" y="0" width="170" height="44"/><text x="14" y="20" class="tt">3 · Predict</text><text x="14" y="36" class="t">long-term site climate</text></g>
+      <path d="M270,52 L353,52" stroke="#0e7c86" stroke-width="1.6" marker-end="url(#ar)"/>
+      <path d="M505,52 L588,52" stroke="#0e7c86" stroke-width="1.6" marker-end="url(#ar)"/>
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0e7c86"/></marker></defs>
+      <path d="M620,76 L620,118" stroke="#0e7c86" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+    </svg>
+    <figcaption><b>Figure 3.</b> Measure–Correlate–Predict. A transfer function fitted over the concurrent period is applied to the reference's full history to reconstruct the site's long-term wind climate.</figcaption>
+  </figure>
+
+  <h3><span class="num">4.2</span> MCP methods the tool should offer</h3>
+  <ul class="tight">
+    <li><b>Linear regression</b> (variance-ratio / total least squares), per direction sector — the workhorse; preserves the variance of the predicted series.</li>
+    <li><b>Matrix / joint-distribution methods</b> that map the full speed-direction distribution rather than the mean, capturing non-linearity.</li>
+    <li><b>Weibull-scale MCP</b> operating on distribution parameters per sector.</li>
+    <li><b>Machine-learning MCP</b> (random forests, gradient boosting, neural nets) that ingest multiple reference predictors and capture non-linear, stability-dependent relationships — increasingly used 2023–2026 and worth supporting as an advanced option (Chapter&nbsp;9).</li>
+  </ul>
+
+  <h3><span class="num">4.3</span> Reference datasets to integrate</h3>
+  <table class="small">
+    <caption class="tabcap"><b>Table 4.1</b> — Long-term reference datasets the tool should connect to (detailed in Chapter&nbsp;16).</caption>
+    <thead><tr><th>Dataset</th><th>Provider</th><th>Resolution</th><th>Span</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><b>ERA5</b></td><td>ECMWF / Copernicus C3S</td><td>~31&nbsp;km, hourly</td><td>1940→present</td><td>primary global reference; well-validated for MCP</td></tr>
+      <tr><td><b>MERRA-2</b></td><td>NASA GMAO</td><td>~50&nbsp;km, hourly</td><td>1980→present</td><td>independent cross-check</td></tr>
+      <tr><td>CFSR / CFSv2</td><td>NCEP</td><td>~38&nbsp;km</td><td>1979→present</td><td>secondary reference</td></tr>
+      <tr><td><b>Global Wind Atlas 4</b></td><td>DTU / World Bank</td><td>~250&nbsp;m microscale</td><td>climatology</td><td>spatial prior &amp; first-look resource (Chapter&nbsp;8)</td></tr>
+      <tr><td>NEWA</td><td>EU consortium</td><td>~3&nbsp;km meso / 30&nbsp;m</td><td>2005–2018</td><td>Europe; meso time series + atlas</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">4.4</span> Representativeness, inter-annual variability &amp; the uncertainty it injects</h3>
+  <p>Two distinct uncertainties enter here and must be tracked separately into Chapter&nbsp;12. <b>Long-term consistency</b>: how well the reference reproduces the true long-term trend and the concurrent correlation (poor correlation → large MCP uncertainty, typically 1–4% on the long-term mean). <b>Inter-annual variability (IAV)</b>: the year-to-year scatter of the wind itself, typically a standard deviation of <b>~4–6%</b> of the mean annual energy onshore. IAV is what makes a single future year uncertain even with a perfect long-term mean — and it is the term that shrinks with the project's assessment horizon (it divides by √N over N years), which is why P90 over 10 years is higher than P90 over 1 year (Chapter&nbsp;12).</p>
+
+  <div class="callout key"><span class="h">Build note</span>MCP and IAV are not optional niceties — they are the difference between a "wind speed" and a <i>bankable</i> wind speed. Ship MCP as a core module with at least linear and matrix methods, automatic concurrent-period detection, sector handling, and an uncertainty output that feeds the P-value engine directly.</p>
+</section>
+<!-- ============================================================= -->
+<!-- PART II -->
+<!-- ============================================================= -->
+<section class="chapter">
+  <h2 class="part">Part II — The Modelling Engines</h2>
+  <h2><span class="num">5.</span> Terrain, Roughness &amp; Obstacle Modelling</h2>
+  <p class="lead">The flow engine reshapes the wind climate using three descriptions of the ground: <b>elevation</b> (orography), <b>roughness</b> (surface friction), and <b>obstacles</b> (local shelter). Building these layers correctly, at the right resolution, is half of micrositing accuracy.</p>
+
+  <h3><span class="num">5.1</span> Elevation — digital elevation models</h3>
+  <p>Orography drives speed-up over hills and ridges and flow separation behind steep slopes. The tool ingests a DEM, fits a high-resolution grid around each calculation point, and (for the linear model) builds the zooming polar grid of Chapter&nbsp;6. Recommended sources, in order of preference where available:</p>
+  <table class="small">
+    <caption class="tabcap"><b>Table 5.1</b> — Digital elevation models for onshore micrositing.</caption>
+    <thead><tr><th>DEM</th><th class="n">Resolution</th><th>Coverage</th><th>Cost</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><b>Copernicus DEM</b> GLO-30</td><td class="n">30&nbsp;m</td><td>global</td><td>free</td><td>current best free global DSM; preferred default</td></tr>
+      <tr><td>ALOS World3D AW3D30</td><td class="n">30&nbsp;m</td><td>global</td><td>free</td><td>JAXA; good in mountainous terrain</td></tr>
+      <tr><td>SRTM</td><td class="n">30 / 90&nbsp;m</td><td>60°N–56°S</td><td>free</td><td>legacy baseline; voids in steep terrain</td></tr>
+      <tr><td>NASADEM</td><td class="n">30&nbsp;m</td><td>near-global</td><td>free</td><td>reprocessed SRTM</td></tr>
+      <tr><td>Airborne / drone LiDAR DSM-DTM</td><td class="n">0.5–2&nbsp;m</td><td>project</td><td>paid</td><td>gold standard for complex sites &amp; forest canopy</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">5.2</span> Roughness — land cover to z₀</h3>
+  <p>The tool converts a land-cover raster into a <b>roughness-length map</b> by a lookup table (Table&nbsp;2.1), then into the <b>roughness rose</b> each calculation point sees upwind. Recommended land-cover sources: <b>ESA WorldCover</b> (10&nbsp;m, global), <b>Copernicus Global Land Cover</b> (100&nbsp;m), CORINE (Europe, 100&nbsp;m), and OpenStreetMap for fine features (settlements, tree lines). Roughness changes upwind generate <b>internal boundary layers</b> that the flow model must grow downwind:</p>
+  <div class="eq"><span class="math">U(z) after a roughness change: blended between upstream and downstream log profiles below the IBL height h(x) ∝ x<sup>0.8</sup></span><span class="en">Eq. 5.1 — internal boundary layer</span></div>
+  <p>Practically, the tool implements WAsP's roughness-change model: each upwind roughness transition modifies the local profile, and the net effect is integrated over the roughness rose. Editable roughness (the analyst draws/erases roughness lines and areas over imagery) is a must-have UI capability, mirroring WAsP's roughness-map editor.</p>
+
+  <h3><span class="num">5.3</span> Forests &amp; displacement height</h3>
+  <p>Tall vegetation does not just raise z₀ — it lifts the whole profile by a <b>displacement height</b> <var>d</var> (≈0.6–0.8 × canopy height), so the log law becomes U(z) = (u*/κ)·ln((z−d)/z₀). Ignoring d over forest can overstate hub-height shear and energy. For forested sites the tool should support a forest layer (height + density) feeding either a displacement-height correction (linear model) or an explicit canopy-drag term (CFD, Chapter&nbsp;7).</p>
+
+  <h3><span class="num">5.4</span> Obstacles &amp; shelter</h3>
+  <p>Near-field obstacles (buildings, shelterbelts) cast wakes described by porosity and dimensions; the tool reduces wind speed within the sheltered zone (Perera/WAsP obstacle model) for any calculation point inside an obstacle's influence. Obstacles matter mostly for low masts and small/distributed turbines; for utility hub heights they are usually secondary but must still be representable.</p>
+
+  <h3><span class="num">5.5</span> Ruggedness — RIX and ΔRIX (the validity gate)</h3>
+  <p>Linearised flow models assume attached flow; they break down when slopes exceed a critical value and the flow separates. The <b>Ruggedness Index (RIX)</b> quantifies this as the percentage of terrain within a radius around a point that is steeper than a critical slope (default <b>0.3</b>, i.e. ~17°):</p>
+  <div class="eq"><span class="math">RIX(point) = % of upwind terrain with |∇ elevation| &gt; 0.3</span><span class="en">Eq. 5.2 — ruggedness index</span></div>
+  <p>The decisive diagnostic is <b>ΔRIX</b> = RIX(prediction site) − RIX(measurement site). When a mast and a turbine sit in terrain of different ruggedness, a linear model's speed-up error correlates strongly with ΔRIX — and can be corrected for, or used as a trigger to escalate to CFD. The platform computes RIX/ΔRIX automatically for every mast–turbine pair and surfaces it as the flow-engine selection signal.</p>
+
+  <div class="callout key"><span class="h">Automation the incumbents lack</span>Use ΔRIX as a hard gate in the pipeline: |ΔRIX| below a threshold (say a few %) → the fast linear engine is trustworthy; above it → flag the prediction, apply a ΔRIX correction, and/or route that sub-domain to the CFD engine. This turns a known WAsP limitation into an automated, auditable decision.</p>
+</section>
+
+<!-- ===================== 6. LINEAR FLOW ===================== -->
+<section class="chapter">
+  <h2><span class="num">6.</span> Flow Model I — Linearised (WAsP-class IBZ / BZ)</h2>
+  <p class="lead">The linear engine is the fast, robust default that made WAsP an industry standard. It is exact enough for flat-to-moderate terrain, runs in seconds, and provides the wind-atlas generalisation that underpins interoperability. The platform implements it first (Phase&nbsp;1).</p>
+
+  <h3><span class="num">6.1</span> The wind-atlas method: generalise then predict</h3>
+  <p>The central idea (Figure&nbsp;4): an observed wind climate is contaminated by the local terrain, roughness and obstacles at the mast. <b>Generalisation</b> strips these effects away — extrapolating up through the orographic and roughness perturbations and the IBL — to yield a <b>generalised (regional) wind climate</b> referenced to standard roughness classes and several standard heights, valid over a region. <b>Prediction</b> reverses the process at a turbine location: re-apply <i>that</i> point's terrain, roughness and obstacle effects to the generalised climate to obtain its predicted wind climate, Weibull A/k and energy.</p>
+
+  <figure>
+    <svg viewBox="0 0 860 250" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <style>.t{font-size:9px;fill:#566576}.tt{font-size:10px;font-weight:700;fill:#0e2742}.b{fill:#eef5f8;stroke:#1d4e74;stroke-width:1.2}</style>
+      <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0e7c86"/></marker></defs>
+      <!-- ground -->
+      <path d="M30,205 C120,150 180,175 250,170 C320,165 360,120 430,120 C500,120 560,170 650,178 C730,185 780,160 830,170" fill="none" stroke="#9aa7b4" stroke-width="1.6"/>
+      <!-- mast -->
+      <line x1="150" y1="170" x2="150" y2="120" stroke="#0e2742" stroke-width="2"/><circle cx="150" cy="120" r="3" fill="#0e2742"/>
+      <text x="120" y="190" class="t">measurement mast</text>
+      <!-- turbine -->
+      <g transform="translate(620,120)" stroke="#0e2742" stroke-width="2"><line x1="0" y1="58" x2="0" y2="0"/><line x1="0" y1="0" x2="0" y2="-20"/><line x1="0" y1="0" x2="17" y2="10"/><line x1="0" y1="0" x2="-17" y2="10"/></g>
+      <text x="592" y="190" class="t">turbine site</text>
+      <!-- generalized band -->
+      <rect x="40" y="30" width="780" height="34" fill="#0e7c86" opacity="0.12"/><rect x="40" y="30" width="780" height="34" fill="none" stroke="#0e7c86" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="48" y="24" class="tt" fill="#0e7c86">Generalised (regional) wind climate — local effects removed</text>
+      <!-- up arrow -->
+      <path d="M150,116 C150,90 150,76 150,66" stroke="#0e7c86" stroke-width="1.8" marker-end="url(#a2)"/>
+      <rect class="b" x="170" y="78" width="120" height="30" rx="5"/><text x="180" y="97" class="t">① generalise ↑</text>
+      <!-- down arrow -->
+      <path d="M620,66 C620,90 620,104 620,114" stroke="#c8862a" stroke-width="1.8" marker-end="url(#a2)"/>
+      <rect x="500" y="78" width="120" height="30" rx="5" fill="#fdf6ec" stroke="#c8862a" stroke-width="1.2"/><text x="510" y="97" class="t" fill="#c8862a">② predict ↓</text>
+    </svg>
+    <figcaption><b>Figure 4.</b> The wind-atlas round-trip. The measured climate is generalised upward/outward into a site-independent regional climate, then re-localised downward at each turbine. The same generalised climate serves every turbine on the site.</figcaption>
+  </figure>
+
+  <h3><span class="num">6.2</span> The three sub-models</h3>
+  <ul>
+    <li><b>Roughness-change model</b> (§5.2): adjusts the profile for upwind roughness transitions via internal boundary layers, integrated over the roughness rose.</li>
+    <li><b>Obstacle (shelter) model</b> (§5.4): reduces speed in the lee of porous obstacles.</li>
+    <li><b>Orographic model — the BZ model:</b> the heart of the linear engine. It solves the linearised (Jackson–Hunt) equations for potential-flow-like perturbations over terrain on a high-resolution <b>"zooming" polar grid (BZ = Bessel expansion on a Zooming grid)</b> centred on each calculation point — fine near the point, coarse far away — capturing fractional <b>speed-up</b> over hills and slow-down in valleys.</li>
+  </ul>
+
+  <h3><span class="num">6.3</span> Jackson–Hunt speed-up</h3>
+  <p>For a low, smooth hill of height <var>H</var> and characteristic length <var>L</var> (half-width at half-height), linear theory predicts a fractional speed-up near the summit at low heights:</p>
+  <div class="eq"><span class="math">ΔS = ΔU / U ≈ 2 · (<var>H</var> / <var>L</var>) · (decay with height z / <var>l</var>)</span><span class="en">Eq. 6.1 — Jackson–Hunt speed-up</span></div>
+  <p>where the perturbation decays above an inner-layer scale <var>l</var>. The key qualitative results the engine reproduces: speed-up scales with hill <b>slope</b> H/L, peaks near the summit and a little above the surface, and decays with height — the physical basis for siting turbines on smooth ridge crests.</p>
+
+  <h3><span class="num">6.4</span> Vertical &amp; horizontal extrapolation</h3>
+  <p>Vertically, the engine combines the log law (Eq. 2.1–2.2), the geostrophic drag law (Eq. 2.4) and the roughness/IBL model to move the climate between heights. Horizontally, it applies the orographic and roughness perturbations at the target location. The output per calculation point is a full predicted wind climate: sector-wise Weibull A/k, mean speed, power density, and (gridded over the site) the <b>Wind Resource Grid (WRG)</b> consumed by the energy and optimisation modules.</p>
+
+  <h3><span class="num">6.5</span> Strengths, limits, and the ΔRIX correction</h3>
+  <p>The linear model is fast, transparent, well-validated, and excellent in simple terrain — but, being linearised, it cannot represent flow separation and systematically errs in steep terrain. WAsP's own guidance: trust it when |ΔRIX| between mast and prediction site is small; apply a ΔRIX-based correction or escalate to CFD otherwise.</p>
+  <div class="eq"><span class="math">U<sub>corrected</sub> ≈ U<sub>linear</sub> · ( 1 + α<sub>RIX</sub> · ΔRIX )</span><span class="en">Eq. 6.2 — empirical ΔRIX correction</span></div>
+  <p>with a site/terrain-dependent coefficient α<sub>RIX</sub> calibrated from validation data. The platform automates this: compute ΔRIX (§5.5), apply the correction, and record both raw and corrected predictions with the associated uncertainty.</p>
+
+  <div class="callout"><span class="h">Phase-1 deliverable</span>A working linear engine — wind-atlas generalisation, the three sub-models, WRG output, and ΔRIX gating — is the minimum viable flow core. With Chapters 3–4 (climate) and 11 (energy) it already constitutes a usable EYA tool, before any CFD, mesoscale or ML is added.</p>
+</section>
+<!-- ===================== 7. CFD ===================== -->
+<section class="chapter">
+  <h2><span class="num">7.</span> Flow Model II — CFD (RANS &amp; LES)</h2>
+  <p class="lead">Where linear theory fails — steep ridges, escarpments, gorges, forest edges, recirculation zones — computational fluid dynamics resolves the non-linear flow by solving the Navier–Stokes equations on a 3-D mesh of the terrain. The platform offers RANS as the workhorse and LES as the high-fidelity reference.</p>
+
+  <h3><span class="num">7.1</span> RANS — Reynolds-Averaged Navier–Stokes</h3>
+  <p>RANS solves for the <i>mean</i> flow, modelling all turbulence through a closure. The standard onshore choice is the two-equation <b>k–ε</b> model (turbulent kinetic energy <var>k</var> and dissipation ε), often in an ABL-modified form, with <b>k–ω SST</b> preferred where separation and adverse pressure gradients matter (it behaves better near walls and in detachment). The eddy-viscosity closure is:</p>
+  <div class="eq"><span class="math">ν<sub>t</sub> = <var>C</var><sub>μ</sub> · k² / ε&nbsp;&nbsp;&nbsp;(standard <var>C</var><sub>μ</sub> ≈ 0.09)</span><span class="en">Eq. 7.1 — eddy viscosity</span></div>
+  <p>A correct, horizontally-homogeneous ABL must be maintained across the domain before terrain is introduced; this requires the <b>Richards–Hoxey</b> inlet profiles and wall treatment and a modified set of k–ε constants consistent with the log law:</p>
+  <div class="eq"><span class="math">k = <var>u</var><sub>*</sub>² / √<var>C</var><sub>μ</sub>&nbsp;&nbsp;;&nbsp;&nbsp; ε(z) = <var>u</var><sub>*</sub>³ / ( κ (z + <var>z</var><sub>0</sub>) )</span><span class="en">Eq. 7.2 — Richards–Hoxey ABL</span></div>
+  <p>Forests enter RANS as a <b>canopy drag</b> sink term in the momentum and turbulence equations (proportional to leaf-area density and U²), not merely as elevated roughness — important for sites in or near plantations.</p>
+
+  <h3><span class="num">7.2</span> LES — Large-Eddy Simulation</h3>
+  <p>LES resolves the large, energy-containing turbulent eddies directly and models only the sub-grid scales (e.g. Smagorinsky or dynamic closures). It captures unsteady separation, wake meandering and turbulence statistics that RANS cannot — at 10²–10⁴× the cost. In the platform, LES is reserved for: (i) reference/validation runs on a few critical positions, (ii) generating training data for ML surrogates (Chapter&nbsp;9), and (iii) detailed wake studies. Turbines in LES/RANS are represented by <b>actuator-disk</b> (momentum sink over the rotor) or <b>actuator-line</b> models rather than resolved blades.</p>
+
+  <h3><span class="num">7.3</span> Meshing &amp; workflow</h3>
+  <p>The CFD module must automate the painful parts: build a terrain-conforming mesh from the DEM (refined near the surface and around turbines, y⁺ control at the wall), map roughness/forest onto patches, run one solve per direction sector (typically 12), and assemble the sector results — weighted by the wind-climate sector frequencies — into the same WRG object the linear engine produces. This "results-compatible" design means everything downstream (energy, wakes, optimisation) is engine-agnostic.</p>
+
+  <table class="small">
+    <caption class="tabcap"><b>Table 7.1</b> — RANS vs LES for onshore micrositing.</caption>
+    <thead><tr><th>Aspect</th><th>RANS (k–ε / k–ω SST)</th><th>LES</th></tr></thead>
+    <tbody>
+      <tr><td>Resolves</td><td>mean flow; modelled turbulence</td><td>large eddies; modelled sub-grid only</td></tr>
+      <tr><td>Cost / run</td><td>minutes–hours per sector</td><td>hours–days</td></tr>
+      <tr><td>Best for</td><td>production micrositing in complex terrain</td><td>validation, wake physics, ML training data</td></tr>
+      <tr><td>Tools</td><td>Meteodyn WT, WindSim, Ansys, OpenFOAM, WAsP CFD</td><td>OpenFOAM (SOWFA-class), in-house, research codes</td></tr>
+      <tr><td>Weakness</td><td>separation, strong stability</td><td>cost, setup expertise, run-time</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">7.4</span> Build vs integrate</h3>
+  <p>Writing a CFD solver is out of scope; the platform <b>orchestrates</b> an existing one. Recommended: an <b>OpenFOAM</b>-based pipeline (open-source, scriptable, with established ABL and actuator-disk capability) wrapped by the platform's meshing/run/post-processing automation, with optional connectors to commercial engines (WAsP CFD, Meteodyn WT) for users who own them. Lattice-Boltzmann GPU solvers (e.g. ZephyCloud-class) are an attractive fast-CFD option to watch.</p>
+</section>
+
+<!-- ===================== 8. MESOSCALE ===================== -->
+<section class="chapter">
+  <h2><span class="num">8.</span> Flow Model III — Mesoscale &amp; Coupling</h2>
+  <p class="lead">Mesoscale numerical weather prediction supplies the regional wind climate where no long measurement exists, captures phenomena linear/CFD microscale models miss (thermal flows, channelling, large-scale gradients), and is the engine behind the public wind atlases the tool consumes.</p>
+
+  <h3><span class="num">8.1</span> WRF and the mesoscale climate</h3>
+  <p>The <b>Weather Research and Forecasting (WRF)</b> model integrates the atmosphere at ~1–10&nbsp;km over months to decades, producing a physically-consistent, multi-year wind time series at the site — independent of, or complementary to, reanalysis. Its limitation is resolution: at 3&nbsp;km it cannot see the individual ridge a turbine stands on. That gap is closed by coupling to a microscale model.</p>
+
+  <h3><span class="num">8.2</span> Mesoscale–microscale coupling &amp; the wind-atlas methodology</h3>
+  <p>The modern resource-assessment paradigm (used by NEWA and the Global Wind Atlas) is a two-step chain: run WRF to build a mesoscale climatology, then <b>generalise and downscale</b> it through a microscale model (WAsP-class linear, or CFD) to turbine-relevant resolution. The microscale step removes the mesoscale model's own coarse terrain/roughness and re-applies fine-resolution terrain/roughness — exactly the generalisation round-trip of Chapter&nbsp;6, but starting from a modelled rather than a measured climate.</p>
+
+  <ul class="tight">
+    <li><b>New European Wind Atlas (NEWA):</b> WRF at 3&nbsp;km coupled to microscale, delivered at ~30&nbsp;m over 10 turbine-relevant heights, with a public mesoscale time-series API — the reference example of the method.</li>
+    <li><b>Global Wind Atlas 4</b> (released June 2025; auto-imported by WAsP 12.10): global microscale generalisation (~250&nbsp;m) of mesoscale data — the tool's recommended <i>first-look</i> resource and spatial prior.</li>
+    <li><b>India — NIWE:</b> the National Institute of Wind Energy publishes meso–micro-coupled potential maps at 100&nbsp;m, 120&nbsp;m and <b>150&nbsp;m</b> AGL at 500&nbsp;m spatial resolution, validated against 400+ measurement masts (gross potential ~302&nbsp;GW at 100&nbsp;m, ~695&nbsp;GW at 120&nbsp;m, ~1,164&nbsp;GW at 150&nbsp;m). The tool should connect to the NIWE resource portal for Indian projects.</li>
+  </ul>
+
+  <h3><span class="num">8.3</span> When the platform uses mesoscale</h3>
+  <ul class="tight">
+    <li>Prospecting/screening before any mast exists (use GWA4 / NIWE / NEWA).</li>
+    <li>As the MCP long-term reference at sites where reanalysis correlates poorly (complex terrain, monsoon-driven regimes).</li>
+    <li>To extend short campaigns and to characterise inter-annual variability over decades.</li>
+    <li>As the upper boundary condition / forcing for microscale CFD on large sites.</li>
+  </ul>
+
+  <div class="callout"><span class="h">Integration, not reinvention</span>The platform need not run WRF in-house initially — it should <b>consume</b> NEWA/GWA4/NIWE products and reanalysis via their APIs, with an optional WRF-run capability added later (Phase&nbsp;4) for clients needing bespoke mesoscale time series.</p></div>
+</section>
+
+<!-- ===================== 9. ML ===================== -->
+<section class="chapter">
+  <h2><span class="num">9.</span> Flow Model IV — ML / AI-Augmented Modelling <span class="tag new">2023–2026</span></h2>
+  <p class="lead">The newest engine class does not replace physics — it accelerates and sharpens it. Machine learning now delivers CFD-quality flow fields in milliseconds, super-resolves coarse mesoscale winds to turbine scale, and improves long-term correction. This is the "latest technology" layer that differentiates a 2026-era tool from a 2010-era one.</p>
+
+  <h3><span class="num">9.1</span> Super-resolution downscaling</h3>
+  <p>Borrowing image super-resolution architectures (CNNs, GANs and — increasingly — <b>diffusion models</b> and <b>transformers</b>), these models learn the mapping from coarse wind fields (e.g. ERA5 ~31&nbsp;km, or WRF 3&nbsp;km) plus high-resolution terrain to fine-scale winds, validated against LiDAR/mast or high-resolution reanalysis (e.g. COSMO-REA). Reported results (2024–2025) show skilful downscaling from ~9&nbsp;km to ~1&nbsp;km and below. In the platform, a trained downscaler turns a public mesoscale product into a site-resolution prior in seconds — a fast alternative to a full CFD pass for screening.</p>
+
+  <h3><span class="num">9.2</span> CFD surrogates / emulators</h3>
+  <p>A surrogate is trained on a corpus of CFD/LES solutions (parameterised by terrain, roughness, inflow direction and stability) to predict the flow field for a new case without solving the PDEs. Graph- and convolution-based neural operators and <b>physics-informed neural networks</b> (PINNs, which embed the governing equations in the loss) reproduce RANS-class accuracy at a fraction of the run-time, enabling CFD-quality fields inside an optimisation loop that would otherwise be intractable. <b>Multi-fidelity transfer learning</b> blends cheap linear/RANS data with sparse LES/measurements to get the best of both.</p>
+
+  <h3><span class="num">9.3</span> ML for measurement &amp; wakes</h3>
+  <ul class="tight">
+    <li><b>ML-MCP:</b> gradient-boosted trees / neural nets ingest multiple reanalysis predictors and stability information to capture non-linear site–reference relationships, reducing long-term-correction uncertainty versus linear MCP (§4.2).</li>
+    <li><b>Wake surrogates:</b> data-driven models trained on LES/SCADA reproduce wake deficits and interactions faster and sometimes more accurately than analytical wakes (Chapter&nbsp;10), and are used inside layout/control optimisation.</li>
+    <li><b>Gap-filling &amp; QC:</b> learned models impute sensor gaps and flag anomalies in the ingestion stage (§3.3).</li>
+  </ul>
+
+  <h3><span class="num">9.4</span> Foundation weather models</h3>
+  <p>Large data-driven global forecast models (GraphCast, FourCastNet, Aurora and successors) and ML reanalyses are reshaping the reference-data landscape. Their relevance here is as next-generation, high-resolution, low-latency sources of the long-term climate and as priors for downscaling — a space the platform's data layer should be designed to plug into as these products mature.</p>
+
+  <div class="callout warn"><span class="h">Engineering discipline for ML</span>Data-driven engines must be <b>bounded by physics and validation</b>: always report a physics-based cross-check, quantify out-of-distribution risk (a surrogate trained on moderate terrain must not be trusted on a cliff), and version both model weights and training data for reproducibility and audit. ML is an accelerator and an uncertainty-reducer, not an excuse to skip the physics or the measurement.</p>
+</section>
+<!-- ============================================================= -->
+<!-- PART III -->
+<!-- ============================================================= -->
+<section class="chapter">
+  <h2 class="part">Part III — Wakes, Energy &amp; Optimisation</h2>
+  <h2><span class="num">10.</span> Wake Modelling &amp; Blockage</h2>
+  <p class="lead">A turbine extracts momentum, leaving a slower, more turbulent wake that reduces the energy of turbines behind it and adds to their fatigue loads. Wake losses are typically the single largest loss category (often 5–15%+), so wake modelling is central to both yield and layout. The platform ships a library of analytical wake models plus blockage, with the same pluggable interface as the flow engines.</p>
+
+  <h3><span class="num">10.1</span> The Jensen (Park) model</h3>
+  <p>The original engineering wake: a top-hat (uniform) velocity deficit in a linearly expanding wake. Behind a turbine of rotor radius <var>r</var><sub>0</sub> and thrust coefficient <var>C</var><sub>T</sub>, the wake radius and centreline velocity at downstream distance <var>x</var> are:</p>
+  <div class="eq"><span class="math"><var>r</var><sub>w</sub> = <var>r</var><sub>0</sub> + k·x&nbsp;&nbsp;;&nbsp;&nbsp; U(x) = U<sub>0</sub> · [ 1 − (1 − √(1−<var>C</var><sub>T</sub>)) / (1 + k·x/<var>r</var><sub>0</sub>)² ]</span><span class="en">Eq. 10.1 — Jensen deficit</span></div>
+  <p>The single parameter is the <b>wake-decay constant</b> <var>k</var> (≈0.075 onshore, 0.04–0.05 offshore), often tied to ambient turbulence. Simple, fast, robust — still a sensible default and validation baseline, though it overestimates near-wake recovery on the centreline.</p>
+
+  <h3><span class="num">10.2</span> The Gaussian model (Bastankhah &amp; Porté-Agel)</h3>
+  <p>The modern default: a self-similar <b>Gaussian</b> deficit derived from mass and momentum conservation, far more physical in the near-to-mid wake. The normalised deficit at downstream distance <var>x</var> and radial offset <var>r</var> is:</p>
+  <div class="eq"><span class="math">ΔU/U<sub>0</sub> = [ 1 − √(1 − <var>C</var><sub>T</sub> / (8(σ/<var>d</var><sub>0</sub>)²)) ] · exp( −<var>r</var>² / (2σ²) )</span><span class="en">Eq. 10.2 — Gaussian deficit</span></div>
+  <div class="eq"><span class="math">σ/<var>d</var><sub>0</sub> = <var>k</var>*·(x/<var>d</var><sub>0</sub>) + ε,&nbsp;&nbsp; ε ≈ 0.2√β,&nbsp;&nbsp; β = ½(1+√(1−<var>C</var><sub>T</sub>))/√(1−<var>C</var><sub>T</sub>)</span><span class="en">Eq. 10.3 — wake width growth</span></div>
+  <p>The growth rate <var>k</var>* is linked to ambient turbulence intensity (Niayifar &amp; Porté-Agel): <var>k</var>* ≈ 0.38·<var>I</var><sub>0</sub> + 0.004. This turbulence-coupled Gaussian model (often with the Niayifar–Porté-Agel superposition) is the recommended production wake model.</p>
+
+  <figure>
+    <svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <style>.t{font-size:9px;fill:#566576}.tt{font-size:10px;font-weight:700;fill:#0e2742}</style>
+      <line x1="40" y1="170" x2="830" y2="170" stroke="#9aa7b4" stroke-width="1"/>
+      <text x="36" y="186" class="t">x/d → downstream distance (rotor diameters)</text>
+      <!-- rotor -->
+      <line x1="70" y1="60" x2="70" y2="150" stroke="#0e2742" stroke-width="3"/><text x="50" y="52" class="t">turbine</text>
+      <!-- jensen top-hat expanding -->
+      <path d="M70,72 L820,40 M70,138 L820,162" stroke="#c8862a" stroke-width="1.4" stroke-dasharray="6 4" fill="none"/>
+      <text x="730" y="34" class="t" fill="#c8862a">Jensen (top-hat)</text>
+      <!-- gaussian profiles at 3 stations -->
+      <g stroke="#0e7c86" stroke-width="2" fill="none">
+        <path d="M250,60 C262,80 262,160 250,160 C238,160 238,80 250,60" transform="translate(0,0)"/>
+        <path d="M460,52 C480,78 480,162 460,162 C440,162 440,78 460,52"/>
+        <path d="M670,46 C696,74 696,166 670,166 C644,166 644,74 670,46"/>
+      </g>
+      <g class="t" fill="#0e7c86"><text x="232" y="105">deficit</text><text x="486" y="105">recovering</text><text x="700" y="108">Gaussian</text></g>
+      <line x1="250" y1="40" x2="250" y2="170" stroke="#dbe4ea"/><text x="240" y="184" class="t">4d</text>
+      <line x1="460" y1="40" x2="460" y2="170" stroke="#dbe4ea"/><text x="450" y="184" class="t">7d</text>
+      <line x1="670" y1="40" x2="670" y2="170" stroke="#dbe4ea"/><text x="660" y="184" class="t">10d</text>
+    </svg>
+    <figcaption><b>Figure 5.</b> Wake velocity deficit downstream of a turbine. The Jensen model assumes a uniform (top-hat) deficit in a linearly expanding wake; the Bastankhah–Porté-Agel model gives a self-similar Gaussian deficit that broadens and recovers with distance. Spacing turbines ≥6–8 rotor diameters along the prevailing wind limits wake loss.</figcaption>
+  </figure>
+
+  <h3><span class="num">10.3</span> Other models the library must include</h3>
+  <ul class="tight">
+    <li><b>Frandsen:</b> momentum-conserving model developed for regular arrays; pairs with the Frandsen turbulence model for loads.</li>
+    <li><b>Ainslie eddy-viscosity:</b> solves the thin-shear-layer equations numerically; the engine behind DNV WindFarmer / openWind.</li>
+    <li><b>Larsen (EWTS&nbsp;II):</b> a similarity-theory model used in WindPRO.</li>
+    <li><b>TurbOPark (Ørsted):</b> Gaussian wake with turbulence-driven expansion that better captures <b>deep-array</b> and inter-farm effects; widely adopted 2020s for large/clustered farms.</li>
+    <li><b>Dynamic Wake Meandering (DWM):</b> models the wake as a passively meandering deficit — physically rich, used for loads and control, more expensive.</li>
+  </ul>
+
+  <h3><span class="num">10.4</span> Superposition &amp; deep-array effects</h3>
+  <p>With many turbines, individual wakes must be combined. The platform supports the standard schemes — <b>linear sum</b>, <b>sum-of-squares (RSS)</b>, max-deficit, and momentum-conserving/energy-balance:</p>
+  <div class="eq"><span class="math">RSS:&nbsp; (ΔU<sub>total</sub>/U<sub>0</sub>)² = Σ<sub>i</sub> (ΔU<sub>i</sub>/U<sub>0</sub>)²</span><span class="en">Eq. 10.4 — sum-of-squares</span></div>
+  <p>For large arrays, the <b>Frandsen infinite-array / deep-array</b> correction (or TurbOPark) prevents under-prediction of losses in the interior of big wind farms where the boundary layer itself is modified.</p>
+
+  <h3><span class="num">10.5</span> Wake-added turbulence</h3>
+  <p>Wakes raise downstream TI, which both speeds wake recovery and drives neighbour <b>fatigue loads</b> (Chapter&nbsp;13). The engine adds wake turbulence via the Frandsen/IEC 61400-1 effective-turbulence formulation or the Crespo–Hernández relation:</p>
+  <div class="eq"><span class="math"><var>I</var><sub>add</sub> = 0.73 · <var>a</var><sup>0.83</sup> · <var>I</var><sub>0</sub><sup>0.03</sup> · (x/<var>d</var>)<sup>−0.32</sup></span><span class="en">Eq. 10.5 — Crespo–Hernández added TI</span></div>
+  <p>where <var>a</var> is the axial induction factor. Total TI at a turbine = ambient ⊕ wake-added (combined in quadrature), evaluated per upwind turbine and sector.</p>
+
+  <h3><span class="num">10.6</span> Blockage / global-induction effect <span class="tag new">active research</span></h3>
+  <p>A wind farm slows the wind <i>approaching</i> it — the <b>global blockage</b> effect — reducing front-row energy and shifting the resource at the masts that measured it. Once neglected, it is now standard practice to account for: measured/modelled magnitudes are typically a <b>~1–2%</b> energy reduction for large arrays, with observations of ~1–2% wind-speed reduction several rotor diameters upstream of offshore farms. Recent (2024–2025) work delivers engineering blockage parametrisations (TurbOPark-with-blockage, meso–micro perturbation models, induction/vortex models) suitable for inclusion alongside the wake engine. The platform models blockage as a self-induction field and reports it as an explicit line in the loss/energy budget, because it interacts with how the very masts that anchor the assessment are interpreted.</p>
+
+  <h3><span class="num">10.7</span> Validation</h3>
+  <p>Engineering wake models are validated against SCADA and LES through community benchmarks — most notably <b>FarmConners</b> — which show that well-tuned Gaussian/turbulence-coupled models capture array losses within a few percent on average, with larger scatter case-by-case. The platform's wake module should be benchmark-tested against these datasets and report per-model agreement so the analyst can choose defensibly.</p>
+</section>
+
+<!-- ===================== 11. EYA ===================== -->
+<section class="chapter">
+  <h2><span class="num">11.</span> Energy Yield Assessment — Gross to Net</h2>
+  <p class="lead">This is the chapter that produces the number the project lives or dies by. It converts the wind resource and layout into <b>gross</b> energy, then subtracts an itemised waterfall of losses to reach <b>net</b> energy — the P50 around which uncertainty (Chapter&nbsp;12) is wrapped.</p>
+
+  <h3><span class="num">11.1</span> Gross energy</h3>
+  <p>For each turbine, the predicted sector-wise Weibull climate (from the flow engine) is combined with the manufacturer <b>power curve</b> <var>P</var>(U), normalised to site air density (IEC 61400-12-1), and integrated:</p>
+  <div class="eq"><span class="math">AEP<sub>gross,turbine</sub> = 8760 · Σ<sub>sectors</sub> <var>f</var><sub>s</sub> · ∫ <var>P</var>(U) · <var>f</var><sub>s</sub>(U) dU</span><span class="en">Eq. 11.1 — gross AEP</span></div>
+  <p>summed over turbines for the farm gross. The integral runs over the Weibull distribution per sector; density correction shifts the power curve (or, equivalently, scales the wind speed) per IEC. Rotor-equivalent wind speed (accounting for shear/veer across the swept area) is the modern refinement over hub-height-only integration.</p>
+
+  <h3><span class="num">11.2</span> The loss waterfall</h3>
+  <p>Gross energy is reduced by losses grouped into the categories standardised by IEC 61400-15 and industry practice (DNV, openWind). Figure&nbsp;6 shows the waterfall; Table&nbsp;11.1 gives the categories with typical onshore ranges the tool ships as editable defaults.</p>
+
+  <figure>
+    <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <style>.t{font-size:8.5px;fill:#566576}.v{font-size:8.5px;font-weight:700;fill:#0e2742}.tt{font-size:10px;font-weight:700;fill:#0e2742}</style>
+      <line x1="60" y1="250" x2="840" y2="250" stroke="#9aa7b4" stroke-width="1"/>
+      <!-- gross bar -->
+      <rect x="70" y="40" width="70" height="210" fill="#1d4e74"/><text x="74" y="34" class="v">Gross</text><text x="86" y="266" class="t">100%</text>
+      <!-- loss steps -->
+      <g>
+        <rect x="170" y="40" width="60" height="38" fill="#b3402f" opacity="0.85"/><text x="172" y="34" class="t" fill="#b3402f">Wakes</text><text x="176" y="92" class="t">−8%</text>
+        <rect x="258" y="78" width="60" height="14" fill="#c8862a" opacity="0.85"/><text x="258" y="72" class="t" fill="#c8862a">Avail.</text><text x="262" y="106" class="t">−4%</text>
+        <rect x="346" y="92" width="60" height="9" fill="#c8862a" opacity="0.7"/><text x="346" y="86" class="t">Electrical</text><text x="350" y="114" class="t">−2%</text>
+        <rect x="434" y="101" width="60" height="9" fill="#2e8b6f" opacity="0.8"/><text x="434" y="95" class="t">Turbine perf.</text><text x="438" y="124" class="t">−2%</text>
+        <rect x="522" y="110" width="60" height="11" fill="#2e8b6f" opacity="0.6"/><text x="522" y="104" class="t">Environmental</text><text x="526" y="134" class="t">−2.5%</text>
+        <rect x="610" y="121" width="60" height="7" fill="#7a8896"/><text x="610" y="115" class="t">Curtailment</text><text x="614" y="141" class="t">−1.5%</text>
+      </g>
+      <!-- net bar -->
+      <rect x="700" y="128" width="80" height="122" fill="#0e7c86"/><text x="704" y="122" class="v">Net P50</text><text x="716" y="266" class="t">~80%</text>
+      <!-- connecting dashed -->
+      <path d="M140,40 L170,40 M230,78 L258,78 M318,92 L346,92 M406,101 L434,101 M494,110 L522,110 M582,121 L610,121 M670,128 L700,128" stroke="#9aa7b4" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="300" y="290" class="tt" fill="#566576">Illustrative onshore waterfall — net/gross ≈ 0.80 (site-specific; values are editable defaults)</text>
+    </svg>
+    <figcaption><b>Figure 6.</b> The gross-to-net energy waterfall. Wakes are usually the largest single loss; the cumulative net/gross ratio for a typical onshore project lands around 0.78–0.85. Each step maps to an editable, uncertainty-bearing line item in the tool.</figcaption>
+  </figure>
+
+  <table class="small">
+    <caption class="tabcap"><b>Table 11.1</b> — Loss categories (IEC 61400-15 / DNV / openWind framework) with typical onshore ranges shipped as defaults.</caption>
+    <thead><tr><th>Category</th><th>Sub-components</th><th class="n">Typical range</th></tr></thead>
+    <tbody>
+      <tr><td><b>Wake effects</b></td><td>internal array wakes, neighbouring farms, future build-out, blockage</td><td class="n">3–15%+</td></tr>
+      <tr><td><b>Availability</b></td><td>turbine, balance-of-plant, grid availability</td><td class="n">2–6%</td></tr>
+      <tr><td><b>Electrical efficiency</b></td><td>turbine-to-meter losses, transformers, lines, consumption</td><td class="n">1.5–3.5%</td></tr>
+      <tr><td><b>Turbine performance</b></td><td>power-curve adjustment, high-wind hysteresis, sub-optimal performance</td><td class="n">1–4%</td></tr>
+      <tr><td><b>Environmental</b></td><td>icing/blade soiling &amp; degradation, high/low-temp shutdown, lightning, vegetation growth</td><td class="n">1–5%</td></tr>
+      <tr><td><b>Curtailment</b></td><td>grid, noise, shadow flicker, bat/bird &amp; environmental, wind-sector (load) management</td><td class="n">0.5–5%</td></tr>
+      <tr><td colspan="2"><b>Net / gross (total)</b></td><td class="n">~0.78–0.88</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">11.3</span> Net energy &amp; capacity factor</h3>
+  <div class="eq"><span class="math">AEP<sub>net</sub> = AEP<sub>gross</sub> · Π<sub>j</sub> (1 − <var>L</var><sub>j</sub>)&nbsp;&nbsp;;&nbsp;&nbsp; CF = AEP<sub>net</sub> / (<var>P</var><sub>rated</sub> · 8760)</span><span class="en">Eq. 11.2 — net AEP &amp; capacity factor</span></div>
+  <p>Losses combine multiplicatively (not additively) because each acts on the energy surviving the previous ones. The net AEP is the <b>P50</b> central estimate; the capacity factor (typically 25–40% for good onshore Indian sites) is the headline efficiency metric. The tool reports per-turbine and farm-level net AEP, CF, full-load hours, and the complete waterfall — and exports it in the <b>IEC 61400-15-2 EYA digital exchange format</b> for downstream interoperability.</p>
+
+  <div class="callout key"><span class="h">Why itemise losses this way</span>Lenders and independent engineers expect <i>this</i> taxonomy. Implementing the IEC 61400-15 categories natively — each editable, each carrying its own uncertainty — makes the tool's output directly bankable and review-ready, rather than a black-box AEP number.</p>
+</section>
+<!-- ===================== 12. UNCERTAINTY ===================== -->
+<section class="chapter">
+  <h2><span class="num">12.</span> Uncertainty Quantification &amp; P-Values</h2>
+  <p class="lead">A P50 without an uncertainty band is not bankable. This chapter specifies how the platform assembles the uncertainty budget and converts it into the exceedance probabilities (P75, P90, P99) that size debt and price risk. This is where a rigorous tool separates itself from a spreadsheet.</p>
+
+  <h3><span class="num">12.1</span> The uncertainty budget</h3>
+  <p>Total energy uncertainty is built from independent components, each estimated as a percentage standard deviation and combined in quadrature (assuming independence):</p>
+  <div class="eq"><span class="math">σ<sub>total</sub> = √( σ<sub>meas</sub>² + σ<sub>LT</sub>² + σ<sub>vert</sub>² + σ<sub>flow</sub>² + σ<sub>wake</sub>² + σ<sub>power</sub>² + σ<sub>loss</sub>² + σ<sub>IAV</sub>² )</span><span class="en">Eq. 12.1 — combined uncertainty</span></div>
+
+  <table class="small">
+    <caption class="tabcap"><b>Table 12.1</b> — Standard uncertainty categories with typical onshore magnitudes (defaults; site-specific values override).</caption>
+    <thead><tr><th>Component</th><th>Source</th><th class="n">Typical σ</th></tr></thead>
+    <tbody>
+      <tr><td>Wind measurement</td><td>sensor calibration, mounting, RSD classification</td><td class="n">1.5–3%</td></tr>
+      <tr><td>Long-term / historical</td><td>MCP method, reference quality, correlation</td><td class="n">1–4%</td></tr>
+      <tr><td>Vertical extrapolation</td><td>shear model to hub height</td><td class="n">1–3%</td></tr>
+      <tr><td>Horizontal extrapolation / flow</td><td>flow-model error across the site (↑ with ΔRIX)</td><td class="n">1.5–5%</td></tr>
+      <tr><td>Wake model</td><td>deficit &amp; superposition error</td><td class="n">1–3%</td></tr>
+      <tr><td>Power curve</td><td>warranted curve vs as-built performance</td><td class="n">1.5–3%</td></tr>
+      <tr><td>Loss estimates</td><td>availability, electrical, environmental assumptions</td><td class="n">1–3%</td></tr>
+      <tr><td><b>Inter-annual variability</b></td><td>year-to-year wind (the only term that scales with horizon)</td><td class="n">4–6% / √N</td></tr>
+      <tr><td colspan="2"><b>Combined σ<sub>total</sub> (1-yr)</b></td><td class="n">~6–10%</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">12.2</span> From σ to P-values</h3>
+  <p>Assuming an approximately normal energy distribution, exceedance levels are the P50 minus a multiple of σ:</p>
+  <div class="eq"><span class="math">P<sub>X</sub> = P50 · ( 1 − <var>z</var><sub>X</sub> · σ<sub>total</sub> )&nbsp;&nbsp;;&nbsp;&nbsp; <var>z</var><sub>75</sub>=0.674,&nbsp; <var>z</var><sub>90</sub>=1.282,&nbsp; <var>z</var><sub>99</sub>=2.326</span><span class="en">Eq. 12.2 — exceedance levels</span></div>
+  <p>So with σ<sub>total</sub>=8%, P90 ≈ P50 × (1 − 1.282×0.08) ≈ <b>0.90 × P50</b>. A lognormal assumption is sometimes preferred to keep energy positive and skew realistic; the platform should offer both.</p>
+
+  <figure>
+    <svg viewBox="0 0 860 230" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <style>.t{font-size:9px;fill:#566576}.tt{font-size:10px;font-weight:700;fill:#0e2742}</style>
+      <line x1="60" y1="180" x2="820" y2="180" stroke="#9aa7b4" stroke-width="1.1"/>
+      <text x="600" y="200" class="t">annual energy →</text>
+      <!-- bell curve -->
+      <path d="M90,180 C260,180 300,55 440,52 C580,55 620,180 790,180" fill="#0e7c86" opacity="0.10" stroke="#0e7c86" stroke-width="2"/>
+      <!-- P50 -->
+      <line x1="440" y1="52" x2="440" y2="180" stroke="#0e2742" stroke-width="1.6"/><text x="424" y="44" class="tt">P50</text>
+      <!-- P90 -->
+      <line x1="320" y1="120" x2="320" y2="180" stroke="#b3402f" stroke-width="1.6" stroke-dasharray="5 3"/><text x="300" y="112" class="t" fill="#b3402f">P90</text>
+      <!-- P75 -->
+      <line x1="380" y1="92" x2="380" y2="180" stroke="#c8862a" stroke-width="1.4" stroke-dasharray="4 3"/><text x="362" y="86" class="t" fill="#c8862a">P75</text>
+      <!-- P99 -->
+      <line x1="250" y1="160" x2="250" y2="180" stroke="#7a8896" stroke-width="1.3" stroke-dasharray="3 3"/><text x="232" y="154" class="t">P99</text>
+      <!-- shaded 10% tail -->
+      <path d="M90,180 C200,180 250,150 320,120 L320,180 Z" fill="#b3402f" opacity="0.12"/>
+      <text x="120" y="172" class="t" fill="#b3402f">10% probability energy &lt; P90</text>
+      <text x="470" y="120" class="t">σ<tspan baseline-shift="sub" font-size="6">total</tspan> sets the spread → wider σ pulls P90 down</text>
+    </svg>
+    <figcaption><b>Figure 7.</b> The energy distribution and exceedance probabilities. P90 is the energy level exceeded in 90% of cases (P50 minus 1.282σ for a normal distribution); reducing σ — through better measurement, flow modelling and long-term correction — directly raises P90 and the project's debt capacity.</figcaption>
+  </figure>
+
+  <h3><span class="num">12.3</span> Assessment horizon — why P90<sub>10yr</sub> &gt; P90<sub>1yr</sub></h3>
+  <p>Inter-annual variability is the only component that averages out over time: over an <var>N</var>-year horizon its contribution divides by √<var>N</var>. The platform therefore reports P-values for the financially-relevant horizons (1-year for operational checks; 10-year and 20-year for debt sizing), recomputing σ<sub>total</sub> with the horizon-scaled IAV term. This single feature materially affects financeability and is often mishandled in ad-hoc spreadsheets.</p>
+
+  <div class="callout key"><span class="h">The commercial case for accuracy</span>Every percentage point shaved off σ<sub>total</sub> lifts P90 and enlarges the debt the project can raise. The investment in better flow modelling (CFD/ML), measurement (LiDAR + tall mast) and rigorous MCP is justified precisely <i>here</i> — uncertainty reduction is the product's economic value proposition.</p>
+</section>
+
+<!-- ===================== 13. SITE SUITABILITY ===================== -->
+<section class="chapter">
+  <h2><span class="num">13.</span> Site Suitability &amp; Turbine-Load Validation</h2>
+  <p class="lead">Micrositing is not only about energy — each turbine position must be <b>safe</b> for the chosen turbine over its design life. The platform validates every position against the site-suitability requirements of <b>IEC 61400-1 Ed.4 (2019, with the 2025/2026 amendment)</b>, the same checks WindPRO SITE COMPLIANCE and DNV WindFarmer perform.</p>
+
+  <h3><span class="num">13.1</span> Turbine classes</h3>
+  <p>IEC 61400-1 defines wind classes by reference wind speed and turbulence category; a turbine is suitable only if every site parameter sits within its class envelope.</p>
+  <table class="small">
+    <caption class="tabcap"><b>Table 13.1</b> — IEC 61400-1 wind-turbine classes (reference values).</caption>
+    <thead><tr><th>Class</th><th class="n">V<sub>ref</sub> (m/s)</th><th class="n">V<sub>ave</sub> (m/s)</th><th>Turbulence categories (I<sub>ref</sub> at 15 m/s)</th></tr></thead>
+    <tbody>
+      <tr><td>I (high wind)</td><td class="n">50</td><td class="n">10</td><td rowspan="3">A+ = 0.18 · A = 0.16 · B = 0.14 · C = 0.12</td></tr>
+      <tr><td>II (medium)</td><td class="n">42.5</td><td class="n">8.5</td></tr>
+      <tr><td>III (low wind)</td><td class="n">37.5</td><td class="n">7.5</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">13.2</span> The mandatory checks</h3>
+  <ul class="tight">
+    <li><b>Extreme wind:</b> 50-year extreme gust V<sub>e50</sub> vs class V<sub>ref</sub> (V<sub>e50</sub> ≈ 1.4 V<sub>ref</sub>).</li>
+    <li><b>Effective turbulence (fatigue):</b> ambient + wake-added TI aggregated via the <b>Frandsen effective-turbulence</b> integral, weighted by the material Wöhler exponent <var>m</var>, compared to the Normal Turbulence Model σ<sub>1</sub> = I<sub>ref</sub>(0.75 V<sub>hub</sub> + 5.6).</li>
+    <li><b>Mean wind speed</b> at hub height vs V<sub>ave</sub>.</li>
+    <li><b>Wind shear</b> (the exponent α within tested bounds, typ. ≤0.2 design / site-specific).</li>
+    <li><b>Flow inclination</b> (inflow angle ≤ ±8° typical) — critical in complex terrain.</li>
+    <li><b>Air density</b> and <b>terrain complexity</b> (links back to RIX).</li>
+  </ul>
+  <div class="eq"><span class="math"><var>I</var><sub>eff</sub> = [ Σ<sub>θ</sub> <var>p</var>(θ) · <var>I</var>(θ)<sup>m</sup> ]<sup>1/m</sup>&nbsp;&nbsp;(Frandsen, incl. wake-added TI)</span><span class="en">Eq. 13.1 — effective turbulence</span></div>
+
+  <h3><span class="num">13.3</span> Output &amp; the optimisation link</h3>
+  <p>For every candidate position the platform returns a pass/fail per parameter and an overall suitability verdict for each turbine model in the catalogue. Crucially, these checks are <b>constraints in the layout optimiser</b> (Chapter&nbsp;14): a position that maximises energy but fails effective-turbulence (too close behind another turbine) is rejected or penalised. Where loads are borderline the tool flags the need for site-specific aeroelastic simulation (hand-off to OpenFAST-class load tools), rather than overstating its own remit.</p>
+
+  <div class="callout warn"><span class="h">Energy ↔ loads tension</span>Packing turbines tightly raises energy density but increases wake-added turbulence on downwind machines — the core trade-off micrositing must resolve. Suitability checking is therefore not a post-hoc gate but an <i>objective-shaping constraint</i> wired into the optimiser.</p>
+</section>
+
+<!-- ===================== 14. OPTIMISATION ===================== -->
+<section class="chapter">
+  <h2><span class="num">14.</span> Layout Optimisation (Micrositing)</h2>
+  <p class="lead">This is the act of micrositing itself: choosing turbine positions (and sometimes models and hub heights) to optimise an objective under constraints. The platform wraps the flow, wake, energy and suitability modules in an optimisation loop — the capability that turns an assessment tool into a design tool.</p>
+
+  <h3><span class="num">14.1</span> Objective functions</h3>
+  <ul class="tight">
+    <li><b>Maximise net AEP</b> (or AEP per turbine) — the simplest, wake-dominated objective.</li>
+    <li><b>Minimise LCOE</b> / maximise NPV or IRR — economically correct; trades energy against cabling, roads, foundations and O&amp;M (TopFarm-style).</li>
+    <li><b>Minimise wake loss</b> or maximise a robust (P90) yield — risk-aware objectives.</li>
+  </ul>
+
+  <h3><span class="num">14.2</span> Constraints (the hard part)</h3>
+  <table class="small">
+    <caption class="tabcap"><b>Table 14.1</b> — Micrositing constraints the optimiser must honour.</caption>
+    <thead><tr><th>Constraint</th><th>Typical form</th></tr></thead>
+    <tbody>
+      <tr><td>Site boundary / land control</td><td>turbines inside leased polygon(s)</td></tr>
+      <tr><td>Minimum spacing</td><td>≥3–5 D crosswind, ≥6–10 D downwind (rotor diameters)</td></tr>
+      <tr><td>Setbacks</td><td>from dwellings, roads, property lines, infrastructure (often n× tip height)</td></tr>
+      <tr><td>Noise limits</td><td>received dB(A) at receptors below regulatory thresholds</td></tr>
+      <tr><td>Shadow flicker</td><td>hours/year at dwellings below limit</td></tr>
+      <tr><td>Environmental exclusions</td><td>habitat, wetlands, forest, avian/bat corridors, viewshed</td></tr>
+      <tr><td>Turbine suitability</td><td>effective-TI, shear, flow-inclination pass (Chapter 13)</td></tr>
+      <tr><td>Buildability</td><td>slope, access roads, crane pads, geotech</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">14.3</span> Algorithms</h3>
+  <p>The layout problem is high-dimensional, non-convex and multi-modal, so the platform offers a toolbox rather than a single solver:</p>
+  <table class="small">
+    <caption class="tabcap"><b>Table 14.2</b> — Optimisation algorithms and when to use them.</caption>
+    <thead><tr><th>Method</th><th>Character</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><b>Gradient-based</b> (SLSQP, with analytical/AD gradients)</td><td>fast local refinement</td><td>polishing a good layout; smooth wake models (PyWake/TopFarm)</td></tr>
+      <tr><td><b>Genetic algorithm</b></td><td>global, population-based</td><td>discrete/irregular sites, mixed variables</td></tr>
+      <tr><td><b>Particle swarm</b></td><td>global, simple to tune</td><td>continuous positions, multimodal</td></tr>
+      <tr><td><b>Simulated annealing</b></td><td>stochastic escape from minima</td><td>rugged objective landscapes</td></tr>
+      <tr><td><b>CMA-ES</b></td><td>robust evolutionary strategy</td><td>noisy/expensive objectives</td></tr>
+      <tr><td><b>Bayesian optimisation</b></td><td>sample-efficient surrogate search</td><td>each evaluation is an expensive CFD/wake run</td></tr>
+    </tbody>
+  </table>
+  <p>A practical pattern: a global search (GA/PSO) to find the basin, then gradient-based polishing — and, for expensive flow models, a surrogate (§9.2) in the loop. Smart <b>initialisation</b> (grids aligned across the prevailing wind, staggered rows) and a <b>greedy seeding</b> pass dramatically accelerate convergence.</p>
+
+  <h3><span class="num">14.4</span> Wake steering &amp; control co-design <span class="tag new">2023–2026</span></h3>
+  <p>Beyond positions, energy can be raised by <b>wake steering</b> — yawing upstream turbines to deflect their wakes off downstream machines. Co-optimising layout <i>and</i> yaw control (FLORIS, PyWake) is an active frontier with demonstrated field gains; the platform should expose yaw as an optional design/operation variable and report the steering uplift.</p>
+
+  <h3><span class="num">14.5</span> Tools to build on</h3>
+  <ul class="tight">
+    <li><b>DTU PyWake</b> (≈v2.6): fast vectorised engineering wake models + AEP — the evaluation core.</li>
+    <li><b>DTU TopFarm</b> (≈v2.6, on OpenMDAO): layout/cost optimisation with IRR/NPV objectives and constraints.</li>
+    <li><b>NREL FLORIS</b>: steady-state wake + control (wake steering) optimisation.</li>
+    <li><b>FOXES</b> (Fraunhofer): scalable wake/farm modelling; <b>OpenMDAO/pyOptSparse</b>: the optimisation backbone.</li>
+  </ul>
+  <p>The recommendation: <b>do not rebuild</b> the wake/optimisation maths — wrap PyWake + TopFarm/OpenMDAO as the optimisation engine and contribute the platform's terrain-aware flow fields and constraint set, which is where the incumbents are weak.</p>
+</section>
+<!-- ============================================================= -->
+<!-- PART IV -->
+<!-- ============================================================= -->
+<section class="chapter">
+  <h2 class="part">Part IV — Building the Tool</h2>
+  <h2><span class="num">15.</span> Software Architecture</h2>
+  <p class="lead">The science of Parts I–III becomes software here. The architecture is a layered pipeline with a single project data model and <b>pluggable engines</b>, so flow models, wake models and optimisers can be swapped without touching the rest of the system.</p>
+
+  <h3><span class="num">15.1</span> Layered architecture</h3>
+  <figure>
+    <svg viewBox="0 0 860 430" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif">
+      <style>
+        .L{rx:7; stroke-width:1.3}
+        .lt{font-size:11px;font-weight:700}.ls{font-size:8px;fill:#566576}
+        .mod{fill:#ffffff;stroke:#1d4e74;stroke-width:1.1;rx:5}.mt{font-size:8.6px;font-weight:600;fill:#0e2742}
+      </style>
+      <!-- presentation -->
+      <rect class="L" x="20" y="20" width="820" height="58" fill="#eef5f8" stroke="#1d4e74"/>
+      <text x="32" y="38" class="lt" fill="#0e2742">① Presentation — Web UI &amp; API</text>
+      <rect class="mod" x="32" y="44" width="150" height="26"/><text x="42" y="61" class="mt">GIS map &amp; layout editor</text>
+      <rect class="mod" x="190" y="44" width="150" height="26"/><text x="200" y="61" class="mt">wind rose / WRG viewer</text>
+      <rect class="mod" x="348" y="44" width="150" height="26"/><text x="358" y="61" class="mt">EYA report builder</text>
+      <rect class="mod" x="506" y="44" width="150" height="26"/><text x="516" y="61" class="mt">scenario manager</text>
+      <rect class="mod" x="664" y="44" width="164" height="26"/><text x="674" y="61" class="mt">REST / Python API</text>
+
+      <!-- application/orchestration -->
+      <rect class="L" x="20" y="90" width="820" height="58" fill="#e7f1f0" stroke="#0e7c86"/>
+      <text x="32" y="108" class="lt" fill="#0e7c86">② Application — Orchestration &amp; Workflow</text>
+      <rect class="mod" x="32" y="114" width="180" height="26"/><text x="42" y="131" class="mt">project &amp; scenario engine</text>
+      <rect class="mod" x="220" y="114" width="180" height="26"/><text x="230" y="131" class="mt">job scheduler / queue</text>
+      <rect class="mod" x="408" y="114" width="190" height="26"/><text x="418" y="131" class="mt">engine selector (ΔRIX gate)</text>
+      <rect class="mod" x="606" y="114" width="222" height="26"/><text x="616" y="131" class="mt">provenance &amp; reproducibility log</text>
+
+      <!-- domain engines -->
+      <rect class="L" x="20" y="160" width="820" height="118" fill="#f3f7fa" stroke="#13314f"/>
+      <text x="32" y="178" class="lt" fill="#13314f">③ Domain Engines (pluggable)</text>
+      <rect class="mod" x="32" y="186" width="150" height="36"/><text x="42" y="201" class="mt">Climate / MCP</text><text x="42" y="213" class="ls">Weibull · rose · LTC</text>
+      <rect class="mod" x="190" y="186" width="150" height="36"/><text x="200" y="201" class="mt">Flow engine</text><text x="200" y="213" class="ls">linear·CFD·meso·ML</text>
+      <rect class="mod" x="348" y="186" width="150" height="36"/><text x="358" y="201" class="mt">Wake + blockage</text><text x="358" y="213" class="ls">Jensen·Gauss·TurbOPark</text>
+      <rect class="mod" x="506" y="186" width="150" height="36"/><text x="516" y="201" class="mt">Energy &amp; losses</text><text x="516" y="213" class="ls">gross→net waterfall</text>
+      <rect class="mod" x="664" y="186" width="164" height="36"/><text x="674" y="201" class="mt">Uncertainty / P-values</text><text x="674" y="213" class="ls">budget · P50/P90</text>
+      <rect class="mod" x="190" y="230" width="150" height="36"/><text x="200" y="245" class="mt">Suitability (IEC)</text><text x="200" y="257" class="ls">eff-TI · extremes</text>
+      <rect class="mod" x="348" y="230" width="150" height="36"/><text x="358" y="245" class="mt">Optimiser</text><text x="358" y="257" class="ls">GA·PSO·grad·Bayes</text>
+      <rect class="mod" x="506" y="230" width="150" height="36"/><text x="516" y="245" class="mt">Terrain / roughness</text><text x="516" y="257" class="ls">DEM·z₀·RIX·forest</text>
+      <rect class="mod" x="664" y="230" width="164" height="36"/><text x="674" y="245" class="mt">Noise / flicker / env</text><text x="674" y="257" class="ls">constraints</text>
+
+      <!-- data -->
+      <rect class="L" x="20" y="290" width="820" height="58" fill="#eef5f8" stroke="#1d4e74"/>
+      <text x="32" y="308" class="lt" fill="#0e2742">④ Data &amp; Persistence</text>
+      <rect class="mod" x="32" y="314" width="170" height="26"/><text x="42" y="331" class="mt">project DB (Postgres/PostGIS)</text>
+      <rect class="mod" x="210" y="314" width="170" height="26"/><text x="220" y="331" class="mt">raster/array store (GeoTIFF·NetCDF·Zarr)</text>
+      <rect class="mod" x="388" y="314" width="160" height="26"/><text x="398" y="331" class="mt">object storage (S3)</text>
+      <rect class="mod" x="556" y="314" width="120" height="26"/><text x="566" y="331" class="mt">model registry</text>
+      <rect class="mod" x="684" y="314" width="144" height="26"/><text x="694" y="331" class="mt">results cache</text>
+
+      <!-- ingestion -->
+      <rect class="L" x="20" y="360" width="820" height="58" fill="#e7f1f0" stroke="#0e7c86"/>
+      <text x="32" y="378" class="lt" fill="#0e7c86">⑤ Ingestion &amp; External Data</text>
+      <rect class="mod" x="32" y="384" width="150" height="26"/><text x="42" y="401" class="mt">measurement import + QC</text>
+      <rect class="mod" x="190" y="384" width="150" height="26"/><text x="200" y="401" class="mt">reanalysis (ERA5/MERRA-2)</text>
+      <rect class="mod" x="348" y="384" width="150" height="26"/><text x="358" y="401" class="mt">atlases (GWA4·NEWA·NIWE)</text>
+      <rect class="mod" x="506" y="384" width="150" height="26"/><text x="516" y="401" class="mt">DEM &amp; land cover</text>
+      <rect class="mod" x="664" y="384" width="164" height="26"/><text x="674" y="401" class="mt">turbine library</text>
+    </svg>
+    <figcaption><b>Figure 8.</b> Layered platform architecture. A thin presentation layer over an orchestration layer that drives pluggable domain engines, all backed by a geospatial data layer fed by an ingestion layer. The engine selector uses ΔRIX (§5.5) to route between flow engines automatically.</figcaption>
+  </figure>
+
+  <h3><span class="num">15.2</span> The project data model — the keystone</h3>
+  <p>One serialisable <b>Project</b> object ties everything together: site geometry, measurement campaigns + QC'd time series, the derived wind climate(s), terrain/roughness/obstacle layers, the turbine catalogue, scenarios (layouts), and results (WRG, AEP, losses, P-values, suitability). Designing this schema well — versioned, with full provenance — is the highest-leverage early decision; every engine reads and writes it, and interoperability with WAsP (<code>.lib</code>, <code>.wrg</code>, <code>.tab</code>) and the IEC EYA exchange format hangs off it.</p>
+
+  <h3><span class="num">15.3</span> The engine interface</h3>
+  <p>Each flow engine implements the same contract — <code>predict(climate, terrain, points) → WRG</code> — so the orchestration layer treats linear, CFD, mesoscale and ML engines identically and can ensemble them or A/B them on one site. Wake models and optimisers follow the same discipline. This is the architectural expression of the "full-spectrum" thesis: fidelity becomes a runtime choice, not a rebuild.</p>
+
+  <h3><span class="num">15.4</span> Compute &amp; orchestration</h3>
+  <p>Linear and analytical-wake runs are interactive (seconds). CFD and mesoscale are batch (a job queue + workers, optionally cloud/HPC or GPU). The orchestration layer abstracts this so the UI experience is consistent: submit a scenario, track the job, retrieve results. Caching of expensive flow fields keyed by terrain+inflow lets the optimiser reuse solves.</p>
+</section>
+
+<!-- ===================== 16. DATA PIPELINE ===================== -->
+<section class="chapter">
+  <h2><span class="num">16.</span> Data Pipeline &amp; Sources</h2>
+  <p class="lead">A micrositing tool is, operationally, a geospatial-and-time-series data integrator. This chapter catalogues the external data, the formats to standardise on, and the ingestion flow.</p>
+
+  <h3><span class="num">16.1</span> Source catalogue</h3>
+  <table class="small">
+    <caption class="tabcap"><b>Table 16.1</b> — External data sources, with access notes (consolidates Tables 4.1, 5.1).</caption>
+    <thead><tr><th>Layer</th><th>Recommended source</th><th class="n">Resolution</th><th>Access</th></tr></thead>
+    <tbody>
+      <tr><td>Reanalysis (LTC reference)</td><td>ERA5 (primary), MERRA-2 (check)</td><td class="n">31 / 50 km</td><td>free · CDS &amp; GES DISC APIs</td></tr>
+      <tr><td>Wind atlas (prior/screening)</td><td>Global Wind Atlas 4; NEWA (EU); NIWE (India)</td><td class="n">250 m / 30 m / 500 m</td><td>free · web/API</td></tr>
+      <tr><td>Elevation (DEM)</td><td>Copernicus GLO-30 (default), ALOS AW3D30, LiDAR</td><td class="n">30 m / project</td><td>free · paid for LiDAR</td></tr>
+      <tr><td>Land cover → roughness</td><td>ESA WorldCover (10 m), Copernicus, CORINE, OSM</td><td class="n">10–100 m</td><td>free</td></tr>
+      <tr><td>Turbine power/Ct curves</td><td>manufacturer + open libraries</td><td class="n">—</td><td>NDA / open</td></tr>
+      <tr><td>Constraints (settlements, roads, habitat)</td><td>OSM, national cadastre, protected-area registries</td><td class="n">vector</td><td>free / national</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">16.2</span> Formats to standardise on</h3>
+  <ul class="tight">
+    <li><b>Rasters / fields:</b> GeoTIFF (terrain, roughness, resource maps); NetCDF/Zarr (multi-dim mesoscale &amp; reanalysis time–height fields).</li>
+    <li><b>Vectors:</b> GeoPackage/GeoJSON (boundaries, constraints, cabling).</li>
+    <li><b>Time series:</b> Parquet/CSV with a documented schema + units; provenance metadata.</li>
+    <li><b>Wind-industry interchange:</b> WAsP <code>.tab/.owc</code> (observed climate), <code>.lib</code> (generalised climate), <code>.wrg/.rsf</code> (resource grid); the <b>IEC 61400-15-2 EYA digital exchange format</b> for reporting.</li>
+  </ul>
+
+  <h3><span class="num">16.3</span> Ingestion flow</h3>
+  <pre><span class="c"># conceptual ingestion pipeline (per project)</span>
+ingest_measurements(masts, lidars) <span class="k">→</span> qc_chain() <span class="k">→</span> WindClimate
+fetch_reanalysis(ERA5, lat, lon, period) <span class="k">→</span> reference_series
+mcp(WindClimate, reference_series, method=<span class="s">"linear|matrix|ml"</span>) <span class="k">→</span> LongTermClimate
+load_dem(Copernicus_GLO30, aoi) + load_landcover(ESA_WorldCover) <span class="k">→</span> TerrainModel
+map_roughness(landcover, lookup_z0) <span class="k">→</span> RoughnessModel
+compute_rix(TerrainModel, points) <span class="k">→</span> deltaRIX            <span class="c"># engine-selection signal</span>
+TerrainModel + RoughnessModel + LongTermClimate <span class="k">→</span> FlowEngine.predict() <span class="k">→</span> WRG</pre>
+  <p>Every step writes provenance (source, version, parameters, timestamp) into the project log so any result is reproducible and auditable — a non-negotiable for bankable assessments.</p>
+
+  <h3><span class="num">16.4</span> India specifics</h3>
+  <p>For Indian projects the pipeline should default to the <b>NIWE</b> resource portal (100/120/150&nbsp;m potential at 500&nbsp;m resolution) as the screening prior and as a complementary long-term reference, alongside ERA5; honour NIWE/MNRE accreditation expectations for measurement and assessment; and account for monsoon-driven seasonality and high-altitude/low-density plateau sites in the climate and density modules.</p>
+</section>
+<!--MORE-->
+</div>
+</body>
+</html>
