@@ -297,3 +297,50 @@ footer on every page.
 - **Retention (plan §9.3):** the endpoint streams the PDF and persists nothing
   by default; if you later cache PDFs or debug snapshots, give them an owner-
   scoped store + TTL and log digests, not full image data URLs.
+
+## Exclusion-zone geodatabase (PostGIS) — required for the site-analysis %
+
+The site-analysis report's exclusion-zone **percentage** reads two PostGIS
+tables — `wce.excl_polygon` (~720k features) and `wce.excl_buffer` — at query
+time. This is **separate** from the Pro-map exclusion *layer*, which renders
+from `data/by-source/exclusions.pmtiles`. Copying the `.pmtiles` does NOT
+populate these tables. If the tables are empty (or missing), every AOI computes
+**0% exclusions** and the report shows "exclusions unavailable" / no percentage,
+even though the map layer looks fine. (This bit us once: the pmtiles was
+deployed but the tables were never loaded.)
+
+The migration that *creates* the empty `wce.*` tables runs with the schema, but
+the **data is not** part of the git repo or the image (2.2 GB) — it must be
+loaded into the VPS Postgres once. The simplest, most reliable path is a
+data-only dump from a known-good local DB (the tables already exist on the VPS,
+so restore data only). Run from your laptop with the local PostGIS up:
+
+```bash
+# Streams ~1 GB local -> VPS in a single transaction (rolls back on failure).
+# Prereq: wce.source_registry must already match on both sides (FK target).
+docker exec wce-postgis-1 pg_dump -U wpi -d wpi -Fc -a \
+    -t wce.excl_polygon -t wce.excl_buffer \
+  | ssh root@187.127.169.28 \
+      "docker exec -i wce-postgis-1 pg_restore -U wpi -d wpi \
+         --data-only --single-transaction --no-owner"
+
+# Refresh planner stats after a bulk load.
+ssh root@187.127.169.28 'docker exec wce-postgis-1 psql -U wpi -d wpi \
+  -c "ANALYZE wce.excl_polygon; ANALYZE wce.excl_buffer;"'
+```
+
+Verify the load and that the live coverage query returns a percentage fast:
+
+```bash
+ssh root@187.127.169.28 'docker exec wce-postgis-1 psql -U wpi -d wpi -tAc \
+  "SELECT (SELECT count(*) FROM wce.excl_polygon), (SELECT count(*) FROM wce.excl_buffer);"'
+# expect: 720945 | 276  (or current local counts)
+```
+
+In a browser, run a site analysis over an exclusion-dense AOI (e.g. Kutch,
+Gujarat) and confirm the report shows hard (red) / verify (amber) percentages.
+
+> **This data lives only in the VPS Postgres volume.** If that volume is ever
+> recreated (`docker compose down -v`, disk loss, fresh box), the tables come
+> back **empty** and the % silently returns to 0 — re-run the dump/restore above.
+> `update.sh` does NOT touch it.
