@@ -104,8 +104,6 @@ interface Props {
   showPowerGrid: boolean;
   /** "Exclusion zones" = legal exclusion polygons (red hard / amber verify). */
   showExclusions: boolean;
-  /** "Policy score" = state polygons coloured by composite wind-policy score. */
-  showPolicyScore: boolean;
   /** "Offshore wind" = identified offshore zones + VGF/LiDAR project points. */
   showOffshore: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
@@ -117,7 +115,6 @@ interface Props {
   onToggleMasts: (next: boolean) => void;
   onTogglePowerGrid: (next: boolean) => void;
   onToggleExclusions: (next: boolean) => void;
-  onTogglePolicyScore: (next: boolean) => void;
   onToggleOffshore: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
   onVoltageBandChange: (kv: string, next: boolean) => void;
@@ -137,7 +134,6 @@ export function LayersTool({
   showMasts,
   showPowerGrid,
   showExclusions,
-  showPolicyScore,
   showOffshore,
   mastCats,
   voltageBands,
@@ -145,7 +141,6 @@ export function LayersTool({
   onToggleMasts,
   onTogglePowerGrid,
   onToggleExclusions,
-  onTogglePolicyScore,
   onToggleOffshore,
   onMastCatChange,
   onVoltageBandChange,
@@ -197,13 +192,6 @@ export function LayersTool({
       />
       {showExclusions && <ExclusionLegend />}
       <ToggleRow
-        label="Policy score"
-        description="States ranked best→worst on wind tariff/OA policy"
-        swatch={POLICY_SCORE_SWATCH}
-        checked={showPolicyScore}
-        onChange={onTogglePolicyScore}
-      />
-      <ToggleRow
         label="Offshore wind"
         description="Identified zones, projects & national policy"
         swatch={OFFSHORE_ZONE_COLOR}
@@ -237,9 +225,6 @@ function OffshoreLegend() {
     </div>
   );
 }
-
-// Map fill ramp midpoint (mirror utils/policyScore amber).
-const POLICY_SCORE_SWATCH = '#f59e0b';
 
 // Map fill colours (mirror utils/exclusions EXCL_RED / EXCL_AMBER).
 const EXCL_RED_SWATCH = '#dc2626';

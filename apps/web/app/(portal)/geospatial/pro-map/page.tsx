@@ -63,10 +63,6 @@ import {
   EXCL_OUTLINE_LAYER_ID,
 } from "@/components/Map/utils/exclusions";
 import {
-  addPolicyScore,
-  setPolicyScoreVisibility,
-} from "@/components/Map/utils/policyScore";
-import {
   addOffshoreWind,
   setOffshoreWindVisibility,
   type OffshoreData,
@@ -77,7 +73,6 @@ import {
   OffshoreWindTool,
   OffshoreIcon,
 } from "@/components/Map/components/OffshoreWindTool";
-import { PolicyScoreLegend } from "@/components/Map/components/PolicyScoreLegend";
 import {
   addWindResourceLayer,
   removeWindResourceLayer,
@@ -141,7 +136,6 @@ export default function ProMapPage() {
   const showTurbinesRef = useRef(true);
   const showExclusionsRef = useRef(false);
   const showPowerGridRef = useRef(true);
-  const showPolicyScoreRef = useRef(false);
   const showOffshoreRef = useRef(false);
   const windMetricRef = useRef<WindMetricChoice>("speed");
   const windHeightRef = useRef<number>(DEFAULT_WIND_RASTER_HEIGHT);
@@ -183,9 +177,6 @@ export default function ProMapPage() {
   // created lazily on first enable (addPowerGrid is idempotent); later toggles
   // only flip visibility.
   const [showPowerGrid, setShowPowerGrid] = useState(true);
-  // "Policy score" — state polygons coloured by composite wind-policy
-  // attractiveness (best → worst), GeoJSON from /api/policy/score. Off by default.
-  const [showPolicyScore, setShowPolicyScore] = useState(false);
   // "Offshore wind" — NIWE/FOWIND-identified offshore zones (indicative cyan
   // fills) + VGF/LiDAR project pins, GeoJSON from /api/offshore-wind. Off by
   // default; the one fetch also feeds the Offshore-wind tool panel (zones,
@@ -408,16 +399,6 @@ export default function ProMapPage() {
     else map.once("idle", apply);
   }, [showExclusions]);
 
-  // "Policy score" choropleth toggle. addPolicyScore (lazy, idempotent) runs in
-  // the load handler; here we only flip visibility.
-  useEffect(() => {
-    showPolicyScoreRef.current = showPolicyScore;
-    const map = mapRef.current;
-    if (!map) return;
-    const apply = () => setPolicyScoreVisibility(map, showPolicyScore);
-    if (map.isStyleLoaded()) apply();
-    else map.once("idle", apply);
-  }, [showPolicyScore]);
 
   // "Offshore wind" toggle — flips the zone fills + project pins (added async
   // in the load handler; they apply their own initial visibility). Mirrors the
@@ -883,13 +864,6 @@ export default function ProMapPage() {
       // keeps their z-order (just below the pins) unchanged. Reading the toggle
       // refs at idle-time also means they honour the very latest toggle state.
       map.once("idle", () => {
-        // Policy-score choropleth (state polygons by composite attractiveness).
-        // Async (fetches GeoJSON) — applies its own initial visibility. Below pins.
-        void addPolicyScore(map, {
-          beforeId: "windmills-pts",
-          visible: showPolicyScoreRef.current,
-        });
-
         // Offshore-wind reference layer — indicative zones + VGF/LiDAR pins, from
         // /api/offshore-wind. Async (fetches GeoJSON) — applies its own initial
         // visibility and feeds the Offshore-wind tool panel (zones/projects/policy)
@@ -1131,7 +1105,6 @@ export default function ProMapPage() {
               showMasts={showMasts}
               showPowerGrid={showPowerGrid}
               showExclusions={showExclusions}
-              showPolicyScore={showPolicyScore}
               showOffshore={showOffshore}
               mastCats={mastCats}
               voltageBands={voltageBands}
@@ -1139,7 +1112,6 @@ export default function ProMapPage() {
               onToggleMasts={setShowMasts}
               onTogglePowerGrid={setShowPowerGrid}
               onToggleExclusions={setShowExclusions}
-              onTogglePolicyScore={setShowPolicyScore}
               onToggleOffshore={setShowOffshore}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
@@ -1199,7 +1171,6 @@ export default function ProMapPage() {
       {isPro && showMasts && <MastLegend offsetLeft={sidebarOpen ? 344 : 72} />}
 
       {/* Ranked best→worst policy-attractiveness key (top-right) — only with the layer on. */}
-      {isPro && showPolicyScore && <PolicyScoreLegend />}
 
       {(isPending || booting) && (
         <CeclLoader label="Intelligence Terminal Loading" />
