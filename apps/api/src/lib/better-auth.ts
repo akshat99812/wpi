@@ -24,6 +24,11 @@ if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 const sqlite = new Database(dbPath, { create: true });
 sqlite.exec("PRAGMA journal_mode = WAL;");
 
+// The same SQLite handle backs our own per-user tables (e.g. saved_site) so
+// all per-user records live in one DB next to Better Auth's `user` table,
+// sharing its lifecycle and backups. Better Auth ignores tables it doesn't own.
+export const authDb = sqlite;
+
 const trustedOrigins = (process.env.BETTER_AUTH_TRUSTED_ORIGINS || "")
   .split(",")
   .map((s) => s.trim())

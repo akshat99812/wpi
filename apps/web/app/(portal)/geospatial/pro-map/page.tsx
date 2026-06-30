@@ -13,6 +13,8 @@ import { ProSidebar, ToolsIcon, type ProTool } from "@/components/Map/components
 import { MastDataTool, MastIcon } from "@/components/Map/components/MastDataTool";
 import { TurbineDataTool, TurbineIcon } from "@/components/Map/components/TurbineDataTool";
 import { AnalyzeTool, AnalyzeIcon } from "@/components/Map/components/AnalyzeTool";
+import { SavedSitesTool, SavedSitesIcon } from "@/components/Map/components/SavedSitesTool";
+import type { SavedSite } from "@/lib/savedSites";
 import { MeasureTool } from "@/components/Map/components/MeasureTool";
 import { PlaceSearch } from "@/components/Map/components/PlaceSearch";
 import { TerrainTool, TerrainIcon } from "@/components/Map/components/TerrainTool";
@@ -257,6 +259,15 @@ export default function ProMapPage() {
       aoi.disarm();
       measure.arm();
     }
+  };
+  // Re-open a saved site: release the measure tool, redraw its ring + re-run the
+  // screening, and surface the result in the left "Site analysis" tab.
+  const openSavedSite = (site: SavedSite) => {
+    if (!site.ring || site.ring.length < 4) return;
+    measure.disarm();
+    aoi.loadRing(site.ring as [number, number][]);
+    setActiveTool("analysis");
+    setSidebarOpen(true);
   };
 
   useEffect(() => {
@@ -1020,6 +1031,12 @@ export default function ProMapPage() {
           onClear={aoi.clearAll}
         />
       ),
+    },
+    {
+      id: "saved",
+      label: "Saved sites",
+      Icon: SavedSitesIcon,
+      content: <SavedSitesTool onOpenSite={openSavedSite} />,
     },
     {
       id: "offshore",

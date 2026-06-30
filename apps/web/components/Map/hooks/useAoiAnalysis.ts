@@ -91,6 +91,9 @@ export interface AoiAnalysis {
    *  (what Esc does — also used when another map tool takes the clicks). */
   disarm: () => void;
   clearAll: () => void;
+  /** Draw a saved ring back on the map, fit to it, and re-run the analysis
+   *  (used by the Saved sites tab to re-open a saved AOI). */
+  loadRing: (ring: [number, number][]) => void;
 }
 
 export function useAoiAnalysis(): AoiAnalysis {
@@ -368,6 +371,29 @@ export function useAoiAnalysis(): AoiAnalysis {
     [runAnalysis, clearLayoutArtifacts],
   );
 
+  /** Re-open a saved ring: draw it, fit to it, and re-run the screening. Mirrors
+   *  the boundary-upload commit path (invalidate in-flight, drop layout, draw,
+   *  fit, analyze) but takes a ring directly instead of parsing a file. */
+  const loadRing = useCallback(
+    (ring: [number, number][]) => {
+      const controller = controllerRef.current;
+      if (!controller) return;
+      abortRef.current?.abort();
+      requestSeqRef.current++;
+      controller.disarm();
+      armedRef.current = null;
+      setArmedMode(null);
+      setError(null);
+      setUiState("loading");
+      clearLayoutArtifacts();
+      const closed = closeRing(ring);
+      controller.setCommitted(closed);
+      controller.fitToRing(closed);
+      runAnalysis(closed);
+    },
+    [runAnalysis, clearLayoutArtifacts],
+  );
+
   const disarm = useCallback(() => {
     controllerRef.current?.disarm();
     armedRef.current = null;
@@ -444,5 +470,6 @@ export function useAoiAnalysis(): AoiAnalysis {
     clearTurbine,
     disarm,
     clearAll,
+    loadRing,
   };
 }

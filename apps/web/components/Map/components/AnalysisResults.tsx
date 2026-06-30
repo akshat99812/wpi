@@ -19,6 +19,8 @@ import {
   type ExclusionSource,
 } from "@/components/Map/utils/exclusions";
 import { exportReport, type ExportPhase } from "@/components/Map/report/exportReport";
+import { useSavedSites, saveSite } from "@/lib/savedSitesStore";
+import { buildSavedSitePayload, SavedSiteLimitError } from "@/lib/savedSites";
 
 /**
  * Results panel for a completed site analysis (plan §4 Phase 4 layout):
@@ -282,6 +284,17 @@ export function AnalysisResults({
         <UnavailableNote label="Financial screening" />
       )}
 
+      {/* Save this AOI (up to 3) for later side-by-side comparison in the
+          Saved sites tab. Keyed by the AOI so a new analysis resets the button
+          out of its "saved" confirmation state. */}
+      {committedRing && committedRing.length > 0 && (
+        <SaveSiteButton
+          key={`${aoi.centroid[0]},${aoi.centroid[1]},${aoi.areaKm2}`}
+          analysis={analysis}
+          ring={committedRing}
+        />
+      )}
+
       {/* Export the full screening as a 6-page PDF. Only offered once a real
           resource exists (so the report is meaningful) and we have the AOI ring. */}
       {resource && committedRing && committedRing.length > 0 && (
@@ -303,6 +316,155 @@ export function AnalysisResults({
 
       <ReportDisclaimer />
     </div>
+  );
+}
+
+// ── Save site (up to 3, for comparison in the Saved sites tab) ────────────────
+
+/**
+ * Saves the current AOI + a compact metric snapshot to the user's account (max
+ * 3). Prompts for a name (defaulting to the first state + "site"), surfaces the
+ * server-enforced limit, and confirms with a "Saved" state. Remounted per AOI
+ * (keyed by the caller) so it never shows a stale "saved" for a new analysis.
+ */
+function SaveSiteButton({
+  analysis,
+  ring,
+}: {
+  analysis: AnalysisResponse;
+  ring: [number, number][];
+}) {
+  const { sites, max } = useSavedSites();
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [savedName, setSavedName] = useState<string | null>(null);
+
+  const context =
+    analysis.sections.context.status === "ok"
+      ? analysis.sections.context.data
+      : null;
+  const defaultName = context?.states?.[0]?.name
+    ? `${context.states[0].name} site`
+    : `Site ${sites.length + 1}`;
+  const atLimit = sites.length >= max;
+
+  const begin = () => {
+    setName(defaultName);
+    setErr(null);
+    setEditing(true);
+  };
+
+  const commit = async () => {
+    if (busy) return; // re-entrancy guard: repeated Enter must not double-save
+    const finalName = name.trim() || defaultName;
+    setBusy(true);
+    setErr(null);
+    try {
+      await saveSite(buildSavedSitePayload(finalName, ring, analysis));
+      setSavedName(finalName);
+      setEditing(false);
+    } catch (e) {
+      setErr(
+        e instanceof SavedSiteLimitError
+          ? e.message
+          : e instanceof Error
+            ? e.message
+            : "Could not save site",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (savedName) {
+    return (
+      <div className="mt-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
+        Saved “{savedName}” — open the{" "}
+        <span className="font-medium">Saved sites</span> tab to compare.
+      </div>
+    );
+  }
+
+  if (editing) {
+    return (
+      <div className="mt-1 rounded-lg border border-slate-700 bg-slate-800/60 p-2">
+        <label className="mb-1 block text-[10px] uppercase tracking-wide text-slate-400">
+          Name this site
+        </label>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") void commit();
+            if (e.key === "Escape") setEditing(false);
+          }}
+          maxLength={80}
+          autoFocus
+          disabled={busy}
+          aria-label="Site name"
+          className="w-full rounded border border-slate-600 bg-slate-900/80 px-2 py-1 text-xs text-slate-100 outline-none focus:border-sky-500/60 disabled:opacity-60"
+        />
+        {err && <p className="mt-1 text-[10px] text-red-300">{err}</p>}
+        <div className="mt-2 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => void commit()}
+            disabled={busy}
+            className="rounded-md border border-sky-500/40 bg-sky-500/10 px-2.5 py-1 text-[11px] font-medium text-sky-200 hover:bg-sky-500/20 disabled:opacity-50"
+          >
+            {busy ? "Saving…" : "Save"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditing(false)}
+            className="rounded-md px-2 py-1 text-[11px] text-slate-400 hover:bg-white/5 hover:text-slate-200"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-1">
+      <button
+        type="button"
+        onClick={begin}
+        disabled={atLimit}
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-200 transition-colors enabled:hover:border-emerald-400/70 enabled:hover:bg-emerald-500/20 disabled:opacity-60"
+      >
+        <BookmarkIcon className="h-3.5 w-3.5" />
+        {atLimit
+          ? `Saved sites full (${sites.length}/${max})`
+          : `Save site (${sites.length}/${max})`}
+      </button>
+      {atLimit && (
+        <p className="mt-1 text-[10px] text-slate-500">
+          Delete one in the Saved sites tab to save another.
+        </p>
+      )}
+      {err && <p className="mt-1 text-[10px] text-red-300">{err}</p>}
+    </div>
+  );
+}
+
+function BookmarkIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
+    </svg>
   );
 }
 
