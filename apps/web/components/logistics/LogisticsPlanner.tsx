@@ -2,33 +2,23 @@
 
 /**
  * Turbine Logistics Planner (Pro). For a turbine from one of six Indian OEMs
- * going to a site, it shows where each over-dimensional part ships from, the
- * road route + distance (OpenRouteService HGV, or an honest estimate), and a
- * fully itemised, editable INR cost — per turbine, per project, and per MW.
- *
- * All cost math lives on the server: editing an assumption re-POSTs /quote
- * (debounced) so the numbers can never drift from the backend formula.
+ * going to a site, it shows where each over-dimensional part ships from and the
+ * road route + distance (OpenRouteService HGV, or an honest estimate).
  */
 
 import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useSession } from "@/lib/auth-client";
 import {
   fetchCatalog,
   postPlan,
-  postQuote,
-  formatINR,
-  formatINRCompact,
   formatKm,
   type Catalog,
   type ComponentCategory,
-  type CostAssumptions,
-  type CostBreakdown,
   type Facility,
   type OEM,
   type PlanRequest,
@@ -111,43 +101,6 @@ function Chip({ tone, children }: { tone: "warn" | "info" | "muted"; children: R
   );
 }
 
-// ── Assumption knobs (dotted paths for the two nested objects) ───────────
-const KNOBS: { key: string; label: string }[] = [
-  { key: "ratePerKm.standardMultiAxle", label: "₹/km — multi-axle" },
-  { key: "ratePerKm.extendableBlade", label: "₹/km — blade trailer" },
-  { key: "ratePerKm.hydraulicModular", label: "₹/km — hydraulic modular" },
-  { key: "bladeAdapterPremiumPerKm", label: "Blade hilly premium ₹/km" },
-  { key: "avgKmPerDay", label: "Avg km / day" },
-  { key: "escortVehicles", label: "Escort vehicles / convoy" },
-  { key: "escortPerDay", label: "Escort ₹ / day" },
-  { key: "policePerDay", label: "Police ₹ / day (super-ODC)" },
-  { key: "nhPermitPer50Km", label: "NH permit ₹ / 50 km" },
-  { key: "statePermitEach", label: "State permit ₹ each" },
-  { key: "statesCrossed", label: "States crossed" },
-  { key: "loadsPerConvoy", label: "Loads per convoy" },
-  { key: "craneDaysPerTurbine", label: "Crane days / turbine" },
-  { key: "craneMobilization", label: "Crane mobilization ₹" },
-  { key: "gst.transportPct", label: "GST transport %" },
-  { key: "gst.cranePct", label: "GST crane %" },
-  { key: "turbinePricePerMW", label: "Turbine ₹ / MW (0 = skip)" },
-];
-
-function getKnob(a: CostAssumptions, key: string): number {
-  if (key.startsWith("ratePerKm.")) return a.ratePerKm[key.slice(10) as TrailerType];
-  if (key.startsWith("gst.")) return a.gst[key.slice(4) as "transportPct" | "cranePct"];
-  return (a as unknown as Record<string, number>)[key];
-}
-
-function setKnob(a: CostAssumptions, key: string, v: number): CostAssumptions {
-  if (key.startsWith("ratePerKm.")) {
-    return { ...a, ratePerKm: { ...a.ratePerKm, [key.slice(10)]: v } };
-  }
-  if (key.startsWith("gst.")) {
-    return { ...a, gst: { ...a.gst, [key.slice(4)]: v } };
-  }
-  return { ...a, [key]: v };
-}
-
 const TRAILER_LABELS: Record<TrailerType, string> = {
   standardMultiAxle: "Multi-axle low-bed",
   extendableBlade: "Extendable blade trailer",
@@ -193,12 +146,9 @@ export default function LogisticsPlanner({
   const [origins, setOrigins] = useState<Partial<Record<ComponentCategory, string>>>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // Plan + cost state
+  // Plan state
   const [plan, setPlan] = useState<PlanResponse | null>(null);
-  const [assumptions, setAssumptions] = useState<CostAssumptions | null>(null);
-  const [breakdown, setBreakdown] = useState<CostBreakdown | null>(null);
   const [computing, setComputing] = useState(false);
-  const [quoting, setQuoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -290,8 +240,6 @@ export default function LogisticsPlanner({
       };
       const p = await postPlan(req);
       setPlan(p);
-      setAssumptions(p.assumptions);
-      setBreakdown(p.breakdown);
       // Hand the legs to the pro-map (if mounted) to plot the routes + power
       // the per-origin click card (company, parts shipped, distance).
       publishLogisticsRoutes({
@@ -309,47 +257,11 @@ export default function LogisticsPlanner({
     } catch (e) {
       setError(String((e as Error).message ?? e));
       setPlan(null);
-      setBreakdown(null);
       publishLogisticsRoutes(null);
     } finally {
       setComputing(false);
     }
   }, [catalog, model, lat, lon, oem, scope, component, siteName, numTurbines, terrain, origins]);
-
-  // Live re-quote: any change to assumptions / fleet size / terrain after a
-  // plan exists re-runs the server cost math (debounced). Skips the no-op
-  // right after compute() when nothing has actually changed.
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    if (!plan || !assumptions) return;
-    const unchanged =
-      assumptions === plan.assumptions &&
-      numTurbines === plan.numTurbines &&
-      terrain === plan.terrain;
-    if (unchanged) return;
-
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(async () => {
-      setQuoting(true);
-      try {
-        const { breakdown: b } = await postQuote({
-          shipments: plan.shipments,
-          ratedMW: plan.turbine.ratedMW,
-          numTurbines,
-          terrain,
-          assumptions,
-        });
-        setBreakdown(b);
-      } catch (e) {
-        setError(String((e as Error).message ?? e));
-      } finally {
-        setQuoting(false);
-      }
-    }, 250);
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [assumptions, numTurbines, terrain, plan]);
 
   if (isPending) return <Centered>Loading…</Centered>;
   if (!isPro)
@@ -443,30 +355,21 @@ export default function LogisticsPlanner({
             {!plan && !computing && (
               <div className={`${CARD} text-sm text-muted`}>
                 Choose an OEM, model, and destination, then{" "}
-                <span className="text-text">Compute plan</span> to see the shipment
-                breakdown and costs.
+                <span className="text-text">Compute plan</span> to see the routes and
+                shipment breakdown.
               </div>
             )}
 
-            {plan && breakdown && assumptions && (
-              <Results
-                plan={plan}
-                breakdown={breakdown}
-                assumptions={assumptions}
-                setAssumptions={setAssumptions}
-                quoting={quoting}
-                numTurbines={numTurbines}
-                compact={embedded}
-              />
+            {plan && (
+              <Results plan={plan} numTurbines={numTurbines} compact={embedded} />
             )}
           </div>
         </div>
 
         <p className="mt-6 text-xs text-muted">
-          Component weights and dimensions are engineering estimates; ₹ figures are
-          indicative Indian ODC market ranges (2024–2026), not contract quotes. Every
-          rate is an editable assumption. Siemens Gamesa’s onshore India business is now
-          Vayona Energy.
+          Component weights and dimensions are engineering estimates; routes use
+          OpenRouteService HGV profiles where available, otherwise an honest road
+          estimate. Siemens Gamesa’s onshore India business is now Vayona Energy.
         </p>
       </div>
     </div>
@@ -647,49 +550,20 @@ function FormPanel(p: FormPanelProps) {
 // ── Results ───────────────────────────────────────────────────────────────
 function Results({
   plan,
-  breakdown,
-  assumptions,
-  setAssumptions,
-  quoting,
   numTurbines,
   compact,
 }: {
   plan: PlanResponse;
-  breakdown: CostBreakdown;
-  assumptions: CostAssumptions;
-  setAssumptions: (a: CostAssumptions) => void;
-  quoting: boolean;
   numTurbines: number;
   compact: boolean;
 }) {
-  const headline = [
-    { label: "Grand total", value: formatINRCompact(breakdown.grandTotal) },
-    { label: "Per turbine", value: formatINRCompact(breakdown.perTurbine) },
-    { label: "Per MW", value: formatINRCompact(breakdown.perMW) },
-    {
-      label: "% of turbine",
-      value: breakdown.pctOfTurbineCost == null ? "—" : `${breakdown.pctOfTurbineCost.toFixed(2)}%`,
-    },
-  ];
-
   return (
     <>
-      {/* Headline figures */}
+      {/* Headline */}
       <div className={CARD}>
-        <div className="mb-2 flex items-start justify-between gap-2">
-          <h2 className="text-sm font-semibold leading-snug text-text">
-            {plan.turbine.model} · {plan.turbine.ratedMW} MW · {numTurbines} turbine{numTurbines > 1 ? "s" : ""}
-          </h2>
-          {quoting && <span className="shrink-0 text-[11px] text-muted">updating…</span>}
-        </div>
-        <div className={`grid grid-cols-2 gap-3 ${compact ? "" : "sm:grid-cols-4"}`}>
-          {headline.map((h) => (
-            <div key={h.label}>
-              <div className="text-[10px] uppercase tracking-wide text-muted">{h.label}</div>
-              <div className="mt-0.5 text-base font-semibold tabular-nums text-orange">{h.value}</div>
-            </div>
-          ))}
-        </div>
+        <h2 className="text-sm font-semibold leading-snug text-text">
+          {plan.turbine.model} · {plan.turbine.ratedMW} MW · {numTurbines} turbine{numTurbines > 1 ? "s" : ""}
+        </h2>
       </div>
 
       {/* Routes */}
@@ -745,91 +619,6 @@ function Results({
           ))}
         </div>
       </div>
-
-      {/* Financials — stacked per-shipment cards + summary lines */}
-      <div className={CARD}>
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-text">Financials</h3>
-          <span className="text-[10px] uppercase tracking-wide text-muted">INR</span>
-        </div>
-        <div className="space-y-1.5">
-          {breakdown.shipmentCosts.map((c, i) => (
-            <div
-              key={`${c.component}-${i}`}
-              className="rounded-lg border border-[#1a2540] bg-[#0b1120] px-2.5 py-2"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="min-w-0 truncate text-xs font-medium text-text">{c.label}</span>
-                <span className="shrink-0 text-xs font-semibold tabular-nums text-text">
-                  {formatINR(c.subtotal)}
-                </span>
-              </div>
-              <div className="mt-1 text-[11px] leading-snug tabular-nums text-muted">
-                {c.totalLoads} load{c.totalLoads > 1 ? "s" : ""} · truck {formatINRCompact(c.trucking)} · escort{" "}
-                {formatINRCompact(c.escort)}
-                {c.police ? ` · police ${formatINRCompact(c.police)}` : ""} · permits{" "}
-                {formatINRCompact(c.permits)}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-3 space-y-1 border-t border-[#1a2540] pt-2 text-xs">
-          {breakdown.lines.map((line) => (
-            <div
-              key={line.key}
-              className={`flex items-center justify-between gap-2 ${
-                line.key === "grand_total"
-                  ? "mt-0.5 border-t border-[#1a2540] pt-1.5 text-sm font-semibold text-text"
-                  : "text-muted"
-              }`}
-            >
-              <span className="min-w-0">
-                {line.label}
-                {line.note && !compact && (
-                  <span className="ml-1 text-[10px] text-muted/70">· {line.note}</span>
-                )}
-              </span>
-              <span
-                className={`shrink-0 tabular-nums ${
-                  line.key === "grand_total" ? "text-orange" : "text-text"
-                }`}
-              >
-                {formatINR(line.amount)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Assumptions editor */}
-      <details className={CARD}>
-        <summary className="cursor-pointer text-sm font-semibold text-text">
-          Cost assumptions — edit to re-quote
-        </summary>
-        <div className={`mt-3 grid grid-cols-2 gap-x-2 gap-y-2 ${compact ? "" : "sm:grid-cols-3"}`}>
-          {KNOBS.map((k) => (
-            <div key={k.key} className="min-w-0">
-              <label className="block truncate text-[10px] font-medium text-muted" title={k.label}>
-                {k.label}
-              </label>
-              <input
-                className={`${INPUT} mt-1 tabular-nums`}
-                type="number"
-                value={getKnob(assumptions, k.key)}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  if (Number.isFinite(v) && v >= 0) setAssumptions(setKnob(assumptions, k.key, v));
-                }}
-              />
-            </div>
-          ))}
-        </div>
-        <p className="mt-2 text-[11px] leading-snug text-muted">
-          Crane tiers are fixed defaults; the selected tier ({breakdown.craneCapacityT} T)
-          follows the heaviest load.
-        </p>
-      </details>
     </>
   );
 }
