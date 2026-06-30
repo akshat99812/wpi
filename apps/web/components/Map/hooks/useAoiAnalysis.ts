@@ -25,6 +25,7 @@ import {
   setAoiHash,
 } from "@/lib/analysis/permalink";
 import type { AnalysisResponse, PointReport } from "@/lib/analysis/types";
+import { publishLogisticsRoutes } from "@/lib/logisticsRouteStore";
 
 /**
  * State machine + side effects for the Analyze tool:
@@ -391,6 +392,9 @@ export function useAoiAnalysis(): AoiAnalysis {
     setError(null);
     setUiState("idle");
     setAoiHash(null);
+    // The AOI is the logistics planner's destination — clearing the selection
+    // must also drop any routes plotted for it from the pro-map.
+    publishLogisticsRoutes(null);
   }, [clearLayoutArtifacts]);
 
   // Esc cancels an armed draw (keeps any previous result on screen).
