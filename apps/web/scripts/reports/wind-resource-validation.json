@@ -1,60 +1,60 @@
 {
-  "generatedAt": "2026-06-22T07:58:32.331300+00:00",
+  "generatedAt": "2026-06-30T17:16:23.120538+00:00",
   "grids": {
     "speed@50m": {
       "status": "ok",
       "unit": "m/s",
-      "validCells": 37329,
+      "validCells": 39314,
       "min": 1.0,
-      "p50": 3.8,
-      "p90": 6.2,
+      "p50": 4.0,
+      "p90": 6.4,
       "p99": 8.1,
       "max": 11.2,
-      "fileKB": 231
+      "fileKB": 233
     },
     "speed@100m": {
       "status": "ok",
       "unit": "m/s",
-      "validCells": 37329,
+      "validCells": 39314,
       "min": 1.0,
-      "p50": 4.6,
-      "p90": 6.5,
+      "p50": 4.7,
+      "p90": 6.6,
       "p99": 8.5,
       "max": 11.6,
-      "fileKB": 231
+      "fileKB": 233
     },
     "speed@150m": {
       "status": "ok",
       "unit": "m/s",
-      "validCells": 37329,
+      "validCells": 39314,
       "min": 1.0,
-      "p50": 5.2,
-      "p90": 6.8,
+      "p50": 5.3,
+      "p90": 6.9,
       "p99": 8.8,
       "max": 11.9,
-      "fileKB": 231
+      "fileKB": 233
     },
     "density@100m": {
       "status": "ok",
       "unit": "W/m\u00b2",
-      "validCells": 37329,
+      "validCells": 39314,
       "min": 2.0,
-      "p50": 106.0,
-      "p90": 265.0,
-      "p99": 545.72,
+      "p50": 111.0,
+      "p90": 281.0,
+      "p99": 537.0,
       "max": 1699.0,
-      "fileKB": 251
+      "fileKB": 255
     },
     "density@150m": {
       "status": "ok",
       "unit": "W/m\u00b2",
-      "validCells": 37329,
+      "validCells": 39314,
       "min": 2.0,
-      "p50": 152.0,
-      "p90": 303.0,
-      "p99": 583.72,
+      "p50": 157.0,
+      "p90": 312.0,
+      "p99": 575.0,
       "max": 1705.0,
-      "fileKB": 259
+      "fileKB": 263
     }
   }
 }

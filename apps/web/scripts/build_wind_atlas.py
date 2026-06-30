@@ -97,6 +97,7 @@ WEB_ROOT  = os.path.normpath(os.path.join(HERE, ".."))
 CACHE_DIR = os.path.join(HERE, ".cache")
 TIF_CACHE = os.path.join(CACHE_DIR, "titiler")          # raw .tif tiles, by gwa-layer/z/x/y
 GEOJSON_PATH = os.path.join(CACHE_DIR, "india_states.geojson")
+NE_ADMIN0_PATH = os.path.join(CACHE_DIR, "ne_50m_admin_0_countries.geojson")
 TILES_DIR = os.path.join(WEB_ROOT, "public", "wind-atlas")
 GRID_DIR  = os.path.join(TILES_DIR, "grids")
 METADATA_PATH = os.path.join(TILES_DIR, "metadata.json")
@@ -107,6 +108,15 @@ REPORT_PATH = os.path.join(REPORT_DIR, "wind-resource-validation.json")
 GEOJSON_URL = (
     "https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/"
     "raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson"
+)
+
+# Natural Earth 1:50m admin-0 countries — used to build a foreign-land mask so
+# the offshore band only ever paints SEA, never a neighbour's land (Sri Lanka,
+# Pakistan, Bangladesh, Myanmar). Without it, dilating the offshore band off the
+# Tamil Nadu / Gujarat coast bleeds wind colour onto Jaffna, Mannar Island, etc.
+NE_ADMIN0_URL = (
+    "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/"
+    "geojson/ne_50m_admin_0_countries.geojson"
 )
 
 # ── TiTiler source ───────────────────────────────────────────────────────────
@@ -193,10 +203,14 @@ COAST_DEG = 0.05          # outward coastal dilation (~5.5 km), nationwide.
                           # estuaries) — over satellite imagery uncovered
                           # land slivers are obvious. Baked into the MAIN
                           # (shared) tiles.
-FRINGE_DEG = 0.9          # extended offshore band (~100 km) of real GWA
-                          # offshore values — baked as a SEPARATE small
-                          # pyramid that the frontend overlays only on the
-                          # satellite basemap, restricted to FRINGE_STATES.
+FRINGE_DEG = 1.3          # extended offshore band (~145 km) of real GWA
+                          # offshore values — baked as a SEPARATE small pyramid
+                          # the frontend overlays on EVERY basemap, so the wind
+                          # speed / power-density layers cover India's offshore
+                          # wind zones (NIWE/FOWIND: Gulf of Khambhat off
+                          # Gujarat; Gulf of Mannar + off Kanyakumari off Tamil
+                          # Nadu — all within this band). Restricted to the
+                          # coastal FRINGE_STATES so it wraps the coastline only.
 # Every coastal state/UT + the island groups, so the offshore band wraps the
 # WHOLE Indian coastline. ST_NM values verified against the states GeoJSON.
 FRINGE_STATES = [
@@ -211,11 +225,12 @@ FADE_DEG = 0.08           # edge feather (~9 km) for the MAIN pyramid: tile
                           # of hard-cutting at the India border. Kept short so
                           # the coastal LAND edge stays crisp. Computed on the
                           # global MASK_RES grid (distance transform) — seam-free.
-FRINGE_FADE_DEG = 0.7     # edge feather (~78 km) for the FRINGE pyramid only:
-                          # the offshore band fades GRADUALLY from the coast out
-                          # to ~0 near the 100 km edge, so it no longer cuts off
-                          # sharply over open water. Long fade here is safe — it
-                          # only touches the offshore band, never coastal land.
+FRINGE_FADE_DEG = 0.25    # edge feather (~28 km) for the FRINGE pyramid only:
+                          # only the OUTERMOST ~28 km of the offshore band
+                          # feathers to 0, so the band stays SOLID across the
+                          # offshore wind zones (the old 78 km fade left them
+                          # near-transparent). Touches only the offshore band,
+                          # never coastal land.
 
 OS = math.pi * 6378137.0  # web-mercator origin shift
 
@@ -303,17 +318,69 @@ def _disc(radius_deg: float):
     return (xx * xx + yy * yy) <= R * R
 
 
-def build_fringe_mask(fringe_geoms_4326, fill):
+def ensure_ne_admin0() -> None:
+    """Download the Natural Earth admin-0 countries GeoJSON (foreign-land mask)
+    if not already cached."""
+    if os.path.exists(NE_ADMIN0_PATH) and os.path.getsize(NE_ADMIN0_PATH) > 100_000:
+        return
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    print("Downloading Natural Earth admin-0 countries (foreign-land mask) …")
+    req = urllib.request.Request(NE_ADMIN0_URL, headers={"User-Agent": "wce-windatlas-bake"})
+    with urllib.request.urlopen(req, timeout=120) as resp, open(NE_ADMIN0_PATH, "wb") as f:
+        f.write(resp.read())
+
+
+def load_foreign_geoms():
+    """Admin-0 country polygons for every country EXCEPT India (4326). Subtracted
+    from the offshore band so it only ever paints SEA, never a neighbour's land.
+    India is matched across several NE name fields and excluded, so the Indian
+    coastline itself is never clipped — only foreign land is removed."""
+    with open(NE_ADMIN0_PATH) as f:
+        gj = json.load(f)
+
+    def is_india(props: dict) -> bool:
+        for k in ("ADMIN", "NAME", "NAME_LONG", "SOVEREIGNT", "GEOUNIT", "BRK_NAME"):
+            if str(props.get(k, "")).strip().lower() == "india":
+                return True
+        return False
+
+    geoms = [
+        feat["geometry"] for feat in gj["features"]
+        if feat.get("geometry") and not is_india(feat.get("properties", {}))
+    ]
+    print(f"Foreign-land mask: {len(geoms)} non-India admin-0 polygons")
+    return geoms
+
+
+def build_foreign_mask(foreign_geoms_4326):
+    """Rasterize the non-India land polygons over the MASK_RES grid (row 0 =
+    LAT_MAX). all_touched=True so even thin coastal slivers of foreign land are
+    excluded from the offshore band."""
+    cols = int(round((LNG_MAX - LNG_MIN) / MASK_RES))
+    rows = int(round((LAT_MAX - LAT_MIN) / MASK_RES))
+    mtf = transform_from_bounds(LNG_MIN, LAT_MIN, LNG_MAX, LAT_MAX, cols, rows)
+    fm = geometry_mask(foreign_geoms_4326, (rows, cols), mtf,
+                       invert=True, all_touched=True)
+    print(f"Foreign-land raster: {int(fm.sum())} cells masked out of the offshore band")
+    return fm
+
+
+def build_fringe_mask(fringe_geoms_4326, fill, foreign=None):
     """Extended nearshore band (FRINGE_DEG) around FRINGE_STATES only, minus
-    everything the main coverage (`fill` + its own land) already paints —
-    baked as a separate overlay pyramid shown only on the satellite basemap."""
+    everything the main coverage (`fill` + its own land) already paints, minus
+    any foreign land (`foreign`) so the band stays over SEA — baked as a
+    separate overlay pyramid shown on every basemap (the offshore extension of
+    both wind layers)."""
     cols = int(round((LNG_MAX - LNG_MIN) / MASK_RES))
     rows = int(round((LAT_MAX - LAT_MIN) / MASK_RES))
     mtf = transform_from_bounds(LNG_MIN, LAT_MIN, LNG_MAX, LAT_MAX, cols, rows)
     base_gm = geometry_mask(fringe_geoms_4326, (rows, cols), mtf,
                             invert=True, all_touched=True)
     fringe = ndimage.binary_dilation(base_gm, structure=_disc(FRINGE_DEG)) & ~fill & ~base_gm
-    print(f"GM fringe: r={FRINGE_DEG}° → {int(fringe.sum())} cells beyond main coverage")
+    if foreign is not None:
+        fringe = fringe & ~foreign
+    print(f"GM fringe: r={FRINGE_DEG}° → {int(fringe.sum())} cells beyond main coverage"
+          f"{' (foreign land removed)' if foreign is not None else ''}")
     return fringe
 
 
@@ -614,8 +681,9 @@ def emit_metadata():
                              if cfg["tile_subdir"]
                              else "/wind-atlas/{height}/{z}/{x}/{y}.png"),
                 "gridPath": "/wind-atlas/grids/" + cfg["grid_name"].format(h="{height}"),
-                # Satellite-only extended nearshore band (Gujarat +
-                # Maharashtra) — overlaid above the main pyramid.
+                # Extended offshore band (real GWA offshore values) wrapping
+                # the whole coastline — overlaid above the main pyramid on
+                # EVERY basemap so both wind layers cover the offshore zones.
                 "fringeTilePath": f"/wind-atlas/fringe/{name}/{{height}}/{{z}}/{{x}}/{{y}}.png",
                 "domain": [cfg["lo"], cfg["hi"]],
                 "ramp": ramp_stops(cfg),
@@ -684,9 +752,11 @@ def main():
     grid_only = os.environ.get("WIND_GRID_ONLY") == "1"
     fringe_only = os.environ.get("WIND_FRINGE_ONLY") == "1"
     ensure_geojson()
+    ensure_ne_admin0()
     geoms_4326, geoms_3857, fringe_geoms = load_india_geoms()
     fill, mtf = build_fill_mask(geoms_4326)
-    fringe = build_fringe_mask(fringe_geoms, fill)
+    foreign = build_foreign_mask(load_foreign_geoms())
+    fringe = build_fringe_mask(fringe_geoms, fill, foreign)
     # Edge-feather fields: main pyramid fades at the land+fill boundary; the
     # fringe pyramid fades at the OUTER edge of land+fill+fringe (its inner
     # edge abuts opaque main coverage, so it stays solid there).

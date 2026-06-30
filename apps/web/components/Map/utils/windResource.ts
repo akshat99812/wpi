@@ -29,7 +29,7 @@ export interface WindMetricMeta {
   heights: number[];
   tilePath: string;
   gridPath: string;
-  /** Satellite-only extended nearshore band (Gujarat + Maharashtra). */
+  /** Offshore extension band (real GWA offshore values), shown on all basemaps. */
   fringeTilePath: string;
   domain: number[];
   ramp: { value: number; color: string }[];
@@ -56,12 +56,19 @@ const ATTRIBUTION_HTML =
 //     states/UTs + island groups).
 // v4: 2026-06-22 — discrete 40-band colour ramp (colour steps every 2.5% of the
 //     value domain) replaces the continuous blend; tiles re-baked.
-const WIND_ATLAS_VERSION = '4';
+// v5: 2026-06-30 — offshore band widened (~145 km) + made solid (short feather)
+//     and now shown on EVERY basemap, so both wind layers cover India's
+//     offshore wind zones. Fringe tiles re-baked.
+// Exported so the cursor-readout grid fetch (lib/wind/lookup.ts) busts its cache
+// in lockstep with the tiles — the grids are re-baked together with the tiles.
+export const WIND_ATLAS_VERSION = '5';
 
 const SOURCE_ID = SOURCE_IDS.windAtlas;
 const LAYER_ID = LAYER_IDS.windRaster;
-// Satellite-only nearshore fringe (Gujarat + Maharashtra) — a separate tiny
-// pyramid overlaid above the main raster, added/removed by contrast.
+// Offshore extension band — a separate small pyramid of real GWA offshore
+// values wrapping the whole coastline (~145 km out), overlaid above the main
+// raster on every basemap so both wind layers cover India's offshore wind
+// zones. (Source/layer ids keep the legacy "fringe" name to avoid churn.)
 const FRINGE_SOURCE_ID = 'gwa-wind-fringe';
 const FRINGE_LAYER_ID = 'gwa-wind-fringe-raster';
 
@@ -188,15 +195,25 @@ export function addWindResourceLayer(
   }
 }
 
-/** Add/remove the satellite-only fringe overlay to match the contrast. */
+/**
+ * Add (and keep in sync) the offshore extension band — a separate small pyramid
+ * of real GWA offshore values that extends both wind layers ~145 km out over
+ * the sea so they cover India's offshore wind zones. Shown on EVERY basemap; its
+ * opacity tracks the active basemap contrast exactly like the main layer. The
+ * band is removed only when the main wind layer itself is gone.
+ */
 function syncFringe(map: MlMap, contrast: WindResourceContrast): void {
-  const wantFringe = contrast === 'satellite' && active && map.getLayer(LAYER_ID);
+  const wantFringe = !!active && !!map.getLayer(LAYER_ID);
   if (!wantFringe) {
     if (map.getLayer(FRINGE_LAYER_ID)) map.removeLayer(FRINGE_LAYER_ID);
     if (map.getSource(FRINGE_SOURCE_ID)) map.removeSource(FRINGE_SOURCE_ID);
     return;
   }
-  if (map.getLayer(FRINGE_LAYER_ID)) return; // already on
+  if (map.getLayer(FRINGE_LAYER_ID)) {
+    // Already on — keep its opacity in step with the current basemap contrast.
+    map.setPaintProperty(FRINGE_LAYER_ID, 'raster-opacity', opacityExpr(contrast) as never);
+    return;
+  }
   const meta = WIND_METRICS[active!.metric];
   map.addSource(FRINGE_SOURCE_ID, {
     type: 'raster',
@@ -218,7 +235,7 @@ function syncFringe(map: MlMap, contrast: WindResourceContrast): void {
       type: 'raster',
       source: FRINGE_SOURCE_ID,
       paint: {
-        'raster-opacity': opacityExpr('satellite') as never,
+        'raster-opacity': opacityExpr(contrast) as never,
         'raster-resampling': 'linear',
         'raster-fade-duration': 200,
       },
@@ -269,7 +286,7 @@ export function setWindResourceOpacity(map: MlMap, factor: number): void {
       map.setPaintProperty(LAYER_ID, 'raster-opacity', opacityExpr(activeContrast) as never);
     }
     if (map.getLayer(FRINGE_LAYER_ID)) {
-      map.setPaintProperty(FRINGE_LAYER_ID, 'raster-opacity', opacityExpr('satellite') as never);
+      map.setPaintProperty(FRINGE_LAYER_ID, 'raster-opacity', opacityExpr(activeContrast) as never);
     }
   } catch (err) {
     console.error('[wind-resource] could not set opacity', err);

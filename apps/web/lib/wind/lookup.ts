@@ -21,7 +21,7 @@
 
 import metadata from '@/public/wind-atlas/metadata.json';
 import { assetPath } from '@/lib/basePath';
-import type { WindMetric } from '@/components/Map/utils/windResource';
+import { WIND_ATLAS_VERSION, type WindMetric } from '@/components/Map/utils/windResource';
 
 export type { WindMetric };
 
@@ -50,7 +50,10 @@ function gridKey(metric: WindMetric, height: number): string {
 function gridUrl(metric: WindMetric, height: number): string {
   const m = metadata.metrics[metric];
   // assetPath: grids live under the app's basePath in prod (/terminal).
-  return assetPath(m.gridPath.replace('{height}', String(height)));
+  // Cache-bust in lockstep with the raster tiles (WIND_ATLAS_VERSION): the value
+  // grids are re-baked together with the tiles, so a stale grid would leave the
+  // cursor readout blank over freshly-covered offshore areas.
+  return `${assetPath(m.gridPath.replace('{height}', String(height)))}?v=${WIND_ATLAS_VERSION}`;
 }
 
 /**
