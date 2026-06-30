@@ -1,7 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSavedSites, removeSite, renameSite } from "@/lib/savedSitesStore";
+import {
+  useShownSavedSites,
+  toggleShownSavedSite,
+  hideShownSavedSite,
+  clearShownSavedSites,
+  reconcileShownSavedSites,
+} from "@/lib/savedSitesMapStore";
 import type { SavedSite, SavedSiteSummary } from "@/lib/savedSites";
 
 /**
@@ -21,14 +28,33 @@ export function SavedSitesTool({
   onOpenSite: (site: SavedSite) => void;
 }) {
   const { sites, max, loading, error, refresh } = useSavedSites();
+  const shown = useShownSavedSites();
+  const shownIds = new Set(shown.map((s) => s.id));
+
+  // Keep the on-map overlay in sync with the list: drop outlines for deleted
+  // sites and refresh renamed labels.
+  useEffect(() => {
+    reconcileShownSavedSites(sites);
+  }, [sites]);
 
   return (
     <div className="flex flex-col gap-3 p-4 text-sm">
       <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.18em]">
         <span className="text-slate-500">SAVED SITES</span>
-        <span className="text-slate-400">
-          {sites.length}/{max}
-        </span>
+        <div className="flex items-center gap-2">
+          {shown.length > 0 && (
+            <button
+              type="button"
+              onClick={() => clearShownSavedSites()}
+              className="rounded px-1 py-0.5 font-sans text-[10px] tracking-normal text-slate-400 hover:bg-white/5 hover:text-slate-200"
+            >
+              Hide all ({shown.length})
+            </button>
+          )}
+          <span className="text-slate-400">
+            {sites.length}/{max}
+          </span>
+        </div>
       </div>
 
       {error && (
@@ -63,7 +89,12 @@ export function SavedSitesTool({
       {sites.length > 0 && (
         <div className="flex flex-col gap-2">
           {sites.map((site) => (
-            <SiteCard key={site.id} site={site} onOpen={onOpenSite} />
+            <SiteCard
+              key={site.id}
+              site={site}
+              onOpen={onOpenSite}
+              shown={shownIds.has(site.id)}
+            />
           ))}
         </div>
       )}
@@ -78,9 +109,11 @@ export function SavedSitesTool({
 function SiteCard({
   site,
   onOpen,
+  shown,
 }: {
   site: SavedSite;
   onOpen: (site: SavedSite) => void;
+  shown: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(site.name);
@@ -113,6 +146,7 @@ function SiteCard({
     setErr(null);
     try {
       await removeSite(site.id);
+      hideShownSavedSite(site.id); // drop its outline from the map overlay
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Delete failed");
       setBusy(false);
@@ -182,13 +216,26 @@ function SiteCard({
 
       {err && <p className="mt-1 text-[10px] text-red-300">{err}</p>}
 
-      <div className="mt-2 flex items-center gap-1.5">
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => toggleShownSavedSite(site)}
+          aria-pressed={shown}
+          className={
+            "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors " +
+            (shown
+              ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100"
+              : "border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:border-emerald-400/70 hover:bg-emerald-500/20")
+          }
+        >
+          {shown ? "Hide" : "Show on map"}
+        </button>
         <button
           type="button"
           onClick={() => onOpen(site)}
           className="rounded-md border border-sky-500/40 bg-sky-500/10 px-2 py-1 text-[11px] font-medium text-sky-200 transition-colors hover:border-sky-400/70 hover:bg-sky-500/20"
         >
-          Open on map
+          Analyze
         </button>
         {!editing && (
           <button

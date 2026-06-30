@@ -22,6 +22,8 @@ import { useAoiAnalysis } from "@/components/Map/hooks/useAoiAnalysis";
 import { useMeasureDistance } from "@/components/Map/hooks/useMeasureDistance";
 import { useTerrain } from "@/components/Map/hooks/useTerrain";
 import { useLogisticsRouteLayer } from "@/components/Map/hooks/useLogisticsRouteLayer";
+import { useSavedSitesLayer } from "@/components/Map/hooks/useSavedSitesLayer";
+import { useShownSavedSites } from "@/lib/savedSitesMapStore";
 import { subscribeLogisticsRoutes } from "@/lib/logisticsRouteStore";
 import type { LogisticsRoutesPayload } from "@/lib/logistics";
 import type { AoiDrawMode } from "@/components/Map/utils/aoiDraw";
@@ -125,6 +127,10 @@ export default function ProMapPage() {
   const [logisticsRoutes, setLogisticsRoutes] = useState<LogisticsRoutesPayload | null>(null);
   useEffect(() => subscribeLogisticsRoutes(setLogisticsRoutes), []);
   useLogisticsRouteLayer(mapRef, logisticsRoutes);
+  // Saved-site outline overlay — several saved AOIs can be shown at once,
+  // independent of the single committed analysis AOI.
+  const shownSavedSites = useShownSavedSites();
+  useSavedSitesLayer(mapRef, shownSavedSites);
   const containerRef = useRef<HTMLDivElement | null>(null);
   // Mirrors `basemap` so the map-load closure (which deliberately omits
   // `basemap` from its deps) can read the latest value when it adds the layer.
