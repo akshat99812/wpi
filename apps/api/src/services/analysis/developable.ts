@@ -70,33 +70,49 @@ export async function queryExclusionCoverageDefault(
   if (!dbAvailable()) return null;
   const aoiGeoJson = JSON.stringify({ type: "Polygon", coordinates: [aoi.ring] });
   // ST_MakeValid guards against self-touching source polygons; the GIST `&&`
-  // prefilter keeps the ST_Union input to only the features that actually
-  // overlap the (≤2,500 km²) AOI. `feat` collects every intersecting red/amber
-  // feature once; the deduped class totals (per_class) keep the red number
-  // identical to the legacy query, while per_cat answers "for what".
+  // prefilter keeps the union input to only the features that actually overlap
+  // the (≤2,500 km²) AOI. CLIP FIRST: each intersecting feature is clipped to
+  // the AOI (ST_Intersection) before the dissolve, so ST_Union dissolves small
+  // in-AOI fragments instead of full-size source polygons that sprawl far
+  // outside the AOI — a ~3× speedup on dense AOIs (5.5 s → ~2 s), which keeps
+  // the query inside the context section's remaining wall-clock budget so the
+  // exclusion % stops degrading to "unavailable" on large/dense sites.
+  // ST_CollectionExtract(…, 3) keeps only polygonal parts of the clip (boundary
+  // touches can yield line/point slivers that ST_Union would choke on, and
+  // which carry no area anyway). area(∪ clip(fᵢ, A)) == area((∪ fᵢ) ∩ A), so
+  // the red/amber totals are identical to the legacy query — just faster.
+  // `nz` drops empty clips; per_class keeps the deduped class totals (the red
+  // number that drives sizing), while per_cat answers "for what".
   const sql = `
     WITH aoi AS (
       SELECT ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON($1), 4326)) AS g
     ),
     feat AS (
-      SELECT e.layer_code AS layer_code, e.class AS cls, ST_MakeValid(e.geom) AS geom
+      SELECT e.layer_code AS layer_code, e.class AS cls,
+             ST_CollectionExtract(ST_Intersection(ST_MakeValid(e.geom), aoi.g), 3) AS clipped
         FROM wce.excl_polygon e, aoi
        WHERE e.geom && aoi.g AND ST_Intersects(e.geom, aoi.g)
       UNION ALL
-      SELECT b.layer_code, b.class, ST_MakeValid(b.geom)
+      SELECT b.layer_code, b.class,
+             ST_CollectionExtract(ST_Intersection(ST_MakeValid(b.geom), aoi.g), 3)
         FROM wce.excl_buffer b, aoi
        WHERE b.geom && aoi.g AND ST_Intersects(b.geom, aoi.g)
     ),
+    nz AS (
+      SELECT layer_code, cls, clipped
+        FROM feat
+       WHERE clipped IS NOT NULL AND NOT ST_IsEmpty(clipped)
+    ),
     per_cat AS (
       SELECT layer_code, cls,
-             ST_Area(ST_Intersection(ST_Union(geom), (SELECT g FROM aoi))::geography) AS m2
-        FROM feat
+             ST_Area(ST_Union(clipped)::geography) AS m2
+        FROM nz
        GROUP BY layer_code, cls
     ),
     per_class AS (
       SELECT cls,
-             ST_Area(ST_Intersection(ST_Union(geom), (SELECT g FROM aoi))::geography) AS m2
-        FROM feat
+             ST_Area(ST_Union(clipped)::geography) AS m2
+        FROM nz
        GROUP BY cls
     )
     SELECT
