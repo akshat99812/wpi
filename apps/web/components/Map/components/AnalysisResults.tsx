@@ -3,6 +3,10 @@
 import Image from "next/image";
 import React, { useEffect, useMemo, useState } from "react";
 import LogisticsPlanner from "@/components/logistics/LogisticsPlanner";
+import {
+  readLogisticsSnapshot,
+  patchLogisticsSnapshot,
+} from "@/lib/logisticsPlannerStore";
 import type {
   AnalysisResponse,
   Confidence,
@@ -100,6 +104,31 @@ export function AnalysisResults({
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Primary actions, pinned to the top: save, export PDF, plan logistics.
+          Same gating as before — save/export need the committed ring (+ a real
+          resource for export); logistics always available off the centroid. */}
+      <div className="flex flex-col gap-1.5">
+        {committedRing && committedRing.length > 0 && (
+          <SaveSiteButton
+            key={`${aoi.centroid[0]},${aoi.centroid[1]},${aoi.areaKm2}`}
+            analysis={analysis}
+            ring={committedRing}
+          />
+        )}
+        {resource && committedRing && committedRing.length > 0 && (
+          <ExportReportButton ring={committedRing} />
+        )}
+        <PlanLogisticsButton
+          key={logisticsContextKey ?? "aoi"}
+          centroid={aoi.centroid}
+          siteName={
+            logisticsSiteName ??
+            (context?.states?.[0]?.name ? `${context.states[0].name} site` : null)
+          }
+          numTurbines={logisticsTurbineCount}
+        />
+      </div>
+
       <ScoreHeader
         value={score.value}
         rating={score.rating}
@@ -283,36 +312,6 @@ export function AnalysisResults({
       ) : (
         <UnavailableNote label="Financial screening" />
       )}
-
-      {/* Save this AOI (up to 3) for later side-by-side comparison in the
-          Saved sites tab. Keyed by the AOI so a new analysis resets the button
-          out of its "saved" confirmation state. */}
-      {committedRing && committedRing.length > 0 && (
-        <SaveSiteButton
-          key={`${aoi.centroid[0]},${aoi.centroid[1]},${aoi.areaKm2}`}
-          analysis={analysis}
-          ring={committedRing}
-        />
-      )}
-
-      {/* Export the full screening as a 6-page PDF. Only offered once a real
-          resource exists (so the report is meaningful) and we have the AOI ring. */}
-      {resource && committedRing && committedRing.length > 0 && (
-        <ExportReportButton ring={committedRing} />
-      )}
-
-      {/* Continue into the logistics planner with this AOI as the delivery site.
-          For an uploaded layout the count + label are pre-filled; clicking a
-          single turbine prices delivery for that one turbine. */}
-      <PlanLogisticsButton
-        key={logisticsContextKey ?? "aoi"}
-        centroid={aoi.centroid}
-        siteName={
-          logisticsSiteName ??
-          (context?.states?.[0]?.name ? `${context.states[0].name} site` : null)
-        }
-        numTurbines={logisticsTurbineCount}
-      />
 
       <ReportDisclaimer />
     </div>
@@ -556,15 +555,29 @@ export function PlanLogisticsButton({
   /** Pre-fill the planner's turbine count (uploaded layout / single turbine). */
   numTurbines?: number;
 }) {
-  const [open, setOpen] = useState(false);
   const [lon, lat] = centroid;
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  // Cache the panel state per planning context so a pro-map tab switch + back
+  // restores the expanded planner (and its computed plan) instead of resetting.
+  // Same site + count ⇒ same key (survives unmount); a new AOI ⇒ a fresh key.
+  const persistKey =
+    Number.isFinite(lat) && Number.isFinite(lon)
+      ? `${lon.toFixed(5)},${lat.toFixed(5)}|${numTurbines ?? ""}`
+      : null;
+  const [open, setOpen] = useState(
+    () => (persistKey ? readLogisticsSnapshot(persistKey)?.open : false) ?? false,
+  );
+  const toggleOpen = () => {
+    const next = !open;
+    setOpen(next);
+    if (persistKey) patchLogisticsSnapshot(persistKey, { open: next });
+  };
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !persistKey) return null;
   const name = siteName ?? "Selected site";
   return (
     <div className="mt-1">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggleOpen}
         aria-expanded={open}
         aria-controls="logistics-inline"
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-orange/40 bg-orange/10 px-3 py-2 text-xs font-medium text-orange transition-colors hover:border-orange/70 hover:bg-orange/20"
@@ -587,7 +600,11 @@ export function PlanLogisticsButton({
             initialDestination={{ lat, lon, name }}
             initialNumTurbines={numTurbines}
             embedded
-            onRequestClose={() => setOpen(false)}
+            persistKey={persistKey}
+            onRequestClose={() => {
+              setOpen(false);
+              patchLogisticsSnapshot(persistKey, { open: false });
+            }}
           />
         </div>
       )}
