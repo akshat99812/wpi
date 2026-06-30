@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useSession } from "@/lib/auth-client";
@@ -28,6 +29,10 @@ import {
   type TrailerType,
 } from "@/lib/logistics";
 import { publishLogisticsRoutes } from "@/lib/logisticsRouteStore";
+import {
+  readLogisticsSnapshot,
+  patchLogisticsSnapshot,
+} from "@/lib/logisticsPlannerStore";
 
 const INPUT =
   "w-full rounded-md bg-[#0b1120] border border-[#27324a] px-2.5 py-1.5 text-sm text-text focus:border-orange focus:outline-none";
@@ -118,6 +123,9 @@ interface LogisticsPlannerProps {
   embedded?: boolean;
   /** When embedded, lets the planner dismiss the modal (e.g. "view on map"). */
   onRequestClose?: () => void;
+  /** When set, the planner's form + computed plan are cached under this key so
+   *  they survive the pro-map tab unmounting (see logisticsPlannerStore). */
+  persistKey?: string;
 }
 
 export default function LogisticsPlanner({
@@ -125,31 +133,56 @@ export default function LogisticsPlanner({
   initialNumTurbines,
   embedded = false,
   onRequestClose,
+  persistKey,
 }: LogisticsPlannerProps) {
   const { data: session, isPending } = useSession();
   const user = session?.user as { tier?: string | null } | undefined;
   const isPro = user?.tier === "PREMIUM";
 
+  // Restore cached panel state once (frozen at first mount) so a tab switch and
+  // back doesn't wipe the form + computed plan. null when not persisting / fresh.
+  const restoredRef = useRef(
+    persistKey ? readLogisticsSnapshot(persistKey) : null,
+  );
+  const restored = restoredRef.current;
+  const rForm = restored?.form;
+
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
 
   // Form state
-  const [oem, setOem] = useState<OEM>("suzlon");
-  const [model, setModel] = useState<string>("");
-  const [scope, setScope] = useState<PlanScope>("turbine");
-  const [component, setComponent] = useState<ComponentCategory>("blade");
-  const [lat, setLat] = useState<string>("");
-  const [lon, setLon] = useState<string>("");
-  const [siteName, setSiteName] = useState<string>("");
-  const [numTurbines, setNumTurbines] = useState<number>(DEFAULT_TURBINES);
-  const [terrain, setTerrain] = useState<TerrainType>("plains");
-  const [origins, setOrigins] = useState<Partial<Record<ComponentCategory, string>>>({});
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [oem, setOem] = useState<OEM>(() => (rForm?.oem as OEM) ?? "suzlon");
+  const [model, setModel] = useState<string>(() => rForm?.model ?? "");
+  const [scope, setScope] = useState<PlanScope>(
+    () => (rForm?.scope as PlanScope) ?? "turbine",
+  );
+  const [component, setComponent] = useState<ComponentCategory>(
+    () => (rForm?.component as ComponentCategory) ?? "blade",
+  );
+  const [lat, setLat] = useState<string>(() => rForm?.lat ?? "");
+  const [lon, setLon] = useState<string>(() => rForm?.lon ?? "");
+  const [siteName, setSiteName] = useState<string>(() => rForm?.siteName ?? "");
+  const [numTurbines, setNumTurbines] = useState<number>(
+    () => rForm?.numTurbines ?? DEFAULT_TURBINES,
+  );
+  const [terrain, setTerrain] = useState<TerrainType>(
+    () => (rForm?.terrain as TerrainType) ?? "plains",
+  );
+  const [origins, setOrigins] = useState<
+    Partial<Record<ComponentCategory, string>>
+  >(() => rForm?.origins ?? {});
+  const [showAdvanced, setShowAdvanced] = useState(
+    () => rForm?.showAdvanced ?? false,
+  );
 
   // Plan state
-  const [plan, setPlan] = useState<PlanResponse | null>(null);
+  const [plan, setPlan] = useState<PlanResponse | null>(
+    () => restored?.plan ?? null,
+  );
   const [computing, setComputing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    () => restored?.error ?? null,
+  );
 
   useEffect(() => {
     if (!isPro) return;
@@ -171,7 +204,13 @@ export default function LogisticsPlanner({
   }, [modelsForOem, model]);
 
   // Switching OEM invalidates origin overrides (facilities are OEM-scoped).
+  // Skip the first run so restoring a cached panel keeps its origin overrides.
+  const oemMounted = useRef(false);
   useEffect(() => {
+    if (!oemMounted.current) {
+      oemMounted.current = true;
+      return;
+    }
     setOrigins({});
   }, [oem]);
 
@@ -179,6 +218,9 @@ export default function LogisticsPlanner({
   // (pro-map site-analysis popup) or, on the standalone /logistics page, the
   // ?lat=&lon=&name= query params. There is no preset / manual location entry.
   useEffect(() => {
+    // A restored panel already carries the destination + count; don't re-seed
+    // over the user's cached values.
+    if (restored) return;
     let seedLat: string | undefined;
     let seedLon: string | undefined;
     let seedName: string | undefined;
@@ -207,6 +249,43 @@ export default function LogisticsPlanner({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Cache the panel state on every change so it survives a tab unmount/remount.
+  useEffect(() => {
+    if (!persistKey) return;
+    patchLogisticsSnapshot(persistKey, {
+      form: {
+        oem,
+        model,
+        scope,
+        component,
+        lat,
+        lon,
+        siteName,
+        numTurbines,
+        terrain,
+        origins: origins as Record<string, string>,
+        showAdvanced,
+      },
+      plan,
+      error,
+    });
+  }, [
+    persistKey,
+    oem,
+    model,
+    scope,
+    component,
+    lat,
+    lon,
+    siteName,
+    numTurbines,
+    terrain,
+    origins,
+    showAdvanced,
+    plan,
+    error,
+  ]);
 
   const facilitiesForOem = useMemo(
     () => (catalog ? catalog.facilities.filter((f) => f.oem === oem) : []),
