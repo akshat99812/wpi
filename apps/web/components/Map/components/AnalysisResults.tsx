@@ -240,6 +240,23 @@ export function AnalysisResults({
               area overlaps existing wind farms (excluded from sizing).
             </p>
           )}
+          {/* Reductions are multiplicative + spatially independent; where they
+              coincide the developable area is a conservative under-estimate. */}
+          {(context.sizing.excludedFraction != null &&
+          context.sizing.excludedFraction > 0
+            ? 1
+            : 0) +
+            (context.sizing.steepFraction != null &&
+            context.sizing.steepFraction > 0
+              ? 1
+              : 0) +
+            (context.windfarms.overlapFraction > 0 ? 1 : 0) >=
+            2 && (
+            <p className="mt-0.5 text-slate-500">
+              Reductions are applied independently; where they overlap on the
+              ground the developable area is a conservative estimate.
+            </p>
+          )}
           <ul className="mt-1 list-inside list-disc text-[10px] text-slate-500">
             {context.sizing.assumptions.map((a) => (
               <li key={a}>{a}</li>

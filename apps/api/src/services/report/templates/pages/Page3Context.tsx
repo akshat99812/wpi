@@ -49,6 +49,16 @@ function GridCard({ grid }: { grid: GridData }) {
 
 function SizingCard({ ctx }: { ctx: ContextData }) {
   const s = ctx.sizing;
+  const overlapFraction =
+    ctx.windfarms.overlapFraction > 0 ? ctx.windfarms.overlapFraction : null;
+  // Each reduction (legal exclusions, steep slope, existing farms) is applied
+  // independently and multiplicatively; where they coincide on the ground the
+  // same land is removed more than once, so the developable area is a
+  // conservative (under-) estimate. Only caveat this when ≥2 actually apply.
+  const activeReductions =
+    (s.excludedFraction != null && s.excludedFraction > 0 ? 1 : 0) +
+    (s.steepFraction != null && s.steepFraction > 0 ? 1 : 0) +
+    (overlapFraction != null ? 1 : 0);
   return (
     <Card title="Indicative sizing">
       <StatGrid cols={3}>
@@ -68,9 +78,20 @@ function SizingCard({ ctx }: { ctx: ContextData }) {
           {s.steepFraction != null
             ? ` · ${areaPct(s.steepFraction)} too steep`
             : ""}
-          {ctx.windfarms.overlapFraction > 0
-            ? ` · ${areaPct(ctx.windfarms.overlapFraction)} overlaps existing wind farms`
-            : ""}
+        </p>
+      )}
+      {/* Existing-farm overlap is independent data — show it on its own line so
+          it survives when exclusions/slope are unavailable. */}
+      {overlapFraction != null && (
+        <p className="muted" style={{ marginTop: "4px" }}>
+          {areaPct(overlapFraction)} overlaps existing wind farms (excluded from
+          sizing)
+        </p>
+      )}
+      {activeReductions >= 2 && (
+        <p className="muted" style={{ marginTop: "4px" }}>
+          Reductions are applied independently; where they overlap on the ground
+          the developable area is a conservative estimate.
         </p>
       )}
       {s.assumptions.length > 0 && (
