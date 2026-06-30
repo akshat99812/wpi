@@ -313,6 +313,30 @@ export function AnalysisResults({
         <UnavailableNote label="Financial screening" />
       )}
 
+      {/* Actions repeated at the bottom (also pinned at the top) so they're in
+          reach whether the user is at the headline or the end of the results. */}
+      <div className="flex flex-col gap-1.5">
+        {committedRing && committedRing.length > 0 && (
+          <SaveSiteButton
+            key={`${aoi.centroid[0]},${aoi.centroid[1]},${aoi.areaKm2}`}
+            analysis={analysis}
+            ring={committedRing}
+          />
+        )}
+        {resource && committedRing && committedRing.length > 0 && (
+          <ExportReportButton ring={committedRing} />
+        )}
+        <PlanLogisticsButton
+          key={logisticsContextKey ?? "aoi"}
+          centroid={aoi.centroid}
+          siteName={
+            logisticsSiteName ??
+            (context?.states?.[0]?.name ? `${context.states[0].name} site` : null)
+          }
+          numTurbines={logisticsTurbineCount}
+        />
+      </div>
+
       <ReportDisclaimer />
     </div>
   );
