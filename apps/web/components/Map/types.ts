@@ -83,6 +83,14 @@ export interface Turbine {
   start_date: string | null;
   ele_m: number | string | null;
   ref: string | null;
+  // WT-MARUT (NIWE/MNRE) wind-farm cluster this turbine sits inside, resolved
+  // server-side by point-in-polygon against the district boundary. capacity/weg
+  // are REGISTRY TOTALS for the whole district cluster, not this one turbine.
+  // All null when the turbine falls outside every recorded wind-farm district.
+  farm_district: string | null;
+  farm_state: string | null;
+  farm_capacity_mw: number | string | null;
+  farm_weg: number | string | null;
 }
 
 export interface MapCanvasProps {

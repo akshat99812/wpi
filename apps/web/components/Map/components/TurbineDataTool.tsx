@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Turbine } from '../types';
-import { fmtCoords } from '../utils/format';
+import { fmtCoords, fmtGrouped } from '../utils/format';
 
 /**
  * "Turbine data" — Pro-map sidebar tool for an individual wind turbine.
@@ -9,8 +9,10 @@ import { fmtCoords } from '../utils/format';
  * power=generator + generator:source=wind, fetched per-click via
  * GET /api/turbine/:id). OSM rarely carries turbine specs (rated power, hub
  * height, model, …), so the card shows only the fields we reliably have —
- * name/operator + coordinates + the OSM link — rather than a wall of "—".
- * Handles loading / error / loaded / empty states, like the mast card.
+ * name/operator + coordinates + the OSM link — plus, when the turbine sits
+ * inside a recorded WT-MARUT wind-farm district, that district cluster's
+ * installed capacity + turbine (WEG) count. Handles loading / error / loaded /
+ * empty states, like the mast card.
  */
 
 export const TurbineIcon = ({ className = '' }: { className?: string }) => (
@@ -77,15 +79,69 @@ export function TurbineDataTool({ selected, loading, error }: Props) {
         <Row label="Coordinates" value={fmtCoords(selected.lat, selected.lon)} />
       </dl>
 
+      {/* Which WT-MARUT wind-farm cluster this turbine belongs to. */}
+      <WindFarmSection turbine={selected} />
+
       <a
         href={osmUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-sky-400 hover:text-sky-300 hover:underline"
       >
-        View on OpenStreetMap ↗
+        View on OpenStreetMap <span aria-hidden>↗</span>
       </a>
     </div>
+  );
+}
+
+/**
+ * Wind-farm attribution block. The turbine was point-in-polygon matched to a
+ * WT-MARUT (NIWE/MNRE) district on the server; the capacity + WEG figures are
+ * that ENTIRE district cluster's registry totals, so the copy is explicit that
+ * they are not counts for this single turbine. When the turbine falls outside
+ * every recorded district, we say so plainly rather than guess a nearest farm.
+ */
+function WindFarmSection({ turbine }: { turbine: Turbine }) {
+  const district = turbine.farm_district;
+  const capacity = fmtGrouped(turbine.farm_capacity_mw, 1);
+  const weg = fmtGrouped(turbine.farm_weg, 0);
+
+  return (
+    <section className="mt-4 rounded-lg border border-slate-700/70 bg-slate-800/40 p-3">
+      <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300/80">
+        Wind farm
+        <span className="rounded border border-sky-400/30 bg-sky-400/10 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-sky-300">
+          WT-MARUT
+        </span>
+      </p>
+
+      {district ? (
+        <>
+          <h4 className="mt-1.5 text-base font-semibold leading-tight text-white">
+            {district}
+          </h4>
+          <p className="mt-0.5 text-xs text-slate-400">
+            {turbine.farm_state ? `${turbine.farm_state} · ` : ''}wind-farm district
+          </p>
+          <dl className="mt-2 divide-y divide-slate-800/80 text-sm">
+            <Row
+              label="Installed capacity"
+              value={capacity ? `${capacity} MW` : null}
+            />
+            <Row label="Registered turbines (WEGs)" value={weg} />
+          </dl>
+          <p className="mt-2 text-[11px] leading-snug text-slate-400">
+            Whole-district totals from the WT-MARUT / NIWE registry (installations
+            registered since FY&nbsp;2015-16) — not this single turbine; older
+            pre-2015 wind farms may not be counted.
+          </p>
+        </>
+      ) : (
+        <p className="mt-1.5 text-xs leading-snug text-slate-400">
+          Not inside a recorded WT-MARUT wind-farm district.
+        </p>
+      )}
+    </section>
   );
 }
 

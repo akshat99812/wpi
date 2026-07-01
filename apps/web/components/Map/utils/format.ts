@@ -32,6 +32,19 @@ export function fmtCoords(lat: number, lon: number): string {
   return `${Math.abs(lat).toFixed(4)}° ${ns}, ${Math.abs(lon).toFixed(4)}° ${ew}`;
 }
 
+/** Group a number with Indian locale separators (e.g. 4701.406 → "4,701.4",
+ *  2104 → "2,104"), keeping up to `digits` decimals. Accepts the
+ *  `number | string | null` pg returns for NUMERIC columns; null when non-finite. */
+export function fmtGrouped(
+  n: number | string | null,
+  digits = 0,
+): string | null {
+  if (n == null || n === '') return null;
+  const v = typeof n === 'number' ? n : Number(n);
+  if (!Number.isFinite(v)) return null;
+  return v.toLocaleString('en-IN', { maximumFractionDigits: digits });
+}
+
 /** Format a numeric attribute with a unit, trimming trailing zeros. Accepts the
  *  `number | string | null` the API returns for proprietary fields. */
 export function fmtNum(

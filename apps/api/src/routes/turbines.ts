@@ -183,6 +183,42 @@ router.get(
   },
 );
 
+// The wind-farm attribution join (below) needs the wind_farm_districts table
+// from migration 005. That migration ships with the codebase but is applied by
+// hand on already-initialised DBs, so a machine may not have it yet. If the table
+// is absent the detail query omits the farm columns rather than 500-ing.
+//
+// We memoise the in-flight PROMISE so concurrent cold-start clicks share one
+// probe. to_regclass returns NULL (it does NOT throw) when the table is genuinely
+// absent — a definitive answer we cache. A *thrown* error is a transient DB fault
+// (connection blip, pool timeout), NOT a missing table: log it (never swallow) and
+// DROP the memo so the next click re-probes, instead of latching attribution off
+// for the whole process lifetime once the DB recovers.
+let farmTableProbe: Promise<boolean> | null = null;
+function hasFarmTable(): Promise<boolean> {
+  return (farmTableProbe ??= (async () => {
+    try {
+      const { rows } = await pool.query<{ ok: boolean }>(
+        "SELECT to_regclass('public.wind_farm_districts') IS NOT NULL AS ok",
+      );
+      const present = Boolean(rows[0]?.ok);
+      if (!present) {
+        console.warn(
+          "[turbine] wind_farm_districts table absent — wind-farm attribution disabled (apply migration 005 + ingest-wind-farm-districts.ts)",
+        );
+      }
+      return present;
+    } catch (err) {
+      console.error(
+        "[turbine] wind_farm_districts probe failed, will retry next request",
+        err,
+      );
+      farmTableProbe = null; // transient fault — don't cache; re-probe next time
+      return false;
+    }
+  })());
+}
+
 // Per-click detail. The ONLY place per-turbine attributes leave the server.
 router.get(
   "/turbine/:id",
@@ -201,19 +237,42 @@ router.get(
     }
 
     try {
+      // Attribute the turbine to the WT-MARUT wind-farm district it physically
+      // sits inside (point-in-polygon). The district's summed installed capacity
+      // (MW) + WEG count are registry totals for the whole cluster — NOT a count
+      // of this one turbine — so the card labels them as such. A turbine outside
+      // every recorded district returns NULLs (honest "not in a recorded farm").
+      const withFarm = await hasFarmTable();
+      const farmSelect = withFarm
+        ? `,
+          fd.name        AS farm_district,
+          fd.state       AS farm_state,
+          fd.capacity_mw AS farm_capacity_mw,
+          fd.weg         AS farm_weg`
+        : "";
+      const farmJoin = withFarm
+        ? `
+        LEFT JOIN LATERAL (
+          SELECT d.name, d.state, d.capacity_mw, d.weg
+          FROM public.wind_farm_districts d
+          WHERE ST_Contains(d.geom, t.geom)
+          LIMIT 1
+        ) fd ON true`
+        : "";
+
       const { rows } = await pool.query(
         `
         SELECT
-          id,
-          osm_type, osm_id,
-          ST_Y(geom) AS lat,
-          ST_X(geom) AS lon,
-          name, operator, manufacturer, model,
-          rated_power_kw, rated_power_raw,
-          hub_height_m, rotor_diameter_m,
-          start_date, ele_m, ref
-        FROM wind_turbines
-        WHERE id = $1
+          t.id,
+          t.osm_type, t.osm_id,
+          ST_Y(t.geom) AS lat,
+          ST_X(t.geom) AS lon,
+          t.name, t.operator, t.manufacturer, t.model,
+          t.rated_power_kw, t.rated_power_raw,
+          t.hub_height_m, t.rotor_diameter_m,
+          t.start_date, t.ele_m, t.ref${farmSelect}
+        FROM wind_turbines t${farmJoin}
+        WHERE t.id = $1
         `,
         [id],
       );

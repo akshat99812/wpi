@@ -344,3 +344,51 @@ Gujarat) and confirm the report shows hard (red) / verify (amber) percentages.
 > recreated (`docker compose down -v`, disk loss, fresh box), the tables come
 > back **empty** and the % silently returns to 0 — re-run the dump/restore above.
 > `update.sh` does NOT touch it.
+
+## Wind-farm attribution (PostGIS `wind_farm_districts`) — Pro-map turbine card
+
+When a Pro user clicks an individual turbine on the map, the detail card shows the
+**WT-MARUT wind-farm district** it sits in plus that district's installed capacity
+(MW) and turbine count (WEG). This is a point-in-polygon join (`ST_Contains`) in
+`/api/turbine/:id` against the `wind_farm_districts` table (70 GADM district
+polygons tagged with WT-MARUT/NIWE totals). If the table is empty/missing the card
+**degrades gracefully** — it just omits the wind-farm block (no crash), which is
+exactly why a missed deploy step ships silently. Build/ingest chain:
+
+- `apps/api/scripts/build-wind-farms.py` → `data/wind-farm-districts.geojson` (4.2 MB,
+  **committed to git** so `update.sh`'s `cp -f apps/api/data/*.geojson data/` lands it
+  on the host `./data` bind-mount — same shadow-mount rule as offshore-wind).
+- migration `apps/api/migrations/005_wind_farm_districts.sql` (mounted at initdb, so
+  it auto-runs only on a *fresh* DB — apply by hand on the existing VPS DB).
+- `apps/api/scripts/ingest-wind-farm-districts.ts` loads the geojson → PostGIS.
+
+Deploy on the existing VPS (after `git pull` + `update.sh` has copied the geojson):
+
+```bash
+# 1. Create the table (idempotent; no-op if it already exists).
+ssh root@187.127.169.28 'docker exec -i wce-postgis-1 psql -U wpi -d wpi \
+  < /opt/wce/apps/api/migrations/005_wind_farm_districts.sql'
+
+# 2. Load the 70 district polygons (TRUNCATE+INSERT in one txn; safe to re-run).
+ssh root@187.127.169.28 'cd /opt/wce && docker compose exec -T api \
+  bun run scripts/ingest-wind-farm-districts.ts'
+
+# 3. Restart the api so its one-time table probe re-runs (it caches "absent" until
+#    restart, so a click served before step 2 would otherwise stay un-attributed).
+ssh root@187.127.169.28 'cd /opt/wce && docker compose restart api'
+```
+
+Verify (expect `70 | 31670 | 14061`):
+
+```bash
+ssh root@187.127.169.28 'docker exec wce-postgis-1 psql -U wpi -d wpi -tAc \
+  "SELECT count(*), round(sum(capacity_mw)), sum(weg) FROM wind_farm_districts;"'
+```
+
+Then click a turbine in a dense belt (e.g. Kutch, Gujarat) and confirm the card's
+**Wind farm** block shows the district, capacity, and registered-turbine (WEG) count.
+
+> **The table lives only in the Postgres volume.** `docker compose down -v` / a fresh
+> box wipes it → turbine cards silently drop the wind-farm block. Re-run steps 1–3.
+> After editing the source data, re-run `build-wind-farms.py`, commit the regenerated
+> geojson, `git pull` on the box, then repeat steps 2–3 (migration 1 is already applied).
