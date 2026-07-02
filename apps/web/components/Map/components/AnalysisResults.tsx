@@ -11,6 +11,7 @@ import type {
   AnalysisResponse,
   Confidence,
   ContextData,
+  HeightResource,
   IrrBand,
   ResourceData,
   ScoreComponent,
@@ -1165,11 +1166,65 @@ function FinancialsBlock({
 
 // ── Resource stat grid ───────────────────────────────────────────────────────
 
+/** Synthesize a single 100 m HeightResource from top-level fields — used only
+ *  as a fallback when a response predates the per-height block. */
+function fallbackHeight(resource: ResourceData): HeightResource {
+  return {
+    heightM: 100,
+    meanSpeed: resource.meanSpeed,
+    minSpeed: resource.minSpeed,
+    maxSpeed: resource.maxSpeed,
+    p25Speed: resource.p25Speed,
+    p50Speed: resource.p50Speed,
+    p75Speed: resource.p75Speed,
+    areaExceedance90: resource.areaExceedance90,
+    powerDensity: resource.powerDensity,
+    powerDensityRaw: resource.powerDensityRaw,
+  };
+}
+
 function ResourceBlock({ resource }: { resource: ResourceData }) {
+  const heightOptions = useMemo<HeightResource[]>(
+    () =>
+      resource.heights && resource.heights.length > 0
+        ? resource.heights
+        : [fallbackHeight(resource)],
+    [resource],
+  );
+
+  const [heightM, setHeightM] = useState(100);
+  // Keep the selection valid for the current options (defaults to 100 m).
+  const active =
+    heightOptions.find((h) => h.heightM === heightM) ??
+    heightOptions.find((h) => h.heightM === 100) ??
+    heightOptions[0];
+
   return (
     <div>
+      {heightOptions.length > 1 && (
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <span className="text-[10px] uppercase tracking-wide text-slate-500">
+            Hub height
+          </span>
+          <select
+            value={active.heightM}
+            onChange={(event) => setHeightM(Number(event.target.value))}
+            aria-label="Hub height for wind resource"
+            className="rounded-md border border-slate-700/70 bg-slate-800/60 px-2 py-1 font-mono text-[11px] text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+          >
+            {heightOptions.map((h) => (
+              <option key={h.heightM} value={h.heightM}>
+                {h.heightM} m
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-1.5">
-        <Stat label="Mean wind @100 m" value={`${resource.meanSpeed.toFixed(2)} m/s`} />
+        <Stat
+          label={`Mean wind @${active.heightM} m`}
+          value={`${active.meanSpeed.toFixed(2)} m/s`}
+        />
         <Stat
           label="Capacity factor (IEC-III)"
           value={
@@ -1184,27 +1239,27 @@ function ResourceBlock({ resource }: { resource: ResourceData }) {
           }
         />
         <Stat
-          label="Power density (corrected)"
+          label={`Power density @${active.heightM} m`}
           value={
-            resource.powerDensity != null
-              ? `${Math.round(resource.powerDensity)} W/m²`
+            active.powerDensity != null
+              ? `${Math.round(active.powerDensity)} W/m²`
               : "—"
           }
           sub={
-            resource.powerDensityRaw != null
-              ? `raw ${Math.round(resource.powerDensityRaw)} · ρ ${resource.airDensity.toFixed(3)}`
+            active.powerDensityRaw != null
+              ? `raw ${Math.round(active.powerDensityRaw)} · ρ ${resource.airDensity.toFixed(3)}`
               : undefined
           }
         />
         <Stat label="Shear α" value={resource.shearAlpha.toFixed(2)} />
         <Stat
           label="Speed spread (p25–p75)"
-          value={`${resource.p25Speed.toFixed(1)}–${resource.p75Speed.toFixed(1)} m/s`}
-          sub={`median ${resource.p50Speed.toFixed(1)} · range ${resource.minSpeed.toFixed(1)}–${resource.maxSpeed.toFixed(1)}`}
+          value={`${active.p25Speed.toFixed(1)}–${active.p75Speed.toFixed(1)} m/s`}
+          sub={`median ${active.p50Speed.toFixed(1)} · range ${active.minSpeed.toFixed(1)}–${active.maxSpeed.toFixed(1)}`}
         />
         <Stat
           label="Area coverage"
-          value={`90% > ${resource.areaExceedance90.toFixed(1)} m/s`}
+          value={`90% > ${active.areaExceedance90.toFixed(1)} m/s`}
           sub="of site area exceeds this speed"
         />
       </div>

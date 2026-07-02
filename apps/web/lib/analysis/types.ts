@@ -17,6 +17,21 @@ export interface Section<T> {
 export type SiteClass = "excellent" | "good" | "moderate" | "marginal";
 export type Confidence = "high" | "medium" | "low";
 
+/** Per-hub-height wind readouts (50/100/150 m) from GWA; drives the AOI height
+ *  dropdown. The 100 m entry equals the top-level ResourceData speed/power. */
+export interface HeightResource {
+  heightM: number;
+  meanSpeed: number;
+  minSpeed: number;
+  maxSpeed: number;
+  p25Speed: number;
+  p50Speed: number;
+  p75Speed: number;
+  areaExceedance90: number;
+  powerDensity: number | null;
+  powerDensityRaw: number | null;
+}
+
 export interface ResourceData {
   meanSpeed: number;
   minSpeed: number;
@@ -59,6 +74,9 @@ export interface ResourceData {
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;
   siteClass: SiteClass;
+  /** Wind speed + power density at 50/100/150 m; null when unavailable (the
+   *  top-level fields always carry the 100 m values). */
+  heights: HeightResource[] | null;
 }
 
 export interface ClimateRoseSector {
@@ -197,6 +215,14 @@ export interface AnalysisErrorBody {
 // ── Exact-point report (per-turbine click in a micro-sited layout) ──────────
 // Mirrors apps/api/src/services/analysis/point.ts (POST /api/analyze/point).
 
+/** Per-hub-height point readout (single pixel): ws + power density. */
+export interface PointHeightResource {
+  heightM: number;
+  meanSpeed: number;
+  powerDensity: number | null;
+  powerDensityRaw: number | null;
+}
+
 export interface PointResourceData {
   /** Mean wind speed @100 m (m/s) at the exact point. */
   meanSpeed: number;
@@ -209,6 +235,9 @@ export interface PointResourceData {
   powerDensityRaw: number | null;
   airDensity: number | null;
   elevationM: number | null;
+  /** ws + power density at 50/100/150 m for the dropdown; 100 m entry equals
+   *  the top-level meanSpeed/powerDensity. */
+  heights: PointHeightResource[];
 }
 
 export interface PointExclusionHit {

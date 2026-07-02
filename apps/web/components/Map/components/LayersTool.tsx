@@ -12,6 +12,7 @@ import {
   OFFSHORE_ZONE_COLOR,
   OFFSHORE_PROJECT_COLOR,
 } from '../utils/offshoreWind';
+import { MOD_ZONE_CATEGORIES } from '../utils/modZones';
 
 // The map dots are near-black (utils/turbines TURBINE_COLOR); on the dark
 // sidebar that's invisible, so the toggle's glyph is tinted a legible light
@@ -70,6 +71,19 @@ function OffshoreGlyph({ className }: { className?: string }) {
   );
 }
 
+/** Shield glyph for the "Defence (MoD) zones" toggle. */
+function ShieldGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+      className={className} aria-hidden
+    >
+      <path d="M12 3 5 6v5c0 4 3 7 7 9 4-2 7-5 7-9V6l-7-3Z" />
+    </svg>
+  );
+}
+
 /** Mast height buckets — mirror the `hcat` property baked into the windmill
  *  vector tiles (apps/api windmills route): 0 = <50 m, 1 = 50–100 m, 2 = >100 m. */
 export type MastHeightCat = 'short' | 'mid' | 'tall';
@@ -106,6 +120,8 @@ interface Props {
   showExclusions: boolean;
   /** "Offshore wind" = identified offshore zones + VGF/LiDAR project points. */
   showOffshore: boolean;
+  /** "Defence (MoD) zones" = MoD wind-clearance raster (No WTG / NOC areas). */
+  showModZones: boolean;
   /** Which mast height buckets are visible (all true = no filtering). */
   mastCats: Record<MastHeightCat, boolean>;
   /** Which grid line-voltage bands are visible, keyed by band-min kV as a
@@ -116,6 +132,7 @@ interface Props {
   onTogglePowerGrid: (next: boolean) => void;
   onToggleExclusions: (next: boolean) => void;
   onToggleOffshore: (next: boolean) => void;
+  onToggleModZones: (next: boolean) => void;
   onMastCatChange: (cat: MastHeightCat, next: boolean) => void;
   onVoltageBandChange: (kv: string, next: boolean) => void;
 }
@@ -135,6 +152,7 @@ export function LayersTool({
   showPowerGrid,
   showExclusions,
   showOffshore,
+  showModZones,
   mastCats,
   voltageBands,
   onToggleTurbines,
@@ -142,6 +160,7 @@ export function LayersTool({
   onTogglePowerGrid,
   onToggleExclusions,
   onToggleOffshore,
+  onToggleModZones,
   onMastCatChange,
   onVoltageBandChange,
 }: Props) {
@@ -200,6 +219,48 @@ export function LayersTool({
         onChange={onToggleOffshore}
       />
       {showOffshore && <OffshoreLegend />}
+      <ToggleRow
+        label="Defence (MoD) zones"
+        description="MoD wind clearance: No WTG / NOC status"
+        // First category swatch (No WTG, red) — from the bake metadata.
+        swatch={MOD_ZONE_CATEGORIES[0]?.color ?? '#dc2626'}
+        icon={<ShieldGlyph className="h-3.5 w-3.5" />}
+        checked={showModZones}
+        onChange={onToggleModZones}
+      />
+      {showModZones && <ModZonesLegend />}
+    </div>
+  );
+}
+
+/**
+ * Legend for the Defence (MoD) zones layer — one row per category, rendered
+ * straight from the bake metadata (MOD_ZONE_CATEGORIES) so the swatch colours
+ * can never drift from the solid fills baked into the tiles. Categories mirror
+ * the official state MoD maps' own legend wording.
+ */
+function ModZonesLegend() {
+  return (
+    <div className="mx-2 mb-1 ml-7 rounded-lg border border-slate-700/60 bg-slate-800/40 px-2.5 py-2">
+      <div className="flex flex-col gap-1.5">
+        {MOD_ZONE_CATEGORIES.map((cat) => (
+          <span
+            key={cat.key}
+            className="flex items-center gap-2 text-[11px] text-slate-300"
+            title={cat.desc}
+          >
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-sm"
+              style={{ backgroundColor: cat.color }}
+            />
+            {cat.label}
+          </span>
+        ))}
+      </div>
+      <p className="pt-2 text-[10px] leading-relaxed text-slate-500">
+        Official state MoD maps 2024 · 7 states. NOC = defence No-Objection
+        Certificate. Indicative — verify with the source PDF.
+      </p>
     </div>
   );
 }

@@ -72,6 +72,10 @@ import {
   type OffshoreProjectProps,
 } from "@/components/Map/utils/offshoreWind";
 import {
+  addModZones,
+  setModZonesVisibility,
+} from "@/components/Map/utils/modZones";
+import {
   OffshoreWindTool,
   OffshoreIcon,
 } from "@/components/Map/components/OffshoreWindTool";
@@ -112,9 +116,10 @@ const WINDMILL_TILES_VERSION = 2;
 // resolves instantly. Keeps the Pro map entrance consistent with the landing page.
 const BOOT_MS = 2800;
 
-// Default view loads the mean-wind-speed raster at 150 m (a baked height — see
-// public/wind-atlas/metadata.json) at half opacity. Distinct from
-// DEFAULT_WIND_HEIGHT (100 m), which drives the cursor-readout grid lookup.
+// When the user enables the wind-resource layer it starts as mean wind speed at
+// 150 m (a baked height — see public/wind-atlas/metadata.json) at half opacity.
+// The layer is OFF in the default view. Distinct from DEFAULT_WIND_HEIGHT
+// (100 m), which drives the cursor-readout grid lookup.
 const DEFAULT_WIND_RASTER_HEIGHT = 150;
 const DEFAULT_WIND_RASTER_OPACITY = 0.5;
 
@@ -134,7 +139,7 @@ export default function ProMapPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   // Mirrors `basemap` so the map-load closure (which deliberately omits
   // `basemap` from its deps) can read the latest value when it adds the layer.
-  const basemapRef = useRef<ProBasemap>("road");
+  const basemapRef = useRef<ProBasemap>("satellite");
   // Mirror layer-visibility toggles so the map-load closure can set the right
   // initial visibility when it adds the layers (same pattern as basemapRef).
   // Default Pro-map view: masts OFF, individual turbines ON across all zooms.
@@ -143,12 +148,15 @@ export default function ProMapPage() {
   const showExclusionsRef = useRef(false);
   const showPowerGridRef = useRef(true);
   const showOffshoreRef = useRef(false);
-  const windMetricRef = useRef<WindMetricChoice>("speed");
+  const showModZonesRef = useRef(false);
+  const windMetricRef = useRef<WindMetricChoice>("off");
   const windHeightRef = useRef<number>(DEFAULT_WIND_RASTER_HEIGHT);
   // 3D terrain is the one toggle owned by useTerrain, but the map-load closure
   // needs its latest value to hide state boundaries the instant they finish
-  // loading (boundaries are fetched async — see the effect below).
-  const terrainEnabledRef = useRef(false);
+  // loading (boundaries are fetched async — see the effect below). Starts true
+  // to match useTerrain's ON-by-default state, so boundaries never flash in
+  // before the first terrain-driven hide.
+  const terrainEnabledRef = useRef(true);
   const [selected, setSelected] = useState<Windmill | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
@@ -195,6 +203,11 @@ export default function ProMapPage() {
     useState<OffshoreZoneProps | null>(null);
   const [selectedOffshoreProject, setSelectedOffshoreProject] =
     useState<OffshoreProjectProps | null>(null);
+  // "Defence (MoD) zones" — Ministry-of-Defence wind-clearance raster (No WTG /
+  // NOC-required / NOC-not-required), pre-baked XYZ tiles from public/mod-zones.
+  // Off by default; a raster overlay added lazily at load-idle (addModZones is
+  // idempotent), later toggles only flip visibility. Sits below the pins.
+  const [showModZones, setShowModZones] = useState(false);
   // Mast measurement-height buckets (tile property `hcat`): all on = no filter.
   const [mastCats, setMastCats] = useState<Record<MastHeightCat, boolean>>({
     short: true,
@@ -207,18 +220,20 @@ export default function ProMapPage() {
     Object.fromEntries(VOLTAGE_BANDS.map((b) => [String(b.kv), true])),
   );
   // Wind-resource raster (GWA mean speed / power density) — single active
-  // metric × height. Default load view = mean speed @ 150 m. Available heights
+  // metric × height. OFF by default; enable from the Wind-resource card, which
+  // then loads mean speed @ 150 m (DEFAULT_WIND_RASTER_HEIGHT). Available heights
   // per metric come from the bake-emitted metadata.json; any switch is a
   // remove + re-add.
-  const [windMetric, setWindMetric] = useState<WindMetricChoice>("speed");
+  const [windMetric, setWindMetric] = useState<WindMetricChoice>("off");
   const [windHeight, setWindHeight] = useState<number>(DEFAULT_WIND_RASTER_HEIGHT);
   // User opacity (0–1) for the wind-resource raster, on top of the basemap
   // contrast curve. Defaults to 50% for the default load view. Persisted in the
   // layer module so metric/height re-adds keep it; this effect re-applies it
   // whenever the slider moves.
   const [windOpacity, setWindOpacity] = useState<number>(DEFAULT_WIND_RASTER_OPACITY);
-  // Basemap: dark road map by default; satellite swaps an Esri raster on.
-  const [basemap, setBasemap] = useState<ProBasemap>("road");
+  // Basemap: Esri satellite imagery by default; the toggle swaps back to the
+  // dark road map (fades the satellite raster out).
+  const [basemap, setBasemap] = useState<ProBasemap>("satellite");
   // Branded boot animation — held for at least BOOT_MS so the "Intelligence
   // terminal is booting" screen always plays, even on an instant session.
   const [booting, setBooting] = useState(true);
@@ -418,6 +433,27 @@ export default function ProMapPage() {
     else map.once("idle", apply);
   }, [showOffshore]);
 
+  // "Defence (MoD) zones" toggle. First enable lazily creates the raster
+  // source + layer (addModZones is idempotent — so this also self-heals if the
+  // load-idle add never ran, e.g. after a dev Fast-Refresh that kept the map);
+  // after that the toggle only flips visibility. Mirrors the Electricity-Grid
+  // toggle pattern.
+  useEffect(() => {
+    showModZonesRef.current = showModZones;
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      if (showModZones) {
+        addModZones(map, { beforeId: "windmills-pts" });
+        setModZonesVisibility(map, true);
+      } else {
+        setModZonesVisibility(map, false);
+      }
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+  }, [showModZones]);
+
   // Mast height-bucket filter on the pin layers. The tiles carry `hcat`
   // (0 = <50 m · 1 = 50–100 m · 2 = >100 m · −1 = unknown). All buckets on →
   // no filter at all, so unknown-height masts stay visible by default.
@@ -559,6 +595,10 @@ export default function ProMapPage() {
       // Country-overview start: centred on India, zoomed to show the whole grid.
       center: [78.9629, 22.5937],
       zoom: 4.7,
+      // Open in a tilted 2.5D/3D view — 3D terrain is ON by default (useTerrain)
+      // and enableTerrain settles the camera at this same 60° pitch, so starting
+      // here avoids a flat→tilt animation on first paint.
+      pitch: 60,
       // Floor the zoom at the mast cutoff so the dots never vanish on zoom-out
       // (below this the backend withholds mast tiles — see windmills.ts 204).
       minZoom: MAST_MIN_ZOOM,
@@ -738,8 +778,10 @@ export default function ProMapPage() {
         prefetchPowerGrid();
       }
 
-      // Wind-resource raster (default view = mean speed @ 150 m), also re-added
-      // here on map re-creation. Deferred to idle: we've just added the
+      // Wind-resource raster — OFF in the default view (windMetricRef starts
+      // "off"), so this idle add is a no-op on first load; it re-adds the layer
+      // only when the map is re-created with the metric already on. Deferred to
+      // idle: we've just added the
       // satellite + windmills sources above, so map.isStyleLoaded() is
       // transiently FALSE (pending source updates + tiles still loading) and
       // addWindResourceLayer's style-ready guard would silently bail — the bug
@@ -768,9 +810,10 @@ export default function ProMapPage() {
       // and sit ABOVE the pins (transient tooling, never data).
       measure.onMapLoad(map);
 
-      // 3D terrain + elevation tint — registers the DEM protocol and re-applies
-      // any active terrain/tint if the map was re-created (session refresh).
-      // Default state is off, so this is a no-op on first load.
+      // 3D terrain + elevation tint — registers the DEM protocol and applies the
+      // active terrain/tint. Terrain is ON by default, so on first load this
+      // enables the mesh + hillshade (deferred to idle inside onMapLoad); it also
+      // re-applies state if the map was re-created (session refresh).
       terrain.onMapLoad(map);
 
       // Private masts (yellow, GeoJSON) — below the public pins so public
@@ -904,6 +947,12 @@ export default function ProMapPage() {
             setSidebarOpen(true);
           },
         });
+
+        // Defence (MoD) zones — pre-baked raster overlay (public/mod-zones).
+        // Idempotent; inserted below the pins so masts/turbines stay clickable.
+        // Applies the latest toggle state once the layer exists.
+        addModZones(map, { beforeId: "windmills-pts" });
+        setModZonesVisibility(map, showModZonesRef.current);
       });
 
       map.on("click", "windmills-hit", async (e: MapMouseEvent) => {
@@ -1112,6 +1161,7 @@ export default function ProMapPage() {
               showPowerGrid={showPowerGrid}
               showExclusions={showExclusions}
               showOffshore={showOffshore}
+              showModZones={showModZones}
               mastCats={mastCats}
               voltageBands={voltageBands}
               onToggleTurbines={setShowTurbines}
@@ -1119,6 +1169,7 @@ export default function ProMapPage() {
               onTogglePowerGrid={setShowPowerGrid}
               onToggleExclusions={setShowExclusions}
               onToggleOffshore={setShowOffshore}
+              onToggleModZones={setShowModZones}
               onMastCatChange={(cat, next) =>
                 setMastCats((prev) => ({ ...prev, [cat]: next }))
               }

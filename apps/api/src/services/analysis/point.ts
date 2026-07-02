@@ -37,6 +37,15 @@ const SEA_LEVEL_RHO = airDensityAtElevation(0);
 /** 1/7 power law — only used to shear-adjust the mast delta when α is absent. */
 const SHEAR_ALPHA_FALLBACK = 1 / 7;
 
+/** Per-hub-height point readout: wind speed + power density at the exact pixel.
+ *  (Single-pixel, so there is no distribution — just the value at each height.) */
+export interface PointHeightResource {
+  heightM: number; // 50 | 100 | 150
+  meanSpeed: number;
+  powerDensity: number | null;
+  powerDensityRaw: number | null;
+}
+
 export interface PointResourceData {
   /** Mean wind speed @100 m (m/s) — the headline resource value at the point. */
   meanSpeed: number;
@@ -52,6 +61,9 @@ export interface PointResourceData {
   powerDensityRaw: number | null;
   airDensity: number | null;
   elevationM: number | null;
+  /** ws + power density at each hub height (50/100/150 m) for the dropdown.
+   *  The 100 m entry equals meanSpeed/powerDensity above. */
+  heights: PointHeightResource[];
 }
 
 export interface ExclusionHit {
@@ -85,15 +97,18 @@ async function computePointResource(
   lat: number,
   options: TileFetchOptions,
 ): Promise<PointResourceData | null> {
-  const [ws50, ws100, ws150, cfIec3, cfIec2, pd100, elevation] = await Promise.all([
-    fetchPointValue(GWA_LAYERS.ws50, lon, lat, options),
-    fetchPointValue(GWA_LAYERS.ws100, lon, lat, options),
-    fetchPointValue(GWA_LAYERS.ws150, lon, lat, options),
-    fetchPointValue(GWA_LAYERS.cfIec3, lon, lat, options),
-    fetchPointValue(GWA_LAYERS.cfIec2, lon, lat, options),
-    fetchPointValue(GWA_LAYERS.pd100, lon, lat, options),
-    fetchPointValue(GWA_LAYERS.elevation, lon, lat, options),
-  ]);
+  const [ws50, ws100, ws150, cfIec3, cfIec2, pd50, pd100, pd150, elevation] =
+    await Promise.all([
+      fetchPointValue(GWA_LAYERS.ws50, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.ws100, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.ws150, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.cfIec3, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.cfIec2, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.pd50, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.pd100, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.pd150, lon, lat, options),
+      fetchPointValue(GWA_LAYERS.elevation, lon, lat, options),
+    ]);
 
   // No wind value at the point ⇒ the whole resource block is unavailable.
   if (ws100 === null || !(ws100 > 0)) return null;
@@ -112,11 +127,38 @@ async function computePointResource(
   const airDensity =
     elevationM !== null ? roundTo(airDensityAtElevation(elevationM), AIR_DENSITY_DECIMALS) : null;
 
-  const powerDensityRaw = pd100 !== null && pd100 > 0 ? roundTo(pd100, POWER_DECIMALS) : null;
-  const powerDensity =
-    powerDensityRaw !== null && airDensity !== null
-      ? roundTo(powerDensityRaw * (airDensity / SEA_LEVEL_RHO), POWER_DECIMALS)
-      : powerDensityRaw;
+  // Raw pd → air-density corrected (identity when elevation/air density absent).
+  const correctPd = (
+    pd: number | null,
+  ): { powerDensity: number | null; powerDensityRaw: number | null } => {
+    const raw = pd !== null && pd > 0 ? roundTo(pd, POWER_DECIMALS) : null;
+    const corrected =
+      raw !== null && airDensity !== null
+        ? roundTo(raw * (airDensity / SEA_LEVEL_RHO), POWER_DECIMALS)
+        : raw;
+    return { powerDensity: corrected, powerDensityRaw: raw };
+  };
+
+  const pd100Corrected = correctPd(pd100);
+
+  // Per-height readouts (skip heights with no wind value at the pixel).
+  const heightInputs: { heightM: number; ws: number | null; pd: number | null }[] = [
+    { heightM: 50, ws: ws50, pd: pd50 },
+    { heightM: 100, ws: ws100, pd: pd100 },
+    { heightM: 150, ws: ws150, pd: pd150 },
+  ];
+  const heights = heightInputs.flatMap((h) => {
+    if (h.ws === null || !(h.ws > 0)) return [];
+    const { powerDensity, powerDensityRaw } = correctPd(h.pd);
+    return [
+      {
+        heightM: h.heightM,
+        meanSpeed: roundTo(h.ws, SPEED_DECIMALS),
+        powerDensity,
+        powerDensityRaw,
+      },
+    ];
+  });
 
   // GWA capacity-factor layers carry tiny negatives in nodata fringes — clamp ≥0.
   const cf = (v: number | null): number | null =>
@@ -129,10 +171,11 @@ async function computePointResource(
     shearAlpha,
     cfIec3: cf(cfIec3),
     cfIec2: cf(cfIec2),
-    powerDensity,
-    powerDensityRaw,
+    powerDensity: pd100Corrected.powerDensity,
+    powerDensityRaw: pd100Corrected.powerDensityRaw,
     airDensity,
     elevationM,
+    heights,
   };
 }
 

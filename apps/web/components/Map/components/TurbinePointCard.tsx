@@ -1,7 +1,11 @@
 "use client";
 
-import React from "react";
-import type { PointReport } from "@/lib/analysis/types";
+import React, { useMemo, useState } from "react";
+import type {
+  PointHeightResource,
+  PointReport,
+  PointResourceData,
+} from "@/lib/analysis/types";
 import type { TurbinePoint } from "@/lib/analysis/layout";
 import type { PointUiState } from "@/components/Map/hooks/useAoiAnalysis";
 import { LAYER_LABELS } from "@/components/Map/utils/exclusions";
@@ -72,36 +76,7 @@ function PointBody({ report }: { report: PointReport }) {
   return (
     <div className="flex flex-col gap-3">
       {resource ? (
-        <div className="grid grid-cols-2 gap-1.5">
-          <Stat label="Mean wind @100 m" value={`${resource.meanSpeed.toFixed(2)} m/s`} />
-          <Stat
-            label="Capacity factor (IEC-III)"
-            value={resource.cfIec3 != null ? `${(resource.cfIec3 * 100).toFixed(1)}%` : "—"}
-            sub={resource.cfIec2 != null ? `IEC-II: ${(resource.cfIec2 * 100).toFixed(1)}%` : undefined}
-          />
-          <Stat
-            label="Power density"
-            value={resource.powerDensity != null ? `${Math.round(resource.powerDensity)} W/m²` : "—"}
-            sub={
-              resource.powerDensityRaw != null && resource.airDensity != null
-                ? `raw ${Math.round(resource.powerDensityRaw)} · ρ ${resource.airDensity.toFixed(3)}`
-                : undefined
-            }
-          />
-          <Stat
-            label="Shear α"
-            value={resource.shearAlpha != null ? resource.shearAlpha.toFixed(2) : "—"}
-            sub={
-              resource.ws50 != null && resource.ws150 != null
-                ? `${resource.ws50.toFixed(1)}–${resource.ws150.toFixed(1)} m/s (50–150 m)`
-                : undefined
-            }
-          />
-          <Stat
-            label="Elevation"
-            value={resource.elevationM != null ? `${resource.elevationM.toLocaleString()} m` : "—"}
-          />
-        </div>
+        <PointResourceGrid resource={resource} />
       ) : (
         <Unavailable label="Wind resource" />
       )}
@@ -204,6 +179,87 @@ function PointBody({ report }: { report: PointReport }) {
       ) : (
         <Unavailable label="Exclusion zones" />
       )}
+    </div>
+  );
+}
+
+/** 100 m fallback height synthesized from top-level fields (pre-heights responses). */
+function pointFallbackHeight(resource: PointResourceData): PointHeightResource {
+  return {
+    heightM: 100,
+    meanSpeed: resource.meanSpeed,
+    powerDensity: resource.powerDensity,
+    powerDensityRaw: resource.powerDensityRaw,
+  };
+}
+
+/** Point resource stats with a 50/100/150 m hub-height dropdown that switches
+ *  the mean wind + power density; CF/shear/elevation stay (height-independent). */
+function PointResourceGrid({ resource }: { resource: PointResourceData }) {
+  const heightOptions = useMemo<PointHeightResource[]>(
+    () =>
+      resource.heights && resource.heights.length > 0
+        ? resource.heights
+        : [pointFallbackHeight(resource)],
+    [resource],
+  );
+  const [heightM, setHeightM] = useState(100);
+  const active =
+    heightOptions.find((h) => h.heightM === heightM) ??
+    heightOptions.find((h) => h.heightM === 100) ??
+    heightOptions[0];
+
+  return (
+    <div>
+      {heightOptions.length > 1 && (
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <span className="text-[10px] uppercase tracking-wide text-slate-500">
+            Hub height
+          </span>
+          <select
+            value={active.heightM}
+            onChange={(event) => setHeightM(Number(event.target.value))}
+            aria-label="Hub height for wind resource"
+            className="rounded-md border border-slate-700/70 bg-slate-800/60 px-2 py-1 font-mono text-[11px] text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+          >
+            {heightOptions.map((h) => (
+              <option key={h.heightM} value={h.heightM}>
+                {h.heightM} m
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-1.5">
+        <Stat label={`Mean wind @${active.heightM} m`} value={`${active.meanSpeed.toFixed(2)} m/s`} />
+        <Stat
+          label="Capacity factor (IEC-III)"
+          value={resource.cfIec3 != null ? `${(resource.cfIec3 * 100).toFixed(1)}%` : "—"}
+          sub={resource.cfIec2 != null ? `IEC-II: ${(resource.cfIec2 * 100).toFixed(1)}%` : undefined}
+        />
+        <Stat
+          label={`Power density @${active.heightM} m`}
+          value={active.powerDensity != null ? `${Math.round(active.powerDensity)} W/m²` : "—"}
+          sub={
+            active.powerDensityRaw != null && resource.airDensity != null
+              ? `raw ${Math.round(active.powerDensityRaw)} · ρ ${resource.airDensity.toFixed(3)}`
+              : undefined
+          }
+        />
+        <Stat
+          label="Shear α"
+          value={resource.shearAlpha != null ? resource.shearAlpha.toFixed(2) : "—"}
+          sub={
+            resource.ws50 != null && resource.ws150 != null
+              ? `${resource.ws50.toFixed(1)}–${resource.ws150.toFixed(1)} m/s (50–150 m)`
+              : undefined
+          }
+        />
+        <Stat
+          label="Elevation"
+          value={resource.elevationM != null ? `${resource.elevationM.toLocaleString()} m` : "—"}
+        />
+      </div>
     </div>
   );
 }

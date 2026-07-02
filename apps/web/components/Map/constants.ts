@@ -6,13 +6,12 @@ export const BASEMAP_LABELS: Record<BasemapId, string> = {
   satellite: 'Satellite',
   terrain:   'Terrain',
   wind:      'Wind',
-  windflow:  'Wind flow',
   street:    'Street',
   pro:       'Pro',
 };
 
 // 'pro' is currently locked — only these are selectable.
-export const ENABLED_BASEMAPS: BasemapId[] = ['satellite', 'terrain', 'street', 'wind', 'windflow', 'pro'];
+export const ENABLED_BASEMAPS: BasemapId[] = ['satellite', 'terrain', 'street', 'wind', 'pro'];
 export const LOCKED_BASEMAPS: BasemapId[]  = ['pro'];
 
 // ── Tile styles ────────────────────────────────────────────────────────────
@@ -58,9 +57,6 @@ export const SATELLITE_DARKENED_STYLE = {
 export function getStyle(mode: BasemapId): any {
   if (mode === 'satellite') return SATELLITE_STYLE;
   if (mode === 'wind')      return SATELLITE_DARKENED_STYLE;
-  // Wind-flow particle mode: dark, desaturated imagery so the cyan/white
-  // particle trails (drawn on a canvas overlay above) read clearly.
-  if (mode === 'windflow')  return SATELLITE_DARKENED_STYLE;
   if (mode === 'terrain') return {
     // OpenTopoMap tiles — full topo style with SRTM-derived contour lines,
     // hillshading, and peak labels. CC-BY-SA · OSM ODbL — both credited in

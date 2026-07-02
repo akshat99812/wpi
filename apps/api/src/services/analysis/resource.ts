@@ -8,12 +8,18 @@
  * barometric formula, shear ln-ratio least-squares method).
  */
 
-import { SITE_CLASS_BANDS, SIZING_MW_PER_KM2 } from "./constants";
+import { RESOURCE_HEIGHTS_M, SITE_CLASS_BANDS, SIZING_MW_PER_KM2 } from "./constants";
 import { computePowerCurveCfs } from "./energy";
 import { computeNetCf } from "./losses";
 import { computeExceedance } from "./uncertainty";
 import { indiaPercentileOf } from "./indiaCdf";
-import type { AoiMask, LayerPatch, ResourceData, SiteClass } from "./types";
+import type {
+  AoiMask,
+  HeightResource,
+  LayerPatch,
+  ResourceData,
+  SiteClass,
+} from "./types";
 
 export type ResourceLayerKey =
   | "cfIec3"
@@ -21,10 +27,22 @@ export type ResourceLayerKey =
   | "ws50"
   | "ws100"
   | "ws150"
+  | "pd50"
   | "pd100"
+  | "pd150"
   | "elevation";
 
 export type ResourcePatches = Record<ResourceLayerKey, LayerPatch>;
+
+/** The ws + pd layer key for each supported hub height (constants.ts order). */
+const HEIGHT_LAYER_KEYS: Record<
+  (typeof RESOURCE_HEIGHTS_M)[number],
+  { ws: ResourceLayerKey; pd: ResourceLayerKey }
+> = {
+  50: { ws: "ws50", pd: "pd50" },
+  100: { ws: "ws100", pd: "pd100" },
+  150: { ws: "ws150", pd: "pd150" },
+};
 
 // ── Pinned formula constants (plan §2.4 / VERIFIED.md §1) ──────────────────
 
@@ -192,48 +210,99 @@ function meanCapacityFactor(patch: LayerPatch, mask: AoiMask): number | null {
   return Math.max(0, meanOf(values));
 }
 
-interface DensityCorrectedPower {
-  powerDensity: number | null;
-  powerDensityRaw: number | null;
-  airDensity: number;
-}
-
-/**
- * Air-density correction (plan §2.4): ρ from the AOI mean elevation, applied
- * multiplicatively to the GWA power density (which assumes sea-level ρ).
- * Missing elevation degrades to sea level (correction becomes identity);
- * missing pd100 degrades both power fields to null — only ws100 is fatal.
- */
-function computeDensityCorrectedPower(
-  patches: ResourcePatches,
-  mask: AoiMask,
-): DensityCorrectedPower {
-  const elevations = collectInsideFinite(patches.elevation, mask);
+/** AOI mean-elevation air density (kg/m³), RAW (unrounded). Missing elevation
+ *  degrades to sea level so the density correction becomes the identity. */
+function aoiAirDensity(elevation: LayerPatch, mask: AoiMask): number {
+  const elevations = collectInsideFinite(elevation, mask);
   if (elevations.length === 0) {
     console.warn(
       "[resource] elevation layer empty in-mask; assuming sea level for the density correction",
     );
   }
   const meanElevation = elevations.length === 0 ? 0 : meanOf(elevations);
-  const airDensity = airDensityAtElevation(meanElevation);
+  return airDensityAtElevation(meanElevation);
+}
 
-  const rawValues = collectInsideFinite(patches.pd100, mask);
+interface CorrectedPowerDensity {
+  powerDensity: number | null;
+  powerDensityRaw: number | null;
+}
+
+/**
+ * Air-density correction (plan §2.4): the AOI mean GWA power density (which
+ * assumes sea-level ρ) scaled by (ρ_site / 1.225). An empty pd patch degrades
+ * both fields to null — the caller decides whether that is fatal (only the
+ * 100 m ws layer is). `airDensity` is the shared RAW value from aoiAirDensity.
+ */
+function correctPowerDensity(
+  pd: LayerPatch,
+  mask: AoiMask,
+  airDensity: number,
+): CorrectedPowerDensity {
+  const rawValues = collectInsideFinite(pd, mask);
   if (rawValues.length === 0) {
-    console.warn("[resource] pd_mean_hgt100m layer empty in-mask; power density unavailable");
-    return {
-      powerDensity: null,
-      powerDensityRaw: null,
-      airDensity: roundTo(airDensity, AIR_DENSITY_DECIMALS),
-    };
+    return { powerDensity: null, powerDensityRaw: null };
   }
   const powerDensityRaw = meanOf(rawValues);
   const powerDensity = powerDensityRaw * (airDensity / SEA_LEVEL_AIR_DENSITY_KG_M3);
-
   return {
     powerDensity: roundTo(powerDensity, POWER_DENSITY_DECIMALS),
     powerDensityRaw: roundTo(powerDensityRaw, POWER_DENSITY_DECIMALS),
-    airDensity: roundTo(airDensity, AIR_DENSITY_DECIMALS),
   };
+}
+
+interface SpeedStats {
+  meanSpeed: number;
+  minSpeed: number;
+  maxSpeed: number;
+  p25Speed: number;
+  p50Speed: number;
+  p75Speed: number;
+  areaExceedance90: number;
+}
+
+/**
+ * AOI wind-speed distribution stats (mean, min/max, quartiles, and the
+ * "90% of area exceeds" 10th percentile) for one ws layer. Returns null when
+ * the layer has zero finite in-mask pixels.
+ */
+function computeSpeedStats(ws: LayerPatch, mask: AoiMask): SpeedStats | null {
+  const values = collectInsideFinite(ws, mask);
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  return {
+    meanSpeed: roundTo(meanOf(values), SPEED_DECIMALS),
+    minSpeed: roundTo(sorted[0] ?? Number.NaN, SPEED_DECIMALS),
+    maxSpeed: roundTo(sorted[sorted.length - 1] ?? Number.NaN, SPEED_DECIMALS),
+    p25Speed: roundTo(percentileOfSorted(sorted, QUARTILE_LOWER), SPEED_DECIMALS),
+    p50Speed: roundTo(percentileOfSorted(sorted, QUARTILE_MEDIAN), SPEED_DECIMALS),
+    p75Speed: roundTo(percentileOfSorted(sorted, QUARTILE_UPPER), SPEED_DECIMALS),
+    areaExceedance90: roundTo(
+      percentileOfSorted(sorted, AREA_EXCEEDANCE_QUANTILE),
+      SPEED_DECIMALS,
+    ),
+  };
+}
+
+/**
+ * Per-hub-height resource block: speed stats + corrected power density at every
+ * height in RESOURCE_HEIGHTS_M that has wind data. A height whose ws layer is
+ * empty in-mask is skipped; its pd (if empty) degrades to null in place.
+ */
+function computeHeightResources(
+  patches: ResourcePatches,
+  mask: AoiMask,
+  airDensity: number,
+): HeightResource[] {
+  const out: HeightResource[] = [];
+  for (const heightM of RESOURCE_HEIGHTS_M) {
+    const keys = HEIGHT_LAYER_KEYS[heightM];
+    const stats = computeSpeedStats(patches[keys.ws], mask);
+    if (stats === null) continue;
+    const power = correctPowerDensity(patches[keys.pd], mask, airDensity);
+    out.push({ heightM, ...stats, ...power });
+  }
+  return out;
 }
 
 // ── Main entry point ────────────────────────────────────────────────────────
@@ -256,8 +325,6 @@ export function computeResource(
       "computeResource: zero valid ws_mean_hgt100m pixels inside the AOI mask",
     );
   }
-  const sortedWs100 = [...ws100Values].sort((a, b) => a - b);
-  const meanSpeed = roundTo(meanOf(ws100Values), SPEED_DECIMALS);
 
   const rawAlpha = fitShearAlpha([
     meanOf(collectInsideFinite(patches.ws50, mask)),
@@ -266,7 +333,24 @@ export function computeResource(
   ]);
   const shearAlpha = resolveShearAlpha(rawAlpha);
 
-  const power = computeDensityCorrectedPower(patches, mask);
+  // Air density (shared across heights) + the per-height ws/pd readouts. The
+  // 100 m entry is guaranteed present (ws100 checked non-empty above) and its
+  // values become the top-level basis for the score/CF/financials.
+  const airDensityRaw = aoiAirDensity(patches.elevation, mask);
+  const heights = computeHeightResources(patches, mask, airDensityRaw);
+  const h100 = heights.find((h) => h.heightM === 100);
+  if (h100 === undefined) {
+    throw new Error("computeResource: 100 m height resource missing despite ws100 pixels");
+  }
+  if (h100.powerDensity === null) {
+    console.warn("[resource] pd_mean_hgt100m layer empty in-mask; power density unavailable");
+  }
+  const meanSpeed = h100.meanSpeed;
+  const power = {
+    powerDensity: h100.powerDensity,
+    powerDensityRaw: h100.powerDensityRaw,
+    airDensity: roundTo(airDensityRaw, AIR_DENSITY_DECIMALS),
+  };
 
   const cfIec3 = meanCapacityFactor(patches.cfIec3, mask);
   if (cfIec3 === null) {
@@ -312,15 +396,12 @@ export function computeResource(
 
   return {
     meanSpeed,
-    minSpeed: roundTo(sortedWs100[0] ?? Number.NaN, SPEED_DECIMALS),
-    maxSpeed: roundTo(sortedWs100[sortedWs100.length - 1] ?? Number.NaN, SPEED_DECIMALS),
-    p25Speed: roundTo(percentileOfSorted(sortedWs100, QUARTILE_LOWER), SPEED_DECIMALS),
-    p50Speed: roundTo(percentileOfSorted(sortedWs100, QUARTILE_MEDIAN), SPEED_DECIMALS),
-    p75Speed: roundTo(percentileOfSorted(sortedWs100, QUARTILE_UPPER), SPEED_DECIMALS),
-    areaExceedance90: roundTo(
-      percentileOfSorted(sortedWs100, AREA_EXCEEDANCE_QUANTILE),
-      SPEED_DECIMALS,
-    ),
+    minSpeed: h100.minSpeed,
+    maxSpeed: h100.maxSpeed,
+    p25Speed: h100.p25Speed,
+    p50Speed: h100.p50Speed,
+    p75Speed: h100.p75Speed,
+    areaExceedance90: h100.areaExceedance90,
     powerDensity: power.powerDensity,
     powerDensityRaw: power.powerDensityRaw,
     airDensity: power.airDensity,
@@ -357,5 +438,6 @@ export function computeResource(
     weibull: weibull === null ? null : { A: weibull.A, k: weibull.k },
     indiaPercentile: indiaPercentile === null ? null : Math.round(indiaPercentile),
     siteClass: classifySite(meanSpeed),
+    heights,
   };
 }

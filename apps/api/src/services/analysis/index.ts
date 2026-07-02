@@ -5,7 +5,7 @@
  *   t0 ─┬─ grid     (independent: power tiles around the AOI)
  *       ├─ climate  (independent: flag-gated reanalysis at the centroid;
  *       │            skipped without a single log line when the flag is off)
- *       └─ resource (7 GWA patches ∥ Weibull COG means → mask → stats)
+ *       └─ resource (9 GWA patches ∥ Weibull COG means → mask → stats)
  *            └─ then, on the REMAINING budget:
  *                 ├─ validation (needs the AOI shear α for the mast delta)
  *                 └─ context    (reuses the elevation patch + AOI mask)
@@ -139,23 +139,26 @@ interface ResourceArtifacts {
   mask: AoiMask;
 }
 
-/** Section A: concurrent 7-layer fetch ∥ Weibull COG means → mask → stats. */
+/** Section A: concurrent 9-layer fetch ∥ Weibull COG means → mask → stats. */
 async function computeResourceData(
   aoi: ValidatedAoi,
   options: TileFetchOptions,
   onArtifacts: (artifacts: ResourceArtifacts) => void,
 ): Promise<ResourceData> {
   const patchesPromise = (async (): Promise<ResourcePatches> => {
-    const [cfIec3, cfIec2, ws50, ws100, ws150, pd100, elevation] = await Promise.all([
-      fetchLayerPatch(GWA_LAYERS.cfIec3, aoi.bbox, options),
-      fetchLayerPatch(GWA_LAYERS.cfIec2, aoi.bbox, options),
-      fetchLayerPatch(GWA_LAYERS.ws50, aoi.bbox, options),
-      fetchLayerPatch(GWA_LAYERS.ws100, aoi.bbox, options),
-      fetchLayerPatch(GWA_LAYERS.ws150, aoi.bbox, options),
-      fetchLayerPatch(GWA_LAYERS.pd100, aoi.bbox, options),
-      fetchLayerPatch(GWA_LAYERS.elevation, aoi.bbox, options),
-    ]);
-    return { cfIec3, cfIec2, ws50, ws100, ws150, pd100, elevation };
+    const [cfIec3, cfIec2, ws50, ws100, ws150, pd50, pd100, pd150, elevation] =
+      await Promise.all([
+        fetchLayerPatch(GWA_LAYERS.cfIec3, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.cfIec2, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.ws50, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.ws100, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.ws150, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.pd50, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.pd100, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.pd150, aoi.bbox, options),
+        fetchLayerPatch(GWA_LAYERS.elevation, aoi.bbox, options),
+      ]);
+    return { cfIec3, cfIec2, ws50, ws100, ws150, pd50, pd100, pd150, elevation };
   })();
 
   // Weibull runs against local COGs in parallel with the network fetches.

@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-02T10:02:22.390852+00:00",
+  "attribution": "Ministry of Defence wind-clearance maps \u2014 state-wise, 2024",
+  "bounds": [
+    68.153374,
+    7.218716,
+    85.882248,
+    30.994019
+  ],
+  "minzoom": 3,
+  "maxzoom": 10,
+  "tilePath": "/mod-zones/{z}/{x}/{y}.png",
+  "tileVersion": "1",
+  "tileCount": 706,
+  "categories": [
+    {
+      "key": "no_wtg",
+      "label": "No WTG Zone",
+      "desc": "No wind turbines permitted (defence restriction).",
+      "color": "#dc2626"
+    },
+    {
+      "key": "noc_required",
+      "label": "NOC to be obtained",
+      "desc": "Defence NOC (No Objection Certificate) required before development.",
+      "color": "#d97706"
+    },
+    {
+      "key": "noc_not_required",
+      "label": "NOC not required from MoD",
+      "desc": "No defence NOC required (subject to conditions \u2014 refer the MoD PDF).",
+      "color": "#16a34a"
+    }
+  ],
+  "states": [
+    {
+      "name": "AP state March 2024",
+      "bounds": [
+        75.601764,
+        11.881156,
+        85.882248,
+        19.890967
+      ],
+      "categories": [
+        "noc_not_required",
+        "no_wtg"
+      ]
+    },
+    {
+      "name": "Karnataka state Feb 2024",
+      "bounds": [
+        70.730191,
+        10.850333,
+        81.80873,
+        19.479365
+      ],
+      "categories": [
+        "noc_not_required",
+        "no_wtg"
+      ]
+    },
+    {
+      "name": "Maharastra state March 2024",
+      "bounds": [
+        71.66347,
+        14.891933,
+        82.022357,
+        22.735941
+      ],
+      "categories": [
+        "noc_not_required",
+        "noc_required",
+        "no_wtg"
+      ]
+    },
+    {
+      "name": "MP state March 2024",
+      "bounds": [
+        73.175333,
+        19.899919,
+        83.669384,
+        28.03099
+      ],
+      "categories": [
+        "noc_not_required"
+      ]
+    },
+    {
+      "name": "Rajasthan state March 2024",
+      "bounds": [
+        68.153374,
+        22.278989,
+        79.358451,
+        30.994019
+      ],
+      "categories": [
+        "noc_not_required",
+        "noc_required",
+        "no_wtg"
+      ]
+    },
+    {
+      "name": "TamilNadu state Feb 2024",
+      "bounds": [
+        73.767417,
+        7.218716,
+        82.614632,
+        14.026891
+      ],
+      "categories": [
+        "noc_not_required",
+        "noc_required",
+        "no_wtg"
+      ]
+    },
+    {
+      "name": "Telangana state March 2024",
+      "bounds": [
+        76.013109,
+        15.222444,
+        82.886225,
+        20.574681
+      ],
+      "categories": [
+        "noc_not_required"
+      ]
+    }
+  ]
+}

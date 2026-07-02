@@ -17,7 +17,7 @@ import {
  * tint drape onto the mesh automatically — no extra work.
  */
 
-export const DEFAULT_EXAGGERATION = 1.4; // gentle relief boost (research §1b)
+export const DEFAULT_EXAGGERATION = 2.5; // pronounced relief by default (== MAX)
 export const MIN_EXAGGERATION = 1;
 export const MAX_EXAGGERATION = 2.5;
 

@@ -84,6 +84,27 @@ export interface Section<T> {
 
 export type SiteClass = "excellent" | "good" | "moderate" | "marginal";
 
+/**
+ * Per-hub-height wind-resource readouts, all straight from GWA
+ * (ws_mean_hgt{h}m + pd_mean_hgt{h}m): the AOI-level speed stats and the
+ * air-density-corrected power density at ONE height `heightM`. The 100 m entry
+ * equals the top-level ResourceData speed/power fields by construction.
+ */
+export interface HeightResource {
+  heightM: number; // 50 | 100 | 150
+  meanSpeed: number;
+  minSpeed: number;
+  maxSpeed: number;
+  p25Speed: number;
+  p50Speed: number;
+  p75Speed: number;
+  areaExceedance90: number;
+  /** Air-density-corrected power density at this height (W/m²); null when the
+   *  pd layer is empty in-mask. Correction uses the shared AOI air density. */
+  powerDensity: number | null;
+  powerDensityRaw: number | null;
+}
+
 export interface ResourceData {
   meanSpeed: number;
   minSpeed: number;
@@ -131,6 +152,10 @@ export interface ResourceData {
   weibull: { A: number; k: number } | null;
   indiaPercentile: number | null;
   siteClass: SiteClass;
+  /** Wind speed + power density at each supported hub height (50/100/150 m),
+   *  for the height dropdown. null when the extra pd layers were unavailable;
+   *  the top-level fields always carry the 100 m values regardless. */
+  heights: HeightResource[] | null;
 }
 
 export interface ClimateRoseSector {

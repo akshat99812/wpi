@@ -20,7 +20,6 @@ const ACTIVE_GLOW: Partial<Record<BasemapId, { from: string; to: string; text: s
   satellite: { from: '#ff9a3c', to: '#ff7a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.55)' },
   terrain:   { from: '#ffb066', to: '#ff8a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.50)' },
   wind:      { from: '#67e8f9', to: '#22d3ee', text: '#06121a', shadow: 'rgba(34,211,238,0.60)' },
-  windflow:  { from: '#a5f3fc', to: '#22d3ee', text: '#06121a', shadow: 'rgba(34,211,238,0.55)' },
   street:    { from: '#ffd0a0', to: '#ff8a1f', text: '#0a0e18', shadow: 'rgba(255,138,31,0.50)' },
 };
 

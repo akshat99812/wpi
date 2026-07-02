@@ -21,7 +21,6 @@ import { useWindLayer }       from './hooks/useWindLayer';
 // UI
 import { BasemapSwitcher }    from './components/BasemapSwitcher';
 import { WindScale }          from './components/WindScale';
-import { WindFlowOverlay }    from './components/WindFlowOverlay';
 import { StateTooltip }       from './components/StateTooltip';
 import { CursorReadoutBar }   from './components/CursorReadout';
 import { FullscreenButton }   from './components/FullscreenButton';
@@ -193,10 +192,6 @@ export default function MapCanvas({
             : { duration: 0.18, ease: 'easeOut' }
         }
       />
-
-      {/* Animated wind-particle flow — only while the "Wind flow" basemap is
-          active. A transparent canvas overlay + legend; self-contained. */}
-      <WindFlowOverlay map={mapRef.current} active={mode === 'windflow'} />
 
       {/* Top-left: basemap switcher */}
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">

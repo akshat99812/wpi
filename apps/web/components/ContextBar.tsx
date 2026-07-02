@@ -12,7 +12,6 @@ const MODE_LABELS: Record<BasemapId, string> = {
   satellite: 'Satellite',
   terrain:   'Terrain',
   wind:      'Wind',
-  windflow:  'Wind flow',
   street:    'Street',
   pro:       'Pro',
 };

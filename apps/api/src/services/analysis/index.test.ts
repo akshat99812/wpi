@@ -25,7 +25,9 @@ const LAYER_VALUES: Record<string, number> = {
   ws_mean_hgt50m: 7.0,
   ws_mean_hgt100m: 8.0,
   ws_mean_hgt150m: 8.7,
+  pd_mean_hgt50m: 350,
   pd_mean_hgt100m: 500,
+  pd_mean_hgt150m: 620,
   elevation: 100,
 };
 
@@ -139,6 +141,22 @@ test("computes resource stats from the constant layers", async () => {
   expect(data.cfIec3).toBe(LAYER_VALUES.cf_iec3 as number);
   expect(data.cfIec2).toBe(LAYER_VALUES.cf_iec2 as number);
   expect(data.siteClass).toBe("excellent");
+
+  // Per-height block: all three heights, each carrying its own GWA ws + pd.
+  expect(data.heights).not.toBeNull();
+  const heights = data.heights ?? [];
+  expect(heights.map((h) => h.heightM)).toEqual([50, 100, 150]);
+  expect(heights.find((h) => h.heightM === 50)?.meanSpeed).toBe(
+    LAYER_VALUES.ws_mean_hgt50m as number,
+  );
+  expect(heights.find((h) => h.heightM === 150)?.meanSpeed).toBe(
+    LAYER_VALUES.ws_mean_hgt150m as number,
+  );
+  // 100 m entry equals the top-level basis.
+  expect(heights.find((h) => h.heightM === 100)?.meanSpeed).toBe(data.meanSpeed);
+  // Power density present at every height (ρ correction ≈ identity at 100 m elev).
+  expect(heights.find((h) => h.heightM === 50)?.powerDensityRaw).toBe(350);
+  expect(heights.find((h) => h.heightM === 150)?.powerDensityRaw).toBe(620);
 });
 
 test("wires resource + grid into the 2-component score; financials present; confidence mirrors validation", async () => {

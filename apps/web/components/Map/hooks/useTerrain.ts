@@ -52,7 +52,10 @@ export interface TerrainControls {
 export function useTerrain(): TerrainControls {
   const mapRef = useRef<MlMap | null>(null);
 
-  const [enabled, setEnabledState] = useState(false);
+  // 3D terrain is ON by default — the Pro map opens in a tilted 2.5D/3D view
+  // (enableTerrain also eases the camera to a 60° pitch). The elevation tint
+  // stays off by default.
+  const [enabled, setEnabledState] = useState(true);
   const [exaggeration, setExaggerationState] = useState(DEFAULT_EXAGGERATION);
   const [tintEnabled, setTintEnabledState] = useState(false);
   const [tintOpacity, setTintOpacityState] = useState(DEFAULT_TINT_OPACITY);
@@ -82,13 +85,21 @@ export function useTerrain(): TerrainControls {
   const onMapLoad = useCallback((map: MlMap) => {
     registerDemProtocol();
     mapRef.current = map;
-    // Re-apply current state on a freshly (re)created map — e.g. a session
-    // refresh tore down + rebuilt the map (page.tsx). Default state is all off,
-    // so this is a no-op on first load.
-    if (enabledRef.current) enableTerrain(map, exaggerationRef.current);
-    if (tintEnabledRef.current) {
-      addElevationTint(map, { opacity: tintOpacityRef.current });
-    }
+    // Apply the current terrain/tint state on load — both on first mount
+    // (terrain defaults ON) and on a freshly re-created map after a session
+    // refresh (page.tsx). Deferred to `idle` when the style isn't settled:
+    // the load handler has just added several sources, so isStyleLoaded() is
+    // transiently false and enableTerrain's ready-guard would otherwise bail.
+    const applyInitial = () => {
+      const m = mapRef.current;
+      if (!m) return;
+      if (enabledRef.current) enableTerrain(m, exaggerationRef.current);
+      if (tintEnabledRef.current) {
+        addElevationTint(m, { opacity: tintOpacityRef.current });
+      }
+    };
+    if (map.isStyleLoaded()) applyInitial();
+    else map.once("idle", applyInitial);
   }, []);
 
   const setEnabled = useCallback(

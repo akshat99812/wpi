@@ -21,8 +21,12 @@
  *  the 2-component CUF-anchored index (resource 72 / grid 28) from windScoring;
  *  response gains PART B financials (equity/project IRR, LCOE, payback, NPV) +
  *  a Monte-Carlo IRR band (windFinance). The CF-engine net-CF/Weibull/exceedance
- *  is retained as displayed detail but no longer feeds the score. */
-export const ANALYSIS_VERSION = "11.0.0";
+ *  is retained as displayed detail but no longer feeds the score.
+ *  11.1.0: resource section gains a per-hub-height block (resource.heights) with
+ *  wind-speed stats + air-density-corrected power density at 50/100/150 m, all
+ *  from GWA (ws_mean_hgt{50,100,150}m + pd_mean_hgt{50,100,150}m). The top-level
+ *  fields remain the 100 m basis the score/CF/financials anchor to. */
+export const ANALYSIS_VERSION = "11.1.0";
 
 /**
  * Sampling zoom for all GWA raster layers. Verified: z9 gives only 256 valid
@@ -46,17 +50,26 @@ export const GWA_TILER_BASE =
     ? process.env.GWA_TILER_BASE
     : "https://tiles-stag.ramtt.xyz/titiler/gwa4";
 
-/** Verified GWA layer names (VERIFIED.md §1). Units in comments. */
+/** Verified GWA layer names (VERIFIED.md §1). Units in comments.
+ *  pd50/pd150 confirmed live on the same tiler (200 OK) 2026-07-01 — power
+ *  density is served at every hub height the wind-speed layers are. */
 export const GWA_LAYERS = {
   cfIec3: "cf_iec3", // capacity factor, fraction 0–1 (clamp ≥0: tiny negatives exist)
   cfIec2: "cf_iec2", // capacity factor, fraction 0–1
   ws50: "ws_mean_hgt50m", // m/s
   ws100: "ws_mean_hgt100m", // m/s
   ws150: "ws_mean_hgt150m", // m/s
+  pd50: "pd_mean_hgt50m", // W/m²
   pd100: "pd_mean_hgt100m", // W/m²
+  pd150: "pd_mean_hgt150m", // W/m²
   rix: "rix", // ruggedness fraction; nodata over flat terrain ⇒ treat NaN as 0
   elevation: "elevation", // m ASL
 } as const;
+
+/** Hub heights (m) the resource section reports wind speed + power density at.
+ *  Kept in ascending order; the 100 m entry is the basis for the score/CF. */
+export const RESOURCE_HEIGHTS_M = [50, 100, 150] as const;
+export type ResourceHeightM = (typeof RESOURCE_HEIGHTS_M)[number];
 
 export type GwaLayer = (typeof GWA_LAYERS)[keyof typeof GWA_LAYERS];
 

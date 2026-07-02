@@ -14,7 +14,7 @@
  *   once into that cache, analysis stops depending on GWA's live tiler.
  *
  * WHAT
- *   Walks the India bbox tile cover at ANALYSIS_ZOOM (z10) for all 7 GWA layers
+ *   Walks the India bbox tile cover at ANALYSIS_ZOOM (z10) for all 9 GWA layers
  *   and fills {cacheDir}/gwa/{layer}/10/{x}/{y}.tif via the SAME loadTile() the
  *   analyzer uses — identical layout + decode validation, zero drift.
  *

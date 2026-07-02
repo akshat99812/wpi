@@ -41,7 +41,9 @@ function syntheticPatches(overrides: Partial<ResourcePatches> = {}): ResourcePat
     ws100: patchOf(ws100),
     ws50: patchOf(ws100.map((v) => v * 0.5 ** alpha)),
     ws150: patchOf(ws100.map((v) => v * 1.5 ** alpha)),
+    pd50: patchOf([200, 200, 200, 200]),
     pd100: patchOf([400, 400, 400, 400]),
+    pd150: patchOf([550, 550, 550, 550]),
     elevation: patchOf([1500, 1500, 1500, 1500]),
     cfIec3: patchOf([0.4, 0.45, 0.5, 0.55]),
     cfIec2: patchOf([0.35, 0.4, 0.45, 0.5]),
@@ -193,6 +195,65 @@ describe("computeResource", () => {
     // 9.5 m/s is near the top of the India distribution (committed artifact).
     expect(result.indiaPercentile).toBeGreaterThanOrEqual(90);
     expect(result.indiaPercentile).toBeLessThanOrEqual(100);
+  });
+
+  test("emits a per-height block (50/100/150 m) with ascending mean speeds", () => {
+    const result = computeResource(syntheticPatches(), maskAllInside(), null);
+
+    expect(result.heights).not.toBeNull();
+    const heights = result.heights ?? [];
+    expect(heights.map((h) => h.heightM)).toEqual([50, 100, 150]);
+
+    const [h50, h100, h150] = heights;
+    // Real shear ⇒ speed rises with height.
+    expect(h50!.meanSpeed).toBeLessThan(h100!.meanSpeed);
+    expect(h100!.meanSpeed).toBeLessThan(h150!.meanSpeed);
+
+    // The 100 m entry MUST equal the top-level basis the score anchors to.
+    expect(h100!.meanSpeed).toBe(result.meanSpeed);
+    expect(h100!.minSpeed).toBe(result.minSpeed);
+    expect(h100!.p25Speed).toBe(result.p25Speed);
+    expect(h100!.p75Speed).toBe(result.p75Speed);
+    expect(h100!.areaExceedance90).toBe(result.areaExceedance90);
+    expect(h100!.powerDensity).toBe(result.powerDensity);
+    expect(h100!.powerDensityRaw).toBe(result.powerDensityRaw);
+  });
+
+  test("air-density-corrects each height's power density with the shared ρ", () => {
+    const result = computeResource(syntheticPatches(), maskAllInside(), null);
+    const heights = result.heights ?? [];
+
+    // ρ at 1500 m ≈ 1.0222; correction factor 1.0222/1.225 ≈ 0.8344.
+    // raw pd 200/400/550 → ~167/334/459 (0 dp).
+    expect(heights.find((h) => h.heightM === 50)?.powerDensityRaw).toBe(200);
+    expect(heights.find((h) => h.heightM === 50)?.powerDensity).toBe(167);
+    expect(heights.find((h) => h.heightM === 150)?.powerDensityRaw).toBe(550);
+    expect(heights.find((h) => h.heightM === 150)?.powerDensity).toBe(459);
+  });
+
+  test("degrades one height's power density to null when its pd layer is empty", () => {
+    const nanPatch = patchOf([Number.NaN, Number.NaN, Number.NaN, Number.NaN]);
+    const result = computeResource(
+      syntheticPatches({ pd50: nanPatch }),
+      maskAllInside(),
+      null,
+    );
+    const h50 = (result.heights ?? []).find((h) => h.heightM === 50);
+    expect(h50).toBeDefined();
+    // Speed still present; only power density degrades.
+    expect(h50!.meanSpeed).toBeGreaterThan(0);
+    expect(h50!.powerDensity).toBeNull();
+    expect(h50!.powerDensityRaw).toBeNull();
+  });
+
+  test("skips a height whose wind layer is empty in-mask", () => {
+    const nanPatch = patchOf([Number.NaN, Number.NaN, Number.NaN, Number.NaN]);
+    const result = computeResource(
+      syntheticPatches({ ws50: nanPatch }),
+      maskAllInside(),
+      null,
+    );
+    expect((result.heights ?? []).map((h) => h.heightM)).toEqual([100, 150]);
   });
 
   test("clamps a negative CF mean (resampling artifact) to 0", () => {
